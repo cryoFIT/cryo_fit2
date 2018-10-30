@@ -1,5 +1,0 @@
-Input command: phenix.cryo_fit2 /Users/doonam/bin/phenix-1.14-3260/modules/cryo_fit2/regression/input/tst_cryo_fit2_model.pdb /Users/doonam/bin/phenix-1.14-3260/modules/cryo_fit2/regression/input/tst_cryo_fit2_map.ccp4 start_temperature=500 final_temperature=300 cool_rate=50 number_of_steps=1000 wx=1 secondary_structure.enabled=False
-
-initial CC: 0.471
-final   CC: 0.471
-cryo_fit2 finished in 0.59 seconds (wallclock).
