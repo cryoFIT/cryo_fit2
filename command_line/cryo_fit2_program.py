@@ -1,13 +1,20 @@
 from __future__ import division, print_function
 import iotbx.pdb
+
+import iotbx.phil
+
+from libtbx.phil import change_default_phil_values
+
+
 import libtbx.phil
+
 import libtbx.phil.command_line
 from libtbx import phil
 from libtbx.utils import multi_out
 from libtbx.utils import Sorry
 from libtbx import easy_pickle
+
 import mmtbx
-#from fitter import cryo_fit2
 import cryo_fit2_run
 import os, sys, time
 
@@ -36,7 +43,8 @@ citation {
 ''')
 
 
-master_phil_str = '''
+
+base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
 start_temperature = 500
   .type = int
@@ -65,6 +73,12 @@ include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # t
 ''' ############## end of master_phil_str
 
 
+new_default = 'pdb_interpretation.secondary_structure.enabled = True'
+
+modified_master_phil_str = change_default_phil_values(
+  base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+
+
 class Program(ProgramTemplate):
 
   description = '''
@@ -84,20 +98,19 @@ Options:
   number_of_steps              (default: 1,000)
   wx                           (cryo-EM map weight, default: 1)
   keep_origin                  (default: True)
-  secondary_structure.enabled  (default: False) If HELIX/SHEET records are present in supplied .pdb file, automatic search will not be executed.
+  secondary_structure.enabled  (default: True) Most MD simulations tend to break secondary structure. Therefore, turning on this option is recommended. If HELIX/SHEET records are present in supplied .pdb file, automatic search of the existing secondary structures in the given input pdb file will not be executed.
   output_dir                   (output folder prefix, default: output)
 '''
-  #secondary_structure.enabled  (default: True (unless secondary_structure.enabled = force_false)) If HELIX/SHEET records are present in supplied .pdb file, automatic search will not be executed.
 
   datatypes = ['model', 'real_map', 'phil']
   citations = program_citations
-  master_phil_str = master_phil_str # this is ESSENTIAL to avoid
+  master_phil_str = modified_master_phil_str # this is ESSENTIAL to avoid
   '''
      Sorry: Some PHIL parameters are not recognized by phenix.cryo_fit2.
      Please run this program with the --show-defaults option to see what parameters are available.
      PHIL parameters in files should be fully specified (e.g. "output.overwrite" instead of just "overwrite")
   '''
-  
+    
   # ---------------------------------------------------------------------------
   def validate(self):
     print('Validating inputs', file=self.logger)
@@ -121,15 +134,8 @@ Options:
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
     
-    # print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
-    # if (self.params.pdb_interpretation.secondary_structure.enabled != "force_false"):
-    #   print ("Unless self.params.pdb_interpretation.secondary_structure.enabled = force_false, self.params.pdb_interpretation.secondary_structure.enabled = True by default")
-    #   self.params.pdb_interpretation.secondary_structure.enabled = True
-    
-    ###################### this later assignment of self.params.pdb_interpretation.secondary_structure.enabled = True didn't work
-    
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
-    
+   
     log = multi_out()
     out=sys.stdout
     log.register("stdout", out)
@@ -138,7 +144,6 @@ Options:
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     log.register("logfile", logfile)
     
-    #task_obj = mmtbx.fitter.cryo_fit2.cryo_fit2_class(
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model,
       model_name        = self.data_manager.get_default_model_name(),

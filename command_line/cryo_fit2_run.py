@@ -5,6 +5,7 @@ from libtbx.utils import Sorry
 from iotbx import map_and_model
 import mmtbx.utils, os
 from mmtbx.dynamics import simulated_annealing as sa
+import shutil
 
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
@@ -95,6 +96,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
     command = "mv " + output_pdb_file_name + " " + input_pdb_file_name
     libtbx.easy_run.call(command)
 ################################## end of return_to_origin_of_pdb_file ()
+
 
 class cryo_fit2_class(object):
   def __init__(self, model, model_name, map_inp, params, out, map_name, logfile):
@@ -214,9 +216,9 @@ class cryo_fit2_class(object):
                  "_cc_" + str(cc)
     
     if os.path.exists(output_dir):
-        print ("")
-    else:
-        os.makedirs(output_dir)
+        shutil.rmtree(output_dir)
+        
+    os.makedirs(output_dir)
     
     all_state_file = os.path.join(output_dir, "all_states.pdb")
     states.write(file_name = all_state_file)
