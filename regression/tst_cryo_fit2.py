@@ -10,7 +10,6 @@ for i in range(len(splited)-3):
 command_path = command_path + "modules/cryo_fit2/"
 command_line_path = command_path + "command_line/"
 sys.path.insert(0, command_line_path)
-print ("sys.path:",sys.path)
 
 import cryo_fit2_program
 from iotbx.file_reader import any_file

@@ -34,5 +34,8 @@ if (__name__ == "__main__") :
     print "command_string:", command_string
     rc = libtbx.easy_run.call(command=command_string)
     assert rc==0
+    
+    rm_command_string = "rm -r cryo_fit2.input_command.txt output_start_*"
+    libtbx.easy_run.fully_buffered(rm_command_string)
 
     
