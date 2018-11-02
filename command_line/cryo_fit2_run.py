@@ -18,8 +18,9 @@ def calculate_cc(map_data, model, resolution):
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_cc function
 
+
 def know_how_much_map_origin_moved(map_file_name):
-    print ("Know map origin")
+    print ("Know how much map origin moved")
     
     # Compute a target map
     from iotbx import ccp4_map
@@ -48,6 +49,7 @@ def know_how_much_map_origin_moved(map_file_name):
         shifted_in_z = target_map_data.origin()[2]
         return widthx, shifted_in_x, shifted_in_y, shifted_in_z     
 ############## end of know_how_much_map_origin_moved function
+
 
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
     move_x_by = move_x_by*widthx
@@ -152,7 +154,8 @@ class cryo_fit2_class(object):
     
     # because of params = sa.master_params().extract() above, wx and secondary_structure_enabled are dealt without "params"
     wx = self.params.wx
-    secondary_structure_enabled = self.params.pdb_interpretation.secondary_structure.enabled
+    ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
+    remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
     
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.model_name + " " + self.map_name + " " \
                               + "start_temperature=" + str(params.start_temperature) + " " \
@@ -160,7 +163,8 @@ class cryo_fit2_class(object):
                               + "cool_rate=" + str(params.cool_rate) + " " \
                               + "number_of_steps=" + str(params.number_of_steps) + " " \
                               + "wx=" + str(wx) + " " \
-                              + "secondary_structure.enabled=" + str(secondary_structure_enabled) + "\n"
+                              + "secondary_structure.enabled=" + str(ss_restraints) + " " \
+                              + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + "\n"
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)
     
     splited = self.model_name.split("/")
@@ -212,7 +216,8 @@ class cryo_fit2_class(object):
                  "_cool_" + str(params.cool_rate) + \
                  "_step_" + str(params.number_of_steps) + \
                  "_wx_" + str(wx) + \
-                 "_ss_" + str(secondary_structure_enabled) + \
+                 "_ss_" + str(ss_restraints) + \
+                 "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints) + \
                  "_cc_" + str(cc)
     
     if os.path.exists(output_dir):

@@ -1,13 +1,12 @@
+######to do list
+# To run cryo_fit2 at windows as well, replace all unix command like libtbx.easy_run.fully_buffered
+
 from __future__ import division, print_function
 import iotbx.pdb
-
 import iotbx.phil
 
 from libtbx.phil import change_default_phil_values
-
-
 import libtbx.phil
-
 import libtbx.phil.command_line
 from libtbx import phil
 from libtbx.utils import multi_out
@@ -70,7 +69,7 @@ keep_origin = True
             If False, shift origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
-''' ############## end of master_phil_str
+''' ############## end of base_master_phil_str
 
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
@@ -99,6 +98,7 @@ Options:
   wx                           (cryo-EM map weight, default: 1)
   keep_origin                  (default: True)
   secondary_structure.enabled  (default: True) Most MD simulations tend to break secondary structure. Therefore, turning on this option is recommended. If HELIX/SHEET records are present in supplied .pdb file, automatic search of the existing secondary structures in the given input pdb file will not be executed.
+  secondary_structure.protein.remove_outliers (default: True) False may be useful for very poor low-resolution structures
   output_dir                   (output folder prefix, default: output)
 '''
 
@@ -135,7 +135,8 @@ Options:
     map_inp = self.data_manager.get_real_map()
     
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
-   
+    print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
+    
     log = multi_out()
     out=sys.stdout
     log.register("stdout", out)
