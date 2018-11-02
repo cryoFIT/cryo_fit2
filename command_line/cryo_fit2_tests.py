@@ -10,7 +10,7 @@ from subprocess import check_output
 import libtbx.load_env
 import shutil
 
-cryo_fit2_repository_dir = libtbx.env.dist_path("cryo_fit2") # # Locate phenix.cryo_fit.run_tests executable
+cryo_fit2_repository_dir = libtbx.env.dist_path("cryo_fit2") # Locate phenix.cryo_fit.run_tests executable
 
 if (__name__ == "__main__") :
 
