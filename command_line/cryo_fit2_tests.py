@@ -1,4 +1,4 @@
-# LIBTBX_SET_DISPATCHER_NAME phenix.cryo_fit2.run_tests
+# LIBTBX_SET_DISPATCHER_NAME cryo_fit2.run_tests
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH PHENIX_GUI_ENVIRONMENT=1
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export PHENIX_GUI_ENVIRONMENT
 
@@ -15,9 +15,9 @@ cryo_fit2_repository_dir = libtbx.env.dist_path("cryo_fit2") # # Locate phenix.c
 if (__name__ == "__main__") :
 
     assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory' # added by Nigel so that this test runs in a clear path
-    
+
 #    print "This phenix.cryo_fit2.run_tests executable comes from ", cryo_fit2_repository_dir
-    
+
     splited = cryo_fit2_repository_dir.split("/")
     regression_path = ''
     for i in range(len(splited)-1):
@@ -29,13 +29,13 @@ if (__name__ == "__main__") :
                                      'regression')
     print "regression_path:", regression_path
     os.chdir(regression_path)
-    
+
     command_string = "python tst_cryo_fit2.py" % locals()
     print "command_string:", command_string
     rc = libtbx.easy_run.call(command=command_string)
     assert rc==0
-    
+
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_start_*"
     libtbx.easy_run.fully_buffered(rm_command_string)
 
-    
+
