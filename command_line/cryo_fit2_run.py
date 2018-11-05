@@ -5,7 +5,6 @@ from libtbx.utils import Sorry
 from iotbx import map_and_model
 import mmtbx.utils, os
 from mmtbx.dynamics import simulated_annealing as sa
-import shutil
 
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
