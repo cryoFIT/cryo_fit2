@@ -185,7 +185,7 @@ Options:
       output_dir        = output_dir)
     
     task_obj.validate()
-    task_obj.run()
+    output_dir = task_obj.run()
     
     time_total_end = time.time()
     time_took = show_time(time_total_start, time_total_end)

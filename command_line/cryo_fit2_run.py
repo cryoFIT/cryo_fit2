@@ -215,4 +215,8 @@ class cryo_fit2_class(object):
         print (write_this)
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
+    
+    output_dir = str(self.output_dir) + "_CC_" + str(cc) 
+    
+    return output_dir
 ############# end of run function
