@@ -15,7 +15,7 @@ from libtbx import easy_pickle
 
 import mmtbx
 import cryo_fit2_run
-import os, sys, time
+import os, shutil, sys, time
 
 try:
   from phenix.program_template import ProgramTemplate # at Doonam's laptop, phenix.program_template works
@@ -141,7 +141,36 @@ Options:
     out=sys.stdout
     log.register("stdout", out)
     
-    log_file_name = "cryo_fit2.overall_log.txt"
+    splited = self.data_manager.get_default_model_name().split("/")
+    model_name_wo_path = splited [len(splited)-1]
+    
+    if (model_name_wo_path == "tst_cryo_fit2_model.pdb"):
+        self.params.start_temperature = 500
+        self.params.final_temperature = 300
+        self.params.cool_rate = 100
+        self.params.number_of_steps = 1
+    
+    ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
+    remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
+    
+    # name output_dir
+    output_dir_prefix = self.params.output_dir
+    output_dir = str(output_dir_prefix) + \
+                 "_start_" + str(self.params.start_temperature) + \
+                 "_final_" + str(self.params.final_temperature) + \
+                 "_cool_" + str(self.params.cool_rate) + \
+                 "_step_" + str(self.params.number_of_steps) + \
+                 "_wx_" + str(self.params.wx) + \
+                 "_ss_" + str(ss_restraints) + \
+                 "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints)
+    
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+        
+    os.makedirs(output_dir)
+    
+    log_file_name = os.path.join(output_dir, "cryo_fit2.overall_log.txt")
+    
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     log.register("logfile", logfile)
     
@@ -152,10 +181,11 @@ Options:
       params            = self.params,
       out               = self.logger,
       map_name          = self.data_manager.get_default_real_map_name(),
-      logfile           = logfile)
+      logfile           = logfile,
+      output_dir        = output_dir)
     
     task_obj.validate()
-    output_dir = task_obj.run()
+    task_obj.run()
     
     time_total_end = time.time()
     time_took = show_time(time_total_start, time_total_end)

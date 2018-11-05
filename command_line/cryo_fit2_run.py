@@ -101,7 +101,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 
 
 class cryo_fit2_class(object):
-  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile):
+  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir):
     self.model             = model
     self.model_name        = model_name
     self.map_inp           = map_inp
@@ -109,6 +109,7 @@ class cryo_fit2_class(object):
     self.out               = out
     self.map_name          = map_name
     self.logfile           = logfile
+    self.output_dir        = output_dir
 
   def validate(self): # this functions runs
     assert not None in [self.model, self.params, self.out]
@@ -167,14 +168,6 @@ class cryo_fit2_class(object):
                               + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + "\n"
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)
     
-    splited = self.model_name.split("/")
-    model_name_wo_path = splited [len(splited)-1]
-    
-    if (model_name_wo_path == "tst_cryo_fit2_model.pdb"):
-        params.start_temperature = 500
-        params.final_temperature = 300
-        params.cool_rate = 100
-        params.number_of_steps = 1
     
     input_command_file = open("cryo_fit2.input_command.txt", "w")
     input_command_file.write(str(cryo_fit2_input_command))
@@ -207,30 +200,13 @@ class cryo_fit2_class(object):
     
     print('%s' %(final_CC))
     self.logfile.write(str(final_CC))
-     
-    # rename output_dir
-    output_dir_prefix = self.params.output_dir
-    output_dir = str(output_dir_prefix) + \
-                 "_start_" + str(params.start_temperature) + \
-                 "_final_" + str(params.final_temperature) + \
-                 "_cool_" + str(params.cool_rate) + \
-                 "_step_" + str(params.number_of_steps) + \
-                 "_wx_" + str(wx) + \
-                 "_ss_" + str(ss_restraints) + \
-                 "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints) + \
-                 "_cc_" + str(cc)
     
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-        
-    os.makedirs(output_dir)
-    
-    all_state_file = os.path.join(output_dir, "all_states.pdb")
+    all_state_file = os.path.join(self.output_dir, "all_states.pdb")
     states.write(file_name = all_state_file)
     
     self.model.set_xray_structure(result.xray_structure)
     
-    fitted_file = os.path.join(output_dir, "cryo_fit2_fitted.pdb")
+    fitted_file = os.path.join(self.output_dir, "cryo_fit2_fitted.pdb")
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
       returned = know_how_much_map_origin_moved(str(self.map_name))
@@ -240,6 +216,4 @@ class cryo_fit2_class(object):
         print (write_this)
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
-    
-    return output_dir
 ############# end of run function
