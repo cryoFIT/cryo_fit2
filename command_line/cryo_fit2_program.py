@@ -167,9 +167,7 @@ Options:
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
         
-    os.makedirs(output_dir)
-    
-    log_file_name = os.path.join(output_dir, "cryo_fit2.overall_log.txt")
+    log_file_name = "cryo_fit2.overall_log.txt"
     
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     log.register("logfile", logfile)
@@ -185,7 +183,7 @@ Options:
       output_dir        = output_dir)
     
     task_obj.validate()
-    output_dir = task_obj.run()
+    output_dir_w_CC = task_obj.run()
     
     time_total_end = time.time()
     time_took = show_time(time_total_start, time_total_end)
@@ -195,6 +193,6 @@ Options:
     logfile.write("\n")
     logfile.close()
     
-    mv_command_string = "mv " + log_file_name + " " + output_dir
+    mv_command_string = "mv " + log_file_name + " " + output_dir_w_CC
     libtbx.easy_run.fully_buffered(mv_command_string)
     

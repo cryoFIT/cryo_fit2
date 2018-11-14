@@ -167,7 +167,6 @@ class cryo_fit2_class(object):
                               + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + "\n"
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)
     
-    
     input_command_file = open("cryo_fit2.input_command.txt", "w")
     input_command_file.write(str(cryo_fit2_input_command))
     input_command_file.close()
@@ -196,16 +195,17 @@ class cryo_fit2_class(object):
     # to avoid "Miller index not in structure factor map" error, set resolution as poor as 50 Angstrom
     # for Adenylate Kinase
     final_CC = "final   CC: " + str(cc) + "\n"
+    output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
     
     print('%s' %(final_CC))
     self.logfile.write(str(final_CC))
     
-    all_state_file = os.path.join(self.output_dir, "all_states.pdb")
+    all_state_file = os.path.join(output_dir_w_CC, "all_states.pdb")
     states.write(file_name = all_state_file)
     
     self.model.set_xray_structure(result.xray_structure)
     
-    fitted_file = os.path.join(self.output_dir, "cryo_fit2_fitted.pdb")
+    fitted_file = os.path.join(output_dir_w_CC, "cryo_fit2_fitted.pdb")
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
       returned = know_how_much_map_origin_moved(str(self.map_name))
@@ -216,7 +216,5 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
     
-    output_dir = str(self.output_dir) + "_CC_" + str(cc) 
-    
-    return output_dir
+    return output_dir_w_CC
 ############# end of run function
