@@ -189,7 +189,8 @@ class cryo_fit2_class(object):
       real_space         = True,
       wx                 = wx, # weight for cryo-EM map, wx=5 broke helix conformation of tst_00_poor.pdb, wx=100 kept helix well
       wc                 = 1, # weight for stereochemistry/correct conformation
-      states_collector   = states)
+      states_collector   = states,
+      log                = self.logfile)
     
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
     # to avoid "Miller index not in structure factor map" error, set resolution as poor as 50 Angstrom
