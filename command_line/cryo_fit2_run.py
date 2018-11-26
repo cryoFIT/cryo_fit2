@@ -5,6 +5,7 @@ from libtbx.utils import Sorry
 from iotbx import map_and_model
 import mmtbx.utils, os
 from mmtbx.dynamics import simulated_annealing as sa
+import shutil
 
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
@@ -197,6 +198,9 @@ class cryo_fit2_class(object):
     # for Adenylate Kinase
     final_CC = "final   CC: " + str(cc) + "\n"
     output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
+    if os.path.exists(output_dir_w_CC):
+      shutil.rmtree(output_dir_w_CC)
+    os.mkdir(output_dir_w_CC)
     
     print('%s' %(final_CC))
     self.logfile.write(str(final_CC))

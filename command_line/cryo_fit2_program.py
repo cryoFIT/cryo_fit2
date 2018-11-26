@@ -145,10 +145,10 @@ Options:
     model_name_wo_path = splited [len(splited)-1]
     
     if (model_name_wo_path == "tst_cryo_fit2_model.pdb"):
-        self.params.start_temperature = 500
-        self.params.final_temperature = 300
-        self.params.cool_rate = 100
-        self.params.number_of_steps = 1
+      self.params.start_temperature = 500
+      self.params.final_temperature = 300
+      self.params.cool_rate = 100
+      self.params.number_of_steps = 1
     
     ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
     remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
@@ -162,12 +162,9 @@ Options:
                  "_step_" + str(self.params.number_of_steps) + \
                  "_wx_" + str(self.params.wx) + \
                  "_ss_" + str(ss_restraints) + \
-                 "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints)
+                 "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints)   
     
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-        
-    log_file_name = "cryo_fit2.overall_log.txt"
+    log_file_name = "cryo_fit2.log"
     
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     log.register("logfile", logfile)
