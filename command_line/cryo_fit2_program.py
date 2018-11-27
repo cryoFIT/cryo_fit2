@@ -54,7 +54,7 @@ final_temperature = 300
 cool_rate = 50
   .type = int
   .short_caption = cooling rate of annealing in Kelvin
-number_of_steps = 1000
+number_of_steps = 10
   .type = int
   .short_caption = number_of_steps in phenix.dynamics
 wx = 1
@@ -94,7 +94,7 @@ Options:
   start_temperature            (default: 500)
   final_temperature            (default: 300)
   cool_rate                    (default: 50)
-  number_of_steps              (default: 1,000)
+  number_of_steps              (default: 10)
   wx                           (cryo-EM map weight, default: 1)
   keep_origin                  (default: True)
   secondary_structure.enabled  (default: True) Most MD simulations tend to break secondary structure. Therefore, turning on this option is recommended. If HELIX/SHEET records are present in supplied .pdb file, automatic search of the existing secondary structures in the given input pdb file will not be executed.
@@ -144,11 +144,20 @@ Options:
     splited = self.data_manager.get_default_model_name().split("/")
     model_name_wo_path = splited [len(splited)-1]
     
-    if (model_name_wo_path == "tst_cryo_fit2_model.pdb"):
+    if (model_name_wo_path == "tst_cryo_fit2_model.pdb"): # lives in modules/cryo_fit2/regression
       self.params.start_temperature = 500
       self.params.final_temperature = 300
-      self.params.cool_rate = 100
-      self.params.number_of_steps = 1
+      self.params.cool_rate = 1
+      self.params.number_of_steps = 10
+      self.params.wx = 5
+    
+    if (model_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
+      self.params.start_temperature = 1000
+      self.params.final_temperature = 0
+      self.params.cool_rate = 10
+      self.params.number_of_steps = 100
+      self.params.wx = 5
+      
     
     ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
     remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers

@@ -1,0 +1,73 @@
+Tutorial: Cryo_fit2: Fit Biomolecules into Cryo-EM Maps using dynamics (commandline)
+--------------------------------------------------------------------------------------------
+
+.. contents::
+
+Overview
+----------
+This tutorial will show you how to fit biomolecule atomic structures
+into cryo-EM maps using dynamics simulation with PHENIX commandline
+
+
+
+Input
+-------------------
+<initial_model> and <target_map>
+
+The <initial_model> is a guide or template structure (.cif/mmCIF/.pdb) that is close to a
+<target_map> (.ccp4/.map) structurally.
+
+You can use either `map_to_model
+<https://www.phenix-online.org/documentation/reference/map_to_model.html>`_
+or UCSF chimera (Tools->Volume Data->Fit in Map).
+
+
+Running the program
+----------------------
+
+``phenix.cryo_fit2`` can be executed via the GUI, or the command line::
+
+  % phenix.cryo_fit2 <initial_model> <target_map>
+  
+Tutorial command:
+  % Go to <user phenix>/modules/cryo_fit2/tutorial
+
+  % source run_me.sh
+
+  % run_me.sh is
+
+  % phenix.cryo_fit2 input/tutorial_cryo_fit2_model.pdb input/tutorial_cryo_fit2_map.ccp4
+
+
+Output
+-------------------
+A final cryo_fitted structure: output/cryo_fit2_fitted.pdb
+
+Structures of intermediate steps that can be animated with pymol play button: output/all_states.pdb
+
+
+In pymol commandline,
+
+load ./user_map.ccp4, map1, 1 , ccp4
+
+isomesh mesh1, map1, 1.5, (all), 0, 1, 3.0
+
+cmd.color("blue","mesh1")
+
+will show map contour as mesh.
+
+
+Otherwise using python GUI,
+A (action) -> Mesh -> @ Level 3.0
+will show map contour as mesh.
+
+
+Options
+-------------------
+All options will be used as default if unspecified. e.g. `secondary_structure_enabled
+<https://www.phenix-online.org/documentation/reference/secondary_structure.html>`_
+=True
+
+List of all options
+--------------------
+{{phil:cryo_fit2.command_line.run}}
