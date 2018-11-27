@@ -1,1 +1,1 @@
-phenix.cryo_fit2 input/tutorial_cryo_fit2_model.pdb input/tutorial_cryo_fit2_map.ccp4 start_temperature=1000 final_temperature=0 cool_rate=10 number_of_steps=100 wx=5 secondary_structure.enabled=True secondary_structure.protein.remove_outliers=True
+phenix.cryo_fit2 input/tutorial_cryo_fit2_model.pdb input/tutorial_cryo_fit2_map.ccp4 start_temperature=1000 final_temperature=0 cool_rate=10 number_of_steps=1000 wx=5 secondary_structure.enabled=True secondary_structure.protein.remove_outliers=True

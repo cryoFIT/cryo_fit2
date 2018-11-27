@@ -155,7 +155,7 @@ Options:
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.cool_rate = 10
-      self.params.number_of_steps = 100
+      self.params.number_of_steps = 1000
       self.params.wx = 5
       
     
