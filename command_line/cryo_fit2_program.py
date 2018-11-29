@@ -94,14 +94,15 @@ Options:
   cool_rate                    (default: 50)
   number_of_steps              (default: 10)
   wx                           (cryo-EM map weight, default: 1)
-  secondary_structure.enabled  (default: True) Most MD simulations tend to break secondary structure. \
-                                Therefore, turning on this option is recommended. \
-                                If HELIX/SHEET records are present in supplied .pdb file, \
-                                automatic search of the existing secondary structures in the given \
-                                input pdb file will not be executed.
-  secondary_structure.protein.remove_outliers (default: True) False may be useful for very poor \
-                              low-resolution structures by ignoring some hydrogen "bond" if it \
-                              exceed certain distance threshold
+  secondary_structure.enabled  (default: True)
+                               Most MD simulations tend to break secondary structure. 
+                               Therefore, turning on this option is recommended. 
+                               If HELIX/SHEET records are present in supplied .pdb file, 
+                               automatic search of the existing secondary structures in the given 
+                               input pdb file will not be executed.
+  secondary_structure.protein.remove_outliers (default: True)
+                               False may be useful for very poor low-resolution structures by
+                               ignoring some hydrogen "bond" if it exceed certain distance threshold
   output_dir                   (output folder name prefix, default: output)
   keep_origin                  (default: True)
 '''

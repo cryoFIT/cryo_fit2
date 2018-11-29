@@ -108,7 +108,7 @@ List of most useful options
 | otein.remove_outliers  |              | by ignoring some hydrogen "bond" if it exceed certain       |
 |                        |              | distance threshold                                          |
 +------------------------+--------------+-------------------------------------------------------------+
-| output_dir             | (none)       | Output folder name prefix                                   |
+| output_dir             | output       | Output folder name prefix                                   |
 +------------------------+--------------+-------------------------------------------------------------+
 | keep_origin            | True         | Keep origin of input pdb structure whether the cryo-EM map  |
 |                        |              | origin is 0,0,0 or not                                      |
