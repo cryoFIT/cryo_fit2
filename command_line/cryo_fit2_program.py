@@ -42,7 +42,6 @@ citation {
 ''')
 
 
-
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
 start_temperature = 500
@@ -77,7 +76,6 @@ new_default = 'pdb_interpretation.secondary_structure.enabled = True'
 modified_master_phil_str = change_default_phil_values(
   base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
-
 class Program(ProgramTemplate):
 
   description = '''
@@ -96,10 +94,16 @@ Options:
   cool_rate                    (default: 50)
   number_of_steps              (default: 10)
   wx                           (cryo-EM map weight, default: 1)
+  secondary_structure.enabled  (default: True) Most MD simulations tend to break secondary structure. \
+                                Therefore, turning on this option is recommended. \
+                                If HELIX/SHEET records are present in supplied .pdb file, \
+                                automatic search of the existing secondary structures in the given \
+                                input pdb file will not be executed.
+  secondary_structure.protein.remove_outliers (default: True) False may be useful for very poor \
+                              low-resolution structures by ignoring some hydrogen "bond" if it \
+                              exceed certain distance threshold
+  output_dir                   (output folder name prefix, default: output)
   keep_origin                  (default: True)
-  secondary_structure.enabled  (default: True) Most MD simulations tend to break secondary structure. Therefore, turning on this option is recommended. If HELIX/SHEET records are present in supplied .pdb file, automatic search of the existing secondary structures in the given input pdb file will not be executed.
-  secondary_structure.protein.remove_outliers (default: True) False may be useful for very poor low-resolution structures
-  output_dir                   (output folder prefix, default: output)
 '''
 
   datatypes = ['model', 'real_map', 'phil']

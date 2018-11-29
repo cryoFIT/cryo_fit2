@@ -9,6 +9,17 @@ This tutorial will show you how to fit biomolecule atomic structures
 into cryo-EM maps using dynamics simulation with PHENIX commandline
 
 
+Theory for Cryo_fit2
+-----------------------------
+See the `theory notes for cryo_fit2
+<../reference/cryo_fit2.html>`__
+
+
+Install Cryo_fit2
+-----------------------------
+See the `installation notes for cryo_fit2
+<cryo_fit2_install.html>`__
+
 
 Input
 -------------------
@@ -25,18 +36,17 @@ or UCSF chimera (Tools->Volume Data->Fit in Map).
 Running the program
 ----------------------
 
-``phenix.cryo_fit2`` can be executed via the GUI, or the command line::
+At command line::
 
   % phenix.cryo_fit2 <initial_model> <target_map>
   
-Tutorial command:
+Tutorial command::
+
   % Go to <user phenix>/modules/cryo_fit2/tutorial
 
   % source run_me.sh
 
-  % run_me.sh is
-
-  % phenix.cryo_fit2 input/tutorial_cryo_fit2_model.pdb input/tutorial_cryo_fit2_map.ccp4
+  % (run_me.sh is phenix.cryo_fit2 input/tutorial_cryo_fit2_model.pdb input/tutorial_cryo_fit2_map.ccp4)
 
 
 Output
@@ -46,20 +56,22 @@ A final cryo_fitted structure: output/cryo_fit2_fitted.pdb
 Structures of intermediate steps that can be animated with pymol play button: output/all_states.pdb
 
 
-In pymol commandline,
+In pymol commandline::
 
-load ./user_map.ccp4, map1, 1 , ccp4
+  % load ./user_map.ccp4, map1, 1 , ccp4
 
-isomesh mesh1, map1, 1.5, (all), 0, 1, 3.0
+  % isomesh mesh1, map1, 1.5, (all), 0, 1, 3.0
 
-cmd.color("blue","mesh1")
+  % cmd.color("blue","mesh1")
 
 will show map contour as mesh.
 
 
-Otherwise using python GUI,
-A (action) -> Mesh -> @ Level 3.0
-will show map contour as mesh.
+Otherwise, use pymol GUI::
+
+  % A (action) -> Mesh -> @ Level 3.0
+
+will show cryo-EM map contour as mesh.
 
 
 Options
@@ -68,6 +80,36 @@ All options will be used as default if unspecified. e.g. `secondary_structure_en
 <https://www.phenix-online.org/documentation/reference/secondary_structure.html>`_
 =True
 
-List of all options
---------------------
-{{phil:cryo_fit2.command_line.run}}
+
+List of most useful options
+---------------------------------
+
++------------------------+--------------+-------------------------------------------------------------+
+| Option                 | Default value| Description of inputs                                       |
+|                        |              | and uses                                                    |
++------------------------+--------------+-------------------------------------------------------------+
+| start_temperature      | 500          | Start temperature (Kelvin) for molecular dynamics simulation|
++------------------------+--------------+-------------------------------------------------------------+
+| final_temperature      | 300          | Final temperature (Kelvin) for molecular dynamics simulation|
++------------------------+--------------+-------------------------------------------------------------+
+| cool_rate              | 50           | Rate of cooling temperature (Kelvin) for MD simulation      |
++------------------------+--------------+-------------------------------------------------------------+
+| number_of_steps        | 10           | Number of MD simulation steps at each temperature           |
++------------------------+--------------+-------------------------------------------------------------+
+| wx                     | 10           | A weight toward cryo-EM map                                 |
++------------------------+--------------+-------------------------------------------------------------+
+| secondary_structure.en | True         | Most MD simulations tend to break secondary structure.      |
+| abled                  |              | Therefore, turning on this option is recommended.           |
+|                        |              | If HELIX/SHEET records are present in supplied .pdb file,   |
+|                        |              | automatic search of the existing secondary structures in the|
+|                        |              | given input pdb file will not be executed.                  |
++------------------------+--------------+-------------------------------------------------------------+
+| secondary_structure.pr | True         | False may be useful for very poor low-resolution structures |
+| otein.remove_outliers  |              | by ignoring some hydrogen "bond" if it exceed certain       |
+|                        |              | distance threshold                                          |
++------------------------+--------------+-------------------------------------------------------------+
+| output_dir             | (none)       | Output folder name prefix                                   |
++------------------------+--------------+-------------------------------------------------------------+
+| keep_origin            | True         | Keep origin of input pdb structure whether the cryo-EM map  |
+|                        |              | origin is 0,0,0 or not                                      |
++------------------------+--------------+-------------------------------------------------------------+

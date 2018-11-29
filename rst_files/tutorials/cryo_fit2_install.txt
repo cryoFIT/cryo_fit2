@@ -1,0 +1,30 @@
+===============================
+Install Cryo_fit2
+===============================
+
+.. contents::
+
+1. Install Phenix
+-----------------------
+See the `installation notes for Phenix <../install-setup-run.html>`__
+
+
+2. Link cryo_fit2 to phenix
+-------------------------------
+
+At <user phenix>/modules
+
+::
+
+    git clone git@github.com:cryoFIT/cryo_fit2.git
+
+At any folder,
+
+:: 
+
+    libtbx.configure cryo_fit2
+
+3. Test run
+-------------------------------
+See the `cryo_fit2 tutorial
+<cryo_fit2_cmdline.html>`__

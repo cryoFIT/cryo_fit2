@@ -12,10 +12,12 @@ that uses gromacs, CryoFit2 runs within phenix suite. Therefore, it doesn't requ
 
 Theory
 -------------------
-This program uses phenix dynamics algorithm written by Pavel. 
+This program uses `phenix dynamics
+<https://www.phenix-online.org/documentation/reference/dynamics.html>`_
+written by Pavel. 
 
-Simulated annealing is carried out by default to effectively minimize the objection function T (=T_target_map * wx + T_geom * wc ). 
-wx and wc are weights.
+Temperature gradient descent rather than simulated annealing is carried out by default to minimize the objection function T (=T_target_map * wx + T_geom * wc ). 
+wx is cryo-EM map weight and wc is geometry keeping weight.
 
 
 
