@@ -83,7 +83,11 @@ class cryo_fit2_class(object):
     self.logfile.write("Input command: ")
     self.logfile.write(str(cryo_fit2_input_command))
     
-    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
+    #cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
+    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=50), 3)
+    # adenylate kinase doesn't run with "cctbx Error: Miller index not in structure factor map"
+    # according to https://sourceforge.net/p/cctbx/mailman/message/32850424/, "Too high resolution requested. Try running with larger d_min"
+    # set resolution as poor as 50 Angstrom
     
     initial_CC = "\ninitial CC: " + str(cc) + "\n"
     
@@ -101,9 +105,9 @@ class cryo_fit2_class(object):
       states_collector   = states,
       log                = self.logfile)
     
-    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
-    # to avoid "Miller index not in structure factor map" error, set resolution as poor as 50 Angstrom
-    # for Adenylate Kinase
+    #cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
+    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=50), 3)
+    
     final_CC = "final   CC: " + str(cc) + "\n"
     output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
     if os.path.exists(output_dir_w_CC):
@@ -118,7 +122,12 @@ class cryo_fit2_class(object):
     
     self.model.set_xray_structure(result.xray_structure)
     
-    fitted_file = os.path.join(output_dir_w_CC, "cryo_fit2_fitted.pdb")
+    splited_model_name = self.model_name[:-4].split("/")
+    model_file_name_only = splited_model_name[len(splited_model_name)-1] 
+    fitted_file_name = model_file_name_only + "_cryo_fit2_fitted.pdb"
+    print ("fitted_file_name:", fitted_file_name)
+    fitted_file = os.path.join(output_dir_w_CC, fitted_file_name)
+    
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
       returned = know_how_much_map_origin_moved(str(self.map_name))
