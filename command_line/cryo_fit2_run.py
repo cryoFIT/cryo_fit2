@@ -84,6 +84,7 @@ class cryo_fit2_class(object):
     self.logfile.write(str(cryo_fit2_input_command))
     
     cc = calculate_cc(map_data=map_data, model=self.model, resolution=5)
+    # resolution=5 works for helix, tRNA, and adenylate kinase
     print (cc)
     cc = round(cc, 2)
     # adenylate kinase doesn't run with "cctbx Error: Miller index not in structure factor map" with resolution=3
