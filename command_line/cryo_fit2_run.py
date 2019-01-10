@@ -83,11 +83,12 @@ class cryo_fit2_class(object):
     self.logfile.write("Input command: ")
     self.logfile.write(str(cryo_fit2_input_command))
     
-    #cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
-    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=50), 3)
-    # adenylate kinase doesn't run with "cctbx Error: Miller index not in structure factor map"
+    cc = calculate_cc(map_data=map_data, model=self.model, resolution=5)
+    print (cc)
+    cc = round(cc, 2)
+    # adenylate kinase doesn't run with "cctbx Error: Miller index not in structure factor map" with resolution=3
     # according to https://sourceforge.net/p/cctbx/mailman/message/32850424/, "Too high resolution requested. Try running with larger d_min"
-    # set resolution as poor as 50 Angstrom
+    # set resolution as poor as 5~50 Angstrom
     
     initial_CC = "\ninitial CC: " + str(cc) + "\n"
     
@@ -104,9 +105,8 @@ class cryo_fit2_class(object):
       wc                 = 1, # weight for stereochemistry/correct conformation
       states_collector   = states,
       log                = self.logfile)
-    
-    #cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
-    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=50), 3)
+
+    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=5), 2)
     
     final_CC = "final   CC: " + str(cc) + "\n"
     output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
