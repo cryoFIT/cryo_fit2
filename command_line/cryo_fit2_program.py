@@ -44,10 +44,10 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
-start_temperature = 500
+start_temperature = 300
   .type = int
   .short_caption = Starting temperature of annealing in Kelvin
-final_temperature = 300
+final_temperature = 0
   .type = int
   .short_caption = Final temperature of annealing in Kelvin
 cool_rate = 50
@@ -179,7 +179,6 @@ Options:
       self.params.number_of_steps = 1000
       self.params.wx = 5
       
-    
     ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
     remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
     
