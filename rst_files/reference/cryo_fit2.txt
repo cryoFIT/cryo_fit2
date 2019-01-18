@@ -6,6 +6,8 @@ CryoFit2: Fitting to a Cryo-EM Map using Phenix Dynamics
 
 Overview
 ----------
+Still developing for automatic parameter optimization!
+
 Unlike `Cryo_fit1
 <https://www.phenix-online.org/documentation/reference/cryo_fit.html>`_ 
 that uses gromacs, CryoFit2 runs within phenix suite. Therefore, it doesn't require gromacs installation and is faster to execute. It suits the need not only traditional "static" fitting but also "dynamic" fitting.
@@ -43,11 +45,17 @@ Limitation
 If wx is too small like 5, it may break starting secondary structure.
 When wx is 100, it kept starting helix structure.
 If wx is too big, angle change for each step maybe too big (~30
-degree), so pdb validation later (like molprobity) may raise a red flag.
+degree), so pdb validation later (like molprobity) may raise a red
+flag. We will add real_space_refine style wx, wc auto-optimization module soon.
 
-We will add real_space_refine style wx, wc auto-optimization module soon.
+As described in `phenix dynamics
+<https://www.phenix-online.org/documentation/reference/dynamics.html>`_,
+cryo_fit2 doesn't use electrostatic interaction. Therefore, it does
+not fully capture all physical forces. `Cryo_fit1
+<https://www.phenix-online.org/documentation/reference/cryo_fit.html>`_
+also omitted electrostatic interaction so that md simulation runs faster.
 
 
 Author
 ----------
-Doo Nam Kim, Pavel Afonine
+Pavel Afonine, Doo Nam Kim (doonam@lanl.gov)

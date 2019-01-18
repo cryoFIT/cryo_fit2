@@ -175,7 +175,12 @@ class cryo_fit2_class(object):
     self.logfile.write("Input command: ")
     self.logfile.write(str(cryo_fit2_input_command))
     
-    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
+    cc = '' # just initial value
+    try:
+        cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
+    except: # to avoid "RuntimeError: cctbx Error: Miller index not in structure factor map."
+            # when dealing with low resolution map like nucleosome or Adenylate Kinase
+        cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=10), 3)
     
     initial_CC = "\ninitial CC: " + str(cc) + "\n"
     
@@ -193,9 +198,13 @@ class cryo_fit2_class(object):
       states_collector   = states,
       log                = self.logfile)
     
-    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
-    # to avoid "Miller index not in structure factor map" error, set resolution as poor as 50 Angstrom
-    # for Adenylate Kinase
+    
+    try:
+        cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
+    except: # to avoid "RuntimeError: cctbx Error: Miller index not in structure factor map."
+            # when dealing with low resolution map like nucleosome or Adenylate Kinase
+        cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=10), 3)
+        
     final_CC = "final   CC: " + str(cc) + "\n"
     output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
     if os.path.exists(output_dir_w_CC):

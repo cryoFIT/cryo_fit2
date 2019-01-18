@@ -72,9 +72,20 @@ include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # t
 
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
-
 modified_master_phil_str = change_default_phil_values(
   base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+
+new_default = 'pdb_interpretation.secondary_structure.protein.remove_outliers = True'
+modified_master_phil_str = change_default_phil_values(
+  base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+
+new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = False'
+modified_master_phil_str = change_default_phil_values(
+  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+
+# new_default3 = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds = True'
+# modified_master_phil_str = change_default_phil_values(
+#   modified_master_phil_str, new_default3, phil_parse=iotbx.phil.parse)
 
 class Program(ProgramTemplate):
 
@@ -103,6 +114,8 @@ Options:
   secondary_structure.protein.remove_outliers (default: True)
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
+  secondary_structure.nucleic_acid.base_pair.restrain_planarity  (default: True)
+  secondary_structure.nucleic_acid.base_pair.restrain_hbonds  (default: True)
   output_dir                   (output folder name prefix, default: output)
   keep_origin                  (default: True)
 '''
@@ -141,6 +154,9 @@ Options:
     
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
+    
+    #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
+    #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
     log = multi_out()
     out=sys.stdout
