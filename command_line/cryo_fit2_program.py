@@ -2,16 +2,19 @@
 # To run cryo_fit2 at windows as well, replace all unix command like libtbx.easy_run.fully_buffered
 
 from __future__ import division, print_function
-import iotbx.pdb
-import iotbx.phil
 
+from libtbx import easy_mp
+from libtbx import easy_pickle
+from libtbx import phil
+import iotbx.pdb
+
+import iotbx.phil
 from libtbx.phil import change_default_phil_values
 import libtbx.phil
 import libtbx.phil.command_line
-from libtbx import phil
+
 from libtbx.utils import multi_out
 from libtbx.utils import Sorry
-from libtbx import easy_pickle
 
 import mmtbx
 import cryo_fit2_run
