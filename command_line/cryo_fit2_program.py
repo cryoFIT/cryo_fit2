@@ -170,10 +170,10 @@ Options:
     
     splited = self.data_manager.get_default_model_name().split("/")
     model_name_wo_path = splited [len(splited)-1]
+  
     
-    
-    
-    if (model_name_wo_path == "devel_cryo_fit2_model.pdb"): # lives in modules/cryo_fit2/regression
+    if ((model_name_wo_path == "devel_cryo_fit2_model.pdb") or (model_name_wo_path == "tst_cryo_fit2_model.pdb")):
+      # "tst..." lives in modules/cryo_fit2/regression
       self.params.start_temperature = 500
       self.params.final_temperature = 300
       self.params.cool_rate = 1
