@@ -72,6 +72,7 @@ include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # t
 
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
+#new_default = 'secondary_structure.enabled = True'
 modified_master_phil_str = change_default_phil_values(
   base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
@@ -79,9 +80,11 @@ new_default = 'pdb_interpretation.secondary_structure.protein.remove_outliers = 
 modified_master_phil_str = change_default_phil_values(
   base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
+'''
 new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = False'
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+'''
 
 # new_default3 = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds = True'
 # modified_master_phil_str = change_default_phil_values(
@@ -152,6 +155,9 @@ Options:
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
     
+    self.params.pdb_interpretation.secondary_structure.enabled = True
+    # since 1/25/2019, new_default = 'pdb_interpretation.secondary_structure.enabled = True' not works, so here I make sure ss it True by default
+    
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
     
@@ -165,12 +171,15 @@ Options:
     splited = self.data_manager.get_default_model_name().split("/")
     model_name_wo_path = splited [len(splited)-1]
     
-    if (model_name_wo_path == "tst_cryo_fit2_model.pdb"): # lives in modules/cryo_fit2/regression
+    
+    
+    if (model_name_wo_path == "devel_cryo_fit2_model.pdb"): # lives in modules/cryo_fit2/regression
       self.params.start_temperature = 500
       self.params.final_temperature = 300
       self.params.cool_rate = 1
       self.params.number_of_steps = 10
       self.params.wx = 5
+      self.params.pdb_interpretation.secondary_structure.enabled = True
     
     if (model_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
@@ -178,6 +187,7 @@ Options:
       self.params.cool_rate = 10
       self.params.number_of_steps = 1000
       self.params.wx = 5
+      self.params.pdb_interpretation.secondary_structure.enabled = True
       
     ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
     remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
