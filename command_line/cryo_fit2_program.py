@@ -72,7 +72,6 @@ include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # t
 
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
-#new_default = 'secondary_structure.enabled = True'
 modified_master_phil_str = change_default_phil_values(
   base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
@@ -154,9 +153,6 @@ Options:
     
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
-    
-    self.params.pdb_interpretation.secondary_structure.enabled = True
-    # since 1/25/2019, new_default = 'pdb_interpretation.secondary_structure.enabled = True' not works, so here I make sure ss it True by default
     
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
