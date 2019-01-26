@@ -68,7 +68,7 @@ map_weight = None
   .short_caption = cryo-EM map weight. A user is recommended NOT to specify this, so that it will be automatically determined.
 resolution = None
   .type = int
-  .short_caption = cryo-EM map resolution in Angstrom that needs to be specified by a user
+  .short_caption = cryo-EM map resolution (Angstrom) that needs to be specified by a user
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
@@ -176,6 +176,9 @@ Options:
     
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight(self.params.resolution, pdb_str_1)
+      self.params.map_weight = self.params.map_weight/3
+      # original determine_optimal_weight seems for RSR, since dynamics changes conformation more, dividing by 2 seems reasonable.
+      # indeed, test w/ a helix works perfectly with self.params.map_weight/3
       print ("optimized weight", str(self.params.map_weight))
         
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
@@ -216,7 +219,7 @@ Options:
     output_dir_prefix = self.params.output_dir
     output_dir = str(output_dir_prefix) + \
                  "_map_resolution_" + str(self.params.resolution) + \
-                 "_map_weight_" + str(self.params.map_weight) + \
+                 "_map_weight_" + str(round(self.params.map_weight,1)) + \
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
                  "_cool_" + str(self.params.cool_rate) + \

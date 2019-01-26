@@ -36,7 +36,7 @@ if (__name__ == "__main__") :
     assert rc==0
     
     # remove no longer needed folder and input_command file
-    rm_command_string = "rm -r cryo_fit2.input_command.txt output_start_*"
+    rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
     libtbx.easy_run.fully_buffered(rm_command_string)
 
 

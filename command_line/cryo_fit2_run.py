@@ -66,7 +66,7 @@ class cryo_fit2_class(object):
     
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.model_name + " " + self.map_name + " " \
                               + "resolution=" + str(self.params.resolution) + " " \
-                              + "map_weight=" + str(map_weight) + " " \
+                              + "map_weight=" + str(round(map_weight,1)) + " " \
                               + "start_temperature=" + str(params.start_temperature) + " " \
                               + "final_temperature=" + str(params.final_temperature) + " " \
                               + "cool_rate=" + str(params.cool_rate) + " " \
