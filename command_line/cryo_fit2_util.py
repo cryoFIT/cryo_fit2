@@ -5,7 +5,9 @@ from libtbx.utils import Sorry
 from iotbx import map_and_model
 import mmtbx.utils, os
 from mmtbx.dynamics import simulated_annealing as sa
+from mmtbx.refinement.real_space import weight
 import shutil
+
 
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
@@ -17,6 +19,36 @@ def calculate_cc(map_data, model, resolution):
       use_sg         = False)
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_cc function
+
+
+def determine_optimal_weight(d_min, pdb_str_1): # followed tst_weight.py
+    print (d_min, "-"*69)
+    pi = get_pdb_inputs(pdb_str=pdb_str_1)
+    f_calc = pi.xrs.structure_factors(d_min = d_min).f_calc()
+    fft_map = f_calc.fft_map(resolution_factor=0.25)
+    fft_map.apply_sigma_scaling()
+    map_data = fft_map.real_map_unpadded()
+    w = weight.run(
+      map_data                    = map_data,
+      xray_structure              = pi.xrs,
+      pdb_hierarchy               = pi.ph,
+      geometry_restraints_manager = pi.grm).weight
+    return w
+######################## end of determine_optimal_weight
+    
+
+def get_pdb_inputs(pdb_str):
+  ppf = mmtbx.utils.process_pdb_file_srv().process_pdb_files(
+    raw_records=pdb_str.splitlines())[0]
+  xrs = ppf.xray_structure(show_summary = False)
+  restraints_manager = mmtbx.restraints.manager(
+    geometry      = ppf.geometry_restraints_manager(show_energies = False),
+    normalization = True)
+  return group_args(
+    ph  = ppf.all_chain_proxies.pdb_hierarchy,
+    grm = restraints_manager,
+    xrs = xrs)
+######################## end of get_pdb_inputs
 
 
 def know_how_much_map_origin_moved(map_file_name):

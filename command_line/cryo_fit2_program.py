@@ -3,6 +3,8 @@
 
 from __future__ import division, print_function
 
+from cryo_fit2_util import *
+
 from libtbx import easy_mp
 from libtbx import easy_pickle
 from libtbx import phil
@@ -19,6 +21,8 @@ from libtbx.utils import Sorry
 import mmtbx
 import cryo_fit2_run
 import os, shutil, sys, time
+
+from mmtbx.refinement.real_space import weight
 
 try:
   from phenix.program_template import ProgramTemplate # at Doonam's laptop, phenix.program_template works
@@ -59,9 +63,12 @@ cool_rate = 20
 number_of_steps = 100
   .type = int
   .short_caption = number_of_steps in phenix.dynamics
-wx = 5
+map_weight = None
   .type = int
-    .short_caption = weight for cryo-EM map
+  .short_caption = cryo-EM map weight. A user is recommended NOT to specify this, so that it will be automatically determined.
+resolution = None
+  .type = int
+  .short_caption = cryo-EM map resolution in Angstrom that needs to be specified by a user
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
@@ -100,16 +107,18 @@ Program for running cryo_fit2.\n
 Minimum required inputs:
   Model file
   Map file
+  Map resolution information
 
-How to run:
-  phenix.cryo_fit2 model.pdb map.ccp4
+Example running command:
+  phenix.cryo_fit2 model.pdb map.ccp4 resolution=6
   
 Options:
+  resolution                   (cryo-EM map resolution in Angstrom that needs to be entered by a user)
+  map_weight                   (cryo-EM map weight. A user is recommended NOT to specify this, so that it will be automatically determined.)
   start_temperature            (default: 500)
   final_temperature            (default: 300)
   cool_rate                    (default: 50)
   number_of_steps              (default: 10)
-  wx                           (cryo-EM map weight, default: 1)
   secondary_structure.enabled  (default: True)
                                Most MD simulations tend to break secondary structure. 
                                Therefore, turning on this option is recommended. 
@@ -133,18 +142,21 @@ Options:
      Please run this program with the --show-defaults option to see what parameters are available.
      PHIL parameters in files should be fully specified (e.g. "output.overwrite" instead of just "overwrite")
   '''
-    
+
   # ---------------------------------------------------------------------------
-  def validate(self):
+  def validate(self): # this validate function runs as well (1/26/2019)
     print('Validating inputs', file=self.logger)
-    self.data_manager.has_models(raise_sorry=True)
+    if not (self.data_manager.has_models()):
+      raise Sorry("Supply an atomic model file. Type \"phenix.cryo_fit2\" to know minimally required options")
     if not (self.data_manager.has_real_maps()):
-      raise Sorry("Supply a map file.")
+      raise Sorry("Supply a map file. Type \"phenix.cryo_fit2\" to know minimally required options")
+    if not (self.params.resolution):
+      raise Sorry("Map resolution is required. Type \"phenix.cryo_fit2\" to know minimally required options")
 
   # ---------------------------------------------------------------------------
   def run(self): # this run function actually executed (8/6/2018)
     
-    print ("wx", str(self.params.wx))
+    print ("user entered resolution", str(self.params.resolution))
     print ("start_temperature", str(self.params.start_temperature))
     print ("final_temperature", str(self.params.final_temperature))
     print ("cool_rate", str(self.params.cool_rate))
@@ -154,6 +166,18 @@ Options:
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model = self.data_manager.get_model()
     
+    from iotbx import pdb  #contains hierarchy data structure
+    pdb_io = pdb.input(self.data_manager.get_default_model_name())
+    hierarchy = pdb_io.construct_hierarchy()
+    
+    pdb_str_1 = hierarchy.as_pdb_string()
+    pdb_str_1 = "CRYST1   44.034   76.843   61.259  90.00  90.00  90.00 P 1\n" + pdb_str_1
+    # add this bogus cryst to avoid "Sorry: Crystal symmetry is missing or cannot be extracted." in get_pdb_inputs
+    
+    if (self.params.map_weight == None): # a user didn't specify map_weight
+      self.params.map_weight = determine_optimal_weight(self.params.resolution, pdb_str_1)
+      print ("optimized weight", str(self.params.map_weight))
+        
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
     
@@ -170,14 +194,12 @@ Options:
     splited = self.data_manager.get_default_model_name().split("/")
     model_name_wo_path = splited [len(splited)-1]
   
-    
     if ((model_name_wo_path == "devel_cryo_fit2_model.pdb") or (model_name_wo_path == "tst_cryo_fit2_model.pdb")):
       # "tst..." lives in modules/cryo_fit2/regression
       self.params.start_temperature = 500
       self.params.final_temperature = 300
       self.params.cool_rate = 1
       self.params.number_of_steps = 10
-      self.params.wx = 5
       self.params.pdb_interpretation.secondary_structure.enabled = True
     
     if (model_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
@@ -185,7 +207,6 @@ Options:
       self.params.final_temperature = 0
       self.params.cool_rate = 10
       self.params.number_of_steps = 1000
-      self.params.wx = 5
       self.params.pdb_interpretation.secondary_structure.enabled = True
       
     ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
@@ -198,9 +219,10 @@ Options:
                  "_final_" + str(self.params.final_temperature) + \
                  "_cool_" + str(self.params.cool_rate) + \
                  "_step_" + str(self.params.number_of_steps) + \
-                 "_wx_" + str(self.params.wx) + \
+                 "_map_weight_" + str(self.params.map_weight) + \
+                 "_map_resolution_" + str(self.params.resolution) + \
                  "_ss_" + str(ss_restraints) + \
-                 "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints)   
+                 "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints) 
     
     log_file_name = "cryo_fit2.log"
     

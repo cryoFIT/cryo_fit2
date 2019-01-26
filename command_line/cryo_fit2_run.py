@@ -18,13 +18,10 @@ class cryo_fit2_class(object):
     self.map_name          = map_name
     self.logfile           = logfile
     self.output_dir        = output_dir
-
+  
   def validate(self): # this functions runs
     assert not None in [self.model, self.params, self.out]
-    if (self.model is None):
-      raise Sorry("Model is required.")
-    if (self.map_inp is None):
-      raise Sorry("Map is required.")
+
     # Sanity check for crystal symmetry
     if (self.map_inp is not None):
       self.cs_consensus = mmtbx.utils.check_and_set_crystal_symmetry(
@@ -54,15 +51,16 @@ class cryo_fit2_class(object):
   
     params = sa.master_params().extract()
     
-    params.start_temperature = self.params.start_temperature
-    params.final_temperature = self.params.final_temperature
-    params.cool_rate = self.params.cool_rate
-    params.number_of_steps = self.params.number_of_steps
-    params.update_grads_shift = 0.
-    params.interleave_minimization=False #Pavel will fix the error that occur when params.interleave_minimization=True
+    params.start_temperature       = self.params.start_temperature
+    params.final_temperature       = self.params.final_temperature
+    params.cool_rate               = self.params.cool_rate
+    params.number_of_steps         = self.params.number_of_steps
+    print ("self.params.resolution:", self.params.resolution)
+    params.update_grads_shift      = 0.
+    params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
     
-    # because of params = sa.master_params().extract() above, wx and secondary_structure_enabled are dealt without "params"
-    wx = self.params.wx
+    # because of params = sa.master_params().extract() above, map_weight and secondary_structure_enabled are dealt without "params"
+    map_weight = self.params.map_weight
     ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
     remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
     
@@ -71,7 +69,8 @@ class cryo_fit2_class(object):
                               + "final_temperature=" + str(params.final_temperature) + " " \
                               + "cool_rate=" + str(params.cool_rate) + " " \
                               + "number_of_steps=" + str(params.number_of_steps) + " " \
-                              + "wx=" + str(wx) + " " \
+                              + "map_weight=" + str(map_weight) + " " \
+                              + "resolution=" + str(self.params.resolution) + " " \
                               + "secondary_structure.enabled=" + str(ss_restraints) + " " \
                               + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + "\n"
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)
@@ -83,6 +82,9 @@ class cryo_fit2_class(object):
     self.logfile.write("Input command: ")
     self.logfile.write(str(cryo_fit2_input_command))
     
+    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
+    
+    '''
     cc = '' # just initial value
     try:
         cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
@@ -90,7 +92,8 @@ class cryo_fit2_class(object):
             # when dealing with low resolution map like nucleosome or Adenylate Kinase
             # according to https://sourceforge.net/p/cctbx/mailman/message/32850424/, "Too high resolution requested. Try running with larger d_min"
         cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=10), 3)
-
+    '''
+    
     initial_CC = "\ninitial CC: " + str(cc) + "\n"
     
     print('%s' %(initial_CC))
@@ -102,7 +105,7 @@ class cryo_fit2_class(object):
       restraints_manager = self.model.get_restraints_manager(),
       target_map         = map_data,
       real_space         = True,
-      wx                 = wx, # weight for cryo-EM map, wx=5 broke helix conformation of tst_00_poor.pdb, wx=100 kept helix well
+      wx                 = map_weight, # 5 broke helix conformation of tst_00_poor.pdb, 100 kept helix well
       wc                 = 1, # weight for stereochemistry/correct conformation
       states_collector   = states,
       log                = self.logfile)
