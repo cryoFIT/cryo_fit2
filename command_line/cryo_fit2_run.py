@@ -65,12 +65,12 @@ class cryo_fit2_class(object):
     remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
     
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.model_name + " " + self.map_name + " " \
+                              + "resolution=" + str(self.params.resolution) + " " \
+                              + "map_weight=" + str(map_weight) + " " \
                               + "start_temperature=" + str(params.start_temperature) + " " \
                               + "final_temperature=" + str(params.final_temperature) + " " \
                               + "cool_rate=" + str(params.cool_rate) + " " \
                               + "number_of_steps=" + str(params.number_of_steps) + " " \
-                              + "map_weight=" + str(map_weight) + " " \
-                              + "resolution=" + str(self.params.resolution) + " " \
                               + "secondary_structure.enabled=" + str(ss_restraints) + " " \
                               + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + "\n"
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)

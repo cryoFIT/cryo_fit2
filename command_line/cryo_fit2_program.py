@@ -57,7 +57,7 @@ start_temperature = 300
 final_temperature = 0
   .type = int
   .short_caption = Final temperature of annealing in Kelvin
-cool_rate = 20
+cool_rate = 10
   .type = int
   .short_caption = cooling rate of annealing in Kelvin
 number_of_steps = 100
@@ -115,10 +115,10 @@ Example running command:
 Options:
   resolution                   (cryo-EM map resolution in Angstrom that needs to be entered by a user)
   map_weight                   (cryo-EM map weight. A user is recommended NOT to specify this, so that it will be automatically determined.)
-  start_temperature            (default: 500)
-  final_temperature            (default: 300)
-  cool_rate                    (default: 50)
-  number_of_steps              (default: 10)
+  start_temperature            (default: 300)
+  final_temperature            (default: 0)
+  cool_rate                    (default: 10)
+  number_of_steps              (default: 100)
   secondary_structure.enabled  (default: True)
                                Most MD simulations tend to break secondary structure. 
                                Therefore, turning on this option is recommended. 
@@ -215,12 +215,12 @@ Options:
     # name output_dir
     output_dir_prefix = self.params.output_dir
     output_dir = str(output_dir_prefix) + \
+                 "_map_resolution_" + str(self.params.resolution) + \
+                 "_map_weight_" + str(self.params.map_weight) + \
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
                  "_cool_" + str(self.params.cool_rate) + \
                  "_step_" + str(self.params.number_of_steps) + \
-                 "_map_weight_" + str(self.params.map_weight) + \
-                 "_map_resolution_" + str(self.params.resolution) + \
                  "_ss_" + str(ss_restraints) + \
                  "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints) 
     
