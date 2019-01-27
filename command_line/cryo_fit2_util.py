@@ -20,6 +20,32 @@ def calculate_cc(map_data, model, resolution):
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_cc function
 
+'''
+def check_whether_first_line_starts_w_CRYST1(pdb_file):
+    fo = open(pdb_file, "r")
+    lines = fo.readlines()
+    for line in lines:
+        print ("line:",line)
+        if line[0:6] == "CRYST1":
+            fo.close()
+            return True
+    fo.close()
+    return False
+####################### end of check_whether_first_line_starts_w_CRYST1 function
+'''
+
+def count_ATOM_HETATM(pdb_file):
+    number_of_ATOM_HETATM = 0
+    fo = open(pdb_file, "r")
+    lines = fo.readlines()
+    for line in lines:
+        #print ("line:",line)
+        if line[0:4] == "ATOM" or line[0:6] == "HETATM":
+            number_of_ATOM_HETATM = number_of_ATOM_HETATM + 1
+    fo.close()
+    return number_of_ATOM_HETATM
+####################### end of count_ATOM_HETATM function
+
 
 def determine_optimal_weight(d_min, pdb_str_1): # followed tst_weight.py
     print (d_min, "-"*69)
@@ -38,16 +64,27 @@ def determine_optimal_weight(d_min, pdb_str_1): # followed tst_weight.py
     
 
 def get_pdb_inputs(pdb_str):
-  ppf = mmtbx.utils.process_pdb_file_srv().process_pdb_files(
-    raw_records=pdb_str.splitlines())[0]
-  xrs = ppf.xray_structure(show_summary = False)
-  restraints_manager = mmtbx.restraints.manager(
-    geometry      = ppf.geometry_restraints_manager(show_energies = False),
-    normalization = True)
-  return group_args(
-    ph  = ppf.all_chain_proxies.pdb_hierarchy,
-    grm = restraints_manager,
-    xrs = xrs)
+    
+    '''
+    processed_pdb_files_srv = utils.process_pdb_file_srv(
+      crystal_symmetry          = self.crystal_symmetry,
+      pdb_parameters            = self.params.refinement.input.pdb,
+      pdb_interpretation_params = self.params.refinement.pdb_interpretation,
+      cif_objects               = cif_objects,
+      log                       = self.log,
+      )
+    '''
+    
+    ppf = mmtbx.utils.process_pdb_file_srv().process_pdb_files(
+      raw_records=pdb_str.splitlines())[0] # needs reasonable CRYST1 in .pdb file for working
+    xrs = ppf.xray_structure(show_summary = False)
+    restraints_manager = mmtbx.restraints.manager(
+      geometry      = ppf.geometry_restraints_manager(show_energies = False),
+      normalization = True)
+    return group_args(
+      ph  = ppf.all_chain_proxies.pdb_hierarchy,
+      grm = restraints_manager,
+      xrs = xrs)
 ######################## end of get_pdb_inputs
 
 
@@ -130,3 +167,70 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
     command = "mv " + output_pdb_file_name + " " + input_pdb_file_name
     libtbx.easy_run.call(command)
 ################################## end of return_to_origin_of_pdb_file ()
+
+def to_determine_optimal_weight(self):
+    from iotbx import pdb  #contains hierarchy data structure
+    pdb_io = pdb.input(self.data_manager.get_default_model_name())
+    hierarchy = pdb_io.construct_hierarchy()
+    pdb_str_1 = hierarchy.as_pdb_string()
+    
+    '''
+    first_line_starts_w_CRYST1 = check_whether_first_line_starts_w_CRYST1(self.data_manager.get_default_model_name())
+    print ("first_line_starts_w_CRYST1:",first_line_starts_w_CRYST1)
+    '''
+    
+    number_of_ATOM_HETATM = count_ATOM_HETATM(self.data_manager.get_default_model_name())
+    print ("number_of_ATOM_HETATM:",number_of_ATOM_HETATM)
+    # http://webcache.googleusercontent.com/search?q=cache:http://www.bmsc.washington.edu/CrystaLinks/man/pdb/part_54.html
+    new_bogus_CRYST1 = "CRYST1"
+    multi_before_period = ''
+    multi_after_period = ''
+    a = str(round(number_of_ATOM_HETATM/2,2))
+    splited = a.split(".")
+    if (len(splited[0]) <= 5):
+      multi_before_period = 5-len(splited[0])
+      multi_after_period = 3-len(splited[1])
+    else:
+      multi_before_period = 7-len(splited[0])
+      multi_after_period = 0-len(splited[1])
+    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
+    
+    b = str(round(number_of_ATOM_HETATM,2))
+    splited = b.split(".")
+    if (len(splited[0]) <= 5):
+      multi_before_period = 5-len(splited[0])
+      multi_after_period = 3-len(splited[1])
+    else:
+      multi_before_period = 7-len(splited[0])
+      multi_after_period = 0-len(splited[1])
+    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
+
+    c = str(round(number_of_ATOM_HETATM*0.9,2))
+    splited = c.split(".")
+    if (len(splited[0]) <= 5):
+      multi_before_period = 5-len(splited[0])
+      multi_after_period = 3-len(splited[1])
+    else:
+      multi_before_period = 7-len(splited[0])
+      multi_after_period = 0-len(splited[1])
+    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
+    
+    new_bogus_CRYST1 =  new_bogus_CRYST1 + "  90.00  90.00  90.00 P 1\n"
+    pdb_str_1 = new_bogus_CRYST1 + pdb_str_1
+    
+    #print ("new_bogus_CRYST1:",new_bogus_CRYST1)
+    #print ("correct_CRYST1  : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1\n")
+    
+    
+    #pdb_str_1 = "CRYST1   44.034   76.843   61.259  90.00  90.00  90.00 P 1\n" + pdb_str_1
+    # add this bogus cryst to avoid "Sorry: Crystal symmetry is missing or cannot be extracted." in get_pdb_inputs
+    # works fine w/ 80 atoms model
+    # not works w/ 200k atoms model (ribosome)
+  
+    self.params.map_weight = determine_optimal_weight(self.params.resolution, pdb_str_1)
+    self.params.map_weight = self.params.map_weight
+    # original determine_optimal_weight seems for RSR, since dynamics changes conformation more, dividing by 2 seems reasonable.
+    # indeed, test w/ a helix works perfectly with self.params.map_weight/3
+    print ("optimized weight", str(self.params.map_weight))
+    return self.params.map_weight
+    

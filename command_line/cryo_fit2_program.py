@@ -166,20 +166,9 @@ Options:
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model = self.data_manager.get_model()
     
-    from iotbx import pdb  #contains hierarchy data structure
-    pdb_io = pdb.input(self.data_manager.get_default_model_name())
-    hierarchy = pdb_io.construct_hierarchy()
-    
-    pdb_str_1 = hierarchy.as_pdb_string()
-    pdb_str_1 = "CRYST1   44.034   76.843   61.259  90.00  90.00  90.00 P 1\n" + pdb_str_1
-    # add this bogus cryst to avoid "Sorry: Crystal symmetry is missing or cannot be extracted." in get_pdb_inputs
     
     if (self.params.map_weight == None): # a user didn't specify map_weight
-      self.params.map_weight = determine_optimal_weight(self.params.resolution, pdb_str_1)
-      self.params.map_weight = self.params.map_weight/3
-      # original determine_optimal_weight seems for RSR, since dynamics changes conformation more, dividing by 2 seems reasonable.
-      # indeed, test w/ a helix works perfectly with self.params.map_weight/3
-      print ("optimized weight", str(self.params.map_weight))
+      self.params.map_weight = to_determine_optimal_weight(self)
         
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
@@ -199,10 +188,10 @@ Options:
   
     if ((model_name_wo_path == "devel_cryo_fit2_model.pdb") or (model_name_wo_path == "tst_cryo_fit2_model.pdb")):
       # "tst..." lives in modules/cryo_fit2/regression
-      self.params.start_temperature = 500
-      self.params.final_temperature = 300
-      self.params.cool_rate = 1
-      self.params.number_of_steps = 10
+      self.params.start_temperature = 300
+      self.params.final_temperature = 270
+      self.params.cool_rate = 10
+      self.params.number_of_steps = 1
       self.params.pdb_interpretation.secondary_structure.enabled = True
     
     if (model_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
