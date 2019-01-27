@@ -60,7 +60,7 @@ final_temperature = 0
 cool_rate = 10
   .type = int
   .short_caption = cooling rate of annealing in Kelvin
-number_of_steps = 100
+number_of_steps = 1000
   .type = int
   .short_caption = number_of_steps in phenix.dynamics
 map_weight = None
@@ -118,7 +118,7 @@ Options:
   start_temperature            (default: 300)
   final_temperature            (default: 0)
   cool_rate                    (default: 10)
-  number_of_steps              (default: 100)
+  number_of_steps              (default: 1000)
   secondary_structure.enabled  (default: True)
                                Most MD simulations tend to break secondary structure. 
                                Therefore, turning on this option is recommended. 
