@@ -6,11 +6,17 @@ CryoFit2: Fitting to a Cryo-EM Map using Phenix Dynamics
 
 Overview
 ----------
-Still developing for automatic parameter optimization!
+Cryo_fit2 is still being developed for automatic parameter optimization.
 
 Unlike `Cryo_fit1
 <https://www.phenix-online.org/documentation/reference/cryo_fit.html>`_ 
-that uses gromacs, CryoFit2 runs within phenix suite. Therefore, it doesn't require gromacs installation and is faster to execute. It suits the need not only traditional "static" fitting but also "dynamic" fitting.
+that uses gromacs, CryoFit2 runs within phenix suite. Therefore, it
+doesn't require gromacs installation and is faster to execute. It
+suits the need not only traditional "static" fitting but also
+"dynamic" fitting. According to Doonam's benchmark, cryo_fit2 better
+fits than cryo_fit1 in 6 cases out of 8 cases (cryo-EM maps have 3~24
+angstrom resolutions. They tie for 1 case,
+cryo_fit1 better fits for the last 1 case whether artifically made cryo-EM map is used).
 
 Theory
 -------------------
@@ -18,7 +24,7 @@ This program uses `phenix dynamics
 <https://www.phenix-online.org/documentation/reference/dynamics.html>`_
 written by Pavel. 
 
-Temperature gradient descent rather than simulated annealing is carried out by default to minimize the objection function T (=T_target_map * wx + T_geom * wc ). 
+Simulated annealing is carried out by default to minimize the objection function T (=T_target_map * wx + T_geom * wc ). 
 wx is cryo-EM map weight and wc is geometry keeping weight.
 
 
