@@ -28,18 +28,6 @@ try:
   from phenix.program_template import ProgramTemplate # at Doonam's laptop, phenix.program_template works
 except ImportError:
   from libtbx.program_template import ProgramTemplate
-  
-
-def show_time(time_start, time_end):
-  time_took = 0 # temporary of course
-  if (round((time_end-time_start)/60, 1) < 1):
-    time_took = " finished in " + str(round((time_end-time_start), 2)) + " seconds (wallclock)."
-  elif (round((time_end-time_start)/60/60, 1) < 1):
-    time_took = " finished in " + str(round((time_end-time_start)/60, 2)) + " minutes (wallclock)."
-  else:
-    time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
-  return time_took
-############### end of show_time function
 
 
 program_citations = libtbx.phil.parse('''
@@ -87,17 +75,17 @@ modified_master_phil_str = change_default_phil_values(
 
 new_default = 'pdb_interpretation.secondary_structure.protein.remove_outliers = True'
 modified_master_phil_str = change_default_phil_values(
-  base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
 '''
 new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = False'
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
-'''
 
-# new_default3 = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds = True'
-# modified_master_phil_str = change_default_phil_values(
-#   modified_master_phil_str, new_default3, phil_parse=iotbx.phil.parse)
+new_default3 = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds = True'
+modified_master_phil_str = change_default_phil_values(
+  modified_master_phil_str, new_default3, phil_parse=iotbx.phil.parse)
+'''
 
 class Program(ProgramTemplate):
 
@@ -201,10 +189,7 @@ Options:
       self.params.number_of_steps = 1000
       self.params.pdb_interpretation.secondary_structure.enabled = True
       
-    ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
-    remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
-    
-    # name output_dir
+    # rename output_dir
     output_dir_prefix = self.params.output_dir
     output_dir = str(output_dir_prefix) + \
                  "_map_resolution_" + str(self.params.resolution) + \
@@ -213,8 +198,8 @@ Options:
                  "_final_" + str(self.params.final_temperature) + \
                  "_cool_" + str(self.params.cool_rate) + \
                  "_step_" + str(self.params.number_of_steps) + \
-                 "_ss_" + str(ss_restraints) + \
-                 "_remove_outlier_ss_restraints_" + str(remove_outlier_ss_restraints) 
+                 "_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
+                 "_remove_outlier_ss_restraints_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) 
     
     log_file_name = "cryo_fit2.log"
     

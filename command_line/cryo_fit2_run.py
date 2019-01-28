@@ -83,17 +83,6 @@ class cryo_fit2_class(object):
     self.logfile.write(str(cryo_fit2_input_command))
     
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
-    
-    '''
-    cc = '' # just initial value
-    try:
-        cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
-    except: # to avoid "RuntimeError: cctbx Error: Miller index not in structure factor map."
-            # when dealing with low resolution map like nucleosome or Adenylate Kinase
-            # according to https://sourceforge.net/p/cctbx/mailman/message/32850424/, "Too high resolution requested. Try running with larger d_min"
-        cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=10), 3)
-    '''
-    
     initial_CC = "\ninitial CC: " + str(cc) + "\n"
     
     print('%s' %(initial_CC))
@@ -110,13 +99,7 @@ class cryo_fit2_class(object):
       states_collector   = states,
       log                = self.logfile)
     
-    try:
-        cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=3), 3)
-    except: # to avoid "RuntimeError: cctbx Error: Miller index not in structure factor map."
-            # when dealing with low resolution map like nucleosome or Adenylate Kinase
-            # according to https://sourceforge.net/p/cctbx/mailman/message/32850424/, "Too high resolution requested. Try running with larger d_min"
-        cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=10), 3)
-        
+    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
     final_CC = "final   CC: " + str(cc) + "\n"
     output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
     if os.path.exists(output_dir_w_CC):

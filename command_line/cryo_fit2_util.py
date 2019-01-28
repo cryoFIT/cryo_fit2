@@ -168,6 +168,19 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
     libtbx.easy_run.call(command)
 ################################## end of return_to_origin_of_pdb_file ()
 
+
+def show_time(time_start, time_end):
+  time_took = 0 # temporary of course
+  if (round((time_end-time_start)/60, 1) < 1):
+    time_took = " finished in " + str(round((time_end-time_start), 2)) + " seconds (wallclock)."
+  elif (round((time_end-time_start)/60/60, 1) < 1):
+    time_took = " finished in " + str(round((time_end-time_start)/60, 2)) + " minutes (wallclock)."
+  else:
+    time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
+  return time_took
+############### end of show_time function
+
+
 def to_determine_optimal_weight(self):
     from iotbx import pdb  #contains hierarchy data structure
     pdb_io = pdb.input(self.data_manager.get_default_model_name())
@@ -226,11 +239,11 @@ def to_determine_optimal_weight(self):
     # add this bogus cryst to avoid "Sorry: Crystal symmetry is missing or cannot be extracted." in get_pdb_inputs
     # works fine w/ 80 atoms model
     # not works w/ 200k atoms model (ribosome)
-  
+    
     self.params.map_weight = determine_optimal_weight(self.params.resolution, pdb_str_1)
     self.params.map_weight = self.params.map_weight
     # original determine_optimal_weight seems for RSR, since dynamics changes conformation more, dividing by 2 seems reasonable.
     # indeed, test w/ a helix works perfectly with self.params.map_weight/3
     print ("optimized weight", str(self.params.map_weight))
     return self.params.map_weight
-    
+################ end of to_determine_optimal_weight function
