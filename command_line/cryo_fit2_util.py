@@ -46,23 +46,6 @@ def count_ATOM_HETATM(pdb_file):
     return number_of_ATOM_HETATM
 ####################### end of count_ATOM_HETATM function
 
-
-def determine_optimal_weight(d_min, pdb_str_1): # followed tst_weight.py
-    print (d_min, "-"*69)
-    pi = get_pdb_inputs(pdb_str=pdb_str_1)
-    f_calc = pi.xrs.structure_factors(d_min = d_min).f_calc()
-    fft_map = f_calc.fft_map(resolution_factor=0.25)
-    fft_map.apply_sigma_scaling()
-    map_data = fft_map.real_map_unpadded()
-    w = weight.run(
-      map_data                    = map_data,
-      xray_structure              = pi.xrs,
-      pdb_hierarchy               = pi.ph,
-      geometry_restraints_manager = pi.grm).weight
-    return w
-######################## end of determine_optimal_weight
-    
-
 def get_pdb_inputs(pdb_str):
     
     '''
@@ -77,6 +60,11 @@ def get_pdb_inputs(pdb_str):
     
     ppf = mmtbx.utils.process_pdb_file_srv().process_pdb_files(
       raw_records=pdb_str.splitlines())[0] # needs reasonable CRYST1 in .pdb file for working
+    print ("pdb_str.splitlines():",pdb_str.splitlines())
+    #print ("mmtbx.utils.process_pdb_file_srv().process_pdb_files(raw_records=pdb_str.splitlines()):", mmtbx.utils.process_pdb_file_srv().process_pdb_files(
+    #  raw_records=pdb_str.splitlines()))
+    #print ("ppf:",ppf)
+    #STOP()
     xrs = ppf.xray_structure(show_summary = False)
     restraints_manager = mmtbx.restraints.manager(
       geometry      = ppf.geometry_restraints_manager(show_energies = False),
@@ -180,13 +168,8 @@ def show_time(time_start, time_end):
   return time_took
 ############### end of show_time function
 
-
-def to_determine_optimal_weight(self):
-    from iotbx import pdb  #contains hierarchy data structure
-    pdb_io = pdb.input(self.data_manager.get_default_model_name())
-    hierarchy = pdb_io.construct_hierarchy()
-    pdb_str_1 = hierarchy.as_pdb_string()
     
+def add_bogus_CRYST1(self,pdb_str_1):
     '''
     first_line_starts_w_CRYST1 = check_whether_first_line_starts_w_CRYST1(self.data_manager.get_default_model_name())
     print ("first_line_starts_w_CRYST1:",first_line_starts_w_CRYST1)
@@ -231,19 +214,37 @@ def to_determine_optimal_weight(self):
     new_bogus_CRYST1 =  new_bogus_CRYST1 + "  90.00  90.00  90.00 P 1\n"
     pdb_str_1 = new_bogus_CRYST1 + pdb_str_1
     
-    #print ("new_bogus_CRYST1:",new_bogus_CRYST1)
-    #print ("correct_CRYST1  : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1\n")
-    
+    print ("new_bogus_CRYST1      :",new_bogus_CRYST1)
+    print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1\n")
+    return pdb_str_1
+    #STOP()
     
     #pdb_str_1 = "CRYST1   44.034   76.843   61.259  90.00  90.00  90.00 P 1\n" + pdb_str_1
     # add this bogus cryst to avoid "Sorry: Crystal symmetry is missing or cannot be extracted." in get_pdb_inputs
     # works fine w/ 80 atoms model
     # not works w/ 200k atoms model (ribosome)
+########################### end of add_bogus_CRYST1(self,pdb_str_1)
+
     
-    self.params.map_weight = determine_optimal_weight(self.params.resolution, pdb_str_1)
-    self.params.map_weight = self.params.map_weight
-    # original determine_optimal_weight seems for RSR, since dynamics changes conformation more, dividing by 2 seems reasonable.
-    # indeed, test w/ a helix works perfectly with self.params.map_weight/3
-    print ("optimized weight", str(self.params.map_weight))
+def determine_optimal_weight(self):
+    from iotbx import pdb  #contains hierarchy data structure
+    pdb_io = pdb.input(self.data_manager.get_default_model_name())
+    hierarchy = pdb_io.construct_hierarchy()
+    pdb_str_1 = hierarchy.as_pdb_string()
+    pdb_str_1 = add_bogus_CRYST1(self,pdb_str_1)
+    
+    print (self.params.resolution, "-"*69)
+    pi = get_pdb_inputs(pdb_str=pdb_str_1)
+    f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
+    fft_map = f_calc.fft_map(resolution_factor=0.25)
+    fft_map.apply_sigma_scaling()
+    map_data = fft_map.real_map_unpadded()
+    self.params.map_weight = weight.run(
+      map_data                    = map_data,
+      xray_structure              = pi.xrs,
+      pdb_hierarchy               = pi.ph,
+      geometry_restraints_manager = pi.grm).weight
+
+    print ("An optimized weight for a map", str(self.params.map_weight))
     return self.params.map_weight
-################ end of to_determine_optimal_weight function
+################ end of determine_optimal_weight

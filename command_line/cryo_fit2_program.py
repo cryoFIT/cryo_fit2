@@ -123,7 +123,8 @@ Options:
   secondary_structure.nucleic_acid.base_pair.restrain_hbonds  (default: True)
   output_dir                   (output folder name prefix, default: output)
   keep_origin                  (default: True)
-  progress_on_screen           (default: True, if True temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log)
+  progress_on_screen           (default: True)
+                               If True, temp= xx dist_moved= xx angles= xx bonds= xx are shown on screen rather than cryo_fit2.log)
 '''
 
   datatypes = ['model', 'real_map', 'phil']
@@ -160,7 +161,7 @@ Options:
     
     
     if (self.params.map_weight == None): # a user didn't specify map_weight
-      self.params.map_weight = to_determine_optimal_weight(self)
+      self.params.map_weight = determine_optimal_weight(self)
         
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
