@@ -60,10 +60,13 @@ resolution = None
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
+progress_on_screen = True
+    .type          = bool
+    .help          = If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
 keep_origin = True
-    .type = bool
-    .help = If True, write out model with origin in original location.  \
-            If False, shift origin to (0,0,0). 
+    .type   = bool
+    .help   = If True, write out model with origin in original location.  \
+              If False, shift origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 ''' ############## end of base_master_phil_str
@@ -120,6 +123,7 @@ Options:
   secondary_structure.nucleic_acid.base_pair.restrain_hbonds  (default: True)
   output_dir                   (output folder name prefix, default: output)
   keep_origin                  (default: True)
+  progress_on_screen           (default: True, if True temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log)
 '''
 
   datatypes = ['model', 'real_map', 'phil']

@@ -83,24 +83,35 @@ class cryo_fit2_class(object):
     self.logfile.write(str(cryo_fit2_input_command))
     
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
-    initial_CC = "\ninitial CC: " + str(cc) + "\n"
+    initial_CC = "\nInitial CC: " + str(cc) + "\n"
     
     print('%s' %(initial_CC))
     self.logfile.write(str(initial_CC))
     
-    result = sa.run(
-      params = params,
-      xray_structure     = self.model.get_xray_structure(),
-      restraints_manager = self.model.get_restraints_manager(),
-      target_map         = map_data,
-      real_space         = True,
-      wx                 = map_weight, # 5 broke helix conformation of tst_00_poor.pdb, 100 kept helix well
-      wc                 = 1, # weight for stereochemistry/correct conformation
-      states_collector   = states,
-      log                = self.logfile)
-    
+    if (self.params.progress_on_screen == True):
+      result = sa.run(
+        params = params,
+        xray_structure     = self.model.get_xray_structure(),
+        restraints_manager = self.model.get_restraints_manager(),
+        target_map         = map_data,
+        real_space         = True,
+        wx                 = map_weight, 
+        wc                 = 1, # weight for geometry conformation
+        states_collector   = states)
+    else: # (self.params.progress_on_screen = False):
+      result = sa.run(
+        params = params,
+        xray_structure     = self.model.get_xray_structure(),
+        restraints_manager = self.model.get_restraints_manager(),
+        target_map         = map_data,
+        real_space         = True,
+        wx                 = map_weight, 
+        wc                 = 1, # weight for geometry conformation
+        states_collector   = states,
+        log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
+        
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
-    final_CC = "final   CC: " + str(cc) + "\n"
+    final_CC = "Final   CC: " + str(cc) + "\n"
     output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
     if os.path.exists(output_dir_w_CC):
       shutil.rmtree(output_dir_w_CC)
