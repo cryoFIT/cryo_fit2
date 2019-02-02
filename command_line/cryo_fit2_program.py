@@ -105,7 +105,7 @@ Minimum required inputs:
 
 Example running command:
   phenix.cryo_fit2 model.pdb map.ccp4 resolution=5
-  
+
 Options:
   resolution                   (cryo-EM map resolution in Angstrom that needs to be entered by a user)
   map_weight                   (cryo-EM map weight. A user is recommended NOT to specify this, so that it will be automatically determined.)
@@ -170,7 +170,7 @@ Options:
     map_inp = self.data_manager.get_real_map()
     
     if (self.params.map_weight == None): # a user didn't specify map_weight
-      self.params.map_weight = determine_optimal_weight_by_template(self)
+      self.params.map_weight = determine_optimal_weight_by_template(self, model_inp)
       #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp)
         
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
@@ -184,7 +184,7 @@ Options:
     
     splited = self.data_manager.get_default_model_name().split("/")
     model_name_wo_path = splited [len(splited)-1]
-  
+
     if ((model_name_wo_path == "devel_cryo_fit2_model.pdb") or (model_name_wo_path == "devel_cryo_fit2_model.cif")):
       # "tst..." lives in modules/cryo_fit2/regression
       self.params.start_temperature = 300
@@ -192,14 +192,14 @@ Options:
       self.params.cool_rate = 10
       self.params.number_of_steps = 1
       self.params.pdb_interpretation.secondary_structure.enabled = True
-    
+
     if (model_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.cool_rate = 10
       self.params.number_of_steps = 1000
       self.params.pdb_interpretation.secondary_structure.enabled = True
-      
+
     # rename output_dir
     output_dir_prefix = self.params.output_dir
     output_dir = str(output_dir_prefix) + \

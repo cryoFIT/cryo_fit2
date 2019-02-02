@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+from cctbx.uctbx import unit_cell
 from cctbx import xray
 import iotbx.phil, libtbx
 from iotbx import map_and_model
@@ -26,7 +27,8 @@ def calculate_cc(map_data, model, resolution):
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_cc function
 
-#'''
+# keep this for now
+'''
 def check_whether_first_line_starts_w_CRYST1(pdb_file):
     fo = open(pdb_file, "r")
     lines = fo.readlines()
@@ -38,7 +40,7 @@ def check_whether_first_line_starts_w_CRYST1(pdb_file):
     fo.close()
     return False
 ####################### end of check_whether_first_line_starts_w_CRYST1 function
-#'''
+'''
 
 def count_ATOM_HETATM(pdb_file):
     number_of_ATOM_HETATM = 0
@@ -53,8 +55,8 @@ def count_ATOM_HETATM(pdb_file):
 ####################### end of count_ATOM_HETATM function
 
 
-def determine_optimal_weight_by_template(self):
-    pi  = get_pdb_inputs_by_pdb_file_name(self)
+def determine_optimal_weight_by_template(self, model_inp):
+    pi  = get_pdb_inputs_by_pdb_file_name(self, model_inp)
     f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
     fft_map = f_calc.fft_map(resolution_factor=0.25)
     fft_map.apply_sigma_scaling()
@@ -87,29 +89,34 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
     
     print ("An optimized weight for a map", str(self.params.map_weight))
     return self.params.map_weight
-####################### end of determine_optimal_weight_as_macro_cycle_RSR()
+######################## end of determine_optimal_weight_as_macro_cycle_RSR()
 
 
-def get_pdb_inputs_by_pdb_file_name(self):
+def get_pdb_inputs_by_pdb_file_name(self, model_inp):
     try: # works if pdb file has CRYST1
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
             pdb_file_names=[self.data_manager.get_default_model_name()])[0]
     except: # above try results in "Sorry: Crystal symmetry is missing or cannot be extracted."
         try: # try to garner CRYST1 info from map
-            pdb_inp = iotbx.pdb.input(file_name=self.data_manager.get_default_model_name())
-            model = mmtbx.model.manager(model_input = pdb_inp, crystal_symmetry = crystal_symmetry_from_map)
-            # tRNA, GAC and nucleosome_pol_II result in "AttributeError: 'module' object has no attribute '_unit_cell'"
-
-            ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-                pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+            model = mmtbx.model.manager(model_input = model_inp, crystal_symmetry = crystal_symmetry_from_map)
+        # tRNA -> "'manager' object has no attribute 'process_MTRIX_records'"
             
+        #pdb_inp = iotbx.pdb.input(file_name=self.data_manager.get_default_model_name())
+        #  model = mmtbx.model.manager(model_input = pdb_inp, crystal_symmetry = crystal_symmetry_from_map)
+        # tRNA, GAC and nucleosome_pol_II -> "AttributeError: 'module' object has no attribute '_unit_cell'"
+
+            #ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+            #    pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+        #'''
         except:
             print ("\nBoth pdb file and map file lack CRYST1 information.")
             print ("Therefore, map_weight can't be determined automatically.")
             print ("Either add CRYST1 info into .pdb/.cif file, or rerun cryo_fit2 with map_weight.")
             print ("For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
             exit(1)
-  
+        #'''
+    #print ("ppf:",ppf)
+    #STOP()
     xrs = ppf.xray_structure(show_summary = False)
     restraints_manager = mmtbx.restraints.manager(
       geometry      = ppf.geometry_restraints_manager(show_energies = False),
