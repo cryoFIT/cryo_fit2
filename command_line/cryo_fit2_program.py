@@ -158,13 +158,11 @@ Options:
     print ("number_of_steps", str(self.params.number_of_steps)) 
     
     time_total_start = time.time()
+    
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
-    #model = mmtbx.model.manager(model_input = model_inp, crystal_symmetry = crystal_symmetry_from_map)
-    
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
-    
     map_inp = self.data_manager.get_real_map()
     
     if (self.params.map_weight == None): # a user didn't specify map_weight
