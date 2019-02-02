@@ -48,39 +48,57 @@ def count_ATOM_HETATM(pdb_file):
     return number_of_ATOM_HETATM
 ####################### end of count_ATOM_HETATM function
 
-def get_pdb_inputs(pdb_str):
+
+def determine_optimal_weight_by_template(self):
+    #from iotbx import pdb  #contains hierarchy data structure
+    #pdb_io = pdb.input(self.data_manager.get_default_model_name())
+    print ("self.data_manager.get_default_model_name():",self.data_manager.get_default_model_name())
     
-    '''
-    processed_pdb_files_srv = utils.process_pdb_file_srv(
-      crystal_symmetry          = self.crystal_symmetry,
-      pdb_parameters            = self.params.refinement.input.pdb,
-      pdb_interpretation_params = self.params.refinement.pdb_interpretation,
-      cif_objects               = cif_objects,
-      log                       = self.log,
-      )
-    '''
+    #hierarchy = pdb_io.construct_hierarchy()
     
-    ppf = mmtbx.utils.process_pdb_file_srv().process_pdb_files(
-      raw_records=pdb_str.splitlines())[0] # needs reasonable CRYST1 in .pdb file for working  
-  
-    STOP()
-    xrs = ppf.xray_structure(show_summary = False)
-    restraints_manager = mmtbx.restraints.manager(
-      geometry      = ppf.geometry_restraints_manager(show_energies = False),
-      normalization = True)
-    return group_args(
-      ph  = ppf.all_chain_proxies.pdb_hierarchy,
-      grm = restraints_manager,
-      xrs = xrs)
-######################## end of get_pdb_inputs
+    pi  = get_pdb_inputs_by_pdb_file_name(self)
+    
+    f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
+    fft_map = f_calc.fft_map(resolution_factor=0.25)
+    fft_map.apply_sigma_scaling()
+    map_data = fft_map.real_map_unpadded()
+    self.params.map_weight = weight.run(
+      map_data                    = map_data,
+      xray_structure              = pi.xrs,
+      pdb_hierarchy               = pi.ph,
+      geometry_restraints_manager = pi.grm).weight
+
+    print ("An optimized weight for a map", str(self.params.map_weight))
+    return self.params.map_weight
+######################### end of determine_optimal_weight_by_template
+
+
+def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
+    self.structure_monitor = mmtbx.refinement.real_space.rsr_model(
+      model             = model_inp,
+      target_map_object = map_inp.map_data())
+    
+    tmp_xrs = self.structure_monitor.model.get_xray_structure().deep_copy_scatterers()
+    self.params.map_weight = weight.run(
+        map_data                    = map_inp.map_data,
+        xray_structure              = tmp_xrs,
+        pdb_hierarchy               = model_inp.get_hierarchy(),
+        geometry_restraints_manager = model_inp.get_restraints_manager())#,
+        #rms_bonds_limit             = self.params.refinement.target_bonds_rmsd,
+        #rms_angles_limit            = self.params.refinement.target_angles_rmsd,
+        #ncs_groups                  = self.ncs_groups)
+    
+    print ("An optimized weight for a map", str(self.params.map_weight))
+    return self.params.map_weight
+####################### end of determine_optimal_weight_as_macro_cycle_RSR()
 
 
 def get_pdb_inputs_by_pdb_file_name(self):
     
-    #pdb_file_name=get_fn(folder_name=folder_name, file_name=file_name)
-    #pdb_file_name = self.data_manager.get_default_model_name()
     ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
     pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+    # without CRYST1 in pdb file, this results in "Sorry: Crystal symmetry is missing or cannot be extracted."
+    
   
     xrs = ppf.xray_structure(show_summary = False)
     restraints_manager = mmtbx.restraints.manager(
@@ -91,7 +109,6 @@ def get_pdb_inputs_by_pdb_file_name(self):
       grm = restraints_manager,
       xrs = xrs)
 ######################## end of get_pdb_inputs_by_pdb_file_name
-
 
 
 def know_how_much_map_origin_moved(map_file_name):
@@ -186,136 +203,4 @@ def show_time(time_start, time_end):
   return time_took
 ############### end of show_time function
 
-'''    
-def add_bogus_CRYST1(self,pdb_str_1):
-    
-    first_line_starts_w_CRYST1 = check_whether_first_line_starts_w_CRYST1(self.data_manager.get_default_model_name())
-    print ("first_line_starts_w_CRYST1:",first_line_starts_w_CRYST1)
-    
-    number_of_ATOM_HETATM = count_ATOM_HETATM(self.data_manager.get_default_model_name())
-    print ("number_of_ATOM_HETATM:",number_of_ATOM_HETATM)
-    # http://webcache.googleusercontent.com/search?q=cache:http://www.bmsc.washington.edu/CrystaLinks/man/pdb/part_54.html
-    new_bogus_CRYST1 = "CRYST1"
-    multi_before_period = ''
-    multi_after_period = ''
-    #a = str(round(number_of_ATOM_HETATM/2,2))
-    a = str(round(number_of_ATOM_HETATM/40,4))
-    splited = a.split(".")
-    if (len(splited[0]) <= 5):
-      multi_before_period = 5-len(splited[0])
-      multi_after_period = 3-len(splited[1])
-    else:
-      multi_before_period = 7-len(splited[0])
-      multi_after_period = 0-len(splited[1])
-    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
-    
-    #b = str(round(number_of_ATOM_HETATM,2))
-    b = str(round(number_of_ATOM_HETATM/20,2))
-    splited = b.split(".")
-    if (len(splited[0]) <= 5):
-      multi_before_period = 5-len(splited[0])
-      multi_after_period = 3-len(splited[1])
-    else:
-      multi_before_period = 7-len(splited[0])
-      multi_after_period = 0-len(splited[1])
-    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
 
-    #c = str(round(number_of_ATOM_HETATM*0.9,2))
-    c = str(round((number_of_ATOM_HETATM/20)*0.9,2))
-    splited = c.split(".")
-    if (len(splited[0]) <= 5):
-      multi_before_period = 5-len(splited[0])
-      multi_after_period = 3-len(splited[1])
-    else:
-      multi_before_period = 7-len(splited[0])
-      multi_after_period = 0-len(splited[1])
-    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
-    
-    new_bogus_CRYST1 =  new_bogus_CRYST1 + "  90.00  90.00  90.00 P 1\n"
-    pdb_str_1 = new_bogus_CRYST1 + pdb_str_1
-    
-    print ("new_bogus_CRYST1      :",new_bogus_CRYST1)
-    print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1\n")
-    #STOP()
-    
-    return pdb_str_1
-    
-    #pdb_str_1 = "CRYST1   44.034   76.843   61.259  90.00  90.00  90.00 P 1\n" + pdb_str_1
-    # add this bogus cryst to avoid "Sorry: Crystal symmetry is missing or cannot be extracted." in get_pdb_inputs
-    # works fine w/ 80 atoms model
-    # not works w/ 200k atoms model (ribosome)
-########################### end of add_bogus_CRYST1(self,pdb_str_1)
-'''
-
-def determine_optimal_weight_by_template(self):
-    from iotbx import pdb  #contains hierarchy data structure
-    pdb_io = pdb.input(self.data_manager.get_default_model_name())
-    print ("self.data_manager.get_default_model_name():",self.data_manager.get_default_model_name())
-    #STOP()
-    hierarchy = pdb_io.construct_hierarchy()
-    pdb_str_1 = hierarchy.as_pdb_string()
-    #pdb_str_1 = add_bogus_CRYST1(self,pdb_str_1)
-    
-    print (self.params.resolution, "-"*69)
-    
-    #pi = get_pdb_inputs(pdb_str=pdb_str_1)
-    pi  = get_pdb_inputs_by_pdb_file_name(self)
-    
-    f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
-    fft_map = f_calc.fft_map(resolution_factor=0.25)
-    fft_map.apply_sigma_scaling()
-    map_data = fft_map.real_map_unpadded()
-    self.params.map_weight = weight.run(
-      map_data                    = map_data,
-      xray_structure              = pi.xrs,
-      pdb_hierarchy               = pi.ph,
-      geometry_restraints_manager = pi.grm).weight
-
-    print ("An optimized weight for a map", str(self.params.map_weight))
-    return self.params.map_weight
-################ end of determine_optimal_weight_by_template
-
-
-    
-def determine_optimal_weight(self):
-    from iotbx import pdb  #contains hierarchy data structure
-    pdb_io = pdb.input(self.data_manager.get_default_model_name())
-    hierarchy = pdb_io.construct_hierarchy()
-    pdb_str_1 = hierarchy.as_pdb_string()
-    #pdb_str_1 = add_bogus_CRYST1(self,pdb_str_1)
-    
-    print (self.params.resolution, "-"*69)
-    pi = get_pdb_inputs(pdb_str=pdb_str_1)
-    f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
-    fft_map = f_calc.fft_map(resolution_factor=0.25)
-    fft_map.apply_sigma_scaling()
-    map_data = fft_map.real_map_unpadded()
-    self.params.map_weight = weight.run(
-      map_data                    = map_data,
-      xray_structure              = pi.xrs,
-      pdb_hierarchy               = pi.ph,
-      geometry_restraints_manager = pi.grm).weight
-
-    print ("An optimized weight for a map", str(self.params.map_weight))
-    return self.params.map_weight
-################ end of determine_optimal_weight
-
-
-def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, map_inp_by_file_object, model_inp):
-    self.structure_monitor = mmtbx.refinement.real_space.rsr_model(
-      model             = model_inp,
-      target_map_object = map_inp_by_file_object.map_data())
-    
-    tmp_xrs = self.structure_monitor.model.get_xray_structure().deep_copy_scatterers()
-    self.params.map_weight = weight.run(
-        map_data                    = map_inp.map_data,
-        xray_structure              = tmp_xrs,
-        pdb_hierarchy               = model_inp.get_hierarchy(),
-        geometry_restraints_manager = model_inp.get_restraints_manager())#,
-        #rms_bonds_limit             = self.params.refinement.target_bonds_rmsd,
-        #rms_angles_limit            = self.params.refinement.target_angles_rmsd,
-        #ncs_groups                  = self.ncs_groups)
-    
-    print ("An optimized weight for a map", str(self.params.map_weight))
-    return self.params.map_weight
-####################### end of determine_optimal_weight_as_macro_cycle_RSR()

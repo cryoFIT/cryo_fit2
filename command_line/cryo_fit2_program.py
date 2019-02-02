@@ -161,60 +161,15 @@ Options:
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
-    #pdb_inp = iotbx.pdb.input(file_name=self.data_manager.get_default_model_name())
-    #model = mmtbx.model.manager(model_input = pdb_inp)
-    #print ("model:",model)
-    
     #model = mmtbx.model.manager(model_input = model_inp, crystal_symmetry = crystal_symmetry_from_map)
     
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     
     map_inp = self.data_manager.get_real_map()
     
-    
-    '''
-    from iotbx import ccp4_map
-    ccp4_map = ccp4_map.map_reader(self.data_manager.get_default_real_map_name())
-    target_map_data = ccp4_map.map_data()
-    print (dir(ccp4_map))
-    print (dir(ccp4_map.unit_cell))
-    print (dir(ccp4_map.unit_cell_crystal_symmetry))
-    #print ("target_map_data:",target_map_data)
-    #print ("target_map_data.origin():",target_map_data.origin())
-    print ("model_inp.crystal_symmetry():",model_inp.crystal_symmetry())
-    #print ("dir(target_map):",dir(target_map))
-    #print ("dir(target_map.unit_cell):",dir(target_map.unit_cell))
-    '''
-    
-    '''
-    ccp4_map_in = file_reader.any_file(self.data_manager.get_default_real_map_name(), force_type="ccp4_map")
-    ccp4_map_in.check_file_type("ccp4_map")
-    map_inp_by_file_object = ccp4_map_in.file_object
-    unit_cell = map_inp_by_file_object.grid_unit_cell()
-    print ("unit_cell:",unit_cell) # (0.736875, 0.721734, 0.68725, 90, 90, 90) for input/map.ccp4
-    '''
-    
-    #print ("unit_cell[0]:",unit_cell[0])
-    '''
-    ccp4_map_in = file_reader.any_file(params.map_file, force_type="ccp4_map")
-    ccp4_map_in.check_file_type("ccp4_map")
-    map_inp = ccp4_map_in.file_object
-    cs_consensus = mmtbx.utils.check_and_set_crystal_symmetry(
-      models = [model], map_inps=[map_inp])
-    base = map_and_model.input(
-      map_data         = map_inp.map_data(),
-      model            = model,
-      box              = False)
-    hierarchy = base.model().get_hierarchy()
-    map_data = base.map_data()
-    unit_cell = map_inp.grid_unit_cell()
-    '''
-   # STOP()
-    
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self)
-      #self.params.map_weight = determine_optimal_weight(self)
-      #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, map_inp_by_file_object, model_inp)
+      #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp)
         
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
