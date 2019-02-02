@@ -1,13 +1,17 @@
 from __future__ import division, print_function
 from cctbx import xray
 import iotbx.phil, libtbx
+from iotbx import map_and_model
+from iotbx.xplor import crystal_symmetry_from_map
+
 from libtbx import group_args
 from libtbx.utils import Sorry
-from iotbx import map_and_model
 from libtbx.utils import null_out
+
 import mmtbx.utils, os
 from mmtbx.dynamics import simulated_annealing as sa
 from mmtbx.refinement.real_space import weight
+
 import shutil
 
 
@@ -50,14 +54,7 @@ def count_ATOM_HETATM(pdb_file):
 
 
 def determine_optimal_weight_by_template(self):
-    #from iotbx import pdb  #contains hierarchy data structure
-    #pdb_io = pdb.input(self.data_manager.get_default_model_name())
-    print ("self.data_manager.get_default_model_name():",self.data_manager.get_default_model_name())
-    
-    #hierarchy = pdb_io.construct_hierarchy()
-    
     pi  = get_pdb_inputs_by_pdb_file_name(self)
-    
     f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
     fft_map = f_calc.fft_map(resolution_factor=0.25)
     fft_map.apply_sigma_scaling()
@@ -94,10 +91,13 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 def get_pdb_inputs_by_pdb_file_name(self):
-    
-    ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-    pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-    # without CRYST1 in pdb file, this results in "Sorry: Crystal symmetry is missing or cannot be extracted."
+
+    try: # works if pdb file has CRYST1
+        ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+        pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+    except: # above try results in "Sorry: Crystal symmetry is missing or cannot be extracted."
+        pdb_inp = iotbx.pdb.input(file_name=self.data_manager.get_default_model_name())
+        model = mmtbx.model.manager(model_input = pdb_inp, crystal_symmetry = crystal_symmetry_from_map)
     
   
     xrs = ppf.xray_structure(show_summary = False)
