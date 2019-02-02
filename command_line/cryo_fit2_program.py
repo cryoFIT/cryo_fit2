@@ -64,7 +64,8 @@ output_dir = output
   .short_caption = Output folder PREFIX
 progress_on_screen = True
     .type          = bool
-    .help          = If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
+    .help          = If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log \
+                     If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
@@ -125,8 +126,11 @@ Options:
   secondary_structure.nucleic_acid.base_pair.restrain_hbonds  (default: True)
   output_dir                   (output folder name prefix, default: output)
   keep_origin                  (default: True)
+                               If True, write out model with origin in original location.
+                               If False, shift origin to (0,0,0). 
   progress_on_screen           (default: True)
-                               If True, temp= xx dist_moved= xx angles= xx bonds= xx are shown on screen rather than cryo_fit2.log)
+                               If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
+                               If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
 '''
 
   datatypes = ['model', 'real_map', 'phil']
