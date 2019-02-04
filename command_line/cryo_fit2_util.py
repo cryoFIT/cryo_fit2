@@ -110,9 +110,10 @@ def get_pdb_inputs_by_pdb_file_name(self, model_inp):
         #'''
         except:
             print ("\nBoth pdb file and map file lack CRYST1 information.")
-            print ("Therefore, map_weight can't be determined automatically.")
+            print ("Therefore, map_weight can't be optimized automatically.")
             print ("Either add CRYST1 info into .pdb/.cif file, or rerun cryo_fit2 with map_weight.")
             print ("For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
+            print ("However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map.")
             exit(1)
         #'''
     #print ("ppf:",ppf)
