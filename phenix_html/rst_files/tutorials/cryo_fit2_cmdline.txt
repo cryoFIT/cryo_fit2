@@ -23,14 +23,19 @@ See the `installation notes for cryo_fit2
 
 Input
 -------------------
-<initial_model> and <target_map>
+<initial_model>, <target_map> and <map resolution>
 
 The <initial_model> is a guide or template structure (.cif/mmCIF/.pdb) that is close to a
 <target_map> (.ccp4/.map) structurally.
 
-You can use either `map_to_model
+User can use `map_to_model
 <https://www.phenix-online.org/documentation/reference/map_to_model.html>`_
-or UCSF chimera (Tools->Volume Data->Fit in Map).
+to build the atomic model.
+
+User can use either `dock_in_map
+<https://www.phenix-online.org/documentation/reference/dock_in_map.html>`_
+or UCSF chimera (Tools->Volume Data->Fit in Map) to roughly place the
+model into a map.
 
 
 Running the program
@@ -38,7 +43,7 @@ Running the program
 
 At command line::
 
-  % phenix.cryo_fit2 <initial_model> <target_map>
+  % phenix.cryo_fit2 <initial_model> <target_map> <map resolution in Angstrom>
   
 Tutorial command::
 
@@ -46,7 +51,8 @@ Tutorial command::
 
   % source run_me.sh
 
-  % (run_me.sh is phenix.cryo_fit2 input/tutorial_cryo_fit2_model.pdb input/tutorial_cryo_fit2_map.ccp4)
+  % (run_me.sh is phenix.cryo_fit2 input/tutorial_cryo_fit2_model.pdb
+    input/tutorial_cryo_fit2_map.ccp4 resolution=4)
 
 
 Output
@@ -81,6 +87,7 @@ All options will be used as default if unspecified. e.g. `secondary_structure_en
 =True
 
 
+
 List of most useful options
 ---------------------------------
 
@@ -88,15 +95,19 @@ List of most useful options
 | Option                 | Default value| Description of inputs                                       |
 |                        |              | and uses                                                    |
 +------------------------+--------------+-------------------------------------------------------------+
-| start_temperature      | 500          | Start temperature (Kelvin) for molecular dynamics simulation|
+| resolution             | none         | cryo-EM map resolution (Angstrom)                           |
+|                        |              | that needs to be specified by a user                        |
 +------------------------+--------------+-------------------------------------------------------------+
-| final_temperature      | 300          | Final temperature (Kelvin) for molecular dynamics simulation|
+| start_temperature      | 300          | Start temperature (Kelvin) for molecular dynamics simulation|
 +------------------------+--------------+-------------------------------------------------------------+
-| cool_rate              | 50           | Rate of cooling temperature (Kelvin) for MD simulation      |
+| final_temperature      | 0            | Final temperature (Kelvin) for molecular dynamics simulation|
 +------------------------+--------------+-------------------------------------------------------------+
-| number_of_steps        | 10           | Number of MD simulation steps at each temperature           |
+| cool_rate              | 10           | Rate of cooling temperature (Kelvin) for MD simulation      |
 +------------------------+--------------+-------------------------------------------------------------+
-| wx                     | 10           | A weight toward cryo-EM map                                 |
+| number_of_steps        | 1000         | Number of MD simulation steps at each temperature           |
++------------------------+--------------+-------------------------------------------------------------+
+| map_weight             | automatically| A weight toward cryo-EM map                                 |
+|                        | optimized    |                                                             |
 +------------------------+--------------+-------------------------------------------------------------+
 | secondary_structure.en | True         | Most MD simulations tend to break secondary structure.      |
 | abled                  |              | Therefore, turning on this option is recommended.           |
@@ -110,6 +121,9 @@ List of most useful options
 +------------------------+--------------+-------------------------------------------------------------+
 | output_dir             | output       | Output folder name prefix                                   |
 +------------------------+--------------+-------------------------------------------------------------+
-| keep_origin            | True         | Keep origin of input pdb structure whether the cryo-EM map  |
-|                        |              | origin is 0,0,0 or not                                      |
+| keep_progress_on_screen| True         | If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown  |
+|                        |              | on screen rather than cryo_fit2.log                         |
++------------------------+--------------+-------------------------------------------------------------+
+| keep_origin            | True         | If True, write out model with origin in original location.  |
+|                        |              | If False, shift map origin to (0,0,0)                       |
 +------------------------+--------------+-------------------------------------------------------------+

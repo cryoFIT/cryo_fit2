@@ -64,12 +64,12 @@ output_dir = output
   .short_caption = Output folder PREFIX
 progress_on_screen = True
     .type          = bool
-    .help          = If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log \
-                     If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
+    .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
+                     If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
-              If False, shift origin to (0,0,0). 
+              If False, shift map origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 ''' ############## end of base_master_phil_str
