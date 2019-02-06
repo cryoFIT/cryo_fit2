@@ -15,6 +15,196 @@ from mmtbx.refinement.real_space import weight
 
 import shutil
 
+def add_bogus_CRYST1(self,pdb_str_1):
+    '''
+    first_line_starts_w_CRYST1 = check_whether_first_line_starts_w_CRYST1(self.data_manager.get_default_model_name())
+    print ("first_line_starts_w_CRYST1:",first_line_starts_w_CRYST1)
+    '''
+    
+    number_of_ATOM_HETATM = count_ATOM_HETATM(self.data_manager.get_default_model_name())
+    print ("number_of_ATOM_HETATM:",number_of_ATOM_HETATM)
+    # http://webcache.googleusercontent.com/search?q=cache:http://www.bmsc.washington.edu/CrystaLinks/man/pdb/part_54.html
+    new_bogus_CRYST1 = "CRYST1"
+    multi_before_period = ''
+    multi_after_period = ''
+    a = str(round(number_of_ATOM_HETATM/2,2))
+    splited = a.split(".")
+    if (len(splited[0]) <= 5):
+      multi_before_period = 5-len(splited[0])
+      multi_after_period = 3-len(splited[1])
+    else:
+      multi_before_period = 7-len(splited[0])
+      multi_after_period = 0-len(splited[1])
+    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
+    
+    b = str(round(number_of_ATOM_HETATM,2))
+    splited = b.split(".")
+    if (len(splited[0]) <= 5):
+      multi_before_period = 5-len(splited[0])
+      multi_after_period = 3-len(splited[1])
+    else:
+      multi_before_period = 7-len(splited[0])
+      multi_after_period = 0-len(splited[1])
+    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
+
+    c = str(round(number_of_ATOM_HETATM*0.9,2))
+    splited = c.split(".")
+    if (len(splited[0]) <= 5):
+      multi_before_period = 5-len(splited[0])
+      multi_after_period = 3-len(splited[1])
+    else:
+      multi_before_period = 7-len(splited[0])
+      multi_after_period = 0-len(splited[1])
+    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
+    
+    new_bogus_CRYST1 =  new_bogus_CRYST1 + "  90.00  90.00  90.00 P 1\n"
+    pdb_str_1 = new_bogus_CRYST1 + pdb_str_1
+    
+    print ("new_bogus_CRYST1      :",new_bogus_CRYST1)
+    print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1\n")
+    return pdb_str_1
+    #STOP()
+    
+    #pdb_str_1 = "CRYST1   44.034   76.843   61.259  90.00  90.00  90.00 P 1\n" + pdb_str_1
+    # add this bogus cryst to avoid "Sorry: Crystal symmetry is missing or cannot be extracted." in get_pdb_inputs
+    # works fine w/ 80 atoms model
+    # not works w/ 200k atoms model (ribosome)
+########################### end of add_bogus_CRYST1(self,pdb_str_1)
+
+
+def add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map):
+    write_this_CRYST1 = "CRYST1"
+    unit_cell_info_from_map = str(unit_cell_info_from_map)
+    print ("unit_cell_info_from_map:",unit_cell_info_from_map)
+    splited = unit_cell_info_from_map.split(",")
+    # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
+    #print ("splited:",splited)
+    soon_a = splited[0]
+    splited_soon_a = soon_a.split("(")
+    a = splited_soon_a[1]
+    
+    multi_before_period = ''
+    multi_after_period = ''
+    
+    splited_a = a.split(".")
+    if (len(splited_a) == 1): # just 336
+        multi_before_period = 5-len(splited_a[0])
+        multi_after_period  = 3
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + multi_after_period*" "    
+    else:
+        if (len(splited_a[0]) <= 5):
+          multi_before_period = 5-len(splited_a[0])
+          multi_after_period = 3-len(splited_a[1])
+        else:
+          multi_before_period = 7-len(splited_a[0])
+          multi_after_period = 0-len(splited_a[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + "." + splited_a[1]+multi_after_period*" "    
+    
+    
+    b = splited[1]
+    splited_b = b.split(".")
+    if (len(splited_b) == 1): # just 336
+        multi_before_period = 6-len(splited_b[0])
+        multi_after_period  = 3
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + multi_after_period*" " 
+    else:
+        if (len(splited_b[0]) <= 5):
+            multi_before_period = 5-len(splited_b[0])
+            multi_after_period = 3-len(splited_b[1])
+        else:
+            multi_before_period = 7-len(splited_b[0])
+            multi_after_period = 0-len(splited_b[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + "." + splited_b[1]+multi_after_period*" "
+
+    
+    
+    c = splited[2]
+    splited_c = c.split(".")
+    if (len(splited_c) == 1): # just 336
+        multi_before_period = 6-len(splited_c[0])
+        multi_after_period  = 3
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + multi_after_period*" "
+    else:
+        if (len(splited_c[0]) <= 5):
+            multi_before_period = 5-len(splited_c[0])
+            multi_after_period = 3-len(splited_c[1])
+        else:
+            multi_before_period = 7-len(splited_c[0])
+            multi_after_period = 0-len(splited_c[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + "." + splited_c[1]+multi_after_period*" "
+    
+
+    alpha = splited[3].strip(' ')
+    splited_alpha = alpha.split(".")
+    print ("len(splited_alpha):",len(splited_alpha))
+    print ("len(splited_alpha[0]):",len(splited_alpha[0]))
+    if (len(splited_alpha) == 1): # just 90
+        multi_before_period = 4-len(splited_alpha[0])
+        multi_after_period  = 2
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + multi_after_period*" "
+    else:
+        if (len(splited_alpha[0]) <= 5):
+            multi_before_period = 4-len(splited_alpha[0])
+            multi_after_period = 2-len(splited_alpha[1])
+        else:
+            multi_before_period = 5-len(splited_alpha[0])
+            multi_after_period = 0-len(splited_alpha[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + "." + splited_alpha[1]+multi_after_period*" "
+    
+    
+    beta = splited[4]
+    splited_beta = beta.split(".")
+    if (len(splited_beta) == 1): # just 90
+        multi_before_period = 5-len(splited_beta[0])
+        multi_after_period  = 2
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + multi_after_period*" "
+    else:
+        if (len(splited_beta[0]) <= 5):
+            multi_before_period = 4-len(splited_beta[0])
+            multi_after_period = 2-len(splited_beta[1])
+        else:
+            multi_before_period = 5-len(splited_beta[0])
+            multi_after_period = 0-len(splited_beta[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + "." + splited_beta[1]+multi_after_period*" "
+        
+    
+    soon_gamma = splited[5]
+    splited_soon_gamma = soon_gamma.split(")")
+    gamma = splited_soon_gamma[0]
+    splited_gamma = gamma.split(".")
+    if (len(splited_gamma) == 1): # just 90
+        multi_before_period = 5-len(splited_gamma[0])
+        multi_after_period  = 2
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + multi_after_period*" "
+    else:
+        if (len(splited_gamma[0]) <= 5):
+            multi_before_period = 4-len(splited_gamma[0])
+            multi_after_period = 2-len(splited_gamma[1])
+        else:
+            multi_before_period = 5-len(splited_gamma[0])
+            multi_after_period = 0-len(splited_gamma[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
+        
+    write_this_CRYST1 =  write_this_CRYST1 + "  P 1\n"
+    
+    print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
+                                    
+    print ("write_this_CRYST1     :",write_this_CRYST1)
+    
+    user_s_original_pdb_file = self.data_manager.get_default_model_name() + ".original"
+    command = "cp " + self.data_manager.get_default_model_name() + " " + user_s_original_pdb_file
+    libtbx.easy_run.call(command)
+    
+    line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)    
+########################### end of add_extracted_CRYST1
+
+
+def line_prepender(filename, line):
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
+        
 
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
@@ -55,8 +245,8 @@ def count_ATOM_HETATM(pdb_file):
 ####################### end of count_ATOM_HETATM function
 
 
-def determine_optimal_weight_by_template(self, model_inp):
-    pi  = get_pdb_inputs_by_pdb_file_name(self, model_inp)
+def determine_optimal_weight_by_template(self, map_inp):
+    pi  = get_pdb_inputs_by_pdb_file_name(self, map_inp)
     f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
     fft_map = f_calc.fft_map(resolution_factor=0.25)
     fft_map.apply_sigma_scaling()
@@ -92,22 +282,19 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 ######################## end of determine_optimal_weight_as_macro_cycle_RSR()
 
 
-def get_pdb_inputs_by_pdb_file_name(self, model_inp):
+def get_pdb_inputs_by_pdb_file_name(self, map_inp):
     try: # works if pdb file has CRYST1
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
             pdb_file_names=[self.data_manager.get_default_model_name()])[0]
     except: # above try results in "Sorry: Crystal symmetry is missing or cannot be extracted."
-        try: # try to garner CRYST1 info from map
-            model = mmtbx.model.manager(model_input = model_inp, crystal_symmetry = crystal_symmetry_from_map)
-        # tRNA -> "'manager' object has no attribute 'process_MTRIX_records'"
+        try: # try to extract CRYST1 info from map
+            unit_cell_info_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
+            print (unit_cell_info_from_map)
+            add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map)
             
-        #pdb_inp = iotbx.pdb.input(file_name=self.data_manager.get_default_model_name())
-        #  model = mmtbx.model.manager(model_input = pdb_inp, crystal_symmetry = crystal_symmetry_from_map)
-        # tRNA, GAC and nucleosome_pol_II -> "AttributeError: 'module' object has no attribute '_unit_cell'"
+            ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+                pdb_file_names=[self.data_manager.get_default_model_name()])[0]
 
-            #ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-            #    pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-        #'''
         except:
             print ("\nBoth pdb file and map file lack CRYST1 information.")
             print ("Therefore, map_weight can't be optimized automatically.")
@@ -115,9 +302,7 @@ def get_pdb_inputs_by_pdb_file_name(self, model_inp):
             print ("For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
             print ("However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map.")
             exit(1)
-        #'''
-    #print ("ppf:",ppf)
-    #STOP()
+
     xrs = ppf.xray_structure(show_summary = False)
     restraints_manager = mmtbx.restraints.manager(
       geometry      = ppf.geometry_restraints_manager(show_energies = False),

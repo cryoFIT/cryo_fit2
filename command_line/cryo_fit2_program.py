@@ -168,9 +168,33 @@ Options:
     
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
+    map_inp.crystal_symmetry()
+    
+    ####### works
+    print ("dir(map_inp):",dir(map_inp))
+    print ("map_inp.show_summary():")
+    map_inp.show_summary()
+    print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
+    
+    # just shows address of the object
+    print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry())
+    
+    ########## not works
+    '''map_inp.unit_cell_crystal_symmetry()
+    
+    print ("map_inp.space_group_number():",map_inp.space_group_number())
+    print ("map_inp.unit_cell_parameters():",map_inp.unit_cell_parameters())
+    map_inp.unit_cell_parameters()
+    print ("map_inp.unit_cell_parameters().unit_cell():",map_inp.unit_cell_parameters().unit_cell())
+    '''
+    
+    # print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
+    # unit_cell_info_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
+    # print (unit_cell_info_from_map)
+    #STOP()
     
     if (self.params.map_weight == None): # a user didn't specify map_weight
-      self.params.map_weight = determine_optimal_weight_by_template(self, model_inp)
+      self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
       #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp)
         
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)

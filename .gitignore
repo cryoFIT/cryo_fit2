@@ -3,5 +3,6 @@
 *~
 #*
 *.DS_Store
-tutorial/output*
 regression/output*
+tutorial/cryo_fit2.input_command.txt
+tutorial/output*
