@@ -15,62 +15,6 @@ from mmtbx.refinement.real_space import weight
 
 import shutil
 
-def add_bogus_CRYST1(self,pdb_str_1):
-    '''
-    first_line_starts_w_CRYST1 = check_whether_first_line_starts_w_CRYST1(self.data_manager.get_default_model_name())
-    print ("first_line_starts_w_CRYST1:",first_line_starts_w_CRYST1)
-    '''
-    
-    number_of_ATOM_HETATM = count_ATOM_HETATM(self.data_manager.get_default_model_name())
-    print ("number_of_ATOM_HETATM:",number_of_ATOM_HETATM)
-    # http://webcache.googleusercontent.com/search?q=cache:http://www.bmsc.washington.edu/CrystaLinks/man/pdb/part_54.html
-    new_bogus_CRYST1 = "CRYST1"
-    multi_before_period = ''
-    multi_after_period = ''
-    a = str(round(number_of_ATOM_HETATM/2,2))
-    splited = a.split(".")
-    if (len(splited[0]) <= 5):
-      multi_before_period = 5-len(splited[0])
-      multi_after_period = 3-len(splited[1])
-    else:
-      multi_before_period = 7-len(splited[0])
-      multi_after_period = 0-len(splited[1])
-    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
-    
-    b = str(round(number_of_ATOM_HETATM,2))
-    splited = b.split(".")
-    if (len(splited[0]) <= 5):
-      multi_before_period = 5-len(splited[0])
-      multi_after_period = 3-len(splited[1])
-    else:
-      multi_before_period = 7-len(splited[0])
-      multi_after_period = 0-len(splited[1])
-    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
-
-    c = str(round(number_of_ATOM_HETATM*0.9,2))
-    splited = c.split(".")
-    if (len(splited[0]) <= 5):
-      multi_before_period = 5-len(splited[0])
-      multi_after_period = 3-len(splited[1])
-    else:
-      multi_before_period = 7-len(splited[0])
-      multi_after_period = 0-len(splited[1])
-    new_bogus_CRYST1 = new_bogus_CRYST1 + multi_before_period*" "+splited[0] + "." + splited [1]+multi_after_period*" "
-    
-    new_bogus_CRYST1 =  new_bogus_CRYST1 + "  90.00  90.00  90.00 P 1\n"
-    pdb_str_1 = new_bogus_CRYST1 + pdb_str_1
-    
-    print ("new_bogus_CRYST1      :",new_bogus_CRYST1)
-    print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1\n")
-    return pdb_str_1
-    #STOP()
-    
-    #pdb_str_1 = "CRYST1   44.034   76.843   61.259  90.00  90.00  90.00 P 1\n" + pdb_str_1
-    # add this bogus cryst to avoid "Sorry: Crystal symmetry is missing or cannot be extracted." in get_pdb_inputs
-    # works fine w/ 80 atoms model
-    # not works w/ 200k atoms model (ribosome)
-########################### end of add_bogus_CRYST1(self,pdb_str_1)
-
 
 def add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map):
     write_this_CRYST1 = "CRYST1"
@@ -116,7 +60,6 @@ def add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map):
             multi_after_period = 0-len(splited_b[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + "." + splited_b[1]+multi_after_period*" "
 
-    
     
     c = splited[2]
     splited_c = c.split(".")
@@ -186,9 +129,7 @@ def add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map):
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
         
     write_this_CRYST1 =  write_this_CRYST1 + "  P 1\n"
-    
     print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
-                                    
     print ("write_this_CRYST1     :",write_this_CRYST1)
     
     user_s_original_pdb_file = self.data_manager.get_default_model_name() + ".original"
@@ -204,7 +145,8 @@ def line_prepender(filename, line):
         content = f.read()
         f.seek(0, 0)
         f.write(line.rstrip('\r\n') + '\n' + content)
-        
+#################### end of line_prepender()
+
 
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
