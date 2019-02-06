@@ -204,7 +204,7 @@ def determine_optimal_weight_by_template(self, map_inp):
     return self.params.map_weight
 ######################### end of determine_optimal_weight_by_template
 
-
+'''
 def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
     self.structure_monitor = mmtbx.refinement.real_space.rsr_model(
       model             = model_inp,
@@ -223,7 +223,7 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
     print ("An optimized weight for a map", str(self.params.map_weight))
     return self.params.map_weight
 ######################## end of determine_optimal_weight_as_macro_cycle_RSR()
-
+'''
 
 def get_pdb_inputs_by_pdb_file_name(self, map_inp):
     try: # works if pdb file has CRYST1
@@ -232,7 +232,7 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
     except: # above try results in "Sorry: Crystal symmetry is missing or cannot be extracted."
         try: # try to extract CRYST1 info from map
             unit_cell_info_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
-            print (unit_cell_info_from_map)
+            #print (unit_cell_info_from_map)
             user_s_original_pdb_file = add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map)
             
             ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
@@ -247,7 +247,7 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
             print ("Therefore, map_weight can't be optimized automatically.")
             print ("Either add CRYST1 info into .pdb/.cif file, or rerun cryo_fit2 with map_weight.")
             print ("For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
-            print ("However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map.")
+            print ("However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.")
             exit(1)
 
     xrs = ppf.xray_structure(show_summary = False)
