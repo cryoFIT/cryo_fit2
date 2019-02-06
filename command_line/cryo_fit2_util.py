@@ -136,8 +136,9 @@ def add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map):
     command = "cp " + self.data_manager.get_default_model_name() + " " + user_s_original_pdb_file
     libtbx.easy_run.call(command)
     
-    line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)    
-########################### end of add_extracted_CRYST1
+    line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)
+    return user_s_original_pdb_file
+########################### end of add_extracted_CRYST1_to_pdb_file
 
 
 def line_prepender(filename, line):
@@ -232,11 +233,15 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
         try: # try to extract CRYST1 info from map
             unit_cell_info_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
             print (unit_cell_info_from_map)
-            add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map)
+            user_s_original_pdb_file = add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map)
             
             ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
                 pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-
+            
+            # return to original pdb file since I can't guarantee space group info
+            command = "mv " + user_s_original_pdb_file + " " + self.data_manager.get_default_model_name()
+            libtbx.easy_run.call(command)
+    
         except:
             print ("\nBoth pdb file and map file lack CRYST1 information.")
             print ("Therefore, map_weight can't be optimized automatically.")
