@@ -57,7 +57,7 @@ map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
                    For protein only model, a user is recommended NOT to specify this, so that it will be automatically determined. \
-                   If the model has nucleic acid, maximum will be 0.1. Too high map_weight breaks base pairs. 
+                   If the model has nucleic acid, maximum will be 0.4. Too high map_weight breaks base pairs. 
 resolution = None
   .type = int
   .short_caption = cryo-EM map resolution (Angstrom) that needs to be specified by a user
@@ -120,7 +120,7 @@ Options:
   resolution                   (cryo-EM map resolution in Angstrom that needs to be entered by a user)
   map_weight                   (cryo-EM map weight.
                                 For protein only model, a user is recommended NOT to specify this, so that it will be automatically determined.
-                                If the model has nucleic acid, maximum will be 0.1. Too high map_weight breaks base pairs. 
+                                If the model has nucleic acid, maximum will be 0.4. Too high map_weight breaks base pairs. 
   start_temperature            (default: 300)
   final_temperature            (default: 0)
   cool_rate                    (default: 10)
@@ -246,8 +246,8 @@ Options:
     
     has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
     if (has_nucleic_acid == True):
-      if (self.params.map_weight > 0.1):
-        self.params.map_weight = 0.1
+      if (self.params.map_weight > 0.4):
+        self.params.map_weight = 0.4
         STOP()
       
     # rename output_dir
