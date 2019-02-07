@@ -55,7 +55,9 @@ number_of_steps = 1000
   .short_caption = number_of_steps in phenix.dynamics
 map_weight = None
   .type = float
-  .short_caption = cryo-EM map weight. A user is recommended NOT to specify this, so that it will be automatically determined.
+  .short_caption = cryo-EM map weight. \
+                   A user is recommended NOT to specify this for protein model, so that it will be automatically determined. \
+                   For RNA model, 0.5 is recommended. Too high map_weight seems to break base pairs.
 resolution = None
   .type = int
   .short_caption = cryo-EM map resolution (Angstrom) that needs to be specified by a user
@@ -108,7 +110,9 @@ Example running command:
 
 Options:
   resolution                   (cryo-EM map resolution in Angstrom that needs to be entered by a user)
-  map_weight                   (cryo-EM map weight. A user is recommended NOT to specify this, so that it will be automatically determined.)
+  map_weight                   (cryo-EM map weight.
+                                A user is recommended NOT to specify this for protein model, so that it will be automatically determined.
+                                For RNA model, 0.5 is recommended. Too high map_weight seems to break base pairs.)
   start_temperature            (default: 300)
   final_temperature            (default: 0)
   cool_rate                    (default: 10)
