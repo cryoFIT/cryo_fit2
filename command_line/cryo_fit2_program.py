@@ -172,14 +172,23 @@ Options:
     
     ####### works
     print ("dir(map_inp):",dir(map_inp))
-    print ("map_inp.show_summary():")
-    map_inp.show_summary()
+    #print ("map_inp.show_summary():", map_inp.show_summary())
+    #STOP()
     print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
+    print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
     
     # just shows address of the object
-    print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry())
+    #print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry())
+    #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry())
+    
+    # just shows address of the instance
+    #print ("map_inp.crystal_symmetry:",map_inp.crystal_symmetry)
+    
     
     ########## test
+    
+    
+    #STOP()
     #map_inp.space_group_number()
     #print ("map_inp.space_group_number():",map_inp.space_group_number())
     #print ("str(map_inp.space_group_number()):",str(map_inp.space_group_number()))
@@ -190,7 +199,7 @@ Options:
     map_inp.unit_cell_crystal_symmetry()
     
     print ("map_inp.space_group_number():",map_inp.space_group_number())
-    print ("map_inp.unit_cell_parameters():",map_inp.unit_cell_parameters())
+    
     map_inp.unit_cell_parameters()
     print ("map_inp.unit_cell_parameters().unit_cell():",map_inp.unit_cell_parameters().unit_cell())
     '''

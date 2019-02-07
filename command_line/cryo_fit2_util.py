@@ -16,11 +16,11 @@ from mmtbx.refinement.real_space import weight
 import shutil
 
 
-def add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map):
+def add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map):
     write_this_CRYST1 = "CRYST1"
-    unit_cell_info_from_map = str(unit_cell_info_from_map)
-    print ("unit_cell_info_from_map:",unit_cell_info_from_map)
-    splited = unit_cell_info_from_map.split(",")
+    unit_cell_parameters_from_map = str(unit_cell_parameters_from_map)
+    print ("unit_cell_parameters_from_map:",unit_cell_parameters_from_map)
+    splited = unit_cell_parameters_from_map.split(",")
     # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
     #print ("splited:",splited)
     soon_a = splited[0]
@@ -231,9 +231,9 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
             pdb_file_names=[self.data_manager.get_default_model_name()])[0]
     except: # above try results in "Sorry: Crystal symmetry is missing or cannot be extracted."
         try: # try to extract CRYST1 info from map
-            unit_cell_info_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
-            #print (unit_cell_info_from_map)
-            user_s_original_pdb_file = add_extracted_CRYST1_to_pdb_file(self,unit_cell_info_from_map)
+            unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
+            #print (unit_cell_parameters_from_map)
+            user_s_original_pdb_file = add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map)
             
             ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
                 pdb_file_names=[self.data_manager.get_default_model_name()])[0]
