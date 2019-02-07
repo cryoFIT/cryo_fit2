@@ -73,6 +73,9 @@ keep_origin = True
     .help   = If True, write out model with origin in original location.  \
               If False, shift map origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
+devel = True
+    .type   = bool
+    .help   = If True, run quickly only to check sanity
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
 ''' ############## end of base_master_phil_str
@@ -143,6 +146,8 @@ Options:
   progress_on_screen           (default: False)
                                If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
                                If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
+  devel                        (default: False)
+                               If True, run quickly only to check sanity
 '''
 
   datatypes = ['model', 'real_map', 'phil']
@@ -229,10 +234,10 @@ Options:
     splited = self.data_manager.get_default_model_name().split("/")
     model_name_wo_path = splited [len(splited)-1]
 
-    if ((model_name_wo_path == "devel_cryo_fit2_model.pdb") or (model_name_wo_path == "devel_cryo_fit2_model.cif")):
+    if ((self.params.devel == True) or (model_name_wo_path == "devel_cryo_fit2_model.pdb") or (model_name_wo_path == "devel_cryo_fit2_model.cif")):
       # "tst..." lives in modules/cryo_fit2/regression
       self.params.start_temperature = 300
-      self.params.final_temperature = 270
+      self.params.final_temperature = 280
       self.params.cool_rate = 10
       self.params.number_of_steps = 1
       self.params.pdb_interpretation.secondary_structure.enabled = True
@@ -248,7 +253,6 @@ Options:
     if (has_nucleic_acid == True):
       if (self.params.map_weight > 0.4):
         self.params.map_weight = 0.4
-        STOP()
       
     # rename output_dir
     output_dir_prefix = self.params.output_dir

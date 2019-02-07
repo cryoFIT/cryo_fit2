@@ -180,7 +180,7 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
     fo = open(pdb_file, "r")
     lines = fo.readlines()
     for line in lines:
-        print ("line:",line)
+        #print ("line:",line)
         residue = line[17:20].strip()
         if (residue == "A") or (residue == "U") or (residue == "G") or (residue == "C") or (residue == "T"):
             fo.close()
