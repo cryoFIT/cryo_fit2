@@ -56,8 +56,8 @@ number_of_steps = 1000
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
-                   A user is recommended NOT to specify this for protein model, so that it will be automatically determined. \
-                   For RNA model, 0.5 is recommended. Too high map_weight seems to break base pairs.
+                   For protein only model, a user is recommended NOT to specify this, so that it will be automatically determined. \
+                   If the model has nucleic acid, maximum will be 0.1. Too high map_weight breaks base pairs. 
 resolution = None
   .type = int
   .short_caption = cryo-EM map resolution (Angstrom) that needs to be specified by a user
@@ -74,7 +74,9 @@ keep_origin = True
               If False, shift map origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
+include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
 ''' ############## end of base_master_phil_str
+
 
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
@@ -86,13 +88,19 @@ modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
 '''
-new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = False'
+#print ("modified_master_phil_str:",modified_master_phil_str)
+new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = True'
+modified_master_phil_str = change_default_phil_values(
+  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+print ("modified_master_phil_str:",modified_master_phil_str)
+#STOP()
+
+new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds = True'
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
-new_default3 = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds = True'
-modified_master_phil_str = change_default_phil_values(
-  modified_master_phil_str, new_default3, phil_parse=iotbx.phil.parse)
+print ("modified_master_phil_str:",modified_master_phil_str)
+#STOP()
 '''
 
 class Program(ProgramTemplate):
@@ -111,8 +119,8 @@ Example running command:
 Options:
   resolution                   (cryo-EM map resolution in Angstrom that needs to be entered by a user)
   map_weight                   (cryo-EM map weight.
-                                A user is recommended NOT to specify this for protein model, so that it will be automatically determined.
-                                For RNA model, 0.5 is recommended. Too high map_weight seems to break base pairs.)
+                                For protein only model, a user is recommended NOT to specify this, so that it will be automatically determined.
+                                If the model has nucleic acid, maximum will be 0.1. Too high map_weight breaks base pairs. 
   start_temperature            (default: 300)
   final_temperature            (default: 0)
   cool_rate                    (default: 10)
@@ -180,6 +188,8 @@ Options:
     #STOP()
     print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
     print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
+    #print ("str(map_inp.space_group_number):",str(map_inp.space_group_number))
+    
     
     # just shows address of the object
     #print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry())
@@ -190,24 +200,19 @@ Options:
     
     
     ########## test
-    
-    
-    #STOP()
     #map_inp.space_group_number()
     #print ("map_inp.space_group_number():",map_inp.space_group_number())
     #print ("str(map_inp.space_group_number()):",str(map_inp.space_group_number()))
-    print ("str(map_inp.space_group_number):",str(map_inp.space_group_number))
+    
     
     ########## not works
     '''
     map_inp.unit_cell_crystal_symmetry()
-    
     print ("map_inp.space_group_number():",map_inp.space_group_number())
-    
     map_inp.unit_cell_parameters()
     print ("map_inp.unit_cell_parameters().unit_cell():",map_inp.unit_cell_parameters().unit_cell())
     '''
-    #STOP()
+    
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
       #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp)
@@ -238,7 +243,13 @@ Options:
       self.params.cool_rate = 10
       self.params.number_of_steps = 1000
       self.params.pdb_interpretation.secondary_structure.enabled = True
-
+    
+    has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
+    if (has_nucleic_acid == True):
+      if (self.params.map_weight > 0.1):
+        self.params.map_weight = 0.1
+        STOP()
+      
     # rename output_dir
     output_dir_prefix = self.params.output_dir
     output_dir = str(output_dir_prefix) + \
@@ -249,7 +260,9 @@ Options:
                  "_cool_" + str(self.params.cool_rate) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
-                 "_remove_outlier_ss_restraints_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) 
+                 "_remove_outlier_ss_res_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) #+ \
+                 #"_bp_planar_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity) + \
+                 #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
     log_file_name = "cryo_fit2.log"
     

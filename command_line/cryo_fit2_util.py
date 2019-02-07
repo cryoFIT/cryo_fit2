@@ -175,6 +175,21 @@ def check_whether_first_line_starts_w_CRYST1(pdb_file):
 ####################### end of check_whether_first_line_starts_w_CRYST1 function
 '''
 
+
+def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
+    fo = open(pdb_file, "r")
+    lines = fo.readlines()
+    for line in lines:
+        print ("line:",line)
+        residue = line[17:20].strip()
+        if (residue == "A") or (residue == "U") or (residue == "G") or (residue == "C") or (residue == "T"):
+            fo.close()
+            return True
+    fo.close()
+    return False
+####################### end of check_whether_first_line_starts_w_CRYST1 function
+
+
 def count_ATOM_HETATM(pdb_file):
     number_of_ATOM_HETATM = 0
     fo = open(pdb_file, "r")
