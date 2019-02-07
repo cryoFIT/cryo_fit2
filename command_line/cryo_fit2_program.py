@@ -73,7 +73,7 @@ keep_origin = True
     .help   = If True, write out model with origin in original location.  \
               If False, shift map origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
-devel = True
+devel = False
     .type   = bool
     .help   = If True, run quickly only to check sanity
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
