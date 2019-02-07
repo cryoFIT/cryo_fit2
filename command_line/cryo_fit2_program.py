@@ -54,7 +54,7 @@ number_of_steps = 1000
   .type = int
   .short_caption = number_of_steps in phenix.dynamics
 map_weight = None
-  .type = int
+  .type = float
   .short_caption = cryo-EM map weight. A user is recommended NOT to specify this, so that it will be automatically determined.
 resolution = None
   .type = int
@@ -62,7 +62,7 @@ resolution = None
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
-progress_on_screen = True
+progress_on_screen = False
     .type          = bool
     .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
@@ -128,7 +128,7 @@ Options:
   keep_origin                  (default: True)
                                If True, write out model with origin in original location.
                                If False, shift origin to (0,0,0). 
-  progress_on_screen           (default: True)
+  progress_on_screen           (default: False)
                                If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
                                If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
 '''
