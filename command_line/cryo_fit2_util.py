@@ -160,21 +160,6 @@ def calculate_cc(map_data, model, resolution):
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_cc function
 
-# keep this for now
-'''
-def check_whether_first_line_starts_w_CRYST1(pdb_file):
-    fo = open(pdb_file, "r")
-    lines = fo.readlines()
-    for line in lines:
-        print ("line:",line)
-        if line[0:6] == "CRYST1":
-            fo.close()
-            return True
-    fo.close()
-    return False
-####################### end of check_whether_first_line_starts_w_CRYST1 function
-'''
-
 
 def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
     fo = open(pdb_file, "r")
@@ -187,20 +172,7 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
             return True
     fo.close()
     return False
-####################### end of check_whether_first_line_starts_w_CRYST1 function
-
-
-def count_ATOM_HETATM(pdb_file):
-    number_of_ATOM_HETATM = 0
-    fo = open(pdb_file, "r")
-    lines = fo.readlines()
-    for line in lines:
-        #print ("line:",line)
-        if line[0:4] == "ATOM" or line[0:6] == "HETATM":
-            number_of_ATOM_HETATM = number_of_ATOM_HETATM + 1
-    fo.close()
-    return number_of_ATOM_HETATM
-####################### end of count_ATOM_HETATM function
+####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
 def determine_optimal_weight_by_template(self, map_inp):
