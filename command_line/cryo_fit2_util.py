@@ -246,7 +246,7 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
             print ("\n(possible reason 1) There could be some atoms with unknown nonbonded energy type symbols in the given atomic model.")
             print ("(possible reason 1 solution) Fix atoms with unknown nonbonded energy type symbols in the given atomic model.")
             print ("(possible reason 1 solution) real_space_refine will tell you which atoms have unknown nonbonded energy type symbols in the given atomic model.")
-            print ("\n(possible reason 2) Or both pdb file and map file lack CRYST1 information.")
+            print ("\n(possible reason 2) Both pdb file and map file lack CRYST1 information.")
             print ("(possible reason 2 solution) Either add CRYST1 info into .pdb/.cif file, or rerun cryo_fit2 with map_weight.")
             print ("(possible reason 2 solution) For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
             print ("(possible reason 2 solution) However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.")
