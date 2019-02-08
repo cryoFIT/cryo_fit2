@@ -137,8 +137,6 @@ Options:
   secondary_structure.protein.remove_outliers (default: True)
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
-  secondary_structure.nucleic_acid.base_pair.restrain_planarity  (default: True)
-  secondary_structure.nucleic_acid.base_pair.restrain_hbonds  (default: True)
   output_dir                   (output folder name prefix, default: output)
   keep_origin                  (default: True)
                                If True, write out model with origin in original location.
@@ -150,6 +148,9 @@ Options:
                                If True, run quickly only to check sanity
 '''
 
+  #secondary_structure.nucleic_acid.base_pair.restrain_planarity  (default: True)
+  #secondary_structure.nucleic_acid.base_pair.restrain_hbonds  (default: True)
+  
   datatypes = ['model', 'real_map', 'phil']
   citations = program_citations
   master_phil_str = modified_master_phil_str # this is ESSENTIAL to avoid
@@ -170,7 +171,7 @@ Options:
       raise Sorry("Map resolution is required. Type \"phenix.cryo_fit2\" to know minimally required options")
 
   # ---------------------------------------------------------------------------
-  def run(self): # this run function actually executed (8/6/2018)
+  def run(self): 
     
     print ("user entered resolution", str(self.params.resolution))
     print ("start_temperature", str(self.params.start_temperature))
@@ -193,8 +194,8 @@ Options:
     #STOP()
     print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
     print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
-    #print ("str(map_inp.space_group_number):",str(map_inp.space_group_number))
-    
+    print ("str(map_inp.space_group_number):",str(map_inp.space_group_number))
+    #STOP()
     
     # just shows address of the object
     #print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry())
@@ -218,13 +219,22 @@ Options:
     print ("map_inp.unit_cell_parameters().unit_cell():",map_inp.unit_cell_parameters().unit_cell())
     '''
     
+    has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
+    if (has_nucleic_acid == True):
+      if (self.params.map_weight > 0.4):
+        self.params.map_weight = 0.4
+    
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
       #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp)
         
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
+    print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled)
+    #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled)
+    
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
+    #STOP()
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
     log = multi_out()
@@ -240,7 +250,6 @@ Options:
       self.params.final_temperature = 280
       self.params.cool_rate = 10
       self.params.number_of_steps = 1
-      self.params.pdb_interpretation.secondary_structure.enabled = True
 
     if (model_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
@@ -249,10 +258,7 @@ Options:
       self.params.number_of_steps = 1000
       self.params.pdb_interpretation.secondary_structure.enabled = True
     
-    has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
-    if (has_nucleic_acid == True):
-      if (self.params.map_weight > 0.4):
-        self.params.map_weight = 0.4
+    
       
     # rename output_dir
     output_dir_prefix = self.params.output_dir

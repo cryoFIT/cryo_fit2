@@ -63,6 +63,8 @@ class cryo_fit2_class(object):
     map_weight = self.params.map_weight
     ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
     remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
+    NA_enabled = self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled
+    
     
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.model_name + " " + self.map_name + " " \
                               + "resolution=" + str(self.params.resolution) + " " \
@@ -72,7 +74,8 @@ class cryo_fit2_class(object):
                               + "cool_rate=" + str(params.cool_rate) + " " \
                               + "number_of_steps=" + str(params.number_of_steps) + " " \
                               + "secondary_structure.enabled=" + str(ss_restraints) + " " \
-                              + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + "\n"
+                              + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + " " \
+                              + "secondary_structure.nucleic_acid.enabled=" + str(NA_enabled) + "\n"
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)
     
     input_command_file = open("cryo_fit2.input_command.txt", "w")

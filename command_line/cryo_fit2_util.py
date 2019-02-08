@@ -79,8 +79,8 @@ def add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map):
 
     alpha = splited[3].strip(' ')
     splited_alpha = alpha.split(".")
-    print ("len(splited_alpha):",len(splited_alpha))
-    print ("len(splited_alpha[0]):",len(splited_alpha[0]))
+    #print ("len(splited_alpha):",len(splited_alpha))
+    #print ("len(splited_alpha[0]):",len(splited_alpha[0]))
     if (len(splited_alpha) == 1): # just 90
         multi_before_period = 4-len(splited_alpha[0])
         multi_after_period  = 2
@@ -213,10 +213,22 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 '''
 
 def get_pdb_inputs_by_pdb_file_name(self, map_inp):
-    try: # works if pdb file has CRYST1
+    #ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+    #        pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+    #'''
+    try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
             pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-    except: # above try results in "Sorry: Crystal symmetry is missing or cannot be extracted."
+    except:
+        # above try results in "Sorry: Crystal symmetry is missing or cannot be extracted."
+        # or
+        #Sorry: Fatal problems interpreting model file:
+        #    Number of atoms with unknown nonbonded energy type symbols: 26
+        #    Please edit the model file to resolve the problems and/or supply a
+        #    CIF file with matching restraint definitions, along with
+        #    apply_cif_modification and apply_cif_link parameter definitions
+        #    if necessary.
+        #
         try: # try to extract CRYST1 info from map
             unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
             #print (unit_cell_parameters_from_map)
@@ -225,18 +237,21 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
             ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
                 pdb_file_names=[self.data_manager.get_default_model_name()])[0]
             
-            # return to original pdb file since I can't guarantee space group info
+            # return to original pdb file since I can't guarantee space group and z number
             command = "mv " + user_s_original_pdb_file + " " + self.data_manager.get_default_model_name()
             libtbx.easy_run.call(command)
     
         except:
-            print ("\nBoth pdb file and map file lack CRYST1 information.")
-            print ("Therefore, map_weight can't be optimized automatically.")
-            print ("Either add CRYST1 info into .pdb/.cif file, or rerun cryo_fit2 with map_weight.")
-            print ("For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
-            print ("However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.")
+            print ("map_weight can't be optimized automatically.")
+            print ("\n(possible reason 1) There could be some atoms with unknown nonbonded energy type symbols in the given atomic model.")
+            print ("(possible reason 1 solution) Fix atoms with unknown nonbonded energy type symbols in the given atomic model.")
+            print ("(possible reason 1 solution) real_space_refine will tell you which atoms have unknown nonbonded energy type symbols in the given atomic model.")
+            print ("\n(possible reason 2) Or both pdb file and map file lack CRYST1 information.")
+            print ("(possible reason 2 solution) Either add CRYST1 info into .pdb/.cif file, or rerun cryo_fit2 with map_weight.")
+            print ("(possible reason 2 solution) For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
+            print ("(possible reason 2 solution) However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.")
             exit(1)
-
+    
     xrs = ppf.xray_structure(show_summary = False)
     restraints_manager = mmtbx.restraints.manager(
       geometry      = ppf.geometry_restraints_manager(show_energies = False),
