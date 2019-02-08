@@ -221,7 +221,7 @@ Options:
     
     has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
     if (has_nucleic_acid == True):
-      if (self.params.map_weight > 0.4):
+      if ((self.params.map_weight == None) or (self.params.map_weight > 0.4)):
         self.params.map_weight = 0.4
     
     if (self.params.map_weight == None): # a user didn't specify map_weight

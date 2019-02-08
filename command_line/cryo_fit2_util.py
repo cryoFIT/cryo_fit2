@@ -220,14 +220,14 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
             pdb_file_names=[self.data_manager.get_default_model_name()])[0]
     except:
-        # above try results in "Sorry: Crystal symmetry is missing or cannot be extracted."
+        # above try either results in "Sorry: Crystal symmetry is missing or cannot be extracted."
         # or
-        #Sorry: Fatal problems interpreting model file:
-        #    Number of atoms with unknown nonbonded energy type symbols: 26
+        #   "Sorry: Fatal problems interpreting model file:
+        #    Number of atoms with unknown nonbonded energy type symbols: xx
         #    Please edit the model file to resolve the problems and/or supply a
         #    CIF file with matching restraint definitions, along with
         #    apply_cif_modification and apply_cif_link parameter definitions
-        #    if necessary.
+        #    if necessary."
         #
         try: # try to extract CRYST1 info from map
             unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
