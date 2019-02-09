@@ -64,7 +64,8 @@ class cryo_fit2_class(object):
     ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
     remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
     NA_enabled = self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled
-    
+    hb_dis = self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff
+    angle = self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff
     
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.model_name + " " + self.map_name + " " \
                               + "resolution=" + str(self.params.resolution) + " " \
@@ -75,7 +76,10 @@ class cryo_fit2_class(object):
                               + "number_of_steps=" + str(params.number_of_steps) + " " \
                               + "secondary_structure.enabled=" + str(ss_restraints) + " " \
                               + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + " " \
-                              + "secondary_structure.nucleic_acid.enabled=" + str(NA_enabled) + "\n"
+                              + "secondary_structure.nucleic_acid.enabled=" + str(NA_enabled) + " " \
+                              + "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(hb_dis) + " " \
+                              + "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(angle) + " " \
+                              + "\n"
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)
     
     input_command_file = open("cryo_fit2.input_command.txt", "w")
@@ -84,7 +88,7 @@ class cryo_fit2_class(object):
     
     self.logfile.write("Input command: ")
     self.logfile.write(str(cryo_fit2_input_command))
-    
+    #log.register("logfile", logfile)
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
     initial_CC = "\nInitial CC: " + str(cc) + "\n"
     

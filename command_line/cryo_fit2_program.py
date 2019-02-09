@@ -56,15 +56,15 @@ number_of_steps = 1000
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
-                   For protein only model, a user is recommended NOT to specify this, so that it will be automatically determined. \
-                   If the model has nucleic acid, maximum will be 0.4. Too high map_weight breaks base pairs. 
+                   A user is recommended NOT to specify this, so that it will be automatically optimized. \
+                   If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
 resolution = None
   .type = int
   .short_caption = cryo-EM map resolution (Angstrom) that needs to be specified by a user
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
-progress_on_screen = False
+progress_on_screen = True
     .type          = bool
     .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
@@ -122,8 +122,8 @@ Example running command:
 Options:
   resolution                   (cryo-EM map resolution in Angstrom that needs to be entered by a user)
   map_weight                   (cryo-EM map weight.
-                                For protein only model, a user is recommended NOT to specify this, so that it will be automatically determined.
-                                If the model has nucleic acid, maximum will be 0.4. Too high map_weight breaks base pairs. 
+                               A user is recommended NOT to specify this, so that it will be automatically optimized.
+                               If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.)
   start_temperature            (default: 300)
   final_temperature            (default: 0)
   cool_rate                    (default: 10)
@@ -194,7 +194,8 @@ Options:
     #STOP()
     print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
     print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
-    print ("str(map_inp.space_group_number):",str(map_inp.space_group_number))
+    #print ("str(map_inp.space_group_number):",str(map_inp.space_group_number))
+    print ("map_inp.space_group_number:",(map_inp.space_group_number))
     #STOP()
     
     # just shows address of the object
@@ -219,15 +220,28 @@ Options:
     print ("map_inp.unit_cell_parameters().unit_cell():",map_inp.unit_cell_parameters().unit_cell())
     '''
     
+    '''
     has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
     if (has_nucleic_acid == True):
-      if ((self.params.map_weight == None) or (self.params.map_weight > 0.4)):
+      if (self.params.map_weight == None):
         self.params.map_weight = 0.4
+      #elif (self.params.map_weight > 0.4): # for 20A saxs derived "cryo-EM" map
+      #  self.params.map_weight = 0.4
+      elif (self.params.map_weight > 5): # for 30A saxs derived "cryo-EM" map
+        self.params.map_weight = 5
+    '''
+    
+    #self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
+    #STOP()
     
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
       #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp)
-        
+    
+    #self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
+    #self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=30
+    
+    print ("final self.params.map_weight:",round(self.params.map_weight,1))
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
     print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled)
@@ -257,20 +271,20 @@ Options:
       self.params.cool_rate = 10
       self.params.number_of_steps = 1000
       self.params.pdb_interpretation.secondary_structure.enabled = True
-    
-    
       
     # rename output_dir
     output_dir_prefix = self.params.output_dir
     output_dir = str(output_dir_prefix) + \
-                 "_map_resolution_" + str(self.params.resolution) + \
-                 "_map_weight_" + str(round(self.params.map_weight,1)) + \
+                 "_resolution_" + str(self.params.resolution) + \
+                 "_map_wt_" + str(round(self.params.map_weight,1)) + \
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
                  "_cool_" + str(self.params.cool_rate) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
-                 "_remove_outlier_ss_res_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) #+ \
+                 "_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
+                 "_hb_dis_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + \
+                 "_angle_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff)
                  #"_bp_planar_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity) + \
                  #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
