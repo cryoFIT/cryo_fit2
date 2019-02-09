@@ -64,7 +64,7 @@ resolution = None
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
-progress_on_screen = True
+progress_on_screen = False
     .type          = bool
     .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
@@ -238,8 +238,8 @@ Options:
       self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
       #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp)
     
-    #self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
-    #self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=30
+    self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
+    self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=30
     
     print ("final self.params.map_weight:",round(self.params.map_weight,1))
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
