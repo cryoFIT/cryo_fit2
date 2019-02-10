@@ -50,47 +50,14 @@ class cryo_fit2_class(object):
     states.add(sites_cart = self.model.get_xray_structure().sites_cart())
   
     params = sa.master_params().extract()
-    
+    # because of params = sa.master_params().extract() above, core parameters need to be redefined
     params.start_temperature       = self.params.start_temperature
     params.final_temperature       = self.params.final_temperature
     params.cool_rate               = self.params.cool_rate
     params.number_of_steps         = self.params.number_of_steps
-    print ("self.params.resolution:", self.params.resolution)
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
     
-    # because of params = sa.master_params().extract() above, map_weight and secondary_structure_enabled are dealt without "params"
-    map_weight = self.params.map_weight
-    ss_restraints = self.params.pdb_interpretation.secondary_structure.enabled
-    remove_outlier_ss_restraints = self.params.pdb_interpretation.secondary_structure.protein.remove_outliers
-    NA_enabled = self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled
-    hb_dis = self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff
-    angle = self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff
-    
-    '''
-    cryo_fit2_input_command = "phenix.cryo_fit2 " + self.model_name + " " + self.map_name + " " \
-                              + "resolution=" + str(self.params.resolution) + " " \
-                              + "map_weight=" + str(round(map_weight,1)) + " " \
-                              + "start_temperature=" + str(params.start_temperature) + " " \
-                              + "final_temperature=" + str(params.final_temperature) + " " \
-                              + "cool_rate=" + str(params.cool_rate) + " " \
-                              + "steps=" + str(params.number_of_steps) + " " \
-                              + "secondary_structure.enabled=" + str(ss_restraints) + " " \
-                              + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + " " \
-                              + "secondary_structure.nucleic_acid.enabled=" + str(NA_enabled) + " " \
-                              + "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(hb_dis) + " " \
-                              + "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(angle) + " " \
-                              + "\n"
-    print ("cryo_fit2_input_command:",cryo_fit2_input_command)
-    
-    input_command_file = open("cryo_fit2.input_command.txt", "w")
-    input_command_file.write(str(cryo_fit2_input_command))
-    input_command_file.close()
-    
-    self.logfile.write("Input command: ")
-    self.logfile.write(str(cryo_fit2_input_command))
-    '''
-    #log.register("logfile", logfile)
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
     initial_CC = "\nInitial CC: " + str(cc) + "\n"
     
@@ -104,7 +71,7 @@ class cryo_fit2_class(object):
         restraints_manager = self.model.get_restraints_manager(),
         target_map         = map_data,
         real_space         = True,
-        wx                 = map_weight, 
+        wx                 = self.params.map_weight, 
         wc                 = 1, # weight for geometry conformation
         states_collector   = states)
     else: # (self.params.progress_on_screen = False):
@@ -114,7 +81,7 @@ class cryo_fit2_class(object):
         restraints_manager = self.model.get_restraints_manager(),
         target_map         = map_data,
         real_space         = True,
-        wx                 = map_weight, 
+        wx                 = self.params.map_weight, 
         wc                 = 1, # weight for geometry conformation
         states_collector   = states,
         log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
