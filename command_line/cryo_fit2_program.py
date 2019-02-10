@@ -288,37 +288,37 @@ Options:
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     log.register("logfile", logfile)
     
-    #start_temperature
-    #final_temperature
     
-    if (self.params.map_weight == None): # a user didn't specify map_weight
-      self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
-      #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp) 
-    print ("final self.params.map_weight:",round(self.params.map_weight,1))
-
-  #                              + "map_weight=" + str(round(map_weight,1)) + " " \    
+    #                              + "map_weight=" + str(round(map_weight,1)) + " " \    
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
-                              + "resolution=" + str(self.params.resolution) + " " \
-                              + "start_temperature=" + str(self.params.start_temperature) + " " \
-                              + "final_temperature=" + str(self.params.final_temperature) + " " \
-                              + "cool_rate=" + str(self.params.cool_rate) + " " \
-                              + "steps=" + str(self.params.number_of_steps) + " " \
-                              + "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
-                              + "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
-                              + "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
-                              + "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
-                              + "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
-                              + "\n"
+                            + "resolution=" + str(self.params.resolution) + " " \
+                            + "start_temperature=" + str(self.params.start_temperature) + " " \
+                            + "final_temperature=" + str(self.params.final_temperature) + " " \
+                            + "cool_rate=" + str(self.params.cool_rate) + " " \
+                            + "steps=" + str(self.params.number_of_steps) + " " \
+                            + "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
+                            + "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
+                            + "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
+                            + "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
+                            + "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
+                            + "\n"
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)
     
     input_command_file = open("cryo_fit2.input_command.txt", "w")
     input_command_file.write(str(cryo_fit2_input_command))
     input_command_file.close()
-                                  
     
     logfile.write("Input command: ")
     logfile.write(str(cryo_fit2_input_command))
     
+    
+    
+    
+    if (self.params.map_weight == None): # a user didn't specify map_weight
+        self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
+      
+    #print ("used self.params.map_weight for ",current_start_temp, " and ", current_final_temp, ":", round(self.params.map_weight,1))
+      
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
       model_name        = self.data_manager.get_default_model_name(),
@@ -331,15 +331,62 @@ Options:
     
     task_obj.validate()
     output_dir_w_CC = task_obj.run()
+      
+    '''
+    ###############################################
+    ###############################################
+    ###############################################
+    initial_start_temp = self.params.start_temperature
+    initial_final_temp = self.params.final_temperature
     
-    time_total_end = time.time()
-    time_took = show_time(time_total_start, time_total_end)
-
-    logfile.write(str("cryo_fit2"))
-    logfile.write(str(time_took))
-    logfile.write("\n")
-    logfile.close()
+    temp_interval = (initial_start_temp - initial_final_temp)/2
+    
+    first_iteration = True
+    current_start_temp = ''
+    user_defined_map_weight = ''
+    while (current_start_temp != initial_final_temp):
+      
+      if (first_iteration == True):
+        current_start_temp = initial_start_temp
+        first_iteration = False
+      else:
+        current_start_temp = current_start_temp - temp_interval
+      current_final_temp = current_start_temp - temp_interval
+      
+      if (self.params.map_weight == None): # a user didn't specify map_weight
+        self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
+      else:
+        user_defined_map_weight = True
+      print ("used self.params.map_weight for ",current_start_temp, " and ", current_final_temp, ":", round(self.params.map_weight,1))
+    
+      
+      task_obj = cryo_fit2_run.cryo_fit2_class(
+        model             = model_inp,
+        model_name        = self.data_manager.get_default_model_name(),
+        map_inp           = map_inp,
+        params            = self.params,
+        out               = self.logger,
+        map_name          = self.data_manager.get_default_real_map_name(),
+        logfile           = logfile,
+        output_dir        = output_dir)
+      
+      task_obj.validate()
+      output_dir_w_CC = task_obj.run()
+      if (user_defined_map_weight == False):
+        self.params.map_weight == None
+    ###############################################
+    ###############################################
+    ###############################################
+    ######################### (real end of cryo_fit2 running) ################################    
+    '''
     
     mv_command_string = "mv " + log_file_name + " " + output_dir_w_CC
     libtbx.easy_run.fully_buffered(mv_command_string)
     
+    time_total_end = time.time()
+    time_took = show_time(time_total_start, time_total_end)
+    
+    logfile.write(str("cryo_fit2"))
+    logfile.write(str(time_took))
+    logfile.write("\n")
+    logfile.close()
