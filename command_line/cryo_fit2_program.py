@@ -52,7 +52,7 @@ cool_rate = 10
   .short_caption = cooling rate of annealing in Kelvin
 number_of_steps = 1000
   .type = int
-  .short_caption = number_of_steps in phenix.dynamics
+  .short_caption = number of steps in phenix.dynamics
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
@@ -64,7 +64,7 @@ resolution = None
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
-progress_on_screen = False
+progress_on_screen = True
     .type          = bool
     .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
@@ -231,17 +231,11 @@ Options:
         self.params.map_weight = 5
     '''
     
-    #self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
-    #STOP()
-    
-    if (self.params.map_weight == None): # a user didn't specify map_weight
-      self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
-      #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp)
-    
+
     self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
     self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=30
     
-    print ("final self.params.map_weight:",round(self.params.map_weight,1))
+    
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
     print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled)
@@ -272,17 +266,18 @@ Options:
       self.params.number_of_steps = 1000
       self.params.pdb_interpretation.secondary_structure.enabled = True
       
+    #"_map_wt_" + str(round(self.params.map_weight,1)) + \
     # rename output_dir
     output_dir_prefix = self.params.output_dir
     output_dir = str(output_dir_prefix) + \
                  "_resolution_" + str(self.params.resolution) + \
-                 "_map_wt_" + str(round(self.params.map_weight,1)) + \
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
                  "_cool_" + str(self.params.cool_rate) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  "_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
+                 "_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \
                  "_hb_dis_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + \
                  "_angle_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff)
                  #"_bp_planar_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity) + \
@@ -292,6 +287,37 @@ Options:
     
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     log.register("logfile", logfile)
+    
+    #start_temperature
+    #final_temperature
+    
+    if (self.params.map_weight == None): # a user didn't specify map_weight
+      self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
+      #self.params.map_weight = determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp) 
+    print ("final self.params.map_weight:",round(self.params.map_weight,1))
+
+  #                              + "map_weight=" + str(round(map_weight,1)) + " " \    
+    cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
+                              + "resolution=" + str(self.params.resolution) + " " \
+                              + "start_temperature=" + str(self.params.start_temperature) + " " \
+                              + "final_temperature=" + str(self.params.final_temperature) + " " \
+                              + "cool_rate=" + str(self.params.cool_rate) + " " \
+                              + "steps=" + str(self.params.number_of_steps) + " " \
+                              + "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
+                              + "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
+                              + "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
+                              + "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
+                              + "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
+                              + "\n"
+    print ("cryo_fit2_input_command:",cryo_fit2_input_command)
+    
+    input_command_file = open("cryo_fit2.input_command.txt", "w")
+    input_command_file.write(str(cryo_fit2_input_command))
+    input_command_file.close()
+                                  
+    
+    logfile.write("Input command: ")
+    logfile.write(str(cryo_fit2_input_command))
     
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,

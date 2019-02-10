@@ -67,13 +67,14 @@ class cryo_fit2_class(object):
     hb_dis = self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff
     angle = self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff
     
+    '''
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.model_name + " " + self.map_name + " " \
                               + "resolution=" + str(self.params.resolution) + " " \
                               + "map_weight=" + str(round(map_weight,1)) + " " \
                               + "start_temperature=" + str(params.start_temperature) + " " \
                               + "final_temperature=" + str(params.final_temperature) + " " \
                               + "cool_rate=" + str(params.cool_rate) + " " \
-                              + "number_of_steps=" + str(params.number_of_steps) + " " \
+                              + "steps=" + str(params.number_of_steps) + " " \
                               + "secondary_structure.enabled=" + str(ss_restraints) + " " \
                               + "secondary_structure.protein.remove_outliers=" + str(remove_outlier_ss_restraints) + " " \
                               + "secondary_structure.nucleic_acid.enabled=" + str(NA_enabled) + " " \
@@ -88,6 +89,7 @@ class cryo_fit2_class(object):
     
     self.logfile.write("Input command: ")
     self.logfile.write(str(cryo_fit2_input_command))
+    '''
     #log.register("logfile", logfile)
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
     initial_CC = "\nInitial CC: " + str(cc) + "\n"
@@ -118,7 +120,7 @@ class cryo_fit2_class(object):
         log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
         
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
-    final_CC = "Final   CC: " + str(cc) + "\n"
+    final_CC = "Final   CC: " + str(cc) + "\n\n"
     output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
     if os.path.exists(output_dir_w_CC):
       shutil.rmtree(output_dir_w_CC)
