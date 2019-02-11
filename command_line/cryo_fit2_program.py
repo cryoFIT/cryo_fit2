@@ -68,6 +68,11 @@ progress_on_screen = True
     .type          = bool
     .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
+loose_ss_def = True
+    .type   = bool
+    .help   = If True, secondary structure definition for nucleic acid is loose  \
+              If False, use Oleg's original strict definition. 
+    .short_caption = Keep origin of a resulted atomic model
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
@@ -231,9 +236,9 @@ Options:
         self.params.map_weight = 5
     '''
     
-
-    self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
-    self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=30
+    if (self.params.loose_ss_def == True):
+      self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
+      self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=30
     
     
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
@@ -313,11 +318,9 @@ Options:
     
     
     
-    
+    ###############  (begin) when optimizing map_weight once
     if (self.params.map_weight == None): # a user didn't specify map_weight
         self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
-      
-    #print ("used self.params.map_weight for ",current_start_temp, " and ", current_final_temp, ":", round(self.params.map_weight,1))
       
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
@@ -331,11 +334,11 @@ Options:
     
     task_obj.validate()
     output_dir_w_CC = task_obj.run()
-      
+    ############### (end) when optimizing map_weight once
+    
+    
     '''
-    ###############################################
-    ###############################################
-    ###############################################
+    ###############  (begin) when optimizing map_weight many times
     initial_start_temp = self.params.start_temperature
     initial_final_temp = self.params.final_temperature
     
@@ -374,11 +377,9 @@ Options:
       output_dir_w_CC = task_obj.run()
       if (user_defined_map_weight == False):
         self.params.map_weight == None
-    ###############################################
-    ###############################################
-    ###############################################
-    ######################### (real end of cryo_fit2 running) ################################    
+    ###############  (end) when optimizing map_weight many times
     '''
+    
     
     mv_command_string = "mv " + log_file_name + " " + output_dir_w_CC
     libtbx.easy_run.fully_buffered(mv_command_string)
