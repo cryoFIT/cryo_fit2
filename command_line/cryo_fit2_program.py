@@ -68,9 +68,9 @@ progress_on_screen = True
     .type          = bool
     .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
-loose_ss_def = True
+loose_ss_def = False
     .type   = bool
-    .help   = If True, secondary structure definition for nucleic acid is loose  \
+    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
               If False, use Oleg's original strict definition. 
     .short_caption = Keep origin of a resulted atomic model
 keep_origin = True
