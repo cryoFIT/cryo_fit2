@@ -294,9 +294,22 @@ Options:
     log.register("logfile", logfile)
     
     
-    #                              + "map_weight=" + str(round(map_weight,1)) + " " \    
+   
+    
+    
+    
+    ###############  (begin) when optimizing map_weight once
+    if (self.params.map_weight == None): # a user didn't specify map_weight
+        self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
+        logfile.write("\nAutomatically optimized map_weight: ")
+    else:
+      logfile.write("\nUser specified map_weight: ")
+    logfile.write(str(self.params.map_weight))
+    logfile.write("\n\n")
+                            
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
+                            + "map_weight=" + str(round(self.params.map_weight,1)) + " " \
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
@@ -318,10 +331,6 @@ Options:
     
     
     
-    ###############  (begin) when optimizing map_weight once
-    if (self.params.map_weight == None): # a user didn't specify map_weight
-        self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
-      
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
       model_name        = self.data_manager.get_default_model_name(),
