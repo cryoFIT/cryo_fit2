@@ -59,7 +59,7 @@ map_weight = None
                    A user is recommended NOT to specify this, so that it will be automatically optimized. \
                    If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
 resolution = None
-  .type = int
+  .type = float
   .short_caption = cryo-EM map resolution (Angstrom) that needs to be specified by a user
 output_dir = output
   .type = path
