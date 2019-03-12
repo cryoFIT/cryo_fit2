@@ -1,0 +1,34 @@
+geometry_restraints {
+  edits {
+    bond {
+      atom_selection_1 = chain 'A' and resid 42 and name N4
+      atom_selection_2 = chain 'A' and resid 28 and name O6
+      distance_ideal = 2.8
+      sigma = 0.021
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 42 and name N3
+      atom_selection_2 = chain 'A' and resid 28 and name N1
+      distance_ideal = 2.8
+      sigma = 0.021
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 67 and name N4
+      atom_selection_2 = chain 'A' and resid 6 and name O6
+      distance_ideal = 2.8
+      sigma = 0.021
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 67 and name N3
+      atom_selection_2 = chain 'A' and resid 6 and name N1
+      distance_ideal = 2.8
+      sigma = 0.021
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 67 and name O2
+      atom_selection_2 = chain 'A' and resid 6 and name N2
+      distance_ideal = 2.8
+      sigma = 0.021
+    }
+  }
+}

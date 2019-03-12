@@ -176,7 +176,10 @@ Options:
       raise Sorry("Map resolution is required. Type \"phenix.cryo_fit2\" to know minimally required options")
 
   # ---------------------------------------------------------------------------
-  def run(self): 
+  def run(self):
+    args = sys.argv[1:]
+    print ("args", args)
+    #STOP()
     
     print ("user entered resolution", str(self.params.resolution))
     print ("start_temperature", str(self.params.start_temperature))
@@ -300,7 +303,6 @@ Options:
         logfile.write("\nAutomatically optimized map_weight: ")
     else:
       logfile.write("\nUser specified map_weight: ")
-    #logfile.write(str(self.params.map_weight))
     
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n\n")
