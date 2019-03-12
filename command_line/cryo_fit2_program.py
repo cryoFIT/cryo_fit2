@@ -292,11 +292,7 @@ Options:
     
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     log.register("logfile", logfile)
-    
-    
-   
-    
-    
+     
     
     ###############  (begin) when optimizing map_weight once
     if (self.params.map_weight == None): # a user didn't specify map_weight
@@ -304,7 +300,9 @@ Options:
         logfile.write("\nAutomatically optimized map_weight: ")
     else:
       logfile.write("\nUser specified map_weight: ")
-    logfile.write(str(self.params.map_weight))
+    #logfile.write(str(self.params.map_weight))
+    
+    logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n\n")
                             
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
