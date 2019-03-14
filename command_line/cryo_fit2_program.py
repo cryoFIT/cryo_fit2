@@ -16,9 +16,7 @@ import iotbx.phil
 from libtbx.phil import change_default_phil_values
 import libtbx.phil
 import libtbx.phil.command_line
-
-from libtbx.utils import multi_out
-from libtbx.utils import Sorry
+from libtbx.utils import date_and_time, multi_out, Sorry
 
 import mmtbx
 import cryo_fit2_run
@@ -388,7 +386,16 @@ Options:
         self.params.map_weight == None
     ###############  (end) when optimizing map_weight many times
     '''
-    
+    header = "# Geometry restraints after cryo_fit2\n"
+    header += "# %s\n" % date_and_time()
+      
+    r = model_inp.restraints_as_geo(
+        header=header,
+        # Stuff for outputting ncs_groups
+        #excessive_distance_limit=self.params.ncs.excessive_distance_limit)
+        excessive_distance_limit=10)
+    print ("r:",r)
+    #f.write(r)
     
     mv_command_string = "mv " + log_file_name + " " + output_dir_w_CC
     libtbx.easy_run.fully_buffered(mv_command_string)

@@ -49,7 +49,7 @@ def rewrite(args):
         '''
       else: # default
         f_out.write("      distance_ideal = 2.91\n")
-      # reference mmtbx/secondary_structure/nucleic_acids.py
+      # reference modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       
       f_out.write("      sigma = 0.021\n")
       

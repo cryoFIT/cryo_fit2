@@ -8,6 +8,10 @@ from mmtbx.dynamics import simulated_annealing as sa
 import shutil
 from cryo_fit2_util import *
 
+from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
+
+from cctbx.geometry_restraints.base_geometry import Base_geometry
+
 class cryo_fit2_class(object):
   def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir):
     self.model             = model
@@ -17,8 +21,13 @@ class cryo_fit2_class(object):
     self.out               = out
     self.map_name          = map_name
     self.logfile           = logfile
-    self.output_dir        = output_dir
+    self.output_dir        = output_dir 
   
+  def __execute(self):
+    #
+    
+    self.caller(self.write_geo_file,       "Write GEO file")
+    
   def validate(self): # this functions runs
     assert not None in [self.model, self.params, self.out]
 
@@ -28,6 +37,7 @@ class cryo_fit2_class(object):
         models = [self.model], map_inps=[self.map_inp])
   
   def run(self):
+    
     hierarchy = self.model.get_hierarchy()
     map_data, grid_unit_cell = None, None
     # sanity check for map and model
@@ -116,6 +126,6 @@ class cryo_fit2_class(object):
         print (write_this)
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
-    
+    #self.write_geo_file()
     return output_dir_w_CC
 ############# end of run function
