@@ -171,7 +171,7 @@ Options:
     if not (self.data_manager.has_real_maps()):
       raise Sorry("Supply a map file. Type \"phenix.cryo_fit2\" to know minimally required options")
     if not (self.params.resolution):
-      raise Sorry("Map resolution is required. Type \"phenix.cryo_fit2\" to know minimally required options")
+      raise Sorry("Map resolution is required. A user can get the resolution either by EMDB reported value or by running phenix.mtriage. Type \"phenix.cryo_fit2\" to know minimally required options")
 
   # ---------------------------------------------------------------------------
   def run(self):
