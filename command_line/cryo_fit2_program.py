@@ -206,10 +206,6 @@ Options:
     print ("number_of_steps", str(self.params.number_of_steps)) 
     
     print ("self.params.loose_ss_def:",self.params.loose_ss_def)
-    print ("self.params.selection_fixed:",self.params.selection_fixed)
-    print ("self.params.selection_fixed_preset:",self.params.selection_fixed_preset)
-    #STOP()
-
 
     time_total_start = time.time()
     
@@ -413,7 +409,7 @@ Options:
     ###############  (end) when optimizing map_weight many times
     '''
     
-    '''
+    
     header = "# Geometry restraints after cryo_fit2\n"
     header += "# %s\n" % date_and_time()
       
@@ -423,8 +419,14 @@ Options:
         #excessive_distance_limit=self.params.ncs.excessive_distance_limit)
         excessive_distance_limit=10)
     print ("r:",r)
-    #f.write(r)
-    '''
+    
+    geometry_restraints_file_name = "used_geometry_restraints.txt"
+    geo_file = open(geometry_restraints_file_name, "w")
+    geo_file.write(r)
+    geo_file.close()
+    
+    mv_command_string = "mv " + geometry_restraints_file_name + " " + output_dir_w_CC
+    libtbx.easy_run.fully_buffered(mv_command_string)
     
     mv_command_string = "mv " + log_file_name + " " + output_dir_w_CC
     libtbx.easy_run.fully_buffered(mv_command_string)
