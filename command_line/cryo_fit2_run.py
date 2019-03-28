@@ -133,8 +133,6 @@ class cryo_fit2_class(object):
     ## (reference) cctbx_project/mmtbx/superpose.py
     fixed = self.model_name
     moving = fitted_file
-    print ("fixed:",fixed)
-    print ("moving:",moving)
     
     from mmtbx.superpose import *
     
@@ -145,7 +143,7 @@ class cryo_fit2_class(object):
       fixed,
       selection=self.params.selection_fixed,
       preset=self.params.selection_fixed_preset,
-      log=self.logfile,
+      log=None,
       quiet=False,
       desc=fixed
     )
@@ -156,15 +154,17 @@ class cryo_fit2_class(object):
       selection=self.params.selection_moving,
       preset=self.params.selection_moving_preset,
       desc=moving,
-      log=self.logfile,
+      log=None,
       quiet=False
     )
     for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
-      print ("\n===== Aligning %s to %s ====="%(moving, self.model_name))
+      print ("\n===== Aligning %s to %s ====="%(fitted_file, self.model_name))
       if not self.params.selection_moving:
         moving.selectomatic(fixed)
       rmsd, lsq = moving.superpose(fixed)
-      print ("rmsd after cryo_fit2:", round(rmsd,2), "Angstrom")
+      write_this = "rmsd after cryo_fit2: " + str(round(rmsd,2)) + " Angstrom\n"
+      print (write_this)
+      self.logfile.write(str(write_this))
     
     return output_dir_w_CC
 ############# end of run function

@@ -412,6 +412,8 @@ Options:
         self.params.map_weight == None
     ###############  (end) when optimizing map_weight many times
     '''
+    
+    '''
     header = "# Geometry restraints after cryo_fit2\n"
     header += "# %s\n" % date_and_time()
       
@@ -422,6 +424,7 @@ Options:
         excessive_distance_limit=10)
     print ("r:",r)
     #f.write(r)
+    '''
     
     mv_command_string = "mv " + log_file_name + " " + output_dir_w_CC
     libtbx.easy_run.fully_buffered(mv_command_string)
