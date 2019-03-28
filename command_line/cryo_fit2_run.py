@@ -7,6 +7,8 @@ import mmtbx.utils, os
 from mmtbx.dynamics import simulated_annealing as sa
 import shutil
 from cryo_fit2_util import *
+import scitbx.math
+import scitbx.math.superpose
 
 from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
 
@@ -21,11 +23,10 @@ class cryo_fit2_class(object):
     self.out               = out
     self.map_name          = map_name
     self.logfile           = logfile
-    self.output_dir        = output_dir 
+    self.output_dir        = output_dir
+    self.desc = os.path.basename(model_name)
   
   def __execute(self):
-    #
-    
     self.caller(self.write_geo_file,       "Write GEO file")
     
   def validate(self): # this functions runs
@@ -95,7 +96,7 @@ class cryo_fit2_class(object):
         wc                 = 1, # weight for geometry conformation
         states_collector   = states,
         log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
-        
+
     cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
     final_CC = "Final   CC: " + str(cc) + "\n\n"
     output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
@@ -117,6 +118,7 @@ class cryo_fit2_class(object):
     print ("fitted_file_name:", fitted_file_name)
     fitted_file = os.path.join(output_dir_w_CC, fitted_file_name)
     
+    
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
       returned = know_how_much_map_origin_moved(str(self.map_name))
@@ -127,5 +129,42 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
     #self.write_geo_file()
+    
+    ## (reference) cctbx_project/mmtbx/superpose.py
+    fixed = self.model_name
+    moving = fitted_file
+    print ("fixed:",fixed)
+    print ("moving:",moving)
+    
+    from mmtbx.superpose import *
+    
+    print ("\n===== Init =====")
+    # The fixed model can only contain a single model.
+    # It will raise an Exception if there is more than one!
+    fixed = SuperposePDB(
+      fixed,
+      selection=self.params.selection_fixed,
+      preset=self.params.selection_fixed_preset,
+      log=self.logfile,
+      quiet=False,
+      desc=fixed
+    )
+    
+    # The moving pdb can contain many models. These will each be aligned to the
+    # fixed model and output as a separate file...
+    moving_args = dict(
+      selection=self.params.selection_moving,
+      preset=self.params.selection_moving_preset,
+      desc=moving,
+      log=self.logfile,
+      quiet=False
+    )
+    for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
+      print ("\n===== Aligning %s to %s ====="%(moving, self.model_name))
+      if not self.params.selection_moving:
+        moving.selectomatic(fixed)
+      rmsd, lsq = moving.superpose(fixed)
+      print ("rmsd after cryo_fit2:", round(rmsd,2), "Angstrom")
+    
     return output_dir_w_CC
 ############# end of run function

@@ -81,6 +81,27 @@ devel = False
     .help   = If True, run quickly only to check sanity
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
+
+selection_fixed = None
+  .type = str
+  .short_caption = Selection for fixed model
+  .input_size = 400
+  .help = Selection of the target atoms to fit to (optional)
+
+selection_moving = None
+  .type = str
+  .short_caption = Selection for moving model
+  .input_size = 400
+  .help = Selection of the atoms that will be fit to selection_fixed (optional)
+  
+selection_fixed_preset = * ca backbone all
+  .type = choice
+  .help = Selection preset for fixed model.
+  
+selection_moving_preset = * ca backbone all
+  .type = choice
+  .help = Selection preset for moving model.
+  
 ''' ############## end of base_master_phil_str
 
 
@@ -177,7 +198,6 @@ Options:
   def run(self):
     args = sys.argv[1:]
     print ("args", args)
-    #STOP()
     
     print ("user entered resolution", str(self.params.resolution))
     print ("start_temperature", str(self.params.start_temperature))
@@ -185,6 +205,12 @@ Options:
     print ("cool_rate", str(self.params.cool_rate))
     print ("number_of_steps", str(self.params.number_of_steps)) 
     
+    print ("self.params.loose_ss_def:",self.params.loose_ss_def)
+    print ("self.params.selection_fixed:",self.params.selection_fixed)
+    print ("self.params.selection_fixed_preset:",self.params.selection_fixed_preset)
+    #STOP()
+
+
     time_total_start = time.time()
     
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
