@@ -29,7 +29,7 @@ try:
 except ImportError:
   from libtbx.program_template import ProgramTemplate
 
-'''
+
 # this is needed to import util py files
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
 splited_path = path.split("/")
@@ -41,7 +41,7 @@ util_path = command_path + "util/"
 sys.path.insert(0, util_path)
 #print ("util_path:",util_path)
 from util import *
-'''
+
 
 program_citations = libtbx.phil.parse('''
 citation {
@@ -402,7 +402,9 @@ Options:
       output_dir        = output_dir)
     
     task_obj.validate()
+    
     output_dir_w_CC = task_obj.run()
+    #STOP()
     ############### (end) when optimizing map_weight once
     
     '''

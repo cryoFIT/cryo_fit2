@@ -3,16 +3,25 @@ import iotbx.phil, libtbx
 from libtbx import group_args
 from libtbx.utils import Sorry
 from iotbx import map_and_model
-import mmtbx.utils, os
+import mmtbx.utils, os, sys
 from mmtbx.dynamics import simulated_annealing as sa
 import shutil
-from cryo_fit2_util import *
-import scitbx.math
-import scitbx.math.superpose
+import scitbx.math, scitbx.math.superpose, subprocess
 
 from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
-
 from cctbx.geometry_restraints.base_geometry import Base_geometry
+
+# this is needed to import util py files
+path = subprocess.check_output(["which", "phenix.cryo_fit2"])
+splited_path = path.split("/")
+command_path = ''
+for i in range(len(splited_path)-3):
+  command_path = command_path + splited_path[i] + "/"
+command_path = command_path + "modules/cryo_fit2/"
+util_path = command_path + "util/"
+sys.path.insert(0, util_path)
+#print ("util_path:",util_path)
+from util import *
 
 class cryo_fit2_class(object):
   def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir):
