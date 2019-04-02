@@ -1,3 +1,11 @@
+def check_whether_args_has_eff(args):
+  for i in range(len(args)):
+    if args[i][len(args[i])-4:len(args[i])] == ".eff":
+      return True
+  return False
+######## end of check_whether_args_has_eff(args)
+              
+              
 def rewrite_to_custom_geometry(user_input_pymol_ss):
   f_in = open(user_input_pymol_ss)
   out_file = user_input_pymol_ss[:-4] + '_custom_geom.eff'

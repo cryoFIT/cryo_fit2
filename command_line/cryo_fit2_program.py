@@ -39,8 +39,9 @@ for i in range(len(splited_path)-3):
 command_path = command_path + "modules/cryo_fit2/"
 util_path = command_path + "util/"
 sys.path.insert(0, util_path)
-print ("util_path:",util_path)
+#print ("util_path:",util_path)
 from util import *
+
 
 program_citations = libtbx.phil.parse('''
 citation {
@@ -70,7 +71,7 @@ map_weight = None
                    If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
 resolution = None
   .type = float
-  .short_caption = cryo-EM map resolution (Angstrom) that needs to be specified by a user
+  .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
@@ -156,7 +157,7 @@ Example running command:
   phenix.cryo_fit2 model.pdb map.ccp4 resolution=5
 
 Options:
-  resolution                   (cryo-EM map resolution in Angstrom that needs to be entered by a user)
+  resolution                   (cryo-EM map resolution in angstrom that needs to be entered by a user)
   map_weight                   (cryo-EM map weight.
                                A user is recommended NOT to specify this, so that it will be automatically optimized.
                                If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.)
@@ -189,7 +190,9 @@ Options:
   
   datatypes = ['model', 'real_map', 'phil']
   citations = program_citations
-  master_phil_str = modified_master_phil_str # this is ESSENTIAL to avoid
+  
+  master_phil_str = modified_master_phil_str
+  # this is ESSENTIAL to avoid
   '''
      Sorry: Some PHIL parameters are not recognized by phenix.cryo_fit2.
      Please run this program with the --show-defaults option to see what parameters are available.
@@ -209,7 +212,7 @@ Options:
   # ---------------------------------------------------------------------------
   def run(self):
     args = sys.argv[1:]
-    print ("args", args)
+    checked_whether_args_has_eff = check_whether_args_has_eff(args)
     
     print ("user entered resolution", str(self.params.resolution))
     print ("start_temperature", str(self.params.start_temperature))
@@ -222,7 +225,6 @@ Options:
     time_total_start = time.time()
     
     input_model_file_name = self.data_manager.get_default_model_name()
-    #print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     print('User input model: %s' % input_model_file_name, file=self.logger)
     model_inp = self.data_manager.get_model()
     
@@ -240,7 +242,7 @@ Options:
     print ("map_inp.space_group_number:",(map_inp.space_group_number))
     #STOP()
     
-    # just shows address of the object
+    # just shows the address of the object
     #print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry())
     #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry())
     
@@ -291,17 +293,18 @@ Options:
     out=sys.stdout
     log.register("stdout", out)
     
-    splited = self.data_manager.get_default_model_name().split("/")
-    model_name_wo_path = splited [len(splited)-1]
+    splited = input_model_file_name.split("/")
+    input_model_file_name_wo_path = splited [len(splited)-1]
 
-    if ((self.params.devel == True) or (model_name_wo_path == "devel_cryo_fit2_model.pdb") or (model_name_wo_path == "devel_cryo_fit2_model.cif")):
+    if ((self.params.devel == True) or (input_model_file_name_wo_path == "devel_cryo_fit2_model.pdb") or \
+          (input_model_file_name_wo_path == "devel_cryo_fit2_model.cif")):
       # "tst..." lives in modules/cryo_fit2/regression
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.cool_rate = 10
       self.params.number_of_steps = 1
 
-    if (model_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
+    if (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.cool_rate = 10
@@ -316,20 +319,20 @@ Options:
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
                  "_cool_" + str(self.params.cool_rate) + \
-                 "_step_" + str(self.params.number_of_steps) + \
-                 "_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
-                 "_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
-                 "_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \
-                 "_hb_dis_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + \
-                 "_angle_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff)
+                 "_step_" + str(self.params.number_of_steps) #+ \
+                 #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
+                 #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
+                 #"_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \
+                 #"_hb_dis_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + \
+                 #"_angle_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff)
                  #"_bp_planar_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity) + \
                  #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
     log_file_name = "cryo_fit2.log"
     
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
+    #logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
     log.register("logfile", logfile)
-    
     
     
     ###############  (begin) when optimizing map_weight once
@@ -341,7 +344,8 @@ Options:
     
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n\n")
-                            
+                         
+    #if (checked_whether_args_has_eff == False):   
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
                             + "map_weight=" + str(round(self.params.map_weight,1)) + " " \
@@ -364,23 +368,27 @@ Options:
     logfile.write("Input command: ")
     logfile.write(str(cryo_fit2_input_command))
     
-    ######## produce pymol format secondary structure restraints #########
-    # I heard that running phenix commandline directly is not ideal.
-    # Therefore, I had used code directly rather than executing phenix executables at commandline such as calculating rmsd
-    # However, I think that running phenix.secondary_structure_restraints is the best option here.
-    # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
-    #to use codes directly instead of running executables at commandline
-    logfile.write("\nGenerate default secondary structure restraints for user input model file to enforce stronger secondary structure restraints\n")
-    make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
-    logfile.write(make_pymol_ss_restraints)
-    logfile.write("\n")
-    libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
-
-    splited_input_model_file_name = input_model_file_name.split("/")
-    input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
-    ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
-    rewrite_to_custom_geometry(ss_restraints_file_name)
-    custom_geom_file_name = ss_restraints_file_name[:-4] + "_custom_geom.eff"
+    if (checked_whether_args_has_eff == True):
+      logfile.write("User entered custom geometry restraints already.\n")
+    else:
+      logfile.write("User did not enter custom geometry restraints, make it now.\n")
+      ######## produce pymol format secondary structure restraints #########
+      # I heard that running phenix commandline directly is not ideal.
+      # Therefore, I had used code directly rather than executing phenix executables at commandline such as calculating rmsd
+      # However, I think that running phenix.secondary_structure_restraints is the best option here.
+      # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
+      #to use codes directly instead of running executables at commandline
+      logfile.write("\nGenerate default secondary structure restraints for user input model file to enforce stronger secondary structure restraints\n")
+      make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
+      logfile.write(make_pymol_ss_restraints)
+      logfile.write("\n")
+      libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
+  
+      # splited_input_model_file_name = input_model_file_name.split("/")
+      # input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
+      ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
+      rewrite_to_custom_geometry(ss_restraints_file_name)
+      custom_geom_file_name = ss_restraints_file_name[:-4] + "_custom_geom.eff"
     
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
@@ -396,8 +404,9 @@ Options:
     output_dir_w_CC = task_obj.run()
     ############### (end) when optimizing map_weight once
     
-    mv_command_string = "mv " + ss_restraints_file_name + " " + custom_geom_file_name + " " + output_dir_w_CC
-    libtbx.easy_run.fully_buffered(mv_command_string)
+    if (checked_whether_args_has_eff == False):
+      mv_command_string = "mv " + ss_restraints_file_name + " " + custom_geom_file_name + " " + output_dir_w_CC
+      libtbx.easy_run.fully_buffered(mv_command_string)
     
     '''
     ###############  (begin) when optimizing map_weight many times

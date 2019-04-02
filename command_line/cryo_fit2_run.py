@@ -162,7 +162,7 @@ class cryo_fit2_class(object):
       if not self.params.selection_moving:
         moving.selectomatic(fixed)
       rmsd, lsq = moving.superpose(fixed)
-      write_this = "rmsd after cryo_fit2: " + str(round(rmsd,2)) + " Angstrom\n"
+      write_this = "rmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n"
       print (write_this)
       self.logfile.write(str(write_this))
     
