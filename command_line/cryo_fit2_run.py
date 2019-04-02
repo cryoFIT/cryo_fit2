@@ -125,26 +125,28 @@ class cryo_fit2_class(object):
     splited_model_name = self.model_name[:-4].split("/")
     model_file_name_only = splited_model_name[len(splited_model_name)-1] 
     fitted_file_name = model_file_name_only + "_cryo_fit2_fitted.pdb"
-    print ("fitted_file_name:", fitted_file_name)
+    
     fitted_file = os.path.join(output_dir_w_CC, fitted_file_name)
     
-    
+    ##### this is essential
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
-      returned = know_how_much_map_origin_moved(str(self.map_name))
+    
+    
+    
+    returned = know_how_much_map_origin_moved(str(self.map_name))
     
     if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
-        write_this = "Restoring original position for output model\n"
+        write_this = "Restoring original position for output model\n\n"
         print (write_this)
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
+    #'''
     #self.write_geo_file()
     
     ## (reference) cctbx_project/mmtbx/superpose.py
     fixed = self.model_name
     moving = fitted_file
-    
-    
     
     print ("\n===== Init =====")
     # The fixed model can only contain a single model.
@@ -172,7 +174,7 @@ class cryo_fit2_class(object):
       if not self.params.selection_moving:
         moving.selectomatic(fixed)
       rmsd, lsq = moving.superpose(fixed)
-      write_this = "rmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n"
+      write_this = "rmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
       print (write_this)
       self.logfile.write(str(write_this))
     
