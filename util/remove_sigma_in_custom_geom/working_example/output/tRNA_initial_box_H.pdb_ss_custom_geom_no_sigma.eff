@@ -1,0 +1,339 @@
+geometry_restraints {
+  edits {
+    bond {
+      atom_selection_1 = chain 'A' and resid 42 and name N4
+      atom_selection_2 = chain 'A' and resid 28 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 42 and name N3
+      atom_selection_2 = chain 'A' and resid 28 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 42 and name O2
+      atom_selection_2 = chain 'A' and resid 28 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 7 and name N6
+      atom_selection_2 = chain 'A' and resid 66 and name O4
+      distance_ideal = 3.0
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 7 and name N1
+      atom_selection_2 = chain 'A' and resid 66 and name N3
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 64 and name N6
+      atom_selection_2 = chain 'A' and resid 50 and name O4
+      distance_ideal = 3.0
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 64 and name N1
+      atom_selection_2 = chain 'A' and resid 50 and name N3
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 49 and name N4
+      atom_selection_2 = chain 'A' and resid 65 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 49 and name N3
+      atom_selection_2 = chain 'A' and resid 65 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 49 and name O2
+      atom_selection_2 = chain 'A' and resid 65 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 31 and name N6
+      atom_selection_2 = chain 'A' and resid 39 and name O4
+      distance_ideal = 3.0
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 31 and name N1
+      atom_selection_2 = chain 'A' and resid 39 and name N3
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 72 and name N4
+      atom_selection_2 = chain 'A' and resid 1 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 72 and name N3
+      atom_selection_2 = chain 'A' and resid 1 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 72 and name O2
+      atom_selection_2 = chain 'A' and resid 1 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 68 and name N4
+      atom_selection_2 = chain 'A' and resid 5 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 68 and name N3
+      atom_selection_2 = chain 'A' and resid 5 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 68 and name O2
+      atom_selection_2 = chain 'A' and resid 5 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 13 and name N4
+      atom_selection_2 = chain 'A' and resid 22 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 13 and name N3
+      atom_selection_2 = chain 'A' and resid 22 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 13 and name O2
+      atom_selection_2 = chain 'A' and resid 22 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 23 and name N6
+      atom_selection_2 = chain 'A' and resid 12 and name O4
+      distance_ideal = 3.0
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 23 and name N1
+      atom_selection_2 = chain 'A' and resid 12 and name N3
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 58 and name N6
+      atom_selection_2 = chain 'A' and resid 54 and name O2
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 58 and name N7
+      atom_selection_2 = chain 'A' and resid 54 and name N3
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 43 and name N4
+      atom_selection_2 = chain 'A' and resid 27 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 43 and name N3
+      atom_selection_2 = chain 'A' and resid 27 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 43 and name O2
+      atom_selection_2 = chain 'A' and resid 27 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 40 and name N4
+      atom_selection_2 = chain 'A' and resid 30 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 40 and name N3
+      atom_selection_2 = chain 'A' and resid 30 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 40 and name O2
+      atom_selection_2 = chain 'A' and resid 30 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 14 and name N6
+      atom_selection_2 = chain 'A' and resid 8 and name O2
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 14 and name N7
+      atom_selection_2 = chain 'A' and resid 8 and name N3
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 61 and name N4
+      atom_selection_2 = chain 'A' and resid 53 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 61 and name N3
+      atom_selection_2 = chain 'A' and resid 53 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 61 and name O2
+      atom_selection_2 = chain 'A' and resid 53 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 62 and name N4
+      atom_selection_2 = chain 'A' and resid 52 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 62 and name N3
+      atom_selection_2 = chain 'A' and resid 52 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 2 and name N4
+      atom_selection_2 = chain 'A' and resid 71 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 2 and name N3
+      atom_selection_2 = chain 'A' and resid 71 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 2 and name O2
+      atom_selection_2 = chain 'A' and resid 71 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 25 and name N4
+      atom_selection_2 = chain 'A' and resid 10 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 25 and name N3
+      atom_selection_2 = chain 'A' and resid 10 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 25 and name O2
+      atom_selection_2 = chain 'A' and resid 10 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 48 and name O2
+      atom_selection_2 = chain 'A' and resid 15 and name N1
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 48 and name N3
+      atom_selection_2 = chain 'A' and resid 15 and name N2
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 67 and name N4
+      atom_selection_2 = chain 'A' and resid 6 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 67 and name N3
+      atom_selection_2 = chain 'A' and resid 6 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 67 and name O2
+      atom_selection_2 = chain 'A' and resid 6 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 70 and name N4
+      atom_selection_2 = chain 'A' and resid 3 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 70 and name N3
+      atom_selection_2 = chain 'A' and resid 3 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 70 and name O2
+      atom_selection_2 = chain 'A' and resid 3 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 4 and name N4
+      atom_selection_2 = chain 'A' and resid 69 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 4 and name N3
+      atom_selection_2 = chain 'A' and resid 69 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 4 and name O2
+      atom_selection_2 = chain 'A' and resid 69 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 11 and name N4
+      atom_selection_2 = chain 'A' and resid 24 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 11 and name N3
+      atom_selection_2 = chain 'A' and resid 24 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 11 and name O2
+      atom_selection_2 = chain 'A' and resid 24 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 63 and name O6
+      atom_selection_2 = chain 'A' and resid 51 and name N3
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 63 and name N1
+      atom_selection_2 = chain 'A' and resid 51 and name O2
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 10 and name O6
+      atom_selection_2 = chain 'A' and resid 44 and name N1
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 10 and name N7
+      atom_selection_2 = chain 'A' and resid 44 and name N2
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 41 and name N4
+      atom_selection_2 = chain 'A' and resid 29 and name O6
+      distance_ideal = 2.93
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 41 and name N3
+      atom_selection_2 = chain 'A' and resid 29 and name N1
+      distance_ideal = 2.85
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 41 and name O2
+      atom_selection_2 = chain 'A' and resid 29 and name N2
+      distance_ideal = 2.78
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 22 and name N7
+      atom_selection_2 = chain 'A' and resid 46 and name N1
+      distance_ideal = 2.91
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 22 and name O6
+      atom_selection_2 = chain 'A' and resid 46 and name N2
+      distance_ideal = 2.91
+    }
+  }
+}

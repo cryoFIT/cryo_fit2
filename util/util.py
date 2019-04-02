@@ -128,7 +128,7 @@ def add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map):
             multi_after_period = 0-len(splited_gamma[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
         
-    write_this_CRYST1 =  write_this_CRYST1 + "  P 1 # added by cryo_fit2\n"
+    write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
     print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
     print ("write_this_CRYST1     :",write_this_CRYST1)
     
@@ -139,6 +139,14 @@ def add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map):
     line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)
     return user_s_original_pdb_file
 ########################### end of add_extracted_CRYST1_to_pdb_file
+
+
+def check_whether_args_has_eff(args):
+  for i in range(len(args)):
+    if args[i][len(args[i])-4:len(args[i])] == ".eff":
+      return True
+  return False
+######## end of check_whether_args_has_eff(args)
 
 
 def line_prepender(filename, line):
@@ -243,10 +251,10 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
     
         except:
             print ("map_weight can't be optimized automatically.")
-            print ("\n(possible reason 1) There could be some atoms with unknown nonbonded energy type symbols in the given atomic model.")
+            print ("\n(possible reason 1)        There could be some atoms with unknown nonbonded energy type symbols in the given atomic model.")
             print ("(possible reason 1 solution) Fix atoms with unknown nonbonded energy type symbols in the given atomic model.")
             print ("(possible reason 1 solution) real_space_refine will tell you which atoms have unknown nonbonded energy type symbols in the given atomic model.")
-            print ("\n(possible reason 2) Both pdb file and map file lack CRYST1 information.")
+            print ("\n(possible reason 2)        Both pdb file and map file lack CRYST1 information.")
             print ("(possible reason 2 solution) Either add CRYST1 info into .pdb/.cif file, or rerun cryo_fit2 with map_weight.")
             print ("(possible reason 2 solution) For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
             print ("(possible reason 2 solution) However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.")
@@ -359,13 +367,6 @@ def show_time(time_start, time_end):
 
 
 
-def check_whether_args_has_eff(args):
-  for i in range(len(args)):
-    if args[i][len(args[i])-4:len(args[i])] == ".eff":
-
-      return True
-  return False
-######## end of check_whether_args_has_eff(args)
               
               
 def rewrite_to_custom_geometry(user_input_pymol_ss):

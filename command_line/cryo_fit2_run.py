@@ -12,7 +12,7 @@ import scitbx.math, scitbx.math.superpose, subprocess
 from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
 from cctbx.geometry_restraints.base_geometry import Base_geometry
 
-# this is needed to import util py files
+# this is needed to import util.py
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
 splited_path = path.split("/")
 command_path = ''

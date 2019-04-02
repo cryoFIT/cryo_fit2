@@ -210,7 +210,7 @@ Options:
   # ---------------------------------------------------------------------------
   def run(self):
     args = sys.argv[1:]
-    #checked_whether_args_has_eff = check_whether_args_has_eff(args)
+    checked_whether_args_has_eff = check_whether_args_has_eff(args)
     
     print ("user entered resolution", str(self.params.resolution))
     print ("start_temperature", str(self.params.start_temperature))
@@ -366,9 +366,11 @@ Options:
     logfile.write("Input command: ")
     logfile.write(str(cryo_fit2_input_command))
     
-    '''
     if (checked_whether_args_has_eff == True):
-      logfile.write("User entered custom geometry restraints already.\n")
+      logfile.write("User entered custom geometry restraints.\n")
+      output_dir = output_dir + str("_eff_used")
+    
+    '''
     else:
       logfile.write("User did not enter custom geometry restraints, make it now.\n")
       ######## produce pymol format secondary structure restraints #########
