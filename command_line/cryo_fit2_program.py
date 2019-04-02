@@ -29,7 +29,7 @@ try:
 except ImportError:
   from libtbx.program_template import ProgramTemplate
 
-
+'''
 # this is needed to import util py files
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
 splited_path = path.split("/")
@@ -41,7 +41,7 @@ util_path = command_path + "util/"
 sys.path.insert(0, util_path)
 #print ("util_path:",util_path)
 from util import *
-
+'''
 
 program_citations = libtbx.phil.parse('''
 citation {
@@ -212,7 +212,7 @@ Options:
   # ---------------------------------------------------------------------------
   def run(self):
     args = sys.argv[1:]
-    checked_whether_args_has_eff = check_whether_args_has_eff(args)
+    #checked_whether_args_has_eff = check_whether_args_has_eff(args)
     
     print ("user entered resolution", str(self.params.resolution))
     print ("start_temperature", str(self.params.start_temperature))
@@ -368,6 +368,7 @@ Options:
     logfile.write("Input command: ")
     logfile.write(str(cryo_fit2_input_command))
     
+    '''
     if (checked_whether_args_has_eff == True):
       logfile.write("User entered custom geometry restraints already.\n")
     else:
@@ -389,7 +390,7 @@ Options:
       ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
       rewrite_to_custom_geometry(ss_restraints_file_name)
       custom_geom_file_name = ss_restraints_file_name[:-4] + "_custom_geom.eff"
-    
+    '''
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
       model_name        = self.data_manager.get_default_model_name(),
@@ -404,9 +405,11 @@ Options:
     output_dir_w_CC = task_obj.run()
     ############### (end) when optimizing map_weight once
     
+    '''
     if (checked_whether_args_has_eff == False):
       mv_command_string = "mv " + ss_restraints_file_name + " " + custom_geom_file_name + " " + output_dir_w_CC
       libtbx.easy_run.fully_buffered(mv_command_string)
+    '''
     
     '''
     ###############  (begin) when optimizing map_weight many times
