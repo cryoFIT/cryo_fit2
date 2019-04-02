@@ -5,6 +5,7 @@ from libtbx.utils import Sorry
 from iotbx import map_and_model
 import mmtbx.utils, os, sys
 from mmtbx.dynamics import simulated_annealing as sa
+from mmtbx.superpose import *
 import shutil
 import scitbx.math, scitbx.math.superpose, subprocess
 
@@ -143,7 +144,7 @@ class cryo_fit2_class(object):
     fixed = self.model_name
     moving = fitted_file
     
-    from mmtbx.superpose import *
+    
     
     print ("\n===== Init =====")
     # The fixed model can only contain a single model.

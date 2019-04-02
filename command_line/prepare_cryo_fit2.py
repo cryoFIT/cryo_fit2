@@ -3,8 +3,6 @@
 
 from __future__ import division, print_function
 
-from cryo_fit2_util import *
-
 from iotbx import file_reader
 from iotbx.xplor import crystal_symmetry_from_map
 

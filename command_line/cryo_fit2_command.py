@@ -10,7 +10,7 @@ import mmtbx.restraints
 from mmtbx import monomer_library
 import subprocess, sys
 
-import prepare_cryo_fit2
+#import prepare_cryo_fit2
 import cryo_fit2_program # ImportError: No module named cryo_fit2.programs
 
 if __name__ == '__main__':

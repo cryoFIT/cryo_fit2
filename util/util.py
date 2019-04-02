@@ -128,7 +128,7 @@ def add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map):
             multi_after_period = 0-len(splited_gamma[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
         
-    write_this_CRYST1 =  write_this_CRYST1 + "  P 1\n"
+    write_this_CRYST1 =  write_this_CRYST1 + "  P 1 # added by cryo_fit2\n"
     print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
     print ("write_this_CRYST1     :",write_this_CRYST1)
     
