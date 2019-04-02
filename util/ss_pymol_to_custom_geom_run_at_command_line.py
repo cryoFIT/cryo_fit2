@@ -1,6 +1,6 @@
 import sys
 
-def rewrite(args):
+def rewrite_to_custom_geometry(args):
   user_input_pymol_ss = args[0]
   f_in = open(user_input_pymol_ss)
   out_file = user_input_pymol_ss[:-4] + '_custom_geom.eff'
@@ -89,5 +89,5 @@ if (__name__ == "__main__"):
     print "Provide *.pdb_ss.pml file as a starting ss pymol script file"
     print "Example: ss_pymol_to_custom_geom.py tRNA_initial_box.pdb_ss.pml"
     exit(1)
-  rewrite(args)
+  rewrite_to_custom_geometry(args)
   print "OK"

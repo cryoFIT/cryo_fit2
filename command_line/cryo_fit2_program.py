@@ -20,7 +20,7 @@ from libtbx.utils import date_and_time, multi_out, Sorry
 
 import mmtbx
 import cryo_fit2_run
-import os, shutil, sys, time
+import os, shutil, subprocess, sys, time
 
 from mmtbx.refinement.real_space import weight
 
@@ -29,6 +29,18 @@ try:
 except ImportError:
   from libtbx.program_template import ProgramTemplate
 
+
+# this is needed to import util py files
+path = subprocess.check_output(["which", "phenix.cryo_fit2"])
+splited_path = path.split("/")
+command_path = ''
+for i in range(len(splited_path)-3):
+  command_path = command_path + splited_path[i] + "/"
+command_path = command_path + "modules/cryo_fit2/"
+util_path = command_path + "util/"
+sys.path.insert(0, util_path)
+print ("util_path:",util_path)
+from util import *
 
 program_citations = libtbx.phil.parse('''
 citation {
@@ -209,7 +221,9 @@ Options:
 
     time_total_start = time.time()
     
-    print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
+    input_model_file_name = self.data_manager.get_default_model_name()
+    #print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
+    print('User input model: %s' % input_model_file_name, file=self.logger)
     model_inp = self.data_manager.get_model()
     
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
@@ -315,7 +329,8 @@ Options:
     
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     log.register("logfile", logfile)
-     
+    
+    
     
     ###############  (begin) when optimizing map_weight once
     if (self.params.map_weight == None): # a user didn't specify map_weight
@@ -349,7 +364,23 @@ Options:
     logfile.write("Input command: ")
     logfile.write(str(cryo_fit2_input_command))
     
-    
+    ######## produce pymol format secondary structure restraints #########
+    # I heard that running phenix commandline directly is not ideal.
+    # Therefore, I had used code directly rather than executing phenix executables at commandline such as calculating rmsd
+    # However, I think that running phenix.secondary_structure_restraints is the best option here.
+    # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
+    #to use codes directly instead of running executables at commandline
+    logfile.write("\nGenerate default secondary structure restraints for user input model file to enforce stronger secondary structure restraints\n")
+    make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
+    logfile.write(make_pymol_ss_restraints)
+    logfile.write("\n")
+    libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
+
+    splited_input_model_file_name = input_model_file_name.split("/")
+    input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
+    ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
+    rewrite_to_custom_geometry(ss_restraints_file_name)
+    custom_geom_file_name = ss_restraints_file_name[:-4] + "_custom_geom.eff"
     
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
@@ -365,6 +396,8 @@ Options:
     output_dir_w_CC = task_obj.run()
     ############### (end) when optimizing map_weight once
     
+    mv_command_string = "mv " + ss_restraints_file_name + " " + custom_geom_file_name + " " + output_dir_w_CC
+    libtbx.easy_run.fully_buffered(mv_command_string)
     
     '''
     ###############  (begin) when optimizing map_weight many times
@@ -409,8 +442,7 @@ Options:
     ###############  (end) when optimizing map_weight many times
     '''
     
-    
-    header = "# Geometry restraints after cryo_fit2\n"
+    header = "# Geometry restraints used for cryo_fit2\n"
     header += "# %s\n" % date_and_time()
       
     r = model_inp.restraints_as_geo(
