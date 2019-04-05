@@ -29,8 +29,9 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_map.ccp4",
     test=os.path.isfile)
   resolution = "resolution=4"
+  devel = "devel=True"
   assert (not None in [pdb_file, map_file])
-  cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution])
+  cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution, devel])
 
 if __name__=='__main__':
   keep_going=True
