@@ -237,7 +237,7 @@ Options:
     
     print ("map_inp.show_summary():", map_inp.show_summary())
     # it shows many items from header_min to pixel size, show_summary() itself shows "None"
-    STOP()
+    #STOP()
     '''
     print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
     print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
