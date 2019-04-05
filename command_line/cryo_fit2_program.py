@@ -229,12 +229,16 @@ Options:
     
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
-    map_inp.crystal_symmetry()
     
     ################# beginning of Doonam's playground ################
     ####### works
-    print ("dir(map_inp):",dir(map_inp))
+    
+    print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
+    
     print ("map_inp.show_summary():", map_inp.show_summary())
+    # it shows many items from header_min to pixel size, show_summary() itself shows "None"
+    STOP()
+    '''
     print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
     print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
     print ("map_inp.space_group_number:",(map_inp.space_group_number))
@@ -243,9 +247,12 @@ Options:
     
     map_inp_data = map_inp.map_data()
     print ("map origin:", map_inp_data.origin()) # (120, 76, 202) for L1 stalk same as in util.py's target_map_data.origin()
+    '''
+    #print ("map accessor:", map_inp_data.accessor()) # shows an object address
+    #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry()) # shows an object address
+    #STOP()
     
     ########## test
-    #STOP()
     #map_inp.space_group_number()
     #print ("map_inp.space_group_number():",map_inp.space_group_number())
     #print ("str(map_inp.space_group_number()):",str(map_inp.space_group_number()))
@@ -458,7 +465,7 @@ Options:
     
     header = "# Geometry restraints used for cryo_fit2\n"
     header += "# %s\n" % date_and_time()
-      
+    
     r = model_inp.restraints_as_geo(
         header=header,
         # Stuff for outputting ncs_groups

@@ -280,12 +280,15 @@ def know_how_much_map_origin_moved(map_file_name):
     print ("\tMap read from", str(map_file_name))
     target_map_data = ccp4_map.map_data()
     
-    #print "\tdir(): ", dir(ccp4_map)
+    #print ("\tdir(ccp4_map): ", dir(ccp4_map)) #['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'crystal_symmetry', 'data', 'dummy', 'grid_unit_cell', 'header_max', 'header_mean', 'header_min', 'header_rms', 'is_similar_map', 'map_data', 'pixel_sizes', 'show_summary', 'space_group_number', 'statistics', 'unit_cell', 'unit_cell_crystal_symmetry', 'unit_cell_grid', 'unit_cell_parameters']
+    
     acc = target_map_data.accessor() # keep for now
-    #print ("\tacc =", acc) # it looks like this is an object "<scitbx_array_family_flex_ext.grid object at 0x110fe3780>"
+    #print ("\tacc =", acc) # it shows object address "<scitbx_array_family_flex_ext.grid object at 0x110fe3780>"
+    #print ("\tdir(acc): ", dir(acc)) # ['__call__', '__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__getinitargs__', '__getstate__', '__hash__', '__init__', '__instance_size__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__safe_for_unpickling__', '__setattr__', '__setstate__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'all', 'focus', 'focus_size_1d', 'is_0_based', 'is_padded', 'is_trivial_1d', 'is_valid_index', 'last', 'nd', 'origin', 'set_focus', 'shift_origin', 'show_summary', 'size_1d']
     
     acc_all = target_map_data.accessor().all() # keep for now
     print ("\tacc_all =", acc_all) # (112, 102, 75) for L1 stalk
+    #print ("\tdir(acc_all): ", dir(acc_all)) # ['__add__', '__class__', '__contains__', '__delattr__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__getnewargs__', '__getslice__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__rmul__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'count', 'index']
     
     print ("\ttarget_map_data.origin():", str(target_map_data.origin())) # (120, 76, 202) for L1 stalk
     #STOP()
@@ -357,22 +360,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
-def show_time(time_start, time_end):
-  time_took = 0 # temporary of course
-  if (round((time_end-time_start)/60, 1) < 1):
-    time_took = " finished in " + str(round((time_end-time_start), 2)) + " seconds (wallclock)."
-  elif (round((time_end-time_start)/60/60, 1) < 1):
-    time_took = " finished in " + str(round((time_end-time_start)/60, 2)) + " minutes (wallclock)."
-  else:
-    time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
-  return time_took
-############### end of show_time function
-
-
-
-
-
-              
+            
               
 def rewrite_to_custom_geometry(user_input_pymol_ss):
   f_in = open(user_input_pymol_ss)
@@ -433,8 +421,23 @@ def rewrite_to_custom_geometry(user_input_pymol_ss):
 ''')
   f_in.close()
   f_out.close()
-
 ########## end of rewrite function
+
+
+def show_time(time_start, time_end):
+  time_took = 0 # temporary of course
+  if (round((time_end-time_start)/60, 1) < 1):
+    time_took = " finished in " + str(round((time_end-time_start), 2)) + " seconds (wallclock)."
+  elif (round((time_end-time_start)/60/60, 1) < 1):
+    time_took = " finished in " + str(round((time_end-time_start)/60, 2)) + " minutes (wallclock)."
+  else:
+    time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
+  return time_took
+############### end of show_time function
+
+
+
+
 
 #dist chain "A" and resi   42  and name  N4  and alt '', chain "A" and resi   28  and name  O6  and alt ''
 '''

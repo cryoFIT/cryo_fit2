@@ -16,6 +16,7 @@ enable phenix.cryo_fit2 to run
 =========================
 Development history
 future    : Support multi-threading for search ideal parameters, calculate for 4 phenix cc
+current   : map origin problem fixing (when map oriin is 0,0,0 -> no problem, when map origin is not 0,0,0 -> problem)
 current   : Adding additional strong geometry restraints for nucleic acids
 03/05/2019: Added RMSD calculation
 01/23/2019: Uses phenix.real_space_refine style automatic map weight determination
