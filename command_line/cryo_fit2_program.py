@@ -141,6 +141,7 @@ print ("modified_master_phil_str:",modified_master_phil_str)
 #STOP()
 '''
 
+
 class Program(ProgramTemplate):
 
   description = '''
@@ -230,37 +231,35 @@ Options:
     map_inp = self.data_manager.get_real_map()
     map_inp.crystal_symmetry()
     
+    ################# beginning of Doonam's playground ################
     ####### works
     print ("dir(map_inp):",dir(map_inp))
-    #print ("map_inp.show_summary():", map_inp.show_summary())
-    #STOP()
+    print ("map_inp.show_summary():", map_inp.show_summary())
     print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
     print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
-    #print ("str(map_inp.space_group_number):",str(map_inp.space_group_number))
     print ("map_inp.space_group_number:",(map_inp.space_group_number))
-    #STOP()
+    #print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry()) # just shows the address of the object
+    #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry()) # just shows the address of the object
     
-    # just shows the address of the object
-    #print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry())
-    #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry())
-    
-    # just shows address of the instance
-    #print ("map_inp.crystal_symmetry:",map_inp.crystal_symmetry)
-    
+    map_inp_data = map_inp.map_data()
+    print ("map origin:", map_inp_data.origin()) # (120, 76, 202) for L1 stalk same as in util.py's target_map_data.origin()
     
     ########## test
+    #STOP()
     #map_inp.space_group_number()
     #print ("map_inp.space_group_number():",map_inp.space_group_number())
     #print ("str(map_inp.space_group_number()):",str(map_inp.space_group_number()))
     
-    
     ########## not works
     '''
+    #print ("map_inp.origin():", map_inp.origin()) # ==> TypeError: 'list' object is not callable
+    #print ("map_inp.accessor():", map_inp.accessor())
     map_inp.unit_cell_crystal_symmetry()
     print ("map_inp.space_group_number():",map_inp.space_group_number())
     map_inp.unit_cell_parameters()
     print ("map_inp.unit_cell_parameters().unit_cell():",map_inp.unit_cell_parameters().unit_cell())
     '''
+    ################# end of Doonam's playground ################
     
     '''
     has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())

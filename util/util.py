@@ -272,7 +272,7 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
 
 
 def know_how_much_map_origin_moved(map_file_name):
-    print ("Know how much map origin moved")
+    print ("#### Know how much map origin moved ####")
     
     # Compute a target map
     from iotbx import ccp4_map
@@ -281,9 +281,14 @@ def know_how_much_map_origin_moved(map_file_name):
     target_map_data = ccp4_map.map_data()
     
     #print "\tdir(): ", dir(ccp4_map)
-    # acc = target_map_data.accessor() # not used, but keep for now
-    print ("\ttarget_map_data.origin():", str(target_map_data.origin()))
-
+    acc = target_map_data.accessor() # keep for now
+    #print ("\tacc =", acc) # it looks like this is an object "<scitbx_array_family_flex_ext.grid object at 0x110fe3780>"
+    
+    acc_all = target_map_data.accessor().all() # keep for now
+    print ("\tacc_all =", acc_all) # (112, 102, 75) for L1 stalk
+    
+    print ("\ttarget_map_data.origin():", str(target_map_data.origin())) # (120, 76, 202) for L1 stalk
+    #STOP()
     emmap_x0 = target_map_data.origin()[0] # tRNA: 0, nucleosome: -98    
     emmap_y0 = target_map_data.origin()[1] # tRNA: 0, nucleosome: -98
     emmap_z0 = target_map_data.origin()[2] # tRNA: 0, nucleosome: -98
