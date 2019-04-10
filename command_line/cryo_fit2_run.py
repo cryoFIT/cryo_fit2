@@ -48,7 +48,6 @@ class cryo_fit2_class(object):
         models = [self.model], map_inps=[self.map_inp])
   
   def run(self):
-    
     hierarchy = self.model.get_hierarchy()
     map_data, grid_unit_cell = None, None
     # sanity check for map and model
@@ -131,19 +130,18 @@ class cryo_fit2_class(object):
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
     
-    
     returned = know_how_much_map_origin_moved(str(self.map_name))
     
     ##### 4/3/2019, regular cryo-EM maps have no problem of origin shifting.
     ##### However, map_boxed cryo-EM maps shifted origin.
     
-    '''
+    #'''
     if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
         write_this = "Restoring original position for output model\n\n"
         print (write_this)
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
-    '''
+    #'''
     #self.write_geo_file()
     
     

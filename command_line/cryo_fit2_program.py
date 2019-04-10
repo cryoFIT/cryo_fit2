@@ -236,6 +236,16 @@ Options:
     print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
     
     print ("map_inp.show_summary():", map_inp.show_summary())
+    #print ("map_inp.unit_cell_grid():", map_inp.unit_cell_grid()) #TypeError: 'tuple' object is not callable
+    print ("map_inp.unit_cell_grid:", map_inp.unit_cell_grid)
+    print ("map_inp.unit_cell_grid[0]:", map_inp.unit_cell_grid[0]) 
+    #STOP()
+    # for map_boxed map
+      # unit cell grid: (360, 360, 360)
+      # map grid:   (99, 87, 85)
+    # for original map
+      # unit cell grid: (360, 360, 360)
+      # map grid:   (360, 360, 360)
     # it shows many items from header_min to pixel size, show_summary() itself shows "None"
     #STOP()
     '''
@@ -244,10 +254,12 @@ Options:
     print ("map_inp.space_group_number:",(map_inp.space_group_number))
     #print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry()) # just shows the address of the object
     #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry()) # just shows the address of the object
-    
-    map_inp_data = map_inp.map_data()
-    print ("map origin:", map_inp_data.origin()) # (120, 76, 202) for L1 stalk same as in util.py's target_map_data.origin()
     '''
+    map_inp_data = map_inp.map_data()
+    print ("map origin:", map_inp_data.origin())
+    #132, 94, 203 for DN map_L1 stalk same as in util.py's target_map_data.origin()
+    
+    #'''
     #print ("map accessor:", map_inp_data.accessor()) # shows an object address
     #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry()) # shows an object address
     #STOP()
