@@ -318,7 +318,7 @@ def know_how_much_map_origin_moved(map_file_name):
     # L1 stalk boxed map (by DN) (99, 87, 85)
     
     
-    # this works for most maps except phenix.map_box ed maps
+    ##### this works for most maps except phenix.map_box ed maps
     #widthx = a/ccp4_map_data.all()[0]
     # widthx (1.04999) is same as pixel size (1.05) for L1 stalk map_boxed map
     # widthx (3.82) is much larger than pixel size (1.05) for L1 stalk original map

@@ -233,7 +233,8 @@ Options:
     ################# beginning of Doonam's playground ################
     ####### works
     
-    print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
+    #print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
+    #['__doc__', '__init__', '__module__', 'cannot_be_sharpened', 'crystal_symmetry', 'data', 'external_origin', 'get_additional_labels', 'get_labels', 'get_limitation', 'get_limitations', 'grid_unit_cell', 'header_max', 'header_mean', 'header_min', 'header_rms', 'is_in_limitations', 'is_similar_map', 'labels', 'map_data', 'nxstart_nystart_nzstart', 'origin', 'pixel_sizes', 'show_summary', 'space_group_number', 'statistics', 'unit_cell', 'unit_cell_crystal_symmetry', 'unit_cell_grid', 'unit_cell_parameters']
     
     print ("map_inp.show_summary():", map_inp.show_summary())
     #print ("map_inp.unit_cell_grid():", map_inp.unit_cell_grid()) #TypeError: 'tuple' object is not callable
