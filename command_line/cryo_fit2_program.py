@@ -1,6 +1,8 @@
 ######to do list
 # To run cryo_fit2 at windows as well, replace all unix command like libtbx.easy_run.fully_buffered
 
+
+
 from __future__ import division, print_function
 
 from iotbx import file_reader
@@ -27,6 +29,18 @@ try:
 except ImportError:
   from libtbx.program_template import ProgramTemplate
 
+
+print_this ='''
+  ########  How to fix map origin problem in cryo_fit2 #######
+  With 0,0,0 origin map, cryo_fit2 has no problem.
+  However, with non-0,0,0 origin cryo-EM map, cryo_fit2 used to spit cryo_fitted pdb model at "wrong" origin
+  This is because probably dynamics part uses map at 0,0,0 origin.
+  Therefore, cryo_fit2 identifies how much the map origin was moved, then update all xyz coordinates of output pdb file.
+  In user's perspective, there is nothing to bother.
+  All kinds of mrc files (e.g. "Regular", emdb download, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine
+'''
+
+print (print_this,"\n")
 
 # this is needed to import util py files
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
