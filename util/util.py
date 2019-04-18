@@ -16,130 +16,6 @@ from mmtbx.refinement.real_space import weight
 import shutil
 
 
-def add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map):
-    write_this_CRYST1 = "CRYST1"
-    unit_cell_parameters_from_map = str(unit_cell_parameters_from_map)
-    print ("unit_cell_parameters_from_map:",unit_cell_parameters_from_map)
-    splited = unit_cell_parameters_from_map.split(",")
-    # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
-    #print ("splited:",splited)
-    soon_a = splited[0]
-    splited_soon_a = soon_a.split("(")
-    a = splited_soon_a[1]
-    
-    multi_before_period = ''
-    multi_after_period = ''
-    
-    splited_a = a.split(".")
-    if (len(splited_a) == 1): # just 336
-        multi_before_period = 5-len(splited_a[0])
-        multi_after_period  = 3
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + multi_after_period*" "    
-    else:
-        if (len(splited_a[0]) <= 5):
-          multi_before_period = 5-len(splited_a[0])
-          multi_after_period = 3-len(splited_a[1])
-        else:
-          multi_before_period = 7-len(splited_a[0])
-          multi_after_period = 0-len(splited_a[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + "." + splited_a[1]+multi_after_period*" "    
-    
-    
-    b = splited[1]
-    splited_b = b.split(".")
-    if (len(splited_b) == 1): # just 336
-        multi_before_period = 6-len(splited_b[0])
-        multi_after_period  = 3
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + multi_after_period*" " 
-    else:
-        if (len(splited_b[0]) <= 5):
-            multi_before_period = 5-len(splited_b[0])
-            multi_after_period = 3-len(splited_b[1])
-        else:
-            multi_before_period = 7-len(splited_b[0])
-            multi_after_period = 0-len(splited_b[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + "." + splited_b[1]+multi_after_period*" "
-
-    
-    c = splited[2]
-    splited_c = c.split(".")
-    if (len(splited_c) == 1): # just 336
-        multi_before_period = 6-len(splited_c[0])
-        multi_after_period  = 3
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + multi_after_period*" "
-    else:
-        if (len(splited_c[0]) <= 5):
-            multi_before_period = 5-len(splited_c[0])
-            multi_after_period = 3-len(splited_c[1])
-        else:
-            multi_before_period = 7-len(splited_c[0])
-            multi_after_period = 0-len(splited_c[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + "." + splited_c[1]+multi_after_period*" "
-    
-
-    alpha = splited[3].strip(' ')
-    splited_alpha = alpha.split(".")
-    #print ("len(splited_alpha):",len(splited_alpha))
-    #print ("len(splited_alpha[0]):",len(splited_alpha[0]))
-    if (len(splited_alpha) == 1): # just 90
-        multi_before_period = 4-len(splited_alpha[0])
-        multi_after_period  = 2
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + multi_after_period*" "
-    else:
-        if (len(splited_alpha[0]) <= 5):
-            multi_before_period = 4-len(splited_alpha[0])
-            multi_after_period = 2-len(splited_alpha[1])
-        else:
-            multi_before_period = 5-len(splited_alpha[0])
-            multi_after_period = 0-len(splited_alpha[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + "." + splited_alpha[1]+multi_after_period*" "
-    
-    
-    beta = splited[4]
-    splited_beta = beta.split(".")
-    if (len(splited_beta) == 1): # just 90
-        multi_before_period = 5-len(splited_beta[0])
-        multi_after_period  = 2
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + multi_after_period*" "
-    else:
-        if (len(splited_beta[0]) <= 5):
-            multi_before_period = 4-len(splited_beta[0])
-            multi_after_period = 2-len(splited_beta[1])
-        else:
-            multi_before_period = 5-len(splited_beta[0])
-            multi_after_period = 0-len(splited_beta[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + "." + splited_beta[1]+multi_after_period*" "
-        
-    
-    soon_gamma = splited[5]
-    splited_soon_gamma = soon_gamma.split(")")
-    gamma = splited_soon_gamma[0]
-    splited_gamma = gamma.split(".")
-    if (len(splited_gamma) == 1): # just 90
-        multi_before_period = 5-len(splited_gamma[0])
-        multi_after_period  = 2
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + multi_after_period*" "
-    else:
-        if (len(splited_gamma[0]) <= 5):
-            multi_before_period = 4-len(splited_gamma[0])
-            multi_after_period = 2-len(splited_gamma[1])
-        else:
-            multi_before_period = 5-len(splited_gamma[0])
-            multi_after_period = 0-len(splited_gamma[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
-        
-    write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
-    print ("Examplar correct CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
-    print ("write this CRYST1              :",write_this_CRYST1)
-    
-    user_s_original_pdb_file = self.data_manager.get_default_model_name() + ".original"
-    command = "cp " + self.data_manager.get_default_model_name() + " " + user_s_original_pdb_file
-    libtbx.easy_run.call(command)
-    
-    line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)
-    return user_s_original_pdb_file
-########################### end of add_extracted_CRYST1_to_pdb_file
-
 
 def check_whether_args_has_eff(args):
   for i in range(len(args)):
@@ -184,7 +60,7 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 
 
 def determine_optimal_weight_by_template(self, logfile, map_inp):
-    pi  = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp)
+    pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp)
     f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
     fft_map = f_calc.fft_map(resolution_factor=0.25)
     fft_map.apply_sigma_scaling()
@@ -195,9 +71,10 @@ def determine_optimal_weight_by_template(self, logfile, map_inp):
       pdb_hierarchy               = pi.ph,
       geometry_restraints_manager = pi.grm).weight
 
-    print ("An optimized weight for a map:", str(round(self.params.map_weight,3)))
+    print ("An optimized weight for a map:", str(round(self.params.map_weight,2)))
     return self.params.map_weight
 ######################### end of determine_optimal_weight_by_template
+
 
 '''
 def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
@@ -220,11 +97,9 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 ######################## end of determine_optimal_weight_as_macro_cycle_RSR()
 '''
 
+
 def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp):
-    #ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-    #        pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-    #'''
-    try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols
+    try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols and resolution is correctly assigned
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
             pdb_file_names=[self.data_manager.get_default_model_name()])[0]
     except:
@@ -239,27 +114,26 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp):
         #
         try: # try to extract CRYST1 info from map
             unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
-            #print (unit_cell_parameters_from_map)
-            user_s_original_pdb_file = add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map)
+            print ("unit_cell_parameters_from_map:",unit_cell_parameters_from_map)
             
+            file_name_w_user_s_original_pdb_info = prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_from_map)
             ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
                 pdb_file_names=[self.data_manager.get_default_model_name()])[0]
             
-            # return to original pdb file since I can't guarantee space group and z number
-            command = "mv " + user_s_original_pdb_file + " " + self.data_manager.get_default_model_name()
-            libtbx.easy_run.call(command)
-    
         except:
             write_this = '''
 map_weight can't be optimized automatically.
 
 (possible reason 1)  User entered wrong resolution. When 4 angstrom resolution was entered for 9 ansgtrom resolution map, cryo_fit2 can't optimize cryo_em_map_weight.
 (solution)           Enter a correct resolution. A user can get the resolution either by EMDB reported value or by running phenix.mtriage
+
 (possible reason 2)  There could be some residues/atoms with unknown nonbonded energy type symbols in the given atomic model.
 (solution)           cryo_fit2 cleans \"RX\" type nucleic acid name automatically.
                      Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
                      real_space_refine in PHENIX GUI will tell you which atoms have unknown nonbonded energy type symbols.
-(possible reason 3)  cryo_fit2 automatically assigns CRYST1 header info from map to the first line of input pdb file.
+
+(possible reason 3)  If user input pdb file lack CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html)
+                     cryo_fit2 automatically assigns it from map to the first line of input pdb file.
                      However, when both pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize cryo_em_map_weight.
 (solution 1)         Add CRYST1 header info into .pdb/.cif file and rerun cryo_fit2
 (solution 2)         Rerun cryo_fit2 with user specified map_weight.
@@ -274,11 +148,13 @@ map_weight can't be optimized automatically.
     restraints_manager = mmtbx.restraints.manager(
       geometry      = ppf.geometry_restraints_manager(show_energies = False),
       normalization = True)
+    
     return group_args(
-      ph  = ppf.all_chain_proxies.pdb_hierarchy,
-      grm = restraints_manager,
-      xrs = xrs)
-######################## end of get_pdb_inputs_by_pdb_file_name
+            ph  = ppf.all_chain_proxies.pdb_hierarchy,
+            grm = restraints_manager,
+            xrs = xrs)
+######################## end of get_pdb_inputs_by_pdb_file_name function
+
 
 
 def know_how_much_map_origin_moved(map_file_name):
@@ -346,52 +222,173 @@ def know_how_much_map_origin_moved(map_file_name):
 ############## end of know_how_much_map_origin_moved function
 
 
+def prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_from_map):
+    write_this_CRYST1 = "CRYST1"
+    unit_cell_parameters_from_map = str(unit_cell_parameters_from_map)
+    splited = unit_cell_parameters_from_map.split(",") # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
+    soon_a = splited[0]
+    splited_soon_a = soon_a.split("(")
+    a = splited_soon_a[1]
+    
+    multi_before_period = ''
+    multi_after_period = ''
+    
+    splited_a = a.split(".")
+    if (len(splited_a) == 1): # just 336
+        multi_before_period = 5-len(splited_a[0])
+        multi_after_period  = 3
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + multi_after_period*" "    
+    else:
+        if (len(splited_a[0]) <= 5):
+          multi_before_period = 5-len(splited_a[0])
+          multi_after_period = 3-len(splited_a[1])
+        else:
+          multi_before_period = 7-len(splited_a[0])
+          multi_after_period = 0-len(splited_a[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + "." + splited_a[1]+multi_after_period*" "    
+    
+    
+    b = splited[1]
+    splited_b = b.split(".")
+    if (len(splited_b) == 1): # just 336
+        multi_before_period = 6-len(splited_b[0])
+        multi_after_period  = 3
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + multi_after_period*" " 
+    else:
+        if (len(splited_b[0]) <= 5):
+            multi_before_period = 5-len(splited_b[0])
+            multi_after_period = 3-len(splited_b[1])
+        else:
+            multi_before_period = 7-len(splited_b[0])
+            multi_after_period = 0-len(splited_b[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + "." + splited_b[1]+multi_after_period*" "
+
+    
+    c = splited[2]
+    splited_c = c.split(".")
+    if (len(splited_c) == 1): # just 336
+        multi_before_period = 6-len(splited_c[0])
+        multi_after_period  = 3
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + multi_after_period*" "
+    else:
+        if (len(splited_c[0]) <= 5):
+            multi_before_period = 5-len(splited_c[0])
+            multi_after_period = 3-len(splited_c[1])
+        else:
+            multi_before_period = 7-len(splited_c[0])
+            multi_after_period = 0-len(splited_c[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + "." + splited_c[1]+multi_after_period*" "
+    
+
+    alpha = splited[3].strip(' ')
+    splited_alpha = alpha.split(".")
+    if (len(splited_alpha) == 1): # just 90
+        multi_before_period = 4-len(splited_alpha[0])
+        multi_after_period  = 2
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + multi_after_period*" "
+    else:
+        if (len(splited_alpha[0]) <= 5):
+            multi_before_period = 4-len(splited_alpha[0])
+            multi_after_period = 2-len(splited_alpha[1])
+        else:
+            multi_before_period = 5-len(splited_alpha[0])
+            multi_after_period = 0-len(splited_alpha[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + "." + splited_alpha[1]+multi_after_period*" "
+    
+    
+    beta = splited[4]
+    splited_beta = beta.split(".")
+    if (len(splited_beta) == 1): # just 90
+        multi_before_period = 5-len(splited_beta[0])
+        multi_after_period  = 2
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + multi_after_period*" "
+    else:
+        if (len(splited_beta[0]) <= 5):
+            multi_before_period = 4-len(splited_beta[0])
+            multi_after_period = 2-len(splited_beta[1])
+        else:
+            multi_before_period = 5-len(splited_beta[0])
+            multi_after_period = 0-len(splited_beta[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + "." + splited_beta[1]+multi_after_period*" "
+        
+    
+    soon_gamma = splited[5]
+    splited_soon_gamma = soon_gamma.split(")")
+    gamma = splited_soon_gamma[0]
+    splited_gamma = gamma.split(".")
+    if (len(splited_gamma) == 1): # just 90
+        multi_before_period = 5-len(splited_gamma[0])
+        multi_after_period  = 2
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + multi_after_period*" "
+    else:
+        if (len(splited_gamma[0]) <= 5):
+            multi_before_period = 4-len(splited_gamma[0])
+            multi_after_period = 2-len(splited_gamma[1])
+        else:
+            multi_before_period = 5-len(splited_gamma[0])
+            multi_after_period = 0-len(splited_gamma[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
+        
+    write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
+    print ("Examplar correct CRYST1 format: CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
+    print ("write this CRYST1             :",write_this_CRYST1)
+    
+    file_name_w_user_s_original_pdb_info = self.data_manager.get_default_model_name() + ".original"
+    command = "cp " + self.data_manager.get_default_model_name() + " " + file_name_w_user_s_original_pdb_info
+    libtbx.easy_run.call(command)
+    
+    write_this = "CRYST1 info from map was prepended to user pdb file, therefore the very original user pdb file is now renamed to " + file_name_w_user_s_original_pdb_info
+    print (write_this)
+    logfile.write(write_this)
+    
+    line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)
+    return file_name_w_user_s_original_pdb_info
+########################### end of prepend_extracted_CRYST1_to_pdb_file
+
+
 
 def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style of RNA file
-  f_in = open(input_pdb_file_name)
-  output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_cryo_fit2.pdb"
-  f_out = open(output_pdb_file_name, 'wt')
-  cleaned = False
-  for line in f_in:
-    residue = line[17:20]
-    trimmed_residue = residue.replace(" ", "")
-    if (trimmed_residue == "RA"):
-        cleaned = True
-        new_line = line[:17] + " A " + line[20:]
-        f_out.write(new_line)
-    elif (trimmed_residue == "RT"): 
-        cleaned = True
-        new_line = line[:17] + " T " + line[20:]
-        f_out.write(new_line)
-    elif (trimmed_residue == "RG"): 
-        cleaned = True
-        new_line = line[:17] + " G " + line[20:]
-        f_out.write(new_line)
-    elif (trimmed_residue == "RC"): 
-        cleaned = True
-        new_line = line[:17] + " C " + line[20:]
-        f_out.write(new_line)
-    elif (trimmed_residue == "RU"): 
-        cleaned = True
-        new_line = line[:17] + " U " + line[20:]
-        f_out.write(new_line)
-    else:
-        f_out.write(line)
-  f_in.close()
-  f_out.close()
-  if (cleaned == True):
-    return output_pdb_file_name
-  else:
-    cmd = "rm " + output_pdb_file_name
-    libtbx.easy_run.call(cmd)
-    return input_pdb_file_name
+    f_in = open(input_pdb_file_name)
+    output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_cryo_fit2.pdb"
+    f_out = open(output_pdb_file_name, 'wt')
+    cleaned = False
+    for line in f_in:
+      residue = line[17:20]
+      trimmed_residue = residue.replace(" ", "")
+      if (trimmed_residue == "RA"):
+          cleaned = True
+          new_line = line[:17] + " A " + line[20:]
+          f_out.write(new_line)
+      elif (trimmed_residue == "RT"): 
+          cleaned = True
+          new_line = line[:17] + " T " + line[20:]
+          f_out.write(new_line)
+      elif (trimmed_residue == "RG"): 
+          cleaned = True
+          new_line = line[:17] + " G " + line[20:]
+          f_out.write(new_line)
+      elif (trimmed_residue == "RC"): 
+          cleaned = True
+          new_line = line[:17] + " C " + line[20:]
+          f_out.write(new_line)
+      elif (trimmed_residue == "RU"): 
+          cleaned = True
+          new_line = line[:17] + " U " + line[20:]
+          f_out.write(new_line)
+      else:
+          f_out.write(line)
+    f_in.close()
+    f_out.close()
+    
+    if (cleaned == False):
+      cmd = "rm " + output_pdb_file_name
+      libtbx.easy_run.call(cmd)
+    return cleaned, output_pdb_file_name
 ################ end of remove_R_prefix_in_RNA function
 
 
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
     print ("widthx:",widthx)
-    #widthx = 1.04999991523 # temp of course
-    #STOP()
     move_x_by = move_x_by*widthx
     move_y_by = move_y_by*widthx
     move_z_by = move_z_by*widthx

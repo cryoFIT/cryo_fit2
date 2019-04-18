@@ -30,19 +30,6 @@ except ImportError:
   from libtbx.program_template import ProgramTemplate
 
 
-print_this ='''
-########  How to fix map origin problem in cryo_fit2 #######
-  With 0,0,0 origin map, cryo_fit2 has no problem.
-  However, with non-0,0,0 origin cryo-EM map, cryo_fit2 used to spit cryo_fitted pdb model at "wrong" origin
-  This is because probably dynamics part uses map at 0,0,0 origin.
-  Therefore, cryo_fit2 identifies how much the map origin was moved, then update all xyz coordinates of output pdb file.
-  In user's perspective, there is nothing to bother.
-  All kinds of mrc files (e.g. "Regular", emdb download, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine.
-#############################################################
-'''
-
-print (print_this,"\n")
-
 # this is needed to import util py files
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
 splited_path = path.split("/")
@@ -238,8 +225,7 @@ Options:
 
     time_total_start = time.time()
     
-    input_model_file_name = self.data_manager.get_default_model_name()
-    print('User input model: %s' % input_model_file_name, file=self.logger)
+    print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
@@ -325,21 +311,35 @@ Options:
     out=sys.stdout
     log.register("stdout", out)
     
-    input_model_file_name = remove_R_prefix_in_RNA(input_model_file_name)
-    print ("input_model_file_name:",input_model_file_name)
     
-    splited = input_model_file_name.split("/")
-    input_model_file_name_wo_path = splited [len(splited)-1]
+    log_file_name = "cryo_fit2.log"
+    logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
+    #logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
+    log.register("logfile", logfile)
+    
+    old_style_RNA, removed_R_prefix_in_RNA_pdb_file_name = remove_R_prefix_in_RNA(self.data_manager.get_default_model_name())
+    if (old_style_RNA == True):
+      write_this ='''Archaic style of nucleic acids (e.g. RA, RU, RT, RG, RC) were detected in user's pdb file.
+phenix can't run with this type of naming.
+cryo_fit2 replaced these with A,U,T,G,C and rewrote into ''' + removed_R_prefix_in_RNA_pdb_file_name + '''
+please rerun cryo_fit2 with this re-written pdb file\n'''
+      print (write_this)
+      logfile.write(write_this)
+      logfile.close()
+      exit(1)
+    
+    splited = self.data_manager.get_default_model_name().split("/")
+    current_input_model_file_name_wo_path = splited [len(splited)-1]
 
-    if ((self.params.devel == True) or (input_model_file_name_wo_path == "devel_cryo_fit2_model.pdb") or \
-          (input_model_file_name_wo_path == "devel_cryo_fit2_model.cif")):
+    if ((self.params.devel == True) or (current_input_model_file_name_wo_path == "devel_cryo_fit2_model.pdb") or \
+          (current_input_model_file_name_wo_path == "devel_cryo_fit2_model.cif")):
       # "tst..." lives in modules/cryo_fit2/regression
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.cool_rate = 10
       self.params.number_of_steps = 1
 
-    if (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
+    if (current_input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.cool_rate = 10
@@ -362,13 +362,6 @@ Options:
                  #"_angle_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff)
                  #"_bp_planar_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity) + \
                  #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
-    
-    log_file_name = "cryo_fit2.log"
-    
-    logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
-    #logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
-    log.register("logfile", logfile)
-    
     
     ###############  (begin) when optimizing map_weight once
     if (self.params.map_weight == None): # a user didn't specify map_weight
@@ -429,6 +422,7 @@ Options:
       rewrite_to_custom_geometry(ss_restraints_file_name)
       custom_geom_file_name = ss_restraints_file_name[:-4] + "_custom_geom.eff"
     '''
+            
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
       model_name        = self.data_manager.get_default_model_name(),

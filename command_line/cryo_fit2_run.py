@@ -83,7 +83,8 @@ class cryo_fit2_class(object):
     
     print('%s' %(initial_CC))
     self.logfile.write(str(initial_CC))
-    
+    #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
+    #STOP()
     if (self.params.progress_on_screen == True):
       result = sa.run(
         params = params,
@@ -130,6 +131,19 @@ class cryo_fit2_class(object):
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
     
+    print_this ='''
+########  How to fix map origin problem in cryo_fit2 #######
+  With 0,0,0 origin map, cryo_fit2 has no problem.
+  However, with non-0,0,0 origin cryo-EM map, cryo_fit2 used to spit cryo_fitted pdb model at "wrong" origin
+  This is because probably dynamics part uses map at 0,0,0 origin.
+  Therefore, cryo_fit2 identifies how much the map origin was moved, then update all xyz coordinates of output pdb file.
+  In user's perspective, there is nothing to bother.
+  All kinds of mrc files (e.g. "Regular", emdb download, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine.
+#############################################################
+'''
+
+    print (print_this,"\n")
+
     returned = know_how_much_map_origin_moved(str(self.map_name))
     
     ##### 4/3/2019, regular cryo-EM maps have no problem of origin shifting.
