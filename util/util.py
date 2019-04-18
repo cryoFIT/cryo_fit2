@@ -129,8 +129,8 @@ def add_extracted_CRYST1_to_pdb_file(self,unit_cell_parameters_from_map):
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
         
     write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
-    print ("correct_CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
-    print ("write_this_CRYST1     :",write_this_CRYST1)
+    print ("Examplar correct CRYST1 format : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
+    print ("write this CRYST1              :",write_this_CRYST1)
     
     user_s_original_pdb_file = self.data_manager.get_default_model_name() + ".original"
     command = "cp " + self.data_manager.get_default_model_name() + " " + user_s_original_pdb_file
@@ -183,8 +183,8 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
-def determine_optimal_weight_by_template(self, map_inp):
-    pi  = get_pdb_inputs_by_pdb_file_name(self, map_inp)
+def determine_optimal_weight_by_template(self, logfile, map_inp):
+    pi  = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp)
     f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
     fft_map = f_calc.fft_map(resolution_factor=0.25)
     fft_map.apply_sigma_scaling()
@@ -220,7 +220,7 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 ######################## end of determine_optimal_weight_as_macro_cycle_RSR()
 '''
 
-def get_pdb_inputs_by_pdb_file_name(self, map_inp):
+def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp):
     #ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
     #        pdb_file_names=[self.data_manager.get_default_model_name()])[0]
     #'''
@@ -250,14 +250,24 @@ def get_pdb_inputs_by_pdb_file_name(self, map_inp):
             libtbx.easy_run.call(command)
     
         except:
-            print ("map_weight can't be optimized automatically.")
-            print ("\n(possible reason 1)        There could be some atoms with unknown nonbonded energy type symbols in the given atomic model.")
-            print ("(possible reason 1 solution) Fix atoms with unknown nonbonded energy type symbols in the given atomic model.")
-            print ("(possible reason 1 solution) real_space_refine will tell you which atoms have unknown nonbonded energy type symbols in the given atomic model.")
-            print ("\n(possible reason 2)        Both pdb file and map file lack CRYST1 information.")
-            print ("(possible reason 2 solution) Either add CRYST1 info into .pdb/.cif file, or rerun cryo_fit2 with map_weight.")
-            print ("(possible reason 2 solution) For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5")
-            print ("(possible reason 2 solution) However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.")
+            write_this = '''
+map_weight can't be optimized automatically.
+
+(possible reason 1)  User entered wrong resolution. When 4 angstrom resolution was entered for 9 ansgtrom resolution map, cryo_fit2 can't optimize cryo_em_map_weight.
+(solution)           Enter a correct resolution. A user can get the resolution either by EMDB reported value or by running phenix.mtriage
+(possible reason 2)  There could be some residues/atoms with unknown nonbonded energy type symbols in the given atomic model.
+(solution)           cryo_fit2 cleans \"RX\" type nucleic acid name automatically.
+                     Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
+                     real_space_refine in PHENIX GUI will tell you which atoms have unknown nonbonded energy type symbols.
+(possible reason 3)  cryo_fit2 automatically assigns CRYST1 header info from map to the first line of input pdb file.
+                     However, when both pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize cryo_em_map_weight.
+(solution 1)         Add CRYST1 header info into .pdb/.cif file and rerun cryo_fit2
+(solution 2)         Rerun cryo_fit2 with user specified map_weight.
+                     For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5
+                     However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.
+'''
+            print (write_this)
+            logfile.write(write_this)
             exit(1)
     
     xrs = ppf.xray_structure(show_summary = False)
@@ -335,6 +345,47 @@ def know_how_much_map_origin_moved(map_file_name):
         return widthx, shifted_in_x, shifted_in_y, shifted_in_z     
 ############## end of know_how_much_map_origin_moved function
 
+
+
+def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style of RNA file
+  f_in = open(input_pdb_file_name)
+  output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_cryo_fit2.pdb"
+  f_out = open(output_pdb_file_name, 'wt')
+  cleaned = False
+  for line in f_in:
+    residue = line[17:20]
+    trimmed_residue = residue.replace(" ", "")
+    if (trimmed_residue == "RA"):
+        cleaned = True
+        new_line = line[:17] + " A " + line[20:]
+        f_out.write(new_line)
+    elif (trimmed_residue == "RT"): 
+        cleaned = True
+        new_line = line[:17] + " T " + line[20:]
+        f_out.write(new_line)
+    elif (trimmed_residue == "RG"): 
+        cleaned = True
+        new_line = line[:17] + " G " + line[20:]
+        f_out.write(new_line)
+    elif (trimmed_residue == "RC"): 
+        cleaned = True
+        new_line = line[:17] + " C " + line[20:]
+        f_out.write(new_line)
+    elif (trimmed_residue == "RU"): 
+        cleaned = True
+        new_line = line[:17] + " U " + line[20:]
+        f_out.write(new_line)
+    else:
+        f_out.write(line)
+  f_in.close()
+  f_out.close()
+  if (cleaned == True):
+    return output_pdb_file_name
+  else:
+    cmd = "rm " + output_pdb_file_name
+    libtbx.easy_run.call(cmd)
+    return input_pdb_file_name
+################ end of remove_R_prefix_in_RNA function
 
 
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):

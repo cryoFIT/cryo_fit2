@@ -31,13 +31,14 @@ except ImportError:
 
 
 print_this ='''
-  ########  How to fix map origin problem in cryo_fit2 #######
+########  How to fix map origin problem in cryo_fit2 #######
   With 0,0,0 origin map, cryo_fit2 has no problem.
   However, with non-0,0,0 origin cryo-EM map, cryo_fit2 used to spit cryo_fitted pdb model at "wrong" origin
   This is because probably dynamics part uses map at 0,0,0 origin.
   Therefore, cryo_fit2 identifies how much the map origin was moved, then update all xyz coordinates of output pdb file.
   In user's perspective, there is nothing to bother.
-  All kinds of mrc files (e.g. "Regular", emdb download, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine
+  All kinds of mrc files (e.g. "Regular", emdb download, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine.
+#############################################################
 '''
 
 print (print_this,"\n")
@@ -324,6 +325,9 @@ Options:
     out=sys.stdout
     log.register("stdout", out)
     
+    input_model_file_name = remove_R_prefix_in_RNA(input_model_file_name)
+    print ("input_model_file_name:",input_model_file_name)
+    
     splited = input_model_file_name.split("/")
     input_model_file_name_wo_path = splited [len(splited)-1]
 
@@ -368,7 +372,7 @@ Options:
     
     ###############  (begin) when optimizing map_weight once
     if (self.params.map_weight == None): # a user didn't specify map_weight
-        self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
+        self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp)
         logfile.write("\nAutomatically optimized map_weight: ")
     else:
       logfile.write("\nUser specified map_weight: ")
