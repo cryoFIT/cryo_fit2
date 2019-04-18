@@ -329,17 +329,17 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       exit(1)
     
     splited = self.data_manager.get_default_model_name().split("/")
-    current_input_model_file_name_wo_path = splited [len(splited)-1]
+    input_model_file_name_wo_path = splited [len(splited)-1]
 
-    if ((self.params.devel == True) or (current_input_model_file_name_wo_path == "devel_cryo_fit2_model.pdb") or \
-          (current_input_model_file_name_wo_path == "devel_cryo_fit2_model.cif")):
+    if ((self.params.devel == True) or (input_model_file_name_wo_path == "devel_cryo_fit2_model.pdb") or \
+          (input_model_file_name_wo_path == "devel_cryo_fit2_model.cif")):
       # "tst..." lives in modules/cryo_fit2/regression
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.cool_rate = 10
       self.params.number_of_steps = 1
 
-    if (current_input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
+    if (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.cool_rate = 10
