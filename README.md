@@ -19,6 +19,7 @@ future    : Support multi-threading for search ideal parameters, calculate for 4
 
 current   : Adding additional strong geometry restraints for nucleic acids
 
+04/18/2019: Update archaic nucleic acid names automatically
 04/10/2019: Both "regular" (from emdb) maps and local maps from phenix.map_box have no problem of origin issue from user's perspective
 03/05/2019: Added RMSD calculation
 01/23/2019: Uses phenix.real_space_refine style automatic map weight determination
