@@ -15,12 +15,15 @@ enable phenix.cryo_fit2 to run
 
 =========================
 Development history
-future    : Support multi-threading for search ideal parameters, calculate for 4 phenix cc
+future    : Support Nigel's phenix.eLBOW
+future    : Support Rob's multi-threading for search ideal parameters
+future    : Calculate for 4 phenix cc
+future    : Support mtz input as well
 
-current   : Adding additional strong geometry restraints for nucleic acids
+current   : Automatically use sophiscated strong geometry restraints (Oleg's) for nucleic acids
 
 04/18/2019: Update archaic nucleic acid names automatically
-04/10/2019: Both "regular" (from emdb) maps and local maps from phenix.map_box have no problem of origin issue from user's perspective
+04/10/2019: Both "regular" (from emdb) maps and other maps (from phenix.map_box, Chimera's gaussian filter and relion image handler) have no problem of origin issue from user's perspective
 03/05/2019: Added RMSD calculation
 01/23/2019: Uses phenix.real_space_refine style automatic map weight determination
 11/01/2018: Refactored into Billy's template style (as phenix.EMRINGER)
