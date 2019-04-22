@@ -17,7 +17,7 @@ enable phenix.cryo_fit2 to run
 Development history
 future    : Support Nigel's phenix.eLBOW
 future    : Support Rob's multi-threading for search ideal parameters
-future    : Calculate for 4 phenix cc
+future    : Calculate all 4 phenix cc
 future    : Support mtz input as well
 
 current   : Automatically use sophiscated strong geometry restraints (Oleg's) for nucleic acids
