@@ -295,8 +295,15 @@ Options:
     
     if (self.params.loose_ss_def == True):
       self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
+      # default is 3.4, the longer this value the loose
+      
       self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=30
-    
+      # default is 35, this angle doesn't have much effect on bvht RNA structure
+      
+    # when I use phenix.secondary_structure_restraints at commandline, use
+    # secondary_structure.nucleic_acid.hbond_distance_cutoff
+    # not
+    # pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff
     
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
@@ -496,8 +503,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         # Stuff for outputting ncs_groups
         #excessive_distance_limit=self.params.ncs.excessive_distance_limit)
         excessive_distance_limit=10)
-    print ("r:",r)
-    
+    #print ("r:",r)
+    # this r is same as the RSR resulted .geo file, therefore I may not need to study write_geo(m)=True option
     geometry_restraints_file_name = "used_geometry_restraints.txt"
     geo_file = open(geometry_restraints_file_name, "w")
     geo_file.write(r)

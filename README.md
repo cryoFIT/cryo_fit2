@@ -15,6 +15,7 @@ enable phenix.cryo_fit2 to run
 
 =========================
 Development history
+future    : Automatically re-run number_of_steps until cc plateau
 future    : Support Nigel's phenix.eLBOW
 future    : Support Rob's multi-threading for search ideal parameters
 future    : Calculate all 4 phenix cc
