@@ -20,6 +20,7 @@ future    : Support Nigel's phenix.eLBOW
 future    : Support Rob's multi-threading for search ideal parameters
 future    : Calculate all 4 phenix cc
 future    : Support mtz input as well
+future    : Estimate compactness, then assign colder start_temparature for a wider (less compact) starting structure
 
 current   : Automatically use sophiscated strong geometry restraints (Oleg's) for nucleic acids
 
