@@ -15,7 +15,6 @@ enable phenix.cryo_fit2 to run
 
 =========================
 Development history
-future    : Automatically re-run number_of_steps until cc plateau
 future    : Support Nigel's phenix.eLBOW
 future    : Support Rob's multi-threading for search ideal parameters
 future    : Calculate all 4 phenix cc
@@ -23,7 +22,10 @@ future    : Support mtz input as well
 future    : Estimate compactness, then assign colder start_temparature for a wider (less compact) starting structure
 
 current   : Automatically use sophiscated strong geometry restraints (Oleg's) for nucleic acids
+current   : Solve floppy protein local structures (Mg_channel, adenylate kinase)
 
+
+05/02/2019: Automatically re-run cryo_fit2 until cc becomes a plateau
 04/18/2019: Update archaic nucleic acid names automatically
 04/10/2019: Both "regular" (from emdb) maps and other maps (from phenix.map_box, Chimera's gaussian filter and relion image handler) have no problem of origin issue from user's perspective
 03/05/2019: Added RMSD calculation

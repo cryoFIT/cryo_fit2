@@ -78,44 +78,58 @@ class cryo_fit2_class(object):
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
     
-    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
-    initial_CC = "\nInitial CC: " + str(cc) + "\n"
+    cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
+    write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n"
     
-    print('%s' %(initial_CC))
-    self.logfile.write(str(initial_CC))
+    print('%s' %(write_this))
+    self.logfile.write(str(write_this))
     #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
-    #STOP()
-    if (self.params.progress_on_screen == True):
-      result = sa.run(
-        params = params,
-        xray_structure     = self.model.get_xray_structure(),
-        restraints_manager = self.model.get_restraints_manager(),
-        target_map         = map_data,
-        real_space         = True,
-        wx                 = self.params.map_weight, 
-        wc                 = 1, # weight for geometry conformation
-        states_collector   = states)
-    else: # (self.params.progress_on_screen = False):
-      result = sa.run(
-        params = params,
-        xray_structure     = self.model.get_xray_structure(),
-        restraints_manager = self.model.get_restraints_manager(),
-        target_map         = map_data,
-        real_space         = True,
-        wx                 = self.params.map_weight, 
-        wc                 = 1, # weight for geometry conformation
-        states_collector   = states,
-        log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
+    
+    ################ <begin> iterate until cryo_fit2 derived cc saturates
+    result = ''
+    for i in range(100000):
+      if (self.params.progress_on_screen == True):
+        result = sa.run(
+          params = params,
+          xray_structure     = self.model.get_xray_structure(),
+          restraints_manager = self.model.get_restraints_manager(),
+          target_map         = map_data,
+          real_space         = True,
+          wx                 = self.params.map_weight, 
+          wc                 = 1, # weight for geometry conformation
+          states_collector   = states)
+      else: # (self.params.progress_on_screen = False):
+        result = sa.run(
+          params = params,
+          xray_structure     = self.model.get_xray_structure(),
+          restraints_manager = self.model.get_restraints_manager(),
+          target_map         = map_data,
+          real_space         = True,
+          wx                 = self.params.map_weight, 
+          wc                 = 1, # weight for geometry conformation
+          states_collector   = states,
+          log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
 
-    cc = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
-    final_CC = "Final   CC: " + str(cc) + "\n\n"
-    output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc)
+      cc_after_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
+      
+      write_this = "cc after cryo_fit2: " + str(cc_after_cryo_fit2) + "\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+      
+      if (cc_after_cryo_fit2 < cc_before_cryo_fit2):
+        break
+      cc_before_cryo_fit2 = cc_after_cryo_fit2 # reassign cc_before_cryo_fit2
+    ################ <end> iterate until cryo_fit2 derived cc saturates
+    
+    
+    write_this = "cc after cryo_fit2 (final): " + str(cc_after_cryo_fit2) + "\n\n"
+    print('%s' %(write_this))
+    self.logfile.write(str(write_this))
+    
+    output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc_after_cryo_fit2)
     if os.path.exists(output_dir_w_CC):
       shutil.rmtree(output_dir_w_CC)
     os.mkdir(output_dir_w_CC)
-    
-    print('%s' %(final_CC))
-    self.logfile.write(str(final_CC))
     
     all_state_file = os.path.join(output_dir_w_CC, "all_states.pdb")
     states.write(file_name = all_state_file)
@@ -134,11 +148,11 @@ class cryo_fit2_class(object):
     print_this ='''
 ########  How to fix map origin problem in cryo_fit2 #######
   With 0,0,0 origin map, cryo_fit2 has no problem.
-  However, with non-0,0,0 origin cryo-EM map, cryo_fit2 used to spit cryo_fitted pdb model at "wrong" origin
+  However, with non-0,0,0 origin cryo-EM map, cryo_fit2 results cryo_fitted pdb model at "wrong" origin
   This is because probably dynamics part uses map at 0,0,0 origin.
   Therefore, cryo_fit2 identifies how much the map origin was moved, then update all xyz coordinates of output pdb file.
   In user's perspective, there is nothing to bother.
-  All kinds of mrc files (e.g. "Regular", emdb download, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine.
+  All kinds of mrc files (e.g. "Regular", emdb downloaded, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine.
 #############################################################
 '''
 

@@ -63,7 +63,7 @@ cool_rate = 10
   .short_caption = cooling rate of annealing in Kelvin
 number_of_steps = 1000
   .type = int
-  .short_caption = number of steps in phenix.dynamics
+  .short_caption = number of steps in phenix.dynamics.
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
@@ -338,21 +338,28 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     splited = self.data_manager.get_default_model_name().split("/")
     input_model_file_name_wo_path = splited [len(splited)-1]
 
-    if ((self.params.devel == True) or (input_model_file_name_wo_path == "devel_cryo_fit2_model.pdb") or \
-          (input_model_file_name_wo_path == "devel_cryo_fit2_model.cif")):
-      # "tst..." lives in modules/cryo_fit2/regression
+    if (self.params.devel == True) :
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.cool_rate = 10
       self.params.number_of_steps = 1
 
-    if (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
+    elif (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.cool_rate = 10
       self.params.number_of_steps = 1000
       self.params.pdb_interpretation.secondary_structure.enabled = True
+    
+    elif (input_model_file_name_wo_path == "tst_cryo_fit2_model.pdb"): 
+      self.params.start_temperature = 300
+      self.params.final_temperature = 280
+      self.params.cool_rate = 10
+      self.params.number_of_steps = 100
+      self.params.pdb_interpretation.secondary_structure.enabled = True
       
+    
+    
     #"_map_wt_" + str(round(self.params.map_weight,1)) + \
     # rename output_dir
     output_dir_prefix = self.params.output_dir
@@ -379,6 +386,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n\n")
+    
+    
                          
     #if (checked_whether_args_has_eff == False):   
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
@@ -394,7 +403,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
-                            
+
     print ("cryo_fit2_input_command:",cryo_fit2_input_command)
     
     input_command_file = open("cryo_fit2.input_command.txt", "w")
