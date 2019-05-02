@@ -15,20 +15,19 @@ enable phenix.cryo_fit2 to run
 
 =========================
 Development history
-future    : Support Nigel's phenix.eLBOW
-future    : Support Rob's multi-threading for search ideal parameters
-future    : Calculate all 4 phenix cc
+future    : Automatically support Nigel's phenix.eLBOW
+future    : Automatically support Rob's multi-threading for search ideal parameters
+future    : Automatically calculate all 4 phenix cc
 future    : Support mtz input as well
-future    : Estimate compactness, then assign colder start_temparature for a wider (less compact) starting structure
+future    : Automatically estimate compactness, then assign colder start_temparature for a wider (less compact) starting structure
 
 current   : Automatically use sophiscated strong geometry restraints (Oleg's) for nucleic acids
-current   : Solve floppy protein local structures (Mg_channel, adenylate kinase)
-
+current   : Automatically solve floppy protein local structures (Mg_channel, adenylate kinase)
 
 05/02/2019: Automatically re-run cryo_fit2 until cc becomes a plateau
-04/18/2019: Update archaic nucleic acid names automatically
-04/10/2019: Both "regular" (from emdb) maps and other maps (from phenix.map_box, Chimera's gaussian filter and relion image handler) have no problem of origin issue from user's perspective
-03/05/2019: Added RMSD calculation
-01/23/2019: Uses phenix.real_space_refine style automatic map weight determination
+04/18/2019: Automatically update archaic nucleic acid names in user's pdb file
+04/10/2019: Automatically deal origin issue of both "regular" (from emdb) maps and other maps (from phenix.map_box, Chimera's gaussian filter and relion image handler). Users don't need to pay any attention with respect to origin issue
+03/05/2019: Automatically calculate RMSD before and after cryo_fit2
+01/23/2019: Automatically optimize map weight following phenix.real_space_refine style
 11/01/2018: Refactored into Billy's template style (as phenix.EMRINGER)
 08/04/2018: Pavel and Doonam made initial form of cryo_fit2 using phenix.dynamics

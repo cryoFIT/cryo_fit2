@@ -111,6 +111,7 @@ class cryo_fit2_class(object):
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
 
       cc_after_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
+      #cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
       write_this = "cc after cryo_fit2: " + str(cc_after_cryo_fit2) + "\n"
       print('%s' %(write_this))
