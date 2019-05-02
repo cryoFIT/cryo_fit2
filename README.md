@@ -27,9 +27,7 @@ future    : Support mtz input as well
 
 future    : Automatically estimate compactness, then assign colder start_temparature for a wider (less compact) starting structure
 
-current   : Automatically use sophiscated strong geometry restraints (Oleg's) for nucleic acids
-
-current   : Automatically solve floppy protein local structures (Mg_channel, adenylate kinase)
+current   : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase)
 
 05/02/2019: Automatically re-run cryo_fit2 until cc becomes a plateau
 
