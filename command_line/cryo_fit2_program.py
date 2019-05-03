@@ -238,9 +238,10 @@ Options:
     #['__doc__', '__init__', '__module__', 'cannot_be_sharpened', 'crystal_symmetry', 'data', 'external_origin', 'get_additional_labels', 'get_labels', 'get_limitation', 'get_limitations', 'grid_unit_cell', 'header_max', 'header_mean', 'header_min', 'header_rms', 'is_in_limitations', 'is_similar_map', 'labels', 'map_data', 'nxstart_nystart_nzstart', 'origin', 'pixel_sizes', 'show_summary', 'space_group_number', 'statistics', 'unit_cell', 'unit_cell_crystal_symmetry', 'unit_cell_grid', 'unit_cell_parameters']
     
     print ("map_inp.show_summary():", map_inp.show_summary())
+    print ("map_inp.show_summary():", map_inp.show_summary())
     #print ("map_inp.unit_cell_grid():", map_inp.unit_cell_grid()) #TypeError: 'tuple' object is not callable
-    print ("map_inp.unit_cell_grid:", map_inp.unit_cell_grid)
-    print ("map_inp.unit_cell_grid[0]:", map_inp.unit_cell_grid[0]) 
+    #print ("map_inp.unit_cell_grid:", map_inp.unit_cell_grid)
+    #print ("map_inp.unit_cell_grid[0]:", map_inp.unit_cell_grid[0]) 
     #STOP()
     # for map_boxed map
       # unit cell grid: (360, 360, 360)
@@ -258,7 +259,9 @@ Options:
     #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry()) # just shows the address of the object
     '''
     map_inp_data = map_inp.map_data()
-    print ("map origin:", map_inp_data.origin())
+    #print ("map_inp_data:", map_inp_data) #<scitbx_array_family_flex_ext.double object at 0x119e171d0>
+    #STOP()
+    #print ("map origin:", map_inp_data.origin())
     #132, 94, 203 for DN map_L1 stalk same as in util.py's target_map_data.origin()
     
     #'''
@@ -378,25 +381,27 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                  #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
     ###############  (begin) when optimizing map_weight once
+    user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
-        self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp)
-        logfile.write("\nAutomatically optimized map_weight: ")
+      final = False
+      self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp, final ,'')
+      logfile.write("\nAutomatically optimized map_weight: ")
     else:
+      user_map_weight = self.params.map_weight
       logfile.write("\nUser specified map_weight: ")
     
     logfile.write(str(round(self.params.map_weight,1)))
-    logfile.write("\n\n")
-    
+    logfile.write("\n")
     
                          
     #if (checked_whether_args_has_eff == False):   
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
-                            + "map_weight=" + str(round(self.params.map_weight,1)) + " " \
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
                             + "steps=" + str(self.params.number_of_steps) + " " \
+                            + "map_weight=" + str(round(self.params.map_weight,1)) + " " \
                             + "\n"
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
@@ -438,7 +443,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       rewrite_to_custom_geometry(ss_restraints_file_name)
       custom_geom_file_name = ss_restraints_file_name[:-4] + "_custom_geom.eff"
     '''
-            
+
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
       model_name        = self.data_manager.get_default_model_name(),
@@ -447,8 +452,9 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       out               = self.logger,
       map_name          = self.data_manager.get_default_real_map_name(),
       logfile           = logfile,
-      output_dir        = output_dir)
-    
+      output_dir        = output_dir,
+      user_map_weight   = user_map_weight)
+
     task_obj.validate()
     
     output_dir_w_CC = task_obj.run()

@@ -25,7 +25,7 @@ sys.path.insert(0, util_path)
 from util import *
 
 class cryo_fit2_class(object):
-  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir):
+  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir, user_map_weight):
     self.model             = model
     self.model_name        = model_name
     self.map_inp           = map_inp
@@ -35,6 +35,7 @@ class cryo_fit2_class(object):
     self.logfile           = logfile
     self.output_dir        = output_dir
     self.desc = os.path.basename(model_name)
+    self.user_map_weight   = user_map_weight
   
   def __execute(self):
     self.caller(self.write_geo_file,       "Write GEO file")
@@ -78,7 +79,10 @@ class cryo_fit2_class(object):
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
     
-    cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
+    map_inp                        = self.map_inp
+    user_map_weight                = self.user_map_weight
+    
+    cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
     write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n"
     
     print('%s' %(write_this))
@@ -110,10 +114,9 @@ class cryo_fit2_class(object):
           states_collector   = states,
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
 
-      cc_after_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 3)
-      #cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
-      
-      write_this = "cc after cryo_fit2: " + str(cc_after_cryo_fit2) + "\n"
+      cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
+
+      write_this = "cc after  cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
@@ -122,12 +125,61 @@ class cryo_fit2_class(object):
       cc_before_cryo_fit2 = cc_after_cryo_fit2 # reassign cc_before_cryo_fit2
     ################ <end> iterate until cryo_fit2 derived cc saturates
     
+    '''    
+    ################ <begin> final cryo_fit2 run for better geometry with a new map_weight
+    write_this = "\nFinal cryo_fit2 run for better geometry with a new map_weight\n"
+    print('%s' %(write_this))
+    self.logfile.write(str(write_this))
+
+    if (user_map_weight == ''):
+      final = True
+
+      current_fitted_file_name = "current_fitted_file.pdb"
+      with open(current_fitted_file_name, "w") as f:
+        f.write(self.model.model_as_pdb())
+      f.close()
+
+      self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, final, current_fitted_file_name)
+      write_this = "\nAutomatically optimized map_weight for final cryo_fit2 run: "
+      print('%s' %(write_this))
+      self.logfile.write(write_this)
+    else:
+      self.params.map_weight = user_map_weight
     
-    write_this = "cc after cryo_fit2 (final): " + str(cc_after_cryo_fit2) + "\n\n"
+    write_this = str(round(self.params.map_weight,1)) + "\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
     
-    output_dir_w_CC = str(self.output_dir) + "_CC_" + str(cc_after_cryo_fit2)
+    if (self.params.progress_on_screen == True):
+        result = sa.run(
+          params = params,
+          xray_structure     = self.model.get_xray_structure(),
+          restraints_manager = self.model.get_restraints_manager(),
+          target_map         = map_data,
+          real_space         = True,
+          wx                 = self.params.map_weight, 
+          wc                 = 1, # weight for geometry conformation
+          states_collector   = states)
+    else: # (self.params.progress_on_screen = False):
+        result = sa.run(
+          params = params,
+          xray_structure     = self.model.get_xray_structure(),
+          restraints_manager = self.model.get_restraints_manager(),
+          target_map         = map_data,
+          real_space         = True,
+          wx                 = self.params.map_weight, 
+          wc                 = 1, # weight for geometry conformation
+          states_collector   = states,
+          log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
+    
+    write_this = "cc after cryo_fit2 (final): " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
+    print('%s' %(write_this))
+    self.logfile.write(str(write_this))
+    
+    ################ <end> final cryo_fit2 run for better geometry with a new map_weight
+    '''
+    
+    output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(cc_after_cryo_fit2, 3))
     if os.path.exists(output_dir_w_CC):
       shutil.rmtree(output_dir_w_CC)
     os.mkdir(output_dir_w_CC)
@@ -145,9 +197,12 @@ class cryo_fit2_class(object):
     ##### this is essential
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
+    f.close()
     
-    print_this ='''
+    
+    #print_this ='''
 ########  How to fix map origin problem in cryo_fit2 #######
+    '''
   With 0,0,0 origin map, cryo_fit2 has no problem.
   However, with non-0,0,0 origin cryo-EM map, cryo_fit2 results cryo_fitted pdb model at "wrong" origin
   This is because probably dynamics part uses map at 0,0,0 origin.
@@ -155,9 +210,8 @@ class cryo_fit2_class(object):
   In user's perspective, there is nothing to bother.
   All kinds of mrc files (e.g. "Regular", emdb downloaded, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine.
 #############################################################
-'''
-
-    print (print_this,"\n")
+#print (print_this,"\n")
+    '''
 
     returned = know_how_much_map_origin_moved(str(self.map_name))
     

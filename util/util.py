@@ -59,20 +59,20 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
-def determine_optimal_weight_by_template(self, logfile, map_inp):
-    pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp)
-    f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
-    fft_map = f_calc.fft_map(resolution_factor=0.25)
-    fft_map.apply_sigma_scaling()
-    map_data = fft_map.real_map_unpadded()
-    self.params.map_weight = weight.run(
-      map_data                    = map_data,
-      xray_structure              = pi.xrs,
-      pdb_hierarchy               = pi.ph,
-      geometry_restraints_manager = pi.grm).weight
+def determine_optimal_weight_by_template(self, logfile, map_inp, final, current_fitted_file_name):
+  pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitted_file_name)
+  f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
+  fft_map = f_calc.fft_map(resolution_factor=0.25)
+  fft_map.apply_sigma_scaling()
+  map_data = fft_map.real_map_unpadded()
+  self.params.map_weight = weight.run(
+    map_data                    = map_data,
+    xray_structure              = pi.xrs,
+    pdb_hierarchy               = pi.ph,
+    geometry_restraints_manager = pi.grm).weight
 
-    print ("An optimized weight for a map:", str(round(self.params.map_weight,2)))
-    return self.params.map_weight
+  print ("An optimized weight for a map:", str(round(self.params.map_weight,2)))
+  return self.params.map_weight
 ######################### end of determine_optimal_weight_by_template
 
 
@@ -98,61 +98,85 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 '''
 
 
-def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp):
-    try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols and resolution is correctly assigned
+def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitted_file_name):
+  #print ("self.data_manager.get_default_model_name():", self.data_manager.get_default_model_name())
+  
+  try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols and resolution is correctly assigned
+      
+   #   print ("self.data_manager.get_default_model_name():", self.data_manager.get_default_model_name())
+      # first time of map_weight optimization for a helix results this
+      # second time of map_weight optimization for a helix results nothing
+      
+      ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+          pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+      
+      '''
+      print ("current_fitted_file_name:",current_fitted_file_name)
+
+      ppf = ''
+      if (final == False):
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-            pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-    except:
-        # above try either results in "Sorry: Crystal symmetry is missing or cannot be extracted."
-        # or
-        #   "Sorry: Fatal problems interpreting model file:
-        #    Number of atoms with unknown nonbonded energy type symbols: xx
-        #    Please edit the model file to resolve the problems and/or supply a
-        #    CIF file with matching restraint definitions, along with
-        #    apply_cif_modification and apply_cif_link parameter definitions
-        #    if necessary."
-        #
-        try: # try to extract CRYST1 info from map
-            unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
-            print ("unit_cell_parameters_from_map:",unit_cell_parameters_from_map)
-            
-            file_name_w_user_s_original_pdb_info = prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_from_map)
-            ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-                pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-            
-        except:
-            write_this = '''
+          pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+      else:
+        ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+          pdb_file_names=current_fitted_file_name)[0]
+      '''
+
+  except:
+      # above try either results in "Sorry: Crystal symmetry is missing or cannot be extracted."
+      # or
+      #   "Sorry: Fatal problems interpreting model file:
+      #    Number of atoms with unknown nonbonded energy type symbols: xx
+      #    Please edit the model file to resolve the problems and/or supply a
+      #    CIF file with matching restraint definitions, along with
+      #    apply_cif_modification and apply_cif_link parameter definitions
+      #    if necessary."
+      #
+      try: # try to extract CRYST1 info from map
+        
+          # old
+          #unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
+          #print ("unit_cell_parameters_from_map:",unit_cell_parameters_from_map)
+          #file_name_w_user_s_original_pdb_info = prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_from_map)
+          
+          file_name_w_user_s_original_pdb_info = prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp)
+          
+          ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+              pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+          
+      except:
+          write_this = '''
 map_weight can't be optimized automatically.
 
-(possible reason 1)  User entered wrong resolution. When 4 angstrom resolution was entered for 9 ansgtrom resolution map, cryo_fit2 can't optimize cryo_em_map_weight.
+(possible reason 1)  User entered wrong resolution. When 4 angstrom resolution was entered for a 9 ansgtrom resolution map, cryo_fit2 can't optimize cryo_em_map_weight.
 (solution)           Enter a correct resolution. A user can get the resolution either by EMDB reported value or by running phenix.mtriage
 
 (possible reason 2)  There could be some residues/atoms with unknown nonbonded energy type symbols in the given atomic model.
-(solution)           cryo_fit2 cleans \"RX\" type nucleic acid name automatically.
-                     Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
-                     real_space_refine in PHENIX GUI will tell you which atoms have unknown nonbonded energy type symbols.
+(solution)           cryo_fit2 cleans archaic \"RX\" type nucleic acid name automatically.
+                   Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
+                   real_space_refine in PHENIX GUI will show users which atoms have unknown nonbonded energy type symbols.
 
-(possible reason 3)  If user input pdb file lack CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html)
-                     cryo_fit2 automatically assigns it from map to the first line of input pdb file.
-                     However, when both pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize cryo_em_map_weight.
+(possible reason 3)  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html)
+                   cryo_fit2 automatically assigns it from map to the first line of input pdb file.
+                   However, when both pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize cryo_em_map_weight.
 (solution 1)         Add CRYST1 header info into .pdb/.cif file and rerun cryo_fit2
 (solution 2)         Rerun cryo_fit2 with user specified map_weight.
-                     For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5
-                     However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.
+                   For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5
+                   However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.
 '''
-            print (write_this)
-            logfile.write(write_this)
-            exit(1)
-    
-    xrs = ppf.xray_structure(show_summary = False)
-    restraints_manager = mmtbx.restraints.manager(
-      geometry      = ppf.geometry_restraints_manager(show_energies = False),
-      normalization = True)
-    
-    return group_args(
-            ph  = ppf.all_chain_proxies.pdb_hierarchy,
-            grm = restraints_manager,
-            xrs = xrs)
+          print (write_this)
+          logfile.write(write_this)
+          exit(1)
+  
+  xrs = ppf.xray_structure(show_summary = False)
+  restraints_manager = mmtbx.restraints.manager(
+    geometry      = ppf.geometry_restraints_manager(show_energies = False),
+    normalization = True)
+  
+  return group_args(
+          ph  = ppf.all_chain_proxies.pdb_hierarchy,
+          grm = restraints_manager,
+          xrs = xrs)
 ######################## end of get_pdb_inputs_by_pdb_file_name function
 
 
@@ -222,10 +246,19 @@ def know_how_much_map_origin_moved(map_file_name):
 ############## end of know_how_much_map_origin_moved function
 
 
-def prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_from_map):
+#def prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_from_map):
+def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     write_this_CRYST1 = "CRYST1"
-    unit_cell_parameters_from_map = str(unit_cell_parameters_from_map)
+    
+    # old
+    #unit_cell_parameters_from_map = str(unit_cell_parameters_from_map)
+    
+    # new
+    unit_cell_parameters_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
+    
     splited = unit_cell_parameters_from_map.split(",") # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
+    
+    
     soon_a = splited[0]
     splited_soon_a = soon_a.split("(")
     a = splited_soon_a[1]
@@ -328,22 +361,32 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_fro
             multi_before_period = 5-len(splited_gamma[0])
             multi_after_period = 0-len(splited_gamma[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
-        
-    write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to the user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
+    
+    
     print ("Examplar correct CRYST1 format: CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
-    print ("write this CRYST1             :",write_this_CRYST1)
+    
+    if (map_inp.space_group_number == 19):
+      write_this = "map_inp.space_group_number = 19, therefore assign P 21 21 21\n" # http://img.chem.ucl.ac.uk/sgp/large/019a.htm
+      print (write_this)
+      logfile.write(write_this)
+      write_this_CRYST1 =  write_this_CRYST1 + "  P 21 21 21       # added by cryo_fit2 according to the user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
+    else:  
+      write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to the user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
+    
+    print ("write this CRYST1 information :",write_this_CRYST1)
     
     file_name_w_user_s_original_pdb_info = self.data_manager.get_default_model_name() + ".original"
     command = "cp " + self.data_manager.get_default_model_name() + " " + file_name_w_user_s_original_pdb_info
     libtbx.easy_run.call(command)
     
+    line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)
+    
     write_this = "CRYST1 info from map was prepended to user pdb file, therefore the very original user pdb file is now renamed to " + file_name_w_user_s_original_pdb_info
     print (write_this)
     logfile.write(write_this)
     
-    line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)
     return file_name_w_user_s_original_pdb_info
-########################### end of prepend_extracted_CRYST1_to_pdb_file
+############################ end of prepend_extracted_CRYST1_to_pdb_file
 
 
 
@@ -387,7 +430,7 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
       cmd = "rm " + output_pdb_file_name
       libtbx.easy_run.call(cmd)
     return cleaned, output_pdb_file_name
-################ end of remove_R_prefix_in_RNA function
+########################### end of remove_R_prefix_in_RNA function
 
 
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
