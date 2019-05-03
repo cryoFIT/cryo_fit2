@@ -21,6 +21,7 @@ import warnings
 import os.path
 from iotbx.cli_parser import run_program
 
+
 def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   pdb_file = libtbx.env.find_in_repositories(
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_model.pdb",
@@ -33,6 +34,8 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   assert (not None in [pdb_file, map_file])
   #cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution, devel])
   cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution])
+############## end of exercise_cryo_fit2()
+
 
 if __name__=='__main__':
   keep_going=True
