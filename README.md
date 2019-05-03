@@ -27,6 +27,8 @@ future    : Support mtz input as well
 
 future    : Automatically estimate compactness, then assign colder start_temparature for a wider (less compact) starting structure
 
+future    : Automatically identify less fitted local region and fit that region only as real_space_refine2 does
+
 future    : Automatically reoptimize map weight several times like real_space_refine does
 
 current   : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase)
