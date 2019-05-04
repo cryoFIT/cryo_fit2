@@ -31,6 +31,8 @@ future    : Automatically identify less fitted local region and fit that region 
 
 current   : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase). I may need to use cryo_fit2_command.py to automatically use .eff file
 
+current   : Fine-tune parameters (decrease number_of_steps, increase cool_rate) to better maintain starting geometry
+
 05/04/2019: Automatically reoptimize map weight for the last cryo_fit2 run
 	    Added a new option: total_number_of_steps
 

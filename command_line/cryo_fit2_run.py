@@ -80,14 +80,9 @@ class cryo_fit2_class(object):
     params.number_of_steps         = self.params.number_of_steps
     
     total_number_of_steps = ''
-    #print ("total_number_steps:",total_number_steps)
     if (self.params.total_number_of_steps != None):
       print ("self.params.total_number_of_steps:", self.params.total_number_of_steps)
       total_number_of_steps   = self.params.total_number_of_steps
-      print ("total_number_of_steps:",total_number_of_steps)
-      #STOP()
-    print ("total_number_of_steps:",total_number_of_steps)
-    #STOP()
     
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
@@ -106,7 +101,7 @@ class cryo_fit2_class(object):
     ################ <begin> iterate until cryo_fit2 derived cc saturates
     result = ''
     total_number_steps_so_far = 0
-    for i in range(100000):
+    for i in range(10000000000):
       
       if (self.params.progress_on_screen == True):
         result = sa.run(
