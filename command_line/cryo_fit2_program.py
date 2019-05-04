@@ -63,7 +63,11 @@ cool_rate = 10
   .short_caption = cooling rate of annealing in Kelvin
 number_of_steps = 1000
   .type = int
-  .short_caption = number of steps in phenix.dynamics.
+  .short_caption = number of steps in phenix.dynamics
+total_number_of_steps = None
+  .type = int
+  .short_caption = total number of steps in phenix.dynamics.\
+                   If specified, run up to this number of step no matter what.
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
@@ -166,6 +170,8 @@ Options:
   final_temperature            (default: 0)
   cool_rate                    (default: 10)
   number_of_steps              (default: 1000)
+  total_number_of_steps        (default: None)
+                               If specified, run up to this number of step no matter what.
   secondary_structure.enabled  (default: True)
                                Most MD simulations tend to break secondary structure. 
                                Therefore, turning on this option is recommended. 
@@ -400,16 +406,19 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
-                            + "steps=" + str(self.params.number_of_steps) + " " \
-                            + "map_weight=" + str(round(self.params.map_weight,1)) + " " \
-                            + "\n"
+                            + "number_of_steps=" + str(self.params.number_of_steps) + " " \
+                            + "map_weight=" + str(round(self.params.map_weight,1)) + " " 
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
-
-    print ("cryo_fit2_input_command:",cryo_fit2_input_command)
+    if (self.params.total_number_of_steps != None):
+      cryo_fit2_input_command = cryo_fit2_input_command + "total_number_of_steps=" + str(self.params.total_number_of_steps) + "\n"
+    else:
+      cryo_fit2_input_command = cryo_fit2_input_command + "\n"
+                              
+    print ("\ncryo_fit2_input_command:",cryo_fit2_input_command)
     
     input_command_file = open("cryo_fit2.input_command.txt", "w")
     input_command_file.write(str(cryo_fit2_input_command))

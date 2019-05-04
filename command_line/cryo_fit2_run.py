@@ -12,7 +12,8 @@ import scitbx.math, scitbx.math.superpose, subprocess
 from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
 from cctbx.geometry_restraints.base_geometry import Base_geometry
 
-# this is needed to import util.py
+
+######## <begin> needed to import util.py
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
 splited_path = path.split("/")
 command_path = ''
@@ -21,8 +22,9 @@ for i in range(len(splited_path)-3):
 command_path = command_path + "modules/cryo_fit2/"
 util_path = command_path + "util/"
 sys.path.insert(0, util_path)
-#print ("util_path:",util_path)
 from util import *
+######## <end> needed to import util.py
+
 
 class cryo_fit2_class(object):
   def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir, user_map_weight):
@@ -76,6 +78,17 @@ class cryo_fit2_class(object):
     params.final_temperature       = self.params.final_temperature
     params.cool_rate               = self.params.cool_rate
     params.number_of_steps         = self.params.number_of_steps
+    
+    total_number_of_steps = ''
+    #print ("total_number_steps:",total_number_steps)
+    if (self.params.total_number_of_steps != None):
+      print ("self.params.total_number_of_steps:", self.params.total_number_of_steps)
+      total_number_of_steps   = self.params.total_number_of_steps
+      print ("total_number_of_steps:",total_number_of_steps)
+      #STOP()
+    print ("total_number_of_steps:",total_number_of_steps)
+    #STOP()
+    
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
     
@@ -89,9 +102,12 @@ class cryo_fit2_class(object):
     self.logfile.write(str(write_this))
     #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
     
+    
     ################ <begin> iterate until cryo_fit2 derived cc saturates
     result = ''
+    total_number_steps_so_far = 0
     for i in range(100000):
+      
       if (self.params.progress_on_screen == True):
         result = sa.run(
           params = params,
@@ -113,7 +129,8 @@ class cryo_fit2_class(object):
           wc                 = 1, # weight for geometry conformation
           states_collector   = states,
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
-
+      
+      total_number_steps_so_far = total_number_steps_so_far + params.number_of_steps
       cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
 
       write_this = "cc after  cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n"
@@ -122,10 +139,17 @@ class cryo_fit2_class(object):
       
       if (cc_after_cryo_fit2 < cc_before_cryo_fit2):
         break
+      if (total_number_of_steps != ''):
+        if (total_number_steps_so_far >= total_number_of_steps):
+          write_this = "\ntotal_number_steps_so_far " + str(total_number_steps_so_far) + \
+                       " >= total_number_of_steps " + str(total_number_of_steps) + "\n"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          break
       cc_before_cryo_fit2 = cc_after_cryo_fit2 # reassign cc_before_cryo_fit2
     ################ <end> iterate until cryo_fit2 derived cc saturates
     
-    #''' 
+
     ################ <begin> final cryo_fit2 run for better geometry with a new map_weight
     write_this = "\nFinal cryo_fit2 run for better geometry with a new map_weight\n"
     print('%s' %(write_this))
@@ -185,7 +209,7 @@ class cryo_fit2_class(object):
     self.logfile.write(str(write_this))
     
     ################ <end> final cryo_fit2 run for better geometry with a new map_weight
-    #'''
+    
     
     output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(cc_after_cryo_fit2, 3))
     if os.path.exists(output_dir_w_CC):
@@ -223,20 +247,14 @@ class cryo_fit2_class(object):
 
     returned = know_how_much_map_origin_moved(str(self.map_name))
     
-    ##### 4/3/2019, regular cryo-EM maps have no problem of origin shifting.
-    ##### However, map_boxed cryo-EM maps shifted origin.
-    
-    #'''
     if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
-        write_this = "Restoring original position for output model\n\n"
+        write_this = "Restoring original xyz position for a cryo_fit2 fitted atomistic model\n\n"
         print (write_this)
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
-    #'''
-    #self.write_geo_file()
     
     
-    ################################ beginning of RMSD calculation ###########################
+    ################################ <begin> RMSD calculation ###########################
     ## (reference) cctbx_project/mmtbx/superpose.py
     fixed = self.model_name
     moving = fitted_file
@@ -270,7 +288,7 @@ class cryo_fit2_class(object):
       write_this = "rmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
       print (write_this)
       self.logfile.write(str(write_this))
-    ################################ end of RMSD calculation ###########################
+    ################################ <end> RMSD calculation ###########################
     
     return output_dir_w_CC
 ############# end of run function

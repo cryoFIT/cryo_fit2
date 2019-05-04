@@ -16,7 +16,6 @@ from mmtbx.refinement.real_space import weight
 import shutil
 
 
-
 def check_whether_args_has_eff(args):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
@@ -101,8 +100,6 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, fitted_file_before_final_run):
   
   try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols and resolution is correctly assigned
-
-      print ("fitted_file_before_final_run:",fitted_file_before_final_run)
 
       ppf = ''
       if (final == False):
