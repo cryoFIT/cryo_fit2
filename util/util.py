@@ -133,11 +133,9 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitte
       #    if necessary."
       #
       try: # try to extract CRYST1 info from map
-        
-          # old
-          #unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
-          #print ("unit_cell_parameters_from_map:",unit_cell_parameters_from_map)
-          #file_name_w_user_s_original_pdb_info = prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_from_map)
+          write_this = "CRYST1 info is not extracted from user input pdb file. Try to extract it from user map instead.\n"
+          print (write_this)
+          logfile.write(write_this)
           
           file_name_w_user_s_original_pdb_info = prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp)
           
@@ -246,18 +244,10 @@ def know_how_much_map_origin_moved(map_file_name):
 ############## end of know_how_much_map_origin_moved function
 
 
-#def prepend_extracted_CRYST1_to_pdb_file(self, logfile, unit_cell_parameters_from_map):
 def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     write_this_CRYST1 = "CRYST1"
-    
-    # old
-    #unit_cell_parameters_from_map = str(unit_cell_parameters_from_map)
-    
-    # new
     unit_cell_parameters_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
-    
     splited = unit_cell_parameters_from_map.split(",") # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
-    
     
     soon_a = splited[0]
     splited_soon_a = soon_a.split("(")
@@ -366,7 +356,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     print ("Examplar correct CRYST1 format: CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
     
     if (map_inp.space_group_number == 19):
-      write_this = "map_inp.space_group_number = 19, therefore assign P 21 21 21\n" # http://img.chem.ucl.ac.uk/sgp/large/019a.htm
+      write_this = "space_group_number from user input map = 19. Therefore, assign P 21 21 21 to a user input pdb file\n" # http://img.chem.ucl.ac.uk/sgp/large/019a.htm
       print (write_this)
       logfile.write(write_this)
       write_this_CRYST1 =  write_this_CRYST1 + "  P 21 21 21       # added by cryo_fit2 according to the user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"

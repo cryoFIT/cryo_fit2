@@ -391,7 +391,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.write("\nUser specified map_weight: ")
     
     logfile.write(str(round(self.params.map_weight,1)))
-    logfile.write("\n")
+    logfile.write("\n\n")
     
                          
     #if (checked_whether_args_has_eff == False):   
