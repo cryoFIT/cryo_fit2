@@ -138,6 +138,9 @@ class cryo_fit2_class(object):
       self.logfile.write(str(write_this))
       
       if (cc_after_cryo_fit2 < cc_before_cryo_fit2):
+        write_this = "\ntotal_number_steps_so_far: " + str(total_number_steps_so_far) + "\n"
+        print('%s' %(write_this))
+        self.logfile.write(str(write_this))
         break
       if (total_number_of_steps != ''):
         if (total_number_steps_so_far >= total_number_of_steps):
