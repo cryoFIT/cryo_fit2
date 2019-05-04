@@ -39,7 +39,7 @@ current   : Automatically use sophisticated strong geometry restraints (Oleg's) 
 
 04/10/2019: Automatically deal origin issue of both "regular" (from emdb) maps and other maps (from phenix.map_box, Chimera's gaussian filter and relion image handler). Users don't need to pay any attention with respect to origin issue
 
-03/05/2019: Automatically calculate RMSD before and after cryo_fit2
+03/05/2019: Automatically calculate RMSD after cryo_fit2
 
 01/23/2019: Automatically optimize map weight following phenix.real_space_refine style
 
