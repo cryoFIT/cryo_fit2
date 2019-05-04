@@ -29,9 +29,9 @@ future    : Automatically estimate compactness, then assign colder start_tempara
 
 future    : Automatically identify less fitted local region and fit that region only as real_space_refine2 does
 
-future    : Automatically reoptimize map weight several times like real_space_refine does
-
 current   : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase). I may need to use cryo_fit2_command.py to automatically use .eff file
+
+05/04/2019: Automatically reoptimize map weight for the last cryo_fit2 run
 
 05/02/2019: Automatically re-run cryo_fit2 until cc becomes a plateau
 

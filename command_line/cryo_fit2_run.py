@@ -125,28 +125,36 @@ class cryo_fit2_class(object):
       cc_before_cryo_fit2 = cc_after_cryo_fit2 # reassign cc_before_cryo_fit2
     ################ <end> iterate until cryo_fit2 derived cc saturates
     
-    '''    
+    #''' 
     ################ <begin> final cryo_fit2 run for better geometry with a new map_weight
     write_this = "\nFinal cryo_fit2 run for better geometry with a new map_weight\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
-
+    
     if (user_map_weight == ''):
+      write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for final cryo_fit2 run\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+    
       final = True
 
-      current_fitted_file_name = "current_fitted_file.pdb"
-      with open(current_fitted_file_name, "w") as f:
+      fitted_file_before_final_run = "fitted_file_before_final_run.pdb"
+      with open(fitted_file_before_final_run, "w") as f:
         f.write(self.model.model_as_pdb())
       f.close()
 
-      self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, final, current_fitted_file_name)
-      write_this = "\nAutomatically optimized map_weight for final cryo_fit2 run: "
+      self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, final, fitted_file_before_final_run)
+      
+      cmd = "rm fitted_file_before_final_run.pdb"
+      libtbx.easy_run.fully_buffered(cmd)
+      
+      write_this = "\nAutomatically optimized "
       print('%s' %(write_this))
       self.logfile.write(write_this)
     else:
       self.params.map_weight = user_map_weight
     
-    write_this = str(round(self.params.map_weight,1)) + "\n"
+    write_this = "map_weight for final cryo_fit2 run: " + str(round(self.params.map_weight,1)) + "\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
     
@@ -172,12 +180,12 @@ class cryo_fit2_class(object):
           states_collector   = states,
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
     
-    write_this = "cc after cryo_fit2 (final): " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
+    write_this = "\ncc after cryo_fit2 (final): " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
     
     ################ <end> final cryo_fit2 run for better geometry with a new map_weight
-    '''
+    #'''
     
     output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(cc_after_cryo_fit2, 3))
     if os.path.exists(output_dir_w_CC):

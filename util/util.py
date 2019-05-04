@@ -59,8 +59,8 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
-def determine_optimal_weight_by_template(self, logfile, map_inp, final, current_fitted_file_name):
-  pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitted_file_name)
+def determine_optimal_weight_by_template(self, logfile, map_inp, final, fitted_file_before_final_run):
+  pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, fitted_file_before_final_run)
   f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
   fft_map = f_calc.fft_map(resolution_factor=0.25)
   fft_map.apply_sigma_scaling()
@@ -98,20 +98,11 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 '''
 
 
-def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitted_file_name):
-  #print ("self.data_manager.get_default_model_name():", self.data_manager.get_default_model_name())
+def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, fitted_file_before_final_run):
   
   try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols and resolution is correctly assigned
-      
-   #   print ("self.data_manager.get_default_model_name():", self.data_manager.get_default_model_name())
-      # first time of map_weight optimization for a helix results this
-      # second time of map_weight optimization for a helix results nothing
-      
-      ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-          pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-      
-      '''
-      print ("current_fitted_file_name:",current_fitted_file_name)
+
+      print ("fitted_file_before_final_run:",fitted_file_before_final_run)
 
       ppf = ''
       if (final == False):
@@ -119,8 +110,7 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitte
           pdb_file_names=[self.data_manager.get_default_model_name()])[0]
       else:
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-          pdb_file_names=current_fitted_file_name)[0]
-      '''
+          pdb_file_names=[fitted_file_before_final_run])[0]
 
   except:
       # above try either results in "Sorry: Crystal symmetry is missing or cannot be extracted."
@@ -189,8 +179,8 @@ def know_how_much_map_origin_moved(map_file_name):
     ccp4_map_data = ccp4_map.map_data()
     
     # try
-    print ("ccp4_map.unit_cell_grid[0]:", ccp4_map.unit_cell_grid[0])
-    #STOP()
+    #print ("\tccp4_map.unit_cell_grid[0]:", ccp4_map.unit_cell_grid[0])
+  
     #print ("\tdir(ccp4_map_data): ", dir(ccp4_map_data)) #dir(ccp4_map_data):  ['__abs__', '__add__', '__class__', '__delattr__', '__delitem__', '__dict__', '__div__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__getitem_fgdit__', '__getstate__', '__gt__', '__hash__', '__iadd__', '__idiv__', '__imul__', '__init__', '__instance_size__', '__isub__', '__itruediv__', '__le__', '__len__', '__lt__', '__module__', '__mul__', '__ne__', '__neg__', '__new__', '__pow__', '__radd__', '__rdiv__', '__reduce__', '__reduce_ex__', '__repr__', '__rmul__', '__rsub__', '__rtruediv__', '__safe_for_unpickling__', '__setattr__', '__setitem__', '__setstate__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__weakref__', 'accessor', 'add_selected', 'all', 'all_approx_equal', 'all_approx_equal_relatively', 'all_eq', 'all_ge', 'all_gt', 'all_le', 'all_lt', 'all_ne', 'angle', 'append', 'as_1d', 'as_double', 'as_float', 'as_numpy_array', 'as_scitbx_matrix', 'as_string', 'assign', 'back', 'capacity', 'clear', 'concatenate', 'copy_selected', 'copy_to_byte_str', 'cos_angle', 'count', 'deep_copy', 'dot', 'eight_point_interpolation', 'eight_point_interpolation_with_gradients', 'element_size', 'extend', 'fill', 'focus', 'focus_size_1d', 'format_max', 'format_mean', 'format_min', 'front', 'id', 'insert', 'iround', 'is_0_based', 'is_padded', 'is_square_matrix', 'is_trivial_1d', 'last', 'mathematica_form', 'matrix_back_substitution', 'matrix_back_substitution_given_transpose', 'matrix_copy_block', 'matrix_copy_column', 'matrix_copy_lower_to_upper_triangle_in_place', 'matrix_copy_lower_triangle', 'matrix_copy_upper_to_lower_triangle_in_place', 'matrix_copy_upper_triangle', 'matrix_determinant_via_lu', 'matrix_diagonal', 'matrix_diagonal_add_in_place', 'matrix_diagonal_product', 'matrix_diagonal_set_in_place', 'matrix_diagonal_sum', 'matrix_forward_substitution', 'matrix_forward_substitution_given_transpose', 'matrix_inversion', 'matrix_inversion_in_place', 'matrix_is_symmetric', 'matrix_lower_bidiagonal', 'matrix_lower_triangle_as_packed_l', 'matrix_lu_back_substitution', 'matrix_lu_decomposition_in_place', 'matrix_multiply', 'matrix_multiply_packed_u', 'matrix_multiply_packed_u_multiply_lhs_transpose', 'matrix_multiply_transpose', 'matrix_norm_1', 'matrix_norm_frobenius', 'matrix_norm_inf', 'matrix_outer_product', 'matrix_packed_l_as_lower_triangle', 'matrix_packed_l_as_symmetric', 'matrix_packed_u_as_symmetric', 'matrix_packed_u_as_upper_triangle', 'matrix_packed_u_diagonal', 'matrix_packed_u_diagonal_add_in_place', 'matrix_packed_u_swap_rows_and_columns_in_place', 'matrix_paste_block_in_place', 'matrix_paste_column_in_place', 'matrix_rot90', 'matrix_swap_columns_in_place', 'matrix_swap_rows_in_place', 'matrix_symmetric_as_packed_l', 'matrix_symmetric_as_packed_u', 'matrix_symmetric_upper_triangle_quadratic_form', 'matrix_symmetric_upper_triangle_swap_rows_and_columns_in_place', 'matrix_trace', 'matrix_transpose', 'matrix_transpose_in_place', 'matrix_transpose_multiply', 'matrix_transpose_multiply_as_packed_u', 'matrix_transpose_multiply_diagonal_multiply_as_packed_u', 'matrix_upper_bidiagonal', 'matrix_upper_triangle_as_packed_u', 'min_max_mean', 'nd', 'norm', 'norm_1', 'norm_inf', 'origin', 'pop_back', 'quadratic_interpolation_with_gradients', 'reserve', 'reshape', 'resize', 'reversed', 'round', 'sample_standard_deviation', 'select', 'set_selected', 'shallow_copy', 'shift_origin', 'size', 'slice_to_byte_str', 'standard_deviation_of_the_sample', 'tricubic_interpolation', 'tricubic_interpolation_with_gradients', 'value_at_closest_grid_point']
     
     #print ("\tdir(ccp4_map): ", dir(ccp4_map)) #['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'crystal_symmetry', 'data', 'dummy', 'grid_unit_cell', 'header_max', 'header_mean', 'header_min', 'header_rms', 'is_similar_map', 'map_data', 'pixel_sizes', 'show_summary', 'space_group_number', 'statistics', 'unit_cell', 'unit_cell_crystal_symmetry', 'unit_cell_grid', 'unit_cell_parameters']
