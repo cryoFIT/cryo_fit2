@@ -33,7 +33,7 @@ if (__name__ == "__main__") :
     command_string = "python tst_cryo_fit2.py" % locals()
     print "command_string:", command_string
     rc = libtbx.easy_run.call(command=command_string)
-    assert rc==0
+    assert rc==0 # make sure there is no error with this test
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"

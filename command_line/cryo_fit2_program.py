@@ -1,8 +1,6 @@
 ######to do list
 # To run cryo_fit2 at windows as well, replace all unix command like libtbx.easy_run.fully_buffered
 
-
-
 from __future__ import division, print_function
 
 from iotbx import file_reader
@@ -30,7 +28,7 @@ except ImportError:
   from libtbx.program_template import ProgramTemplate
 
 
-# this is needed to import util py files
+########## <begin> import util py files
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
 splited_path = path.split("/")
 command_path = ''
@@ -39,8 +37,8 @@ for i in range(len(splited_path)-3):
 command_path = command_path + "modules/cryo_fit2/"
 util_path = command_path + "util/"
 sys.path.insert(0, util_path)
-#print ("util_path:",util_path)
 from util import *
+########## <end> import util py files
 
 
 program_citations = libtbx.phil.parse('''
@@ -237,9 +235,9 @@ Options:
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
     
-    ################# beginning of Doonam's playground ################
-    ####### works
+    ################# <begin> Doonam's playground ################
     
+    ####### works
     #print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
     #['__doc__', '__init__', '__module__', 'cannot_be_sharpened', 'crystal_symmetry', 'data', 'external_origin', 'get_additional_labels', 'get_labels', 'get_limitation', 'get_limitations', 'grid_unit_cell', 'header_max', 'header_mean', 'header_min', 'header_rms', 'is_in_limitations', 'is_similar_map', 'labels', 'map_data', 'nxstart_nystart_nzstart', 'origin', 'pixel_sizes', 'show_summary', 'space_group_number', 'statistics', 'unit_cell', 'unit_cell_crystal_symmetry', 'unit_cell_grid', 'unit_cell_parameters']
     
@@ -289,7 +287,7 @@ Options:
     map_inp.unit_cell_parameters()
     print ("map_inp.unit_cell_parameters().unit_cell():",map_inp.unit_cell_parameters().unit_cell())
     '''
-    ################# end of Doonam's playground ################
+    ################# <end> Doonam's playground ################
     
     '''
     has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())

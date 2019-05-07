@@ -81,7 +81,6 @@ class cryo_fit2_class(object):
     
     total_number_of_steps = ''
     if (self.params.total_number_of_steps != None):
-      print ("self.params.total_number_of_steps:", self.params.total_number_of_steps)
       total_number_of_steps   = self.params.total_number_of_steps
     
     params.update_grads_shift      = 0.
@@ -101,8 +100,10 @@ class cryo_fit2_class(object):
     ################ <begin> iterate until cryo_fit2 derived cc saturates
     result = ''
     total_number_steps_so_far = 0
-    for i in range(10000000000):
-      
+
+    for i in range(100000000): # runs well with cryo_fit2.run_tests
+    #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
+ 
       if (self.params.progress_on_screen == True):
         result = sa.run(
           params = params,
