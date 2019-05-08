@@ -126,7 +126,8 @@ class cryo_fit2_class(object):
           states_collector   = states,
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
       
-      total_number_steps_so_far = total_number_steps_so_far + params.number_of_steps
+      multiply_this = 1+ ((params.start_temperature-params.final_temperature)/params.cool_rate)
+      total_number_steps_so_far = total_number_steps_so_far + params.number_of_steps*multiply_this
       cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
 
       write_this = "cc after  cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n"
