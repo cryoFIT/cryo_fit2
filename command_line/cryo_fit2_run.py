@@ -126,7 +126,7 @@ class cryo_fit2_class(object):
           states_collector   = states,
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
       
-      multiply_this = 1+ ((params.start_temperature-params.final_temperature)/params.cool_rate)
+      multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
       total_number_steps_so_far = total_number_steps_so_far + params.number_of_steps*multiply_this
       cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
 
@@ -259,7 +259,10 @@ class cryo_fit2_class(object):
     fixed = self.model_name
     moving = fitted_file
     
-    print ("\n===== Init =====")
+    #print ("\n===== Init =====")
+    write_this = "\n===== Init ====="
+    print (write_this)
+    self.logfile.write(str(write_this))
     # The fixed model can only contain a single model.
     # It will raise an Exception if there is more than one!
     fixed = SuperposePDB(
@@ -281,11 +284,14 @@ class cryo_fit2_class(object):
       quiet=False
     )
     for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
-      print ("\n===== Aligning %s to %s ====="%(fitted_file, self.model_name))
+      #print ("\n===== Aligning %s to %s ====="%(fitted_file, self.model_name))
+      write_this = "\n===== Aligning %s to %s ====="%(fitted_file, self.model_name)
+      print (write_this)
+      self.logfile.write(str(write_this))
       if not self.params.selection_moving:
         moving.selectomatic(fixed)
       rmsd, lsq = moving.superpose(fixed)
-      write_this = "rmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
+      write_this = "\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
       print (write_this)
       self.logfile.write(str(write_this))
     ################################ <end> RMSD calculation ###########################
