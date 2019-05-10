@@ -292,10 +292,10 @@ class cryo_fit2_class(object):
       shutil.rmtree(output_dir_w_CC)
     os.mkdir(output_dir_w_CC)
     
-    '''
-    all_state_file = os.path.join(output_dir_w_CC, "all_states.pdb")
-    states.write(file_name = all_state_file)
-    '''
+    
+    if (self.params.record_states == True): 
+      all_state_file = os.path.join(output_dir_w_CC, "all_states.pdb")
+      states.write(file_name = all_state_file)
     
     self.model.set_xray_structure(result.xray_structure)
     
@@ -338,7 +338,7 @@ class cryo_fit2_class(object):
     moving = fitted_file
     
     #print ("\n===== Init =====")
-    write_this = "\n===== Init ====="
+    write_this = "\n===== RMSD calculation ====="
     print (write_this)
     self.logfile.write(str(write_this))
     # The fixed model can only contain a single model.
