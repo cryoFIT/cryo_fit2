@@ -107,14 +107,17 @@ class cryo_fit2_class(object):
     result = ''
     total_number_of_steps_so_far = 0
 
-    if (self.params.record_states == False): # default
+    if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None
+    
+    cc_check_so_far = 0
+    cc_decreased = 0
+    cc_increased = 0
     
     for i in range(100000000): # runs well with cryo_fit2.run_tests
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
  
       if (self.params.progress_on_screen == True):
-        #'''
         result = sa.run(
           params = params,
           xray_structure     = self.model.get_xray_structure(),
@@ -123,33 +126,8 @@ class cryo_fit2_class(object):
           real_space         = True,
           wx                 = self.params.map_weight, 
           wc                 = 1, # weight for geometry conformation
-          states_collector   = states) # we may need not using this to help 150 GB memory problem?\
-                                       #, even when this is commented, all_states.pdb is still produced\
-                                       #, even when this is None, all_states.pdb is still produced
-        #'''
+          states_collector   = states) 
         
-        '''
-        result = sa.run(
-          params = params,
-          xray_structure     = self.model.get_xray_structure(),
-          restraints_manager = self.model.get_restraints_manager(),
-          target_map         = map_data,
-          real_space         = True,
-          wx                 = self.params.map_weight, 
-          wc                 = 1) # weight for geometry conformation
-        '''
-        
-        '''
-        result = sa.run(
-          params = params,
-          xray_structure     = self.model.get_xray_structure(),
-          restraints_manager = self.model.get_restraints_manager(),
-          target_map         = map_data,
-          real_space         = True,
-          wx                 = self.params.map_weight, 
-          wc                 = 1, # weight for geometry conformation
-          states_collector   = None)
-        '''
       else: # (self.params.progress_on_screen = False):
         result = sa.run(
           params = params,
@@ -177,14 +155,35 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-      elif (cc_after_cryo_fit2 <= cc_before_cryo_fit2):
-        write_this = "\ntotal_number_of_steps_so_far: " + str(total_number_of_steps_so_far) + "\n"
-        print('%s' %(write_this))
-        self.logfile.write(str(write_this))
-        break
+      elif (cc_after_cryo_fit2 > cc_before_cryo_fit2):
+        cc_check_so_far = cc_check_so_far + 1
+        cc_increased = cc_increased + 1
+      else:
+        cc_check_so_far = cc_check_so_far + 1
+        cc_decreased = cc_decreased + 1
+        
+      print ("cc_check_so_far:",cc_check_so_far)
+      print ("cc_increased:",cc_increased)
+      print ("cc_decreased:",cc_decreased)
+      
+      
+      if (cc_check_so_far == 100):
+        if (cc_increased < cc_decreased):
+          write_this = "\ncc values are saturated\ntotal_number_of_steps_so_far: " + str(total_number_of_steps_so_far) + "\n"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          break
+        else:
+          cc_check_so_far = 0 # reset
+          cc_increased = 0 # reset
+          cc_decreased = 0 # reset
+          
+          
       cc_before_cryo_fit2 = cc_after_cryo_fit2 # reassign cc_before_cryo_fit2
     ################ <end> iterate until cryo_fit2 derived cc saturates
     
+    
+    # this final run seems not needed
     '''
     ################ <begin> final cryo_fit2 run for better geometry with a new map_weight
     write_this = "\nFinal cryo_fit2 run for better geometry with a new map_weight\n"
@@ -195,8 +194,6 @@ class cryo_fit2_class(object):
       write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for final cryo_fit2 run\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
-    
-      final = True
 
       fitted_file_before_final_run = "fitted_file_before_final_run.pdb"
       with open(fitted_file_before_final_run, "w") as f:
