@@ -65,12 +65,18 @@ class cryo_fit2_class(object):
       map_data = base.map_data()
       grid_unit_cell = self.map_inp.grid_unit_cell()
     hierarchy.atoms().reset_i_seq()
-    
+  
+    '''  
+    ########### Pavel original
     # Initialize states accumulator
     states = mmtbx.utils.states(
      pdb_hierarchy  = self.model.get_hierarchy(),
      xray_structure = self.model.get_xray_structure())
+    
     states.add(sites_cart = self.model.get_xray_structure().sites_cart())
+    '''
+  
+  
   
     params = sa.master_params().extract()
     # because of params = sa.master_params().extract() above, core parameters need to be redefined
@@ -105,17 +111,6 @@ class cryo_fit2_class(object):
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
  
       if (self.params.progress_on_screen == True):
-        '''result = sa.run(
-          params = params,
-          xray_structure     = self.model.get_xray_structure(),
-          restraints_manager = self.model.get_restraints_manager(),
-          target_map         = map_data,
-          real_space         = True,
-          wx                 = self.params.map_weight, 
-          wc                 = 1, # weight for geometry conformation
-          states_collector   = states) # we may need not using this to help 150 GB memory problem?\
-                               , even when this is commented, all_states.pdb is still produced\
-                               , even when this is None, all_states.pdb is still produced
         '''
         result = sa.run(
           params = params,
@@ -125,7 +120,22 @@ class cryo_fit2_class(object):
           real_space         = True,
           wx                 = self.params.map_weight, 
           wc                 = 1, # weight for geometry conformation
-          states_collector   = None)
+          states_collector   = states) # we may need not using this to help 150 GB memory problem?\
+                                       #, even when this is commented, all_states.pdb is still produced\
+                                       #, even when this is None, all_states.pdb is still produced
+        '''
+        
+        #'''
+        result = sa.run(
+          params = params,
+          xray_structure     = self.model.get_xray_structure(),
+          restraints_manager = self.model.get_restraints_manager(),
+          target_map         = map_data,
+          real_space         = True,
+          wx                 = self.params.map_weight, 
+          wc                 = 1) # weight for geometry conformation
+          
+        #'''
       else: # (self.params.progress_on_screen = False):
         result = sa.run(
           params = params,
@@ -161,7 +171,7 @@ class cryo_fit2_class(object):
       cc_before_cryo_fit2 = cc_after_cryo_fit2 # reassign cc_before_cryo_fit2
     ################ <end> iterate until cryo_fit2 derived cc saturates
     
-
+    '''
     ################ <begin> final cryo_fit2 run for better geometry with a new map_weight
     write_this = "\nFinal cryo_fit2 run for better geometry with a new map_weight\n"
     print('%s' %(write_this))
@@ -221,15 +231,17 @@ class cryo_fit2_class(object):
     self.logfile.write(str(write_this))
     
     ################ <end> final cryo_fit2 run for better geometry with a new map_weight
-    
+    '''
     
     output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(cc_after_cryo_fit2, 3))
     if os.path.exists(output_dir_w_CC):
       shutil.rmtree(output_dir_w_CC)
     os.mkdir(output_dir_w_CC)
     
+    '''
     all_state_file = os.path.join(output_dir_w_CC, "all_states.pdb")
     states.write(file_name = all_state_file)
+    '''
     
     self.model.set_xray_structure(result.xray_structure)
     
