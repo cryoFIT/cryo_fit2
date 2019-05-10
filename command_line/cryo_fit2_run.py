@@ -6,8 +6,15 @@ from iotbx import map_and_model
 import mmtbx.utils, os, sys
 from mmtbx.dynamics import simulated_annealing as sa
 from mmtbx.superpose import *
+
+import numpy as np
+
 import shutil
 import scitbx.math, scitbx.math.superpose, subprocess
+
+
+#import statistics 
+#"ImportError: No module named statistics"
 
 from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
 from cctbx.geometry_restraints.base_geometry import Base_geometry
@@ -111,9 +118,12 @@ class cryo_fit2_class(object):
       states = None
     
     cc_check_so_far = 0
-    cc_decreased = 0
-    cc_increased = 0
-    
+    #cc_decreased = 0
+    #cc_increased = 0
+    cc_1st_array = []
+    cc_2nd_array = []
+    check_after_every_this_try = 200
+     
     for i in range(100000000): # runs well with cryo_fit2.run_tests
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
  
@@ -155,29 +165,55 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
+      elif (cc_check_so_far < check_every_this_try/2):
+        cc_check_so_far = cc_check_so_far + 1
+        cc_1st_array.append(cc_after_cryo_fit2)
+      else:
+        cc_check_so_far = cc_check_so_far + 1
+        cc_2nd_array.append(cc_after_cryo_fit2)
+      
+      print ("cc_check_so_far:",cc_check_so_far)
+      print ("np.mean(cc_1st_array):",np.mean(cc_1st_array))
+      if (len(cc_2nd_array) != 0):
+        print ("np.mean(cc_2nd_array):",np.mean(cc_2nd_array))
+      
+      
+      if (cc_check_so_far == check_after_every_this_try):
+        if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
+          cc_check_so_far = 0 # reset
+          cc_1st_array = [] # reset
+          cc_2nd_array = [] # reset
+        else:
+          write_this = "\ncc values are saturated\ntotal_number_of_steps_so_far: " + str(total_number_of_steps_so_far) + "\n"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          break
+        
+      # counting number didn't work for L1 stalk when checking trend every 100th time
+      '''
       elif (cc_after_cryo_fit2 > cc_before_cryo_fit2):
         cc_check_so_far = cc_check_so_far + 1
         cc_increased = cc_increased + 1
       else:
         cc_check_so_far = cc_check_so_far + 1
         cc_decreased = cc_decreased + 1
-        
+      
       print ("cc_check_so_far:",cc_check_so_far)
       print ("cc_increased:",cc_increased)
       print ("cc_decreased:",cc_decreased)
       
-      
       if (cc_check_so_far == 100):
-        if (cc_increased < cc_decreased):
+        if (cc_increased > cc_decreased):
+          cc_check_so_far = 0 # reset
+          cc_increased = 0 # reset
+          cc_decreased = 0 # reset
+        else:
           write_this = "\ncc values are saturated\ntotal_number_of_steps_so_far: " + str(total_number_of_steps_so_far) + "\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-        else:
-          cc_check_so_far = 0 # reset
-          cc_increased = 0 # reset
-          cc_decreased = 0 # reset
-          
+      '''
+        
           
       cc_before_cryo_fit2 = cc_after_cryo_fit2 # reassign cc_before_cryo_fit2
     ################ <end> iterate until cryo_fit2 derived cc saturates
