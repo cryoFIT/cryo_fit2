@@ -66,7 +66,7 @@ class cryo_fit2_class(object):
       grid_unit_cell = self.map_inp.grid_unit_cell()
     hierarchy.atoms().reset_i_seq()
   
-    '''  
+    #'''  
     ########### Pavel original
     # Initialize states accumulator
     states = mmtbx.utils.states(
@@ -74,7 +74,7 @@ class cryo_fit2_class(object):
      xray_structure = self.model.get_xray_structure())
     
     states.add(sites_cart = self.model.get_xray_structure().sites_cart())
-    '''
+    #'''
   
   
   
@@ -107,11 +107,14 @@ class cryo_fit2_class(object):
     result = ''
     total_number_of_steps_so_far = 0
 
+    if (self.params.record_states == False): # default
+      states = None
+    
     for i in range(100000000): # runs well with cryo_fit2.run_tests
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
  
       if (self.params.progress_on_screen == True):
-        '''
+        #'''
         result = sa.run(
           params = params,
           xray_structure     = self.model.get_xray_structure(),
@@ -123,7 +126,7 @@ class cryo_fit2_class(object):
           states_collector   = states) # we may need not using this to help 150 GB memory problem?\
                                        #, even when this is commented, all_states.pdb is still produced\
                                        #, even when this is None, all_states.pdb is still produced
-        '''
+        #'''
         
         '''
         result = sa.run(
@@ -136,6 +139,7 @@ class cryo_fit2_class(object):
           wc                 = 1) # weight for geometry conformation
         '''
         
+        '''
         result = sa.run(
           params = params,
           xray_structure     = self.model.get_xray_structure(),
@@ -145,7 +149,7 @@ class cryo_fit2_class(object):
           wx                 = self.params.map_weight, 
           wc                 = 1, # weight for geometry conformation
           states_collector   = None)
-        
+        '''
       else: # (self.params.progress_on_screen = False):
         result = sa.run(
           params = params,

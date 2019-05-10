@@ -50,50 +50,68 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
+
 start_temperature = 300
   .type = int
   .short_caption = Starting temperature of annealing in Kelvin
+
 final_temperature = 0
   .type = int
   .short_caption = Final temperature of annealing in Kelvin
+
 cool_rate = 100
   .type = int
   .short_caption = cooling rate of annealing in Kelvin
-number_of_steps = 100
+
+number_of_steps = 5
   .type = int
   .short_caption = number of steps in phenix.dynamics
+
 total_number_of_steps = None
   .type = int
   .short_caption = total number of steps in phenix.dynamics.\
                    If specified, run up to this number of step no matter what.
+
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized. \
                    If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
+
 resolution = None
   .type = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
+
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
+  
 progress_on_screen = True
     .type          = bool
     .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
+
+record_states = False
+    .type     = bool
+    .help     = If True, record all states and save it to all_states.pdb. However, 3k atoms molecules (like L1 stalk) require more than 160 GB of memory. \
+                If False, don't record states of molecular dynamics.
+
 loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
               If False, use Oleg's original strict definition. 
-    .short_caption = Keep origin of a resulted atomic model
+    .short_caption = Keep origin of a resulted atomic model    
+
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
               If False, shift map origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
+
 devel = False
     .type   = bool
     .help   = If True, run quickly only to check sanity
+
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
 
@@ -102,21 +120,17 @@ selection_fixed = None
   .short_caption = Selection for fixed model
   .input_size = 400
   .help = Selection of the target atoms to fit to (optional)
-
 selection_moving = None
   .type = str
   .short_caption = Selection for moving model
   .input_size = 400
   .help = Selection of the atoms that will be fit to selection_fixed (optional)
-  
 selection_fixed_preset = * ca backbone all
   .type = choice
   .help = Selection preset for fixed model.
-  
 selection_moving_preset = * ca backbone all
   .type = choice
-  .help = Selection preset for moving model.
-  
+  .help = Selection preset for moving model.  
 ''' ############## end of base_master_phil_str
 
 
@@ -166,8 +180,8 @@ Options:
                                If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.)
   start_temperature            (default: 300)
   final_temperature            (default: 0)
-  cool_rate                    (default: 10)
-  number_of_steps              (default: 1000)
+  cool_rate                    (default: 100)
+  number_of_steps              (default: 5)
   total_number_of_steps        (default: None)
                                If specified, run up to this number of step no matter what.
   secondary_structure.enabled  (default: True)
@@ -186,6 +200,9 @@ Options:
   progress_on_screen           (default: False)
                                If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
                                If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
+  record_states                (default: False)
+                               If True, record all states and save it to all_states.pdb. However, 3k atoms molecules (like L1 stalk) require more than 160 GB of memory.
+                               If False, don't record states of molecular dynamics.
   devel                        (default: False)
                                If True, run quickly only to check sanity
 '''
