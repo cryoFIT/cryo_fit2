@@ -172,13 +172,12 @@ class cryo_fit2_class(object):
         cc_check_so_far = cc_check_so_far + 1
         cc_2nd_array.append(cc_after_cryo_fit2)
       
-      print ("cc_check_so_far:",cc_check_so_far)
-      print ("np.mean(cc_1st_array):",np.mean(cc_1st_array))
-      if (len(cc_2nd_array) != 0):
-        print ("np.mean(cc_2nd_array):",np.mean(cc_2nd_array))
-      
-      
       if (cc_check_so_far == check_after_every_this_try):
+        
+        print ("cc_check_so_far:",cc_check_so_far)
+        print ("np.mean(cc_1st_array):",np.mean(cc_1st_array))
+        print ("np.mean(cc_2nd_array):",np.mean(cc_2nd_array))
+        
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
           cc_check_so_far = 0 # reset
           cc_1st_array = [] # reset
