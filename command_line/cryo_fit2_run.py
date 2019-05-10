@@ -122,7 +122,7 @@ class cryo_fit2_class(object):
     #cc_increased = 0
     cc_1st_array = []
     cc_2nd_array = []
-    check_after_every_this_try = 1000 #1000
+    check_after_every_this_try = 2000 #1000
      
     for i in range(100000000): # runs well with cryo_fit2.run_tests
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
@@ -172,17 +172,17 @@ class cryo_fit2_class(object):
         cc_check_so_far = cc_check_so_far + 1
         cc_2nd_array.append(cc_after_cryo_fit2)
       
-      if (cc_check_so_far == check_after_every_this_try):
+      if (cc_check_so_far >= check_after_every_this_try):
         
         write_this = "cc_check_so_far:" + str(cc_check_so_far)
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
-        write_this = "np.mean(cc_1st_array):" + np.mean(cc_1st_array)
+        write_this = "np.mean(cc_1st_array):" + str(np.mean(cc_1st_array))
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
-        write_this = "np.mean(cc_2nd_array):" + np.mean(cc_2nd_array)
+        write_this = "np.mean(cc_2nd_array):" + str(np.mean(cc_2nd_array))
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
