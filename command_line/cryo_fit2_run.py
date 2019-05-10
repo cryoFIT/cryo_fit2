@@ -125,7 +125,7 @@ class cryo_fit2_class(object):
                                        #, even when this is None, all_states.pdb is still produced
         '''
         
-        #'''
+        '''
         result = sa.run(
           params = params,
           xray_structure     = self.model.get_xray_structure(),
@@ -134,8 +134,18 @@ class cryo_fit2_class(object):
           real_space         = True,
           wx                 = self.params.map_weight, 
           wc                 = 1) # weight for geometry conformation
-          
-        #'''
+        '''
+        
+        result = sa.run(
+          params = params,
+          xray_structure     = self.model.get_xray_structure(),
+          restraints_manager = self.model.get_restraints_manager(),
+          target_map         = map_data,
+          real_space         = True,
+          wx                 = self.params.map_weight, 
+          wc                 = 1, # weight for geometry conformation
+          states_collector   = None)
+        
       else: # (self.params.progress_on_screen = False):
         result = sa.run(
           params = params,
