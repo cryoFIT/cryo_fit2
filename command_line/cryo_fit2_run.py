@@ -90,7 +90,7 @@ class cryo_fit2_class(object):
     user_map_weight                = self.user_map_weight
     
     cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
-    write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n"
+    write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n\n"
     
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
@@ -99,12 +99,24 @@ class cryo_fit2_class(object):
     
     ################ <begin> iterate until cryo_fit2 derived cc saturates
     result = ''
-    total_number_steps_so_far = 0
+    total_number_of_steps_so_far = 0
 
     for i in range(100000000): # runs well with cryo_fit2.run_tests
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
  
       if (self.params.progress_on_screen == True):
+        '''result = sa.run(
+          params = params,
+          xray_structure     = self.model.get_xray_structure(),
+          restraints_manager = self.model.get_restraints_manager(),
+          target_map         = map_data,
+          real_space         = True,
+          wx                 = self.params.map_weight, 
+          wc                 = 1, # weight for geometry conformation
+          states_collector   = states) # we may need not using this to help 150 GB memory problem?\
+                               , even when this is commented, all_states.pdb is still produced\
+                               , even when this is None, all_states.pdb is still produced
+        '''
         result = sa.run(
           params = params,
           xray_structure     = self.model.get_xray_structure(),
@@ -113,7 +125,7 @@ class cryo_fit2_class(object):
           real_space         = True,
           wx                 = self.params.map_weight, 
           wc                 = 1, # weight for geometry conformation
-          states_collector   = states)
+          states_collector   = None)
       else: # (self.params.progress_on_screen = False):
         result = sa.run(
           params = params,
@@ -127,7 +139,7 @@ class cryo_fit2_class(object):
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
       
       multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
-      total_number_steps_so_far = total_number_steps_so_far + params.number_of_steps*multiply_this
+      total_number_of_steps_so_far = total_number_of_steps_so_far + params.number_of_steps*multiply_this
       cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
 
       write_this = "cc after  cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n"
@@ -135,14 +147,14 @@ class cryo_fit2_class(object):
       self.logfile.write(str(write_this))
       
       if (total_number_of_steps != ''):
-        if (total_number_steps_so_far >= total_number_of_steps):
-          write_this = "\ntotal_number_steps_so_far " + str(total_number_steps_so_far) + \
+        if (total_number_of_steps_so_far >= total_number_of_steps):
+          write_this = "\ntotal_number_of_steps_so_far " + str(total_number_of_steps_so_far) + \
                        " >= total_number_of_steps " + str(total_number_of_steps) + "\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
       elif (cc_after_cryo_fit2 <= cc_before_cryo_fit2):
-        write_this = "\ntotal_number_steps_so_far: " + str(total_number_steps_so_far) + "\n"
+        write_this = "\ntotal_number_of_steps_so_far: " + str(total_number_of_steps_so_far) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         break
