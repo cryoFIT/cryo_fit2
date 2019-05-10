@@ -73,7 +73,6 @@ class cryo_fit2_class(object):
       grid_unit_cell = self.map_inp.grid_unit_cell()
     hierarchy.atoms().reset_i_seq()
   
-    #'''  
     ########### Pavel original
     # Initialize states accumulator
     states = mmtbx.utils.states(
@@ -81,8 +80,6 @@ class cryo_fit2_class(object):
      xray_structure = self.model.get_xray_structure())
     
     states.add(sites_cart = self.model.get_xray_structure().sites_cart())
-    #'''
-  
   
   
     params = sa.master_params().extract()
@@ -152,9 +149,9 @@ class cryo_fit2_class(object):
       
       multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
       total_number_of_steps_so_far = total_number_of_steps_so_far + params.number_of_steps*multiply_this
-      cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
+      cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
 
-      write_this = "cc after  cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n"
+      write_this = "cc after a small MD iteration: " + str(round(cc_after_small_MD, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
@@ -167,22 +164,22 @@ class cryo_fit2_class(object):
           break
       elif (cc_check_so_far < check_after_every_this_try/2):
         cc_check_so_far = cc_check_so_far + 1
-        cc_1st_array.append(cc_after_cryo_fit2)
+        cc_1st_array.append(cc_after_small_MD)
       else:
         cc_check_so_far = cc_check_so_far + 1
-        cc_2nd_array.append(cc_after_cryo_fit2)
+        cc_2nd_array.append(cc_after_small_MD)
       
       if (cc_check_so_far >= check_after_every_this_try):
         
-        write_this = "cc_check_so_far:" + str(cc_check_so_far)
+        write_this = "cc_check_so_far:" + str(cc_check_so_far) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
-        write_this = "np.mean(cc_1st_array):" + str(np.mean(cc_1st_array))
+        write_this = "np.mean(cc_1st_array):" + str(np.mean(cc_1st_array)) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
-        write_this = "np.mean(cc_2nd_array):" + str(np.mean(cc_2nd_array))
+        write_this = "np.mean(cc_2nd_array):" + str(np.mean(cc_2nd_array)) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
@@ -219,11 +216,16 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
+      cc_before_small_MD = cc_after_small_MD # reassign cc_before_cryo_fit2
       '''
         
-          
-      cc_before_cryo_fit2 = cc_after_cryo_fit2 # reassign cc_before_cryo_fit2
     ################ <end> iterate until cryo_fit2 derived cc saturates
+    
+    
+    cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
+    write_this = "\n\ncc after cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
+    print('%s' %(write_this))
+    self.logfile.write(str(write_this))
     
     
     # this final run seems not needed

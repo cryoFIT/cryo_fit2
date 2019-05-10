@@ -372,16 +372,13 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.final_temperature = 0
       self.params.cool_rate = 10
       self.params.number_of_steps = 1000
-      self.params.pdb_interpretation.secondary_structure.enabled = True
     
     elif (input_model_file_name_wo_path == "tst_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.cool_rate = 10
       self.params.number_of_steps = 100
-      self.params.pdb_interpretation.secondary_structure.enabled = True
-      
-    
+      self.params.total_number_of_steps = 1000
     
     #"_map_wt_" + str(round(self.params.map_weight,1)) + \
     # rename output_dir
