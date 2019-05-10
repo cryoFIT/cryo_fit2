@@ -122,7 +122,7 @@ class cryo_fit2_class(object):
     #cc_increased = 0
     cc_1st_array = []
     cc_2nd_array = []
-    check_after_every_this_try = 100 #1000
+    check_after_every_this_try = 1000 #1000
      
     for i in range(100000000): # runs well with cryo_fit2.run_tests
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
