@@ -165,7 +165,7 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-      elif (cc_check_so_far < check_every_this_try/2):
+      elif (cc_check_so_far < check_after_every_this_try/2):
         cc_check_so_far = cc_check_so_far + 1
         cc_1st_array.append(cc_after_cryo_fit2)
       else:
