@@ -24,7 +24,7 @@ from iotbx.cli_parser import run_program
 
 def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   pdb_file = libtbx.env.find_in_repositories(
-    relative_path="cryo_fit2/regression/input/tst_cryo_fit2_model.pdb",
+    relative_path="cryo_fit2/regression/input/tst2_cryo_fit2_model.pdb",
     test=os.path.isfile)
   map_file = libtbx.env.find_in_repositories(
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_map.ccp4",
