@@ -119,7 +119,7 @@ class cryo_fit2_class(object):
     cc_check_so_far = 0
     cc_1st_array = []
     cc_2nd_array = []
-    check_after_every_this_try = 10 #6000
+    check_after_every_this_try = 6000
     best_cc_so_far = 0
      
     for i in range(100000000): # runs well with cryo_fit2.run_tests
