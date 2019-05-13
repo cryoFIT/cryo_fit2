@@ -72,7 +72,6 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
     pdb_hierarchy               = pi.ph,
     geometry_restraints_manager = pi.grm).weight
 
-  print ("An optimized weight for a map:", str(round(self.params.map_weight,2)))
   return self.params.map_weight
 ######################### end of determine_optimal_weight_by_template
 
@@ -439,7 +438,7 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
       cmd = "rm " + current_fitted_file_name
       libtbx.easy_run.fully_buffered(cmd)
       
-      write_this = "\nAutomatically optimized "
+      write_this = "Automatically optimized map weight:" + str(round(self.params.map_weight,2)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(write_this)
   else:
