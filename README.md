@@ -29,14 +29,18 @@ future    : Automatically estimate compactness, then assign colder start_tempara
 
 future    : Automatically identify less fitted local region and fit that region only as real_space_refine2 does
 
-future    : Automatically support Nigel's phenix.eLBOW (as Doonam sees cctbx_project/mmtbx/command_line/dynamics.py's "phenix.dynamics model.pdb ligands.cif", and https://www.phenix-online.org/documentation/reference/dynamics.html 's " any necessary restraints (CIF) files", maybe eLBOW is already supported?)
-
 future   : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase). I may need to use cryo_fit2_command.py to automatically use .eff file
+
+future    : Automatically support Nigel's phenix.eLBOW (as Doonam sees cctbx_project/mmtbx/command_line/dynamics.py's "phenix.dynamics model.pdb ligands.cif", and https://www.phenix-online.org/documentation/reference/dynamics.html 's " 
+ny necessary restraints (CIF) files", maybe eLBOW is already supported?). Find DDB from Venki's ribosome then confirm that cryo_fit2 can work with .cif
+
+current   : update tst2 regression to test short auto-rerun of md
+
+05/13/2019: Automatically reoptimize map weight for every 5k MD iteration
 
 05/10/2019: Fine-tuneed default parameters (decrease number_of_steps, increase cool_rate) to better maintain starting geometry. Seems to work for L1_stalk
 
-05/04/2019: Automatically reoptimize map weight for the last cryo_fit2 run
-	    Added a new option: total_number_of_steps
+05/04/2019: Added a new option: total_number_of_steps
 
 05/02/2019: Automatically re-run cryo_fit2 until cc becomes a plateau
 

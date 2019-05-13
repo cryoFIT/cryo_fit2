@@ -58,8 +58,10 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
-def determine_optimal_weight_by_template(self, logfile, map_inp, final, fitted_file_before_final_run):
-  pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, fitted_file_before_final_run)
+#def determine_optimal_weight_by_template(self, logfile, map_inp, final, current_fitted_file):
+def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
+  #pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitted_file)
+  pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
   f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
   fft_map = f_calc.fft_map(resolution_factor=0.25)
   fft_map.apply_sigma_scaling()
@@ -97,18 +99,27 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 '''
 
 
-def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, fitted_file_before_final_run):
+#def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitted_file):
+def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file):
   
   try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols and resolution is correctly assigned
 
       ppf = ''
+      try:
+        ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+          pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+      except:
+        ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+          pdb_file_names=[current_fitted_file])[0]
+      '''
       if (final == False):
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
           pdb_file_names=[self.data_manager.get_default_model_name()])[0]
       else:
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
           pdb_file_names=[fitted_file_before_final_run])[0]
-
+      '''
+      
   except:
       # above try either results in "Sorry: Crystal symmetry is missing or cannot be extracted."
       # or
@@ -410,6 +421,34 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 ########################### end of remove_R_prefix_in_RNA function
 
 
+def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
+  if (user_map_weight == ''):
+      write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for additional cryo_fit2 MD run\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+
+      current_fitted_file_name = "current_fitted_file.pdb"
+      with open(current_fitted_file_name, "w") as f:
+        f.write(self.model.model_as_pdb())
+      f.close()
+      
+      #final = False
+      #self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, final, current_fitted_file_name)
+      self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, current_fitted_file_name)
+      
+      cmd = "rm " + current_fitted_file_name
+      libtbx.easy_run.fully_buffered(cmd)
+      
+      write_this = "\nAutomatically optimized "
+      print('%s' %(write_this))
+      self.logfile.write(write_this)
+  else:
+      self.params.map_weight = user_map_weight
+
+  return self.params.map_weight
+############### end of reoptimize_map_weight_if_not_specified function
+            
+
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
     print ("widthx:",widthx)
     move_x_by = move_x_by*widthx
@@ -460,7 +499,6 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
-            
 
 def rewrite_to_custom_geometry(user_input_pymol_ss):
   f_in = open(user_input_pymol_ss)
