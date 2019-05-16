@@ -58,9 +58,8 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
-#def determine_optimal_weight_by_template(self, logfile, map_inp, final, current_fitted_file):
+
 def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
-  #pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitted_file)
   pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
   f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
   fft_map = f_calc.fft_map(resolution_factor=0.25)
@@ -72,7 +71,8 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
     pdb_hierarchy               = pi.ph,
     geometry_restraints_manager = pi.grm).weight
 
-  return self.params.map_weight
+  #return self.params.map_weight
+  return 3*self.params.map_weight # for L1 stalk
 ######################### end of determine_optimal_weight_by_template
 
 
@@ -431,8 +431,6 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
         f.write(self.model.model_as_pdb())
       f.close()
       
-      #final = False
-      #self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, final, current_fitted_file_name)
       self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, current_fitted_file_name)
       
       cmd = "rm " + current_fitted_file_name
@@ -493,8 +491,12 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
         f_out.write(line)
     f_in.close()
     f_out.close()
+    
+    # original
+    #'''
     command = "mv " + output_pdb_file_name + " " + input_pdb_file_name
     libtbx.easy_run.call(command)
+    #'''
 ################################## end of return_to_origin_of_pdb_file ()
 
 
