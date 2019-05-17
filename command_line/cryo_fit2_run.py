@@ -119,7 +119,16 @@ class cryo_fit2_class(object):
     cc_check_so_far = 0
     cc_1st_array = []
     cc_2nd_array = []
-    check_after_every_this_try = 6000
+    
+    splited_model_name = self.model_name[:-4].split("/")
+    model_file_name_only = splited_model_name[len(splited_model_name)-1]
+      
+    check_after_every_this_try = ''
+    if (model_file_name_only == "tst2_cryo_fit2_model"):
+      check_after_every_this_try = 10
+    else:
+      check_after_every_this_try = 6000
+        
     best_cc_so_far = 0
      
     for i in range(100000000): # runs well with cryo_fit2.run_tests
@@ -155,6 +164,8 @@ class cryo_fit2_class(object):
       write_this = "cc after a small MD iteration: " + str(round(cc_after_small_MD, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
+    
+        
       
       if (total_number_of_steps != ''):
         if (total_number_of_steps_so_far >= total_number_of_steps):
@@ -289,8 +300,7 @@ class cryo_fit2_class(object):
     
     self.model.set_xray_structure(result.xray_structure)
     
-    splited_model_name = self.model_name[:-4].split("/")
-    model_file_name_only = splited_model_name[len(splited_model_name)-1] 
+    
     fitted_file_name = model_file_name_only + "_cryo_fit2_fitted.pdb"
     fitted_file = os.path.join(output_dir_w_CC, fitted_file_name)
     

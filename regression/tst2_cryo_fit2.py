@@ -31,9 +31,10 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
     test=os.path.isfile)
   resolution = "resolution=4"
   #devel = "devel=True"
+  map_weight = "map_weight=0.001" # for faster regression test
   assert (not None in [pdb_file, map_file])
-  #cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution, devel])
-  cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution])
+  #cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution])
+  cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution, map_weight])
 ############## end of exercise_cryo_fit2()
 
 
