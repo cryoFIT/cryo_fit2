@@ -16,22 +16,6 @@ from mmtbx.refinement.real_space import weight
 import shutil
 
 
-def check_whether_args_has_eff(args):
-  for i in range(len(args)):
-    if args[i][len(args[i])-4:len(args[i])] == ".eff":
-      return True
-  return False
-######## end of check_whether_args_has_eff(args)
-
-
-def line_prepender(filename, line):
-    with open(filename, 'r+') as f:
-        content = f.read()
-        f.seek(0, 0)
-        f.write(line.rstrip('\r\n') + '\n' + content)
-#################### end of line_prepender()
-
-
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
     fc = xrs.structure_factors(d_min = resolution).f_calc()
@@ -42,6 +26,14 @@ def calculate_cc(map_data, model, resolution):
       use_sg         = False)
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_cc function
+
+
+def check_whether_args_has_eff(args):
+  for i in range(len(args)):
+    if args[i][len(args[i])-4:len(args[i])] == ".eff":
+      return True
+  return False
+######## end of check_whether_args_has_eff(args)
 
 
 def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
@@ -240,6 +232,14 @@ def know_how_much_map_origin_moved(map_file_name):
         shifted_in_z = emmap_z0
         return widthx, shifted_in_x, shifted_in_y, shifted_in_z     
 ############## end of know_how_much_map_origin_moved function
+
+
+def line_prepender(filename, line):
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
+#################### end of line_prepender()
 
 
 def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
