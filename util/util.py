@@ -51,7 +51,7 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 
 
 
-def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
+def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file, weight_boost):
   pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
   f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
   fft_map = f_calc.fft_map(resolution_factor=0.25)
@@ -66,7 +66,8 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
   #return self.params.map_weight # not enough for L1 stalk
   #return 3*self.params.map_weight # not enough for L1 stalk
   #return 7*self.params.map_weight # seems not enough for L1 stalk
-  return 10*self.params.map_weight 
+  #return 10*self.params.map_weight  # now running at sparky
+  return weight_boost*self.params.map_weight
 ######################### end of determine_optimal_weight_by_template
 
 
@@ -421,7 +422,7 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 ########################### end of remove_R_prefix_in_RNA function
 
 
-def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
+def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost):
   if (user_map_weight == ''):
       write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for additional cryo_fit2 MD run\n"
       print('%s' %(write_this))
@@ -432,7 +433,7 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
         f.write(self.model.model_as_pdb())
       f.close()
       
-      self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, current_fitted_file_name)
+      self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, current_fitted_file_name, weight_boost)
       
       cmd = "rm " + current_fitted_file_name
       libtbx.easy_run.fully_buffered(cmd)

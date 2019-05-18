@@ -29,7 +29,7 @@ from util import *
 
 
 class cryo_fit2_class(object):
-  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir, user_map_weight):
+  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir, user_map_weight, weight_boost):
     self.model             = model
     self.model_name        = model_name
     self.map_inp           = map_inp
@@ -38,8 +38,9 @@ class cryo_fit2_class(object):
     self.map_name          = map_name
     self.logfile           = logfile
     self.output_dir        = output_dir
-    self.desc = os.path.basename(model_name)
+    self.desc              = os.path.basename(model_name)
     self.user_map_weight   = user_map_weight
+    self.weight_boost      = weight_boost
   
   def __execute(self):
     self.caller(self.write_geo_file,       "Write GEO file")
@@ -91,6 +92,7 @@ class cryo_fit2_class(object):
     #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
     map_inp                        = self.map_inp
     user_map_weight                = self.user_map_weight
+    weight_boost                   = self.weight_boost
     
     cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
     write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n\n"
@@ -109,18 +111,19 @@ class cryo_fit2_class(object):
     cc_check_so_far = 0
     cc_1st_array = []
     cc_2nd_array = []
+    array_last_10_cc = []
     
     splited_model_name = self.model_name[:-4].split("/")
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
-      
+
     check_after_every_this_try = ''
     if (model_file_name_only == "tst2_cryo_fit2_model"):
       check_after_every_this_try = 10
     else:
-      check_after_every_this_try = 6000
-        
+      check_after_every_this_try = 1000
+
     best_cc_so_far = 0
-     
+
     for i in range(100000000): # runs well with cryo_fit2.run_tests
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
  
@@ -150,11 +153,13 @@ class cryo_fit2_class(object):
       multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
       total_number_of_steps_so_far = total_number_of_steps_so_far + params.number_of_steps*multiply_this
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
-
+      
       write_this = "cc after a small MD iteration: " + str(round(cc_after_small_MD, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
     
+      array_last_10_cc.append(cc_after_small_MD)
+      
       if (total_number_of_steps != ''):
         if (total_number_of_steps_so_far >= total_number_of_steps):
           write_this = "\ntotal_number_of_steps_so_far " + str(total_number_of_steps_so_far) + \
@@ -184,7 +189,7 @@ class cryo_fit2_class(object):
           cc_check_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
-          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
+          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)
           continue
         
         write_this = "np.mean(cc_1st_array):" + str(np.mean(cc_1st_array)) + "\n"
@@ -199,7 +204,7 @@ class cryo_fit2_class(object):
           cc_check_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
-          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
+          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)
         else:
           write_this = "\ncc values are saturated\ntotal_number_of_steps_so_far: " + str(total_number_of_steps_so_far) + "\n"
           print('%s' %(write_this))

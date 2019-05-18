@@ -75,9 +75,12 @@ total_number_of_steps = None
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
-                   A user is recommended NOT to specify this, so that it will be automatically optimized. \
-                   If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
+                   A user is recommended NOT to specify this, so that it will be automatically optimized.
 
+weight_boost = 20
+  .type = float
+  .short_caption = boost cryo-EM map weight by this much. For a helix, 20 keeps geometry, 100 breaks it.
+  
 resolution = None
   .type = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
@@ -409,7 +412,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ###############  (begin) core cryo_fit2
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
-      self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
+      self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'', self.params.weight_boost)
       logfile.write("\nAutomatically optimized map_weight: ")
     else:
       user_map_weight = self.params.map_weight
@@ -425,7 +428,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
                             + "number_of_steps=" + str(self.params.number_of_steps) + " " \
-                            + "map_weight=" + str(round(self.params.map_weight,1)) + " " 
+                            + "weight_boost=" + str(round(self.params.weight_boost,1)) + " "
+                            #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
@@ -480,7 +484,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       map_name          = self.data_manager.get_default_real_map_name(),
       logfile           = logfile,
       output_dir        = output_dir,
-      user_map_weight   = user_map_weight)
+      user_map_weight   = user_map_weight,
+      weight_boost      = self.params.weight_boost)
 
     task_obj.validate()
     
