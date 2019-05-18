@@ -467,7 +467,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       # splited_input_model_file_name = input_model_file_name.split("/")
       # input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
       ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
-      rewrite_to_custom_geometry(ss_restraints_file_name)
+      rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name)
       custom_geom_file_name = ss_restraints_file_name[:-4] + "_custom_geom.eff"
     '''
 

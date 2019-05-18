@@ -65,7 +65,8 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
 
   #return self.params.map_weight # not enough for L1 stalk
   #return 3*self.params.map_weight # not enough for L1 stalk
-  return 7*self.params.map_weight # not enough for L1 stalk
+  #return 7*self.params.map_weight # seems not enough for L1 stalk
+  return 10*self.params.map_weight 
 ######################### end of determine_optimal_weight_by_template
 
 
@@ -91,7 +92,6 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 '''
 
 
-#def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, final, current_fitted_file):
 def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file):
   
   try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols and resolution is correctly assigned
@@ -498,8 +498,31 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
+def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss):
+####### reference
 
-def rewrite_to_custom_geometry(user_input_pymol_ss):
+##### [pymol ss] dist chain "A" and resi   42  and name  N4  and alt '', chain "A" and resi   28  and name  O6  and alt ''
+
+##### [custom geometry ss]
+  '''
+geometry_restraints {
+  edits {
+    bond {
+      atom_selection_1 = chain 'A' and resid 28 and name N1
+      atom_selection_2 = chain 'A' and resid 42 and name N3
+      distance_ideal = 2.8
+      sigma = 0.021
+    }
+    bond {
+      atom_selection_1 = chain 'A' and resid 7 and name N1
+      atom_selection_2 = chain 'A' and resid 66 and name N3
+      distance_ideal = 2.8
+      sigma = 0.021
+    }
+  }
+}
+  '''
+
   f_in = open(user_input_pymol_ss)
   out_file = user_input_pymol_ss[:-4] + '_custom_geom.eff'
   f_out = open(out_file, "w")
@@ -509,7 +532,6 @@ def rewrite_to_custom_geometry(user_input_pymol_ss):
   for line in f_in:
     dist_candidate = line[0:4]
     if (dist_candidate == "dist"):
-      #print line
       splited = line.split()
       
       write_this = "    bond {\n"
@@ -558,7 +580,7 @@ def rewrite_to_custom_geometry(user_input_pymol_ss):
 ''')
   f_in.close()
   f_out.close()
-########## end of rewrite function
+########## end of rewrite_pymol_ss_to_custom_geometry_ss function
 
 
 def show_time(time_start, time_end):
@@ -571,27 +593,3 @@ def show_time(time_start, time_end):
     time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
   return time_took
 ############### end of show_time function
-
-
-
-
-
-#dist chain "A" and resi   42  and name  N4  and alt '', chain "A" and resi   28  and name  O6  and alt ''
-'''
-geometry_restraints {
-  edits {
-    bond {
-      atom_selection_1 = chain 'A' and resid 28 and name N1
-      atom_selection_2 = chain 'A' and resid 42 and name N3
-      distance_ideal = 2.8
-      sigma = 0.021
-    }
-    bond {
-      atom_selection_1 = chain 'A' and resid 7 and name N1
-      atom_selection_2 = chain 'A' and resid 66 and name N3
-      distance_ideal = 2.8
-      sigma = 0.021
-    }
-  }
-}
-'''

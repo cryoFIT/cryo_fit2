@@ -1,23 +1,18 @@
 from __future__ import division, print_function
+from cctbx.geometry_restraints.base_geometry import Base_geometry
 import iotbx.phil, libtbx
 from libtbx import group_args
 from libtbx.utils import Sorry
 from iotbx import map_and_model
 import mmtbx.utils, os, sys
+from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
 from mmtbx.dynamics import simulated_annealing as sa
 from mmtbx.superpose import *
-
 import numpy as np
-
 import shutil
 import scitbx.math, scitbx.math.superpose, subprocess
 
-
-#import statistics 
-#"ImportError: No module named statistics"
-
-from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
-from cctbx.geometry_restraints.base_geometry import Base_geometry
+#import statistics  ##### "ImportError: No module named statistics"
 
 
 ######## <begin> needed to import util.py
@@ -57,8 +52,6 @@ class cryo_fit2_class(object):
       self.cs_consensus = mmtbx.utils.check_and_set_crystal_symmetry(
         models = [self.model], map_inps=[self.map_inp])
   
-  
-  
   def run(self):
     hierarchy = self.model.get_hierarchy()
     map_data, grid_unit_cell = None, None
@@ -83,9 +76,7 @@ class cryo_fit2_class(object):
     
     states.add(sites_cart = self.model.get_xray_structure().sites_cart())
   
-  
-    params = sa.master_params().extract()
-    # because of params = sa.master_params().extract() above, core parameters need to be redefined
+    params = sa.master_params().extract()    # because of params = sa.master_params().extract() above, core parameters need to be redefined
     params.start_temperature       = self.params.start_temperature
     params.final_temperature       = self.params.final_temperature
     params.cool_rate               = self.params.cool_rate
@@ -97,7 +88,7 @@ class cryo_fit2_class(object):
     
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
-    
+    #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
     map_inp                        = self.map_inp
     user_map_weight                = self.user_map_weight
     
@@ -106,10 +97,9 @@ class cryo_fit2_class(object):
     
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
-    #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
     
     
-    ################ <begin> iterate until cryo_fit2 derived cc saturates
+########################### <begin> iterate until cryo_fit2 derived cc saturates
     result = ''
     total_number_of_steps_so_far = 0
 
@@ -165,8 +155,6 @@ class cryo_fit2_class(object):
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
     
-        
-      
       if (total_number_of_steps != ''):
         if (total_number_of_steps_so_far >= total_number_of_steps):
           write_this = "\ntotal_number_of_steps_so_far " + str(total_number_of_steps_so_far) + \
@@ -217,8 +205,7 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-        
-    ################ <end> iterate until cryo_fit2 derived cc saturates
+######################### <end> iterate until cryo_fit2 derived cc saturates
     
     cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
     write_this = "\n\ncc after cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
@@ -230,13 +217,11 @@ class cryo_fit2_class(object):
       shutil.rmtree(output_dir_w_CC)
     os.mkdir(output_dir_w_CC)
     
-    
     if (self.params.record_states == True): 
       all_state_file = os.path.join(output_dir_w_CC, "all_states.pdb")
       states.write(file_name = all_state_file)
     
     self.model.set_xray_structure(result.xray_structure)
-    
     
     fitted_file_name = model_file_name_only + "_cryo_fit2_fitted.pdb"
     fitted_file = os.path.join(output_dir_w_CC, fitted_file_name)
@@ -245,7 +230,6 @@ class cryo_fit2_class(object):
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
     f.close()
-    
     
     #print_this ='''
 ########  How to fix map origin problem in cryo_fit2 #######
@@ -261,7 +245,6 @@ class cryo_fit2_class(object):
     '''
 
     returned = know_how_much_map_origin_moved(str(self.map_name))
-    
     if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
         write_this = "Restoring original xyz position for a cryo_fit2 fitted atomistic model\n\n"
         print (write_this)
@@ -269,12 +252,10 @@ class cryo_fit2_class(object):
         return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
     
     
-    ################################ <begin> RMSD calculation ###########################
-    ## (reference) cctbx_project/mmtbx/superpose.py
+    ########################## <begin> RMSD calculation (reference) cctbx_project/mmtbx/superpose.py
     fixed = self.model_name
     moving = fitted_file
     
-    #print ("\n===== Init =====")
     write_this = "\n===== RMSD calculation ====="
     print (write_this)
     self.logfile.write(str(write_this))
@@ -308,7 +289,7 @@ class cryo_fit2_class(object):
       write_this = "\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
       print (write_this)
       self.logfile.write(str(write_this))
-    ################################ <end> RMSD calculation ###########################
+    ####################### <end> RMSD calculation ###########################
     
     return output_dir_w_CC
 ############# end of run function
