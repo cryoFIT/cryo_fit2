@@ -220,73 +220,10 @@ class cryo_fit2_class(object):
         
     ################ <end> iterate until cryo_fit2 derived cc saturates
     
-    
     cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
     write_this = "\n\ncc after cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
-    
-    
-    # this final run seems not needed
-    '''
-    ################ <begin> final cryo_fit2 run for better geometry with a new map_weight
-    write_this = "\nFinal cryo_fit2 run for better geometry with a new map_weight\n"
-    print('%s' %(write_this))
-    self.logfile.write(str(write_this))
-    
-    if (user_map_weight == ''):
-      write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for final cryo_fit2 run\n"
-      print('%s' %(write_this))
-      self.logfile.write(str(write_this))
-
-      fitted_file_before_final_run = "fitted_file_before_final_run.pdb"
-      with open(fitted_file_before_final_run, "w") as f:
-        f.write(self.model.model_as_pdb())
-      f.close()
-
-      self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, final, fitted_file_before_final_run)
-      
-      cmd = "rm fitted_file_before_final_run.pdb"
-      libtbx.easy_run.fully_buffered(cmd)
-      
-      write_this = "\nAutomatically optimized "
-      print('%s' %(write_this))
-      self.logfile.write(write_this)
-    else:
-      self.params.map_weight = user_map_weight
-    
-    write_this = "map_weight for final cryo_fit2 run: " + str(round(self.params.map_weight,1)) + "\n"
-    print('%s' %(write_this))
-    self.logfile.write(str(write_this))
-    
-    if (self.params.progress_on_screen == True):
-        result = sa.run(
-          params = params,
-          xray_structure     = self.model.get_xray_structure(),
-          restraints_manager = self.model.get_restraints_manager(),
-          target_map         = map_data,
-          real_space         = True,
-          wx                 = self.params.map_weight, 
-          wc                 = 1, # weight for geometry conformation
-          states_collector   = states)
-    else: # (self.params.progress_on_screen = False):
-        result = sa.run(
-          params = params,
-          xray_structure     = self.model.get_xray_structure(),
-          restraints_manager = self.model.get_restraints_manager(),
-          target_map         = map_data,
-          real_space         = True,
-          wx                 = self.params.map_weight, 
-          wc                 = 1, # weight for geometry conformation
-          states_collector   = states,
-          log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
-    
-    write_this = "\ncc after cryo_fit2 (final): " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
-    print('%s' %(write_this))
-    self.logfile.write(str(write_this))
-    
-    ################ <end> final cryo_fit2 run for better geometry with a new map_weight
-    '''
     
     output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(cc_after_cryo_fit2, 3))
     if os.path.exists(output_dir_w_CC):
@@ -304,7 +241,7 @@ class cryo_fit2_class(object):
     fitted_file_name = model_file_name_only + "_cryo_fit2_fitted.pdb"
     fitted_file = os.path.join(output_dir_w_CC, fitted_file_name)
     
-    ##### this is essential
+    ##### this is essential to spit cyro_fitted2 file
     with open(fitted_file, "w") as f:
       f.write(self.model.model_as_pdb())
     f.close()
@@ -362,7 +299,6 @@ class cryo_fit2_class(object):
       quiet=False
     )
     for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
-      #print ("\n===== Aligning %s to %s ====="%(fitted_file, self.model_name))
       write_this = "\n===== Aligning %s to %s ====="%(fitted_file, self.model_name)
       print (write_this)
       self.logfile.write(str(write_this))

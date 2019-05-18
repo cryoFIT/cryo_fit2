@@ -334,7 +334,6 @@ Options:
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled)
     
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
-    #STOP()
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
     log = multi_out()
@@ -406,7 +405,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                  #"_bp_planar_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity) + \
                  #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
-    ###############  (begin) when optimizing map_weight once
+
+    ###############  (begin) core cryo_fit2
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
@@ -418,7 +418,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n\n")
     
-                         
     #if (checked_whether_args_has_eff == False):   
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
@@ -486,56 +485,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     task_obj.validate()
     
     output_dir_w_CC = task_obj.run()
-    #STOP()
-    ############### (end) when optimizing map_weight once
+    ############### (end) core cryo_fit2
     
     '''
     if (checked_whether_args_has_eff == False):
       mv_command_string = "mv " + ss_restraints_file_name + " " + custom_geom_file_name + " " + output_dir_w_CC
       libtbx.easy_run.fully_buffered(mv_command_string)
-    '''
-    
-    '''
-    ###############  (begin) when optimizing map_weight many times
-    initial_start_temp = self.params.start_temperature
-    initial_final_temp = self.params.final_temperature
-    
-    temp_interval = (initial_start_temp - initial_final_temp)/2
-    
-    first_iteration = True
-    current_start_temp = ''
-    user_defined_map_weight = ''
-    while (current_start_temp != initial_final_temp):
-      
-      if (first_iteration == True):
-        current_start_temp = initial_start_temp
-        first_iteration = False
-      else:
-        current_start_temp = current_start_temp - temp_interval
-      current_final_temp = current_start_temp - temp_interval
-      
-      if (self.params.map_weight == None): # a user didn't specify map_weight
-        self.params.map_weight = determine_optimal_weight_by_template(self, map_inp)
-      else:
-        user_defined_map_weight = True
-      print ("used self.params.map_weight for ",current_start_temp, " and ", current_final_temp, ":", round(self.params.map_weight,1))
-    
-      
-      task_obj = cryo_fit2_run.cryo_fit2_class(
-        model             = model_inp,
-        model_name        = self.data_manager.get_default_model_name(),
-        map_inp           = map_inp,
-        params            = self.params,
-        out               = self.logger,
-        map_name          = self.data_manager.get_default_real_map_name(),
-        logfile           = logfile,
-        output_dir        = output_dir)
-      
-      task_obj.validate()
-      output_dir_w_CC = task_obj.run()
-      if (user_defined_map_weight == False):
-        self.params.map_weight == None
-    ###############  (end) when optimizing map_weight many times
     '''
     
     header = "# Geometry restraints used for cryo_fit2\n"
