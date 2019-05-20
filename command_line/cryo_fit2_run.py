@@ -120,7 +120,7 @@ class cryo_fit2_class(object):
     if (model_file_name_only == "tst2_cryo_fit2_model"):
       check_after_every_this_try = 10
     else:
-      check_after_every_this_try = 1000
+      check_after_every_this_try = 10000
 
     best_cc_so_far = 0
 
