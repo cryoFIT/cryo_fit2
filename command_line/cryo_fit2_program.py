@@ -80,7 +80,7 @@ map_weight = None
 weight_boost = 20
   .type = float
   .short_caption = boost cryo-EM map weight by this much. For a helix, 20 keeps geometry, 100 breaks it.
-  
+
 resolution = None
   .type = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user

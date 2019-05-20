@@ -438,7 +438,7 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weigh
       cmd = "rm " + current_fitted_file_name
       libtbx.easy_run.fully_buffered(cmd)
       
-      write_this = "Automatically optimized map weight:" + str(round(self.params.map_weight,2)) + "\n"
+      write_this = "Automatically optimized map weight: " + str(round(self.params.map_weight,2)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(write_this)
   else:
