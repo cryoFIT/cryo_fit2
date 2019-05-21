@@ -108,7 +108,7 @@ class cryo_fit2_class(object):
     if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None
     
-    cc_check_so_far = 0
+    cycle_so_far = 0
     cc_1st_array = []
     cc_2nd_array = []
     #array_last_10_cc = []
@@ -116,11 +116,11 @@ class cryo_fit2_class(object):
     splited_model_name = self.model_name[:-4].split("/")
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
 
-    check_after_every_this_try = ''
+    cc_check_after_every_this_cycle = ''
     if (model_file_name_only == "tst2_cryo_fit2_model"):
-      check_after_every_this_try = 10
+      cc_check_after_every_this_cycle = 10
     else:
-      check_after_every_this_try = 10000
+      cc_check_after_every_this_cycle = 10000
 
     best_cc_so_far = 0
 
@@ -167,16 +167,16 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-      elif (cc_check_so_far < check_after_every_this_try/2):
-        cc_check_so_far = cc_check_so_far + 1
+      elif (cycle_so_far < cc_check_after_every_this_cycle/2):
+        cycle_so_far = cycle_so_far + 1
         cc_1st_array.append(cc_after_small_MD)
       else:
-        cc_check_so_far = cc_check_so_far + 1
+        cycle_so_far = cycle_so_far + 1
         cc_2nd_array.append(cc_after_small_MD)
       
-      if (cc_check_so_far >= check_after_every_this_try):
+      if (cycle_so_far >= cc_check_after_every_this_cycle):
         
-        write_this = "cc_check_so_far:" + str(cc_check_so_far) + "\n"
+        write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
@@ -186,7 +186,7 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           best_cc_so_far = cc_after_small_MD
-          cc_check_so_far = 0 # reset
+          cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)
@@ -201,7 +201,7 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
-          cc_check_so_far = 0 # reset
+          cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)

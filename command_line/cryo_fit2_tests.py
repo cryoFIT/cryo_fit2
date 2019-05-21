@@ -41,7 +41,7 @@ if (__name__ == "__main__") :
 
 
 
-############# test 2, simplest biomolecule with regular repeating of small MD running ###############
+    ######### test 2, simplest biomolecule with regular repeating of small MD running ###############
     regression_path = os.path.join(cryo_fit2_repository_dir,
                                      'regression')
     print "regression_path:", regression_path
