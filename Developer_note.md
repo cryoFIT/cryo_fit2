@@ -1,4 +1,9 @@
-note      : Although PHENIX group prefers to make cryo_fit2 works on laptop only as well, MD simulation itself takes a lot of computational time as in https://www.olcf.ornl.gov/2019/05/20/summit-charts-a-course-to-uncover-the-origins-of-genetic-diseases. Additionally, Haddock webserver says that its docking may take 1~2 days.
+note      : Although PHENIX group prefers to make cryo_fit2 works on laptop only as well, MD simulation itself takes a lot of computational time as in https://www.olcf.ornl.gov/2019/05/20/summit-charts-a-course-to-uncover-the-origins-of-genetic-diseases. 
+
+Additionally, http://milou.science.uu.nl/services/HADDOCK2.2/haddock.php says that its docking may take 1~2 days. 
+
+https://cluspro.bu.edu even needs 10 days with restraints.
+
 
 Cryo_fit2 will be avilable on laptop only, but as of now, it may require 1~2 days on laptop if we model big biomolecules.
 
