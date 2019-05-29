@@ -1,4 +1,4 @@
-note      : Although PHENIX group prefers to make cryo_fit2 works on laptop only as well, MD simulation itself takes a lot of computational time as in https://www.olcf.ornl.gov/2019/05/20/summit-charts-a-course-to-uncover-the-origins-of-genetic-diseases. 
+note for speed: Although PHENIX group prefers to make cryo_fit2 works on laptop only as well, MD simulation itself takes a lot of computational time as in https://www.olcf.ornl.gov/2019/05/20/summit-charts-a-course-to-uncover-the-origins-of-genetic-diseases. 
 
 Additionally, http://milou.science.uu.nl/services/HADDOCK2.2/haddock.php says that its docking may take 1~2 days. 
 
@@ -24,6 +24,8 @@ future    : Automatically use sophisticated strong geometry restraints (Oleg's) 
 
 future    : Automatically support Nigel's phenix.eLBOW (as Doonam sees cctbx_project/mmtbx/command_line/dynamics.py's "phenix.dynamics model.pdb ligands.cif", and https://www.phenix-online.org/documentation/reference/dynamics.html 's " 
 ny necessary restraints (CIF) files", maybe eLBOW is already supported?). Find DDB from Venki's ribosome then confirm that cryo_fit2 can work with .cif
+
+current   : cryo_fit2 fits protein only model (Mg_channel) well, but it seems to need further restraints for RNA only model (L1 stalk, tRNA)
 
 05/17/2019: Updated tst2 regression to test short auto-rerun of MD
 

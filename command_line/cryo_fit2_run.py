@@ -180,9 +180,12 @@ class cryo_fit2_class(object):
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
+        write_this = "best_cc_so_far:" + str(best_cc_so_far) + ", current cc_after_small_MD:" + str(cc_after_small_MD) + "\n"
+        print('%s' %(write_this))
+        self.logfile.write(str(write_this))
+          
         if (best_cc_so_far < cc_after_small_MD):
-          write_this = "best_cc_so_far:" + str(best_cc_so_far) + " < current cc_after_small_MD:" + str(cc_after_small_MD) \
-                      + " \nTherefore, run longer MD.\n"
+          write_this = "\nTherefore, run longer MD.\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           best_cc_so_far = cc_after_small_MD

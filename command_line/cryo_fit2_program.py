@@ -63,7 +63,7 @@ cool_rate = 100
   .type = int
   .short_caption = cooling rate of annealing in Kelvin
 
-number_of_steps = 5
+number_of_steps = 20
   .type = int
   .short_caption = number of steps in phenix.dynamics
 
@@ -77,7 +77,7 @@ map_weight = None
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
 
-weight_boost = 20
+weight_boost = 1
   .type = float
   .short_caption = boost cryo-EM map weight by this much. For a helix, 20 keeps geometry, 100 breaks it.
 
@@ -184,7 +184,7 @@ Options:
   start_temperature            (default: 300)
   final_temperature            (default: 0)
   cool_rate                    (default: 100)
-  number_of_steps              (default: 5)
+  number_of_steps              (default: 20)
   total_number_of_steps        (default: None)
                                If specified, run up to this number of step no matter what.
   secondary_structure.enabled  (default: True)
@@ -427,8 +427,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
-                            + "number_of_steps=" + str(self.params.number_of_steps) + " " \
-                            + "weight_boost=" + str(round(self.params.weight_boost,1)) + " "
+                            + "number_of_steps=" + str(self.params.number_of_steps) + " "
+                            #+ "weight_boost=" + str(round(self.params.weight_boost,1)) + " "
                             #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
@@ -450,7 +450,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write(str(cryo_fit2_input_command))
     
     if (checked_whether_args_has_eff == True):
-      logfile.write("User entered custom geometry restraints.\n")
+      logfile.write("\nUser entered custom geometry restraints which is \n")
       output_dir = output_dir + str("_eff_used")
     
     '''
