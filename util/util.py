@@ -63,8 +63,8 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
     pdb_hierarchy               = pi.ph,
     geometry_restraints_manager = pi.grm).weight
 
-  #return self.params.map_weight # 1x~10x of weight_boost were enough for L1 stalk fitting
-  return Fix atoms with unknown nonbon*self.params.map_weight # up to 20x of weight_boost, nucleic acid geometry was ok, 30x broke it
+  #return self.params.map_weight # 1x~10x of weight_boost were not enough for L1 stalk fitting
+  return weight_boost*self.params.map_weight # up to 20x of weight_boost, nucleic acid geometry was ok, 30x broke it
 ######################### end of determine_optimal_weight_by_template
 
 
