@@ -64,7 +64,7 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
     geometry_restraints_manager = pi.grm).weight
 
   #return self.params.map_weight # 1x~10x of weight_boost were enough for L1 stalk fitting
-  return weight_boost*self.params.map_weight # up to 20x of weight_boost, nucleic acid geometry was ok, 30x broke it
+  return Fix atoms with unknown nonbon*self.params.map_weight # up to 20x of weight_boost, nucleic acid geometry was ok, 30x broke it
 ######################### end of determine_optimal_weight_by_template
 
 
@@ -135,20 +135,20 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
 map_weight can't be optimized automatically.
 
 (possible reason 1)  User entered wrong resolution. When 4 angstrom resolution was entered for a 9 ansgtrom resolution map, cryo_fit2 can't optimize cryo_em_map_weight.
-(solution)           Enter a correct resolution. A user can get the resolution either by EMDB reported value or by running phenix.mtriage
+(solution for this)  Enter a correct resolution. A user can get the resolution either by EMDB reported value or by running phenix.mtriage
 
 (possible reason 2)  There could be some residues/atoms with unknown nonbonded energy type symbols in the given atomic model.
-(solution)           cryo_fit2 cleans archaic \"RX\" type nucleic acid name automatically.
-                   Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
-                   real_space_refine in PHENIX GUI will show users which atoms have unknown nonbonded energy type symbols.
+(solution for this)  Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
+                     real_space_refine in PHENIX GUI will show users which atoms have unknown nonbonded energy type symbols.
+(note)               cryo_fit2 cleans archaic \"RX\" type nucleic acid name from user input pbd file automatically.
 
 (possible reason 3)  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html)
-                   cryo_fit2 automatically assigns it from map to the first line of input pdb file.
-                   However, when both pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize cryo_em_map_weight.
+                     cryo_fit2 automatically assigns it from map to the first line of input pdb file.
+                     However, when both pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize cryo_em_map_weight.
 (solution 1)         Add CRYST1 header info into .pdb/.cif file and rerun cryo_fit2
 (solution 2)         Rerun cryo_fit2 with user specified map_weight.
-                   For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5
-                   However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.
+                     For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5
+                     However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.
 '''
           print (write_this)
           logfile.write(write_this)
