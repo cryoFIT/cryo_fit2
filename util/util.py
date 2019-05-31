@@ -101,14 +101,6 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
       except:
         ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
           pdb_file_names=[current_fitted_file])[0]
-      '''
-      if (final == False):
-        ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-          pdb_file_names=[self.data_manager.get_default_model_name()])[0]
-      else:
-        ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
-          pdb_file_names=[fitted_file_before_final_run])[0]
-      '''
       
   except:
       # above try either results in "Sorry: Crystal symmetry is missing or cannot be extracted."
@@ -143,7 +135,7 @@ map_weight can't be optimized automatically.
 [Solution for this]  Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
                      real_space_refine in PHENIX GUI will show users which atoms have unknown nonbonded energy type symbols.
 [Note]               cryo_fit2 cleans archaic \"RX\" type nucleic acid name from user input pbd file automatically.
-
+                     If a user manually assigns a map_weight like map_weight=x, then cryo_fit2 will run, but with a message of "Number of atoms with unknown nonbonded energy type symbols:"
 
 [Possible reason 3]  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html)
                      cryo_fit2 automatically assigns it from map to the first line of user input pdb file.

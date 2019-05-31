@@ -12,8 +12,6 @@ import numpy as np
 import shutil
 import scitbx.math, scitbx.math.superpose, subprocess
 
-#import statistics  ##### "ImportError: No module named statistics"
-
 
 ######## <begin> needed to import util.py
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
@@ -183,7 +181,7 @@ class cryo_fit2_class(object):
         write_this = "best_cc_so_far:" + str(best_cc_so_far) + ", current cc_after_small_MD:" + str(cc_after_small_MD) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
-          
+
         if (best_cc_so_far < cc_after_small_MD):
           write_this = "\nTherefore, run longer MD.\n"
           print('%s' %(write_this))
