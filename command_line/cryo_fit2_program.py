@@ -63,7 +63,7 @@ cool_rate = 100
   .type = int
   .short_caption = cooling rate of annealing in Kelvin
 
-number_of_steps = 20
+number_of_steps = 100
   .type = int
   .short_caption = number of steps in phenix.dynamics
 

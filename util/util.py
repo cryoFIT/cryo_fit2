@@ -137,6 +137,7 @@ map_weight can't be optimized automatically.
 [Note]               cryo_fit2 cleans archaic \"RX\" type nucleic acid name from user input pbd file automatically.
                      If a user manually assigns a map_weight like map_weight=x, then cryo_fit2 will run, but with a message of "Number of atoms with unknown nonbonded energy type symbols:"
 
+
 [Possible reason 3]  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html)
                      cryo_fit2 automatically assigns it from map to the first line of user input pdb file.
                      However, when a user provided .cif input model file rather than .pdb input model file, this automatic assign of CRYST1 doesn't work.
