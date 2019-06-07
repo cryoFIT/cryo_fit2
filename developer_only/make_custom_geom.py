@@ -31,7 +31,7 @@ def rewrite_custom_geometry(args):
   splited_input_model_file_name = input_model_file_name.split("/")
   input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
-  rewrite_to_custom_geometry(ss_restraints_file_name)
+  rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name)
 ########### end of rewrite_custom_geometry(args)
 
 
@@ -39,7 +39,7 @@ if (__name__ == "__main__"):
   args = sys.argv[1:]
   if len(args) == 0:
     print "Provide xxx.pdb file"
-    print "Example: make_custom_geometry.py xxx.pdb"
+    print "Example: phenix.python make_custom_geometry.py xxx.pdb"
     exit(1)
   rewrite_custom_geometry(args)
   print "OK"

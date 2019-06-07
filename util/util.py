@@ -595,3 +595,26 @@ def show_time(time_start, time_end):
     time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
   return time_took
 ############### end of show_time function
+
+
+def write_custom_geometry(input_model_file_name):
+
+  ######## produce pymol format secondary structure restraints #########
+  # I heard that running phenix commandline directly is not ideal.
+  # Therefore, I had used code directly rather than executing phenix executables at commandline such as calculating rmsd
+  # However, I think that running phenix.secondary_structure_restraints is the best option here.
+  # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
+  #to use codes directly instead of running executables at commandline
+  print("\nCryo_fit2 will generate default secondary structure restraints for user input model file to enforce stronger secondary structure re\
+straints\n")
+  make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
+  libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
+
+  splited_input_model_file_name = input_model_file_name.split("/")
+  input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
+  ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
+  
+  
+  ########## rewrite_pymol_ss_to_custom_geometry_ss
+  rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name)
+########### end of write_custom_geometry(input_model_file_name)

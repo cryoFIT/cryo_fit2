@@ -104,10 +104,10 @@ loose_ss_def = False
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
               If False, use Oleg's original strict definition. 
 
-stronger_ss_sigma = False
+strong_ss = False
     .type   = bool
-    .help   = If True, sigma for secondary structure restraints is stonger (e.g. 0.021) \
-              If False, use original sigma (e.g. 1)
+    .help   = If True, cryo_fit2 will use stronger sigma (e.g. 0.021) for secondary structure restraints \
+              If False, it will use original sigma (e.g. 1)
     
 keep_origin = True
     .type   = bool
@@ -242,7 +242,15 @@ Options:
   def run(self):
     args = sys.argv[1:]
     print ("args",args)
-    #STOP()
+    
+    if (self.params.strong_ss == True):
+      #command_string = "phenix.python make_custom_geom.py " + self.data_manager.get_default_model_name()
+      ##print ("command_string:",command_string)
+      #libtbx.easy_run.fully_buffered(command_string)
+      #STOP()
+      write_custom_geometry(self.data_manager.get_default_model_name())
+    #phenix.python ~/bin/phenix-1.15rc3-3442/modules/cryo_fit2/util/make_custom_geom.py input/model_w_CRYST1.pdb
+    
     
     checked_whether_args_has_eff = check_whether_args_has_eff(args)
     
@@ -460,6 +468,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       write_this = "\nA cryo_fit2 user entered custom geometry restraints which is " + checked_whether_args_has_eff +"\n"
       logfile.write(write_this)
       output_dir = output_dir + str("_eff_used")
+    
+    
     
     '''
     else:
