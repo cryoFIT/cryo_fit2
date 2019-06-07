@@ -31,7 +31,8 @@ def calculate_cc(map_data, model, resolution):
 def check_whether_args_has_eff(args):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
-      return True
+      #return True
+      return args[i]
   return False
 ######## end of check_whether_args_has_eff(args)
 
@@ -92,7 +93,11 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file):
   
-  try: # works if pdb file has CRYST1 and has no atoms with unknown nonbonded energy type symbols and resolution is correctly assigned
+  try: #  Assigns ppf here well if
+       #    input pdb file has CRYST1
+       #    and input pdb file has no atoms with unknown nonbonded energy type symbols
+       #    and resolution is correctly entered
+       #  Therefore, new CRYST1 header will not be added to the input pdb file
 
       ppf = ''
       try:
@@ -103,7 +108,8 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
           pdb_file_names=[current_fitted_file])[0]
       
   except:
-      # above try either results in "Sorry: Crystal symmetry is missing or cannot be extracted."
+      # above try results in
+      # either "Sorry: Crystal symmetry is missing or cannot be extracted."
       # or
       #   "Sorry: Fatal problems interpreting model file:
       #    Number of atoms with unknown nonbonded energy type symbols: xx
@@ -113,7 +119,7 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
       #    if necessary."
       #
       try: # try to extract CRYST1 info from map
-          write_this = "\nCRYST1 info is not extracted from user input pdb file. Try to extract it from user map instead.\n"
+          write_this = "\nCRYST1 info is not extracted from user input pdb file. Therefore, cryo_fit2 will try to extract it from user map instead.\n"
           print (write_this)
           logfile.write(write_this)
           
@@ -313,7 +319,6 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
             multi_after_period = 0-len(splited_alpha[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + "." + splited_alpha[1]+multi_after_period*" "
     
-    
     beta = splited[4]
     splited_beta = beta.split(".")
     if (len(splited_beta) == 1): # just 90
@@ -358,7 +363,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     else:  
       write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to the user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
     
-    print ("write this CRYST1 information :",write_this_CRYST1)
+    print ("Cryo_fit2 will prepend this CRYST1 information :",write_this_CRYST1, " to a user pdb file")
     
     file_name_w_user_s_original_pdb_info = self.data_manager.get_default_model_name() + ".original"
     command = "cp " + self.data_manager.get_default_model_name() + " " + file_name_w_user_s_original_pdb_info
@@ -366,7 +371,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     
     line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)
     
-    write_this = "CRYST1 info from map was prepended to user pdb file, therefore the very original user pdb file is now renamed to " + file_name_w_user_s_original_pdb_info
+    write_this = "CRYST1 info from map was prepended to user pdb file. Therefore, the original user pdb file is now renamed to " + file_name_w_user_s_original_pdb_info
     print (write_this)
     logfile.write(write_this)
     

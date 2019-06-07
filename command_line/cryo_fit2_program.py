@@ -103,8 +103,12 @@ loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
               If False, use Oleg's original strict definition. 
-    .short_caption = Keep origin of a resulted atomic model    
 
+stronger_ss_sigma = False
+    .type   = bool
+    .help   = If True, sigma for secondary structure restraints is stonger (e.g. 0.021) \
+              If False, use original sigma (e.g. 1)
+    
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
@@ -237,6 +241,9 @@ Options:
   # ---------------------------------------------------------------------------
   def run(self):
     args = sys.argv[1:]
+    print ("args",args)
+    #STOP()
+    
     checked_whether_args_has_eff = check_whether_args_has_eff(args)
     
     print ("user entered resolution", str(self.params.resolution))
@@ -421,21 +428,20 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n\n")
-    
-    #if (checked_whether_args_has_eff == False):   
+     
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
-                            + "number_of_steps=" + str(self.params.number_of_steps) + " "
-                            #+ "weight_boost=" + str(round(self.params.weight_boost,1)) + " "
-                            #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
+                            + "number_of_steps=" + str(self.params.number_of_steps) + " " 
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
+                            #+ "weight_boost=" + str(round(self.params.weight_boost,1)) + " "
+                            #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
     if (self.params.total_number_of_steps != None):
       cryo_fit2_input_command = cryo_fit2_input_command + "total_number_of_steps=" + str(self.params.total_number_of_steps) + "\n"
     else:
@@ -450,8 +456,9 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write("Input command: ")
     logfile.write(str(cryo_fit2_input_command))
     
-    if (checked_whether_args_has_eff == True):
-      logfile.write("\nUser entered custom geometry restraints which is \n")
+    if (checked_whether_args_has_eff != False):
+      write_this = "\nA cryo_fit2 user entered custom geometry restraints which is " + checked_whether_args_has_eff +"\n"
+      logfile.write(write_this)
       output_dir = output_dir + str("_eff_used")
     
     '''
