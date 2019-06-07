@@ -98,17 +98,16 @@ record_states = False
     .type     = bool
     .help     = If True, record all states and save it to all_states.pdb. However, 3k atoms molecules (like L1 stalk) require more than 160 GB of memory. \
                 If False, don't record states of molecular dynamics.
-
-loose_ss_def = False
-    .type   = bool
-    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
-              If False, use Oleg's original strict definition. 
-
 strong_ss = False
     .type   = bool
     .help   = If True, cryo_fit2 will use stronger sigma (e.g. 0.021) for secondary structure restraints \
               If False, it will use original sigma (e.g. 1)
     
+loose_ss_def = False
+    .type   = bool
+    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
+              If False, use Oleg's original strict definition. 
+
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
@@ -271,12 +270,12 @@ Options:
     print ("number_of_steps", str(self.params.number_of_steps)) 
     #print ("self.params.loose_ss_def:",self.params.loose_ss_def)
 
-    
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
     print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
+    
     
     ################# <begin> Doonam's playground ################
     

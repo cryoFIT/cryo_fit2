@@ -109,7 +109,6 @@ class cryo_fit2_class(object):
     cycle_so_far = 0
     cc_1st_array = []
     cc_2nd_array = []
-    #array_last_10_cc = []
     
     splited_model_name = self.model_name[:-4].split("/")
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
@@ -155,8 +154,6 @@ class cryo_fit2_class(object):
       write_this = "cc after a small MD iteration: " + str(round(cc_after_small_MD, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
-    
-      #array_last_10_cc.append(cc_after_small_MD)
       
       if (total_number_of_steps != ''):
         if (total_number_of_steps_so_far >= total_number_of_steps):
