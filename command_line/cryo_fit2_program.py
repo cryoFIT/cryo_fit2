@@ -70,7 +70,7 @@ number_of_steps = 100
 total_number_of_steps = None
   .type = int
   .short_caption = total number of steps in phenix.dynamics.\
-                   If specified, run up to this number of step no matter what.
+                   If specified, run up to this number of steps no matter what.
 
 map_weight = None
   .type = float
@@ -375,6 +375,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.final_temperature = 0
       self.params.cool_rate = 10
       self.params.number_of_steps = 1000
+      self.params.total_number_of_steps = 2000
 
     # tests with total_number_of_steps
     elif (input_model_file_name_wo_path == "tst1_cryo_fit2_model.pdb"): 

@@ -286,13 +286,13 @@ class cryo_fit2_class(object):
       quiet=False
     )
     for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
-      write_this = "\n===== Aligning %s to %s ====="%(fitted_file, self.model_name)
+      write_this = "\n\n===== Aligning %s to %s ====="%(fitted_file, self.model_name)
       print (write_this)
       self.logfile.write(str(write_this))
       if not self.params.selection_moving:
         moving.selectomatic(fixed)
       rmsd, lsq = moving.superpose(fixed)
-      write_this = "\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
+      write_this = "\n\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
       print (write_this)
       self.logfile.write(str(write_this))
     ####################### <end> RMSD calculation ###########################

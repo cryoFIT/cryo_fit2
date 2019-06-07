@@ -113,7 +113,7 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
       #    if necessary."
       #
       try: # try to extract CRYST1 info from map
-          write_this = "CRYST1 info is not extracted from user input pdb file. Try to extract it from user map instead.\n"
+          write_this = "\nCRYST1 info is not extracted from user input pdb file. Try to extract it from user map instead.\n"
           print (write_this)
           logfile.write(write_this)
           
@@ -124,8 +124,9 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
           
       except:
           write_this = '''
+=============================================
 map_weight can't be optimized automatically.
-
+=============================================
 
 [Possible reason 1]  User entered wrong resolution. When 4 angstrom resolution was entered for a 9 ansgtrom resolution map, cryo_fit2 can't optimize cryo_em_map_weight.
 [Solution for this]  Enter a correct resolution. A user can get the resolution either by EMDB reported value or by running phenix.mtriage
@@ -141,7 +142,7 @@ map_weight can't be optimized automatically.
 [Possible reason 3]  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html)
                      cryo_fit2 automatically assigns it from map to the first line of user input pdb file.
                      However, when a user provided .cif input model file rather than .pdb input model file, this automatic assign of CRYST1 doesn't work.
-                     Additionally, when both user input pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize cryo_em_map_weight.
+                     Additionally, when both user input pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize map_weight.
 [Solution 1]         Add CRYST1 header information manually into .pdb/.cif file and rerun cryo_fit2
 [Solution 2]         Rerun cryo_fit2 with user specified map_weight.
                      For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5
