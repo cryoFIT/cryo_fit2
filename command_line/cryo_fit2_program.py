@@ -423,13 +423,13 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
-                            + "number_of_steps=" + str(self.params.number_of_steps) + " " 
+                            + "number_of_steps=" + str(self.params.number_of_steps) + " " \
+                            + "weight_boost=" + str(round(self.params.weight_boost,1)) + " "
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
-                            #+ "weight_boost=" + str(round(self.params.weight_boost,1)) + " "
                             #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
     if (self.params.total_number_of_steps != None):
       cryo_fit2_input_command = cryo_fit2_input_command + "total_number_of_steps=" + str(self.params.total_number_of_steps) + "\n"
@@ -464,11 +464,13 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     output_dir_w_CC = task_obj.run()
     ############### (end) core cryo_fit2
     
-    '''
-    if (checked_whether_args_has_eff == False):
-      mv_command_string = "mv " + ss_restraints_file_name + " " + custom_geom_file_name + " " + output_dir_w_CC
+    
+    if (self.params.strong_ss == True):
+      pymol_ss = input_model_file_name_wo_path + "_ss.pml"
+      print ("pymol_ss:",pymol_ss)
+      mv_command_string = "mv " + pymol_ss + " " + eff_file_name + " " + output_dir_w_CC
       libtbx.easy_run.fully_buffered(mv_command_string)
-    '''
+    
     
     header = "# Geometry restraints used for cryo_fit2\n"
     header += "# %s\n" % date_and_time()
