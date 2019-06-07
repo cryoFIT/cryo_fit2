@@ -356,22 +356,9 @@ Options:
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
     print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled)
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled)
-    
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
-    
-    '''
-    log = multi_out()
-    out=sys.stdout
-    log.register("stdout", out)
-    
-    
-    log_file_name = "cryo_fit2.log"
-    logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
-    #logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
-    log.register("logfile", logfile)
-    '''
     
     old_style_RNA, removed_R_prefix_in_RNA_pdb_file_name = remove_R_prefix_in_RNA(self.data_manager.get_default_model_name())
     if (old_style_RNA == True):
@@ -401,7 +388,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.number_of_steps = 1000
       self.params.total_number_of_steps = 2000
 
-    # tests with total_number_of_steps
+    # regression with total_number_of_steps
     elif (input_model_file_name_wo_path == "tst1_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 300
       self.params.final_temperature = 280
@@ -409,7 +396,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.number_of_steps = 100
       self.params.total_number_of_steps = 1000
 
-    # tests auto-rerun
+    # regression test auto-rerun
     elif (input_model_file_name_wo_path == "tst2_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 300
       self.params.final_temperature = 280
@@ -453,7 +440,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
                             + "number_of_steps=" + str(self.params.number_of_steps) + " " \
-                            + "strong_ss=" + str(self.params.strong_ss)
+                            + "strong_ss=" + str(self.params.strong_ss) + " "
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
