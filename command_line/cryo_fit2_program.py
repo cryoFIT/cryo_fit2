@@ -255,7 +255,7 @@ Options:
     
     
     if (self.params.strong_ss == True):
-      write_this = "\nA cryo_fit2 user turned strong_ss=True"
+      write_this = "\nA user turned strong_ss=True\n"
       print (write_this)
       logfile.write(write_this)
       
@@ -436,11 +436,11 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
      
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
+                            + "strong_ss=" + str(self.params.strong_ss) + " " \
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
-                            + "number_of_steps=" + str(self.params.number_of_steps) + " " \
-                            + "strong_ss=" + str(self.params.strong_ss) + " "
+                            + "number_of_steps=" + str(self.params.number_of_steps) + " " 
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \

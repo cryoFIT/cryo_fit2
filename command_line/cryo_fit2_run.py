@@ -160,8 +160,8 @@ class cryo_fit2_class(object):
       
       if (total_number_of_steps != ''):
         if (total_number_of_steps_so_far >= total_number_of_steps):
-          write_this = "\ntotal_number_of_steps_so_far " + str(total_number_of_steps_so_far) + \
-                       " >= total_number_of_steps " + str(total_number_of_steps) + "\n"
+          write_this = "\ntotal_number_of_steps_so_far (" + str(total_number_of_steps_so_far) + \
+                       ") >= user specified total_number_of_steps (" + str(total_number_of_steps) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
