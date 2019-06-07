@@ -50,50 +50,39 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
-
 start_temperature = 300
   .type = int
   .short_caption = Starting temperature of annealing in Kelvin
-
 final_temperature = 0
   .type = int
   .short_caption = Final temperature of annealing in Kelvin
-
 cool_rate = 100
   .type = int
   .short_caption = cooling rate of annealing in Kelvin
-
 number_of_steps = 100
   .type = int
   .short_caption = number of steps in phenix.dynamics
-
 total_number_of_steps = None
   .type = int
   .short_caption = total number of steps in phenix.dynamics.\
                    If specified, run up to this number of steps no matter what.
-
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
-
 weight_boost = 1
   .type = float
   .short_caption = boost cryo-EM map weight by this much. For a helix, 20 keeps geometry, 100 breaks it.
-
 resolution = None
   .type = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
-
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
-  
 progress_on_screen = True
     .type          = bool
     .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
-
 record_states = False
     .type     = bool
     .help     = If True, record all states and save it to all_states.pdb. However, 3k atoms molecules (like L1 stalk) require more than 160 GB of memory. \
@@ -102,25 +91,20 @@ strong_ss = False
     .type   = bool
     .help   = If True, cryo_fit2 will use stronger sigma (e.g. 0.021) for secondary structure restraints \
               If False, it will use original sigma (e.g. 1)
-    
 loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
               If False, use Oleg's original strict definition. 
-
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
               If False, shift map origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
-
 devel = False
     .type   = bool
     .help   = If True, run quickly only to check sanity
-
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
-
 selection_fixed = None
   .type = str
   .short_caption = Selection for fixed model
