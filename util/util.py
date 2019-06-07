@@ -500,6 +500,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
+
 def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss):
 ####### reference
 
@@ -582,6 +583,8 @@ geometry_restraints {
 ''')
   f_in.close()
   f_out.close()
+  
+  return out_file
 ########## end of rewrite_pymol_ss_to_custom_geometry_ss function
 
 
@@ -605,7 +608,7 @@ def write_custom_geometry(input_model_file_name):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  print("\nCryo_fit2 will generate default secondary structure restraints for user input model file to enforce stronger secondary structure re\
+  print("\nCryo_fit2 will generate pymol based secondary structure restraints for user input model file to enforce stronger secondary structure re\
 straints\n")
   make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
   libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
@@ -616,5 +619,7 @@ straints\n")
   
   
   ########## rewrite_pymol_ss_to_custom_geometry_ss
-  rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name)
+  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name)
+  
+  return eff_file_name
 ########### end of write_custom_geometry(input_model_file_name)

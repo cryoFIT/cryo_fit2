@@ -16,7 +16,4 @@ Therefore, at coolor temperature, cryo_fit2 refines structure with a original si
 
 
 [How to add additional restraints]
-phenix.python <user phenix>/modules/cryo_fit2/util/make_custom_geom.py <user>.pdb
-
-Then, add a custom geometry file to commandline.
-For example, cryo_fit2 <user>.map <user>.pdb resolution=<x> <user>.pdb_ss_custom_geom.eff
+cryo_fit2 <user>.map <user>.pdb resolution=<x> strong_ss=True

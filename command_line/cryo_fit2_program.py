@@ -240,17 +240,27 @@ Options:
 
   # ---------------------------------------------------------------------------
   def run(self):
+    time_total_start = time.time()
     args = sys.argv[1:]
-    print ("args",args)
+    
+    log = multi_out()
+    out=sys.stdout
+    log.register("stdout", out)
+    
+    
+    log_file_name = "cryo_fit2.log"
+    logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
+    #logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
+    log.register("logfile", logfile)
+    
     
     if (self.params.strong_ss == True):
-      #command_string = "phenix.python make_custom_geom.py " + self.data_manager.get_default_model_name()
-      ##print ("command_string:",command_string)
-      #libtbx.easy_run.fully_buffered(command_string)
-      #STOP()
-      write_custom_geometry(self.data_manager.get_default_model_name())
-    #phenix.python ~/bin/phenix-1.15rc3-3442/modules/cryo_fit2/util/make_custom_geom.py input/model_w_CRYST1.pdb
-    
+      write_this = "\nA cryo_fit2 user turned strong_ss=True"
+      print (write_this)
+      logfile.write(write_this)
+      
+      eff_file_name = write_custom_geometry(self.data_manager.get_default_model_name())
+      args.append(eff_file_name)
     
     checked_whether_args_has_eff = check_whether_args_has_eff(args)
     
@@ -259,10 +269,8 @@ Options:
     print ("final_temperature", str(self.params.final_temperature))
     print ("cool_rate", str(self.params.cool_rate))
     print ("number_of_steps", str(self.params.number_of_steps)) 
-    
-    print ("self.params.loose_ss_def:",self.params.loose_ss_def)
+    #print ("self.params.loose_ss_def:",self.params.loose_ss_def)
 
-    time_total_start = time.time()
     
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
@@ -280,7 +288,7 @@ Options:
     #print ("map_inp.unit_cell_grid():", map_inp.unit_cell_grid()) #TypeError: 'tuple' object is not callable
     #print ("map_inp.unit_cell_grid:", map_inp.unit_cell_grid)
     #print ("map_inp.unit_cell_grid[0]:", map_inp.unit_cell_grid[0]) 
-    #STOP()
+
     # for map_boxed map
       # unit cell grid: (360, 360, 360)
       # map grid:   (99, 87, 85)
@@ -288,7 +296,7 @@ Options:
       # unit cell grid: (360, 360, 360)
       # map grid:   (360, 360, 360)
     # it shows many items from header_min to pixel size, show_summary() itself shows "None"
-    #STOP()
+
     '''
     print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
     print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
@@ -298,14 +306,12 @@ Options:
     '''
     map_inp_data = map_inp.map_data()
     #print ("map_inp_data:", map_inp_data) #<scitbx_array_family_flex_ext.double object at 0x119e171d0>
-    #STOP()
     #print ("map origin:", map_inp_data.origin())
     #132, 94, 203 for DN map_L1 stalk same as in util.py's target_map_data.origin()
     
     #'''
     #print ("map accessor:", map_inp_data.accessor()) # shows an object address
     #print ("map_inp.crystal_symmetry():",map_inp.crystal_symmetry()) # shows an object address
-    #STOP()
     
     ########## test
     #map_inp.space_group_number()
@@ -354,6 +360,8 @@ Options:
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
+    
+    '''
     log = multi_out()
     out=sys.stdout
     log.register("stdout", out)
@@ -363,6 +371,7 @@ Options:
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     #logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
     log.register("logfile", logfile)
+    '''
     
     old_style_RNA, removed_R_prefix_in_RNA_pdb_file_name = remove_R_prefix_in_RNA(self.data_manager.get_default_model_name())
     if (old_style_RNA == True):
@@ -415,7 +424,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
                  "_cool_" + str(self.params.cool_rate) + \
-                 "_step_" + str(self.params.number_of_steps) #+ \
+                 "_step_" + str(self.params.number_of_steps) + \
+                 "_strong_ss_" + str(self.params.strong_ss)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
                  #"_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \
@@ -442,7 +452,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
-                            + "number_of_steps=" + str(self.params.number_of_steps) + " " 
+                            + "number_of_steps=" + str(self.params.number_of_steps) + " " \
+                            + "strong_ss=" + str(self.params.strong_ss)
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
@@ -464,35 +475,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write("Input command: ")
     logfile.write(str(cryo_fit2_input_command))
     
-    if (checked_whether_args_has_eff != False):
-      write_this = "\nA cryo_fit2 user entered custom geometry restraints which is " + checked_whether_args_has_eff +"\n"
-      logfile.write(write_this)
-      output_dir = output_dir + str("_eff_used")
-    
-    
-    
-    '''
-    else:
-      logfile.write("User did not enter custom geometry restraints, make it now.\n")
-      ######## produce pymol format secondary structure restraints #########
-      # I heard that running phenix commandline directly is not ideal.
-      # Therefore, I had used code directly rather than executing phenix executables at commandline such as calculating rmsd
-      # However, I think that running phenix.secondary_structure_restraints is the best option here.
-      # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
-      #to use codes directly instead of running executables at commandline
-      logfile.write("\nGenerate default secondary structure restraints for user input model file to enforce stronger secondary structure restraints\n")
-      make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
-      logfile.write(make_pymol_ss_restraints)
-      logfile.write("\n")
-      libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
   
-      # splited_input_model_file_name = input_model_file_name.split("/")
-      # input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
-      ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
-      rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name)
-      custom_geom_file_name = ss_restraints_file_name[:-4] + "_custom_geom.eff"
-    '''
-
+    
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
       model_name        = self.data_manager.get_default_model_name(),
