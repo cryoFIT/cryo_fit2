@@ -85,8 +85,9 @@ progress_on_screen = True
                      If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
 record_states = False
     .type     = bool
-    .help     = If True, record all states and save it to all_states.pdb. However, 3k atoms molecules (like L1 stalk) require more than 160 GB of memory. \
-                If False, don't record states of molecular dynamics.
+    .help     = If True, cryo_fit2 records all states and save it to all_states.pdb. \
+                However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
+                If False, cryo_fit2 doesn't record each state of molecular dynamics.
 strong_ss = False
     .type   = bool
     .help   = If True, cryo_fit2 will use stronger sigma (e.g. 0.021) for secondary structure restraints \
@@ -164,35 +165,49 @@ Example running command:
   phenix.cryo_fit2 model.pdb map.ccp4 resolution=5
 
 Options:
-  resolution                   (cryo-EM map resolution in angstrom that needs to be entered by a user)
-  map_weight                   (cryo-EM map weight.
+  resolution                   cryo-EM map resolution in angstrom that needs to be entered by a user
+  
+  map_weight                   cryo-EM map weight.
                                A user is recommended NOT to specify this, so that it will be automatically optimized.
-                               If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.)
+                               If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
+  
   start_temperature            (default: 300)
+  
   final_temperature            (default: 0)
+  
   cool_rate                    (default: 100)
+  
   number_of_steps              (default: 20)
+  
   total_number_of_steps        (default: None)
                                If specified, run up to this number of step no matter what.
+  
   secondary_structure.enabled  (default: True)
                                Most MD simulations tend to break secondary structure. 
                                Therefore, turning on this option is recommended. 
                                If HELIX/SHEET records are present in supplied .pdb file, 
                                automatic search of the existing secondary structures in the given 
                                input pdb file will not be executed.
+  
   secondary_structure.protein.remove_outliers (default: True)
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
-  output_dir                   (output folder name prefix, default: output)
+  
+  output_dir                   output folder name prefix (default: output)
+  
   keep_origin                  (default: True)
                                If True, write out model with origin in original location.
                                If False, shift origin to (0,0,0). 
+  
   progress_on_screen           (default: False)
                                If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
                                If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
+  
   record_states                (default: False)
-                               If True, record all states and save it to all_states.pdb. However, 3k atoms molecules (like L1 stalk) require more than 160 GB of memory.
-                               If False, don't record states of molecular dynamics.
+                               If True, cryo_fit2 records all states and save it to all_states.pdb.
+                               However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory.
+                               If False, cryo_fit2 doesn't record states of molecular dynamics.
+  
   devel                        (default: False)
                                If True, run quickly only to check sanity
 '''
