@@ -171,6 +171,9 @@ map_weight can't be optimized automatically.
 ######################## end of get_pdb_inputs_by_pdb_file_name function
 
 
+def hasNumbers(inputString):
+    return any(char.isdigit() for char in inputString)
+
 
 def know_how_much_map_origin_moved(map_file_name):
     print ("#### Know how much map origin moved ####")
@@ -537,14 +540,18 @@ geometry_restraints {
     if (dist_candidate == "dist"):
       splited = line.split()
       
-      write_this = "    bond {\n"
-      f_out.write(write_this)
-      
       chain_candidate = splited[2]
       splited_chain_candidate = chain_candidate.split("\"")
       
       resi1 = splited[5].strip()
       atom1 = splited[8]
+      
+      if (hasNumbers(atom1) == False): #this_line_is_protein
+        continue
+      
+      write_this = "    bond {\n"
+      f_out.write(write_this)
+      
       write_this = "      atom_selection_1 = chain \'" + splited_chain_candidate[1] + "\' and resid " + resi1 + " and name " + atom1 + "\n"
       f_out.write(write_this)
       
@@ -555,7 +562,9 @@ geometry_restraints {
       write_this = "      atom_selection_2 = chain \'" + splited_chain_candidate[1] + "\' and resid " + resi2 + " and name " + atom2 + "\n"
       f_out.write(write_this)
       
-      
+      ########## for nucleic acids, atoms have numbers like N6, O4
+      ########## for proteins, atoms do not numbers like N, O
+      this_line_is_protein = False # just initial assignment
       if ((atom1 == "N6" and atom2 ==  "O4") or (atom1 == "O4" and atom2 ==  "N6")):
         f_out.write("      distance_ideal = 3.0\n")
       elif ((atom1 == "O6" and atom2 ==  "N4") or (atom1 == "N4" and atom2 ==  "O6")):
@@ -570,10 +579,10 @@ geometry_restraints {
         else:
           f_out.write("      distance_ideal = 2.82\n") # between A and T
         '''
-      else: # default
-        f_out.write("      distance_ideal = 2.91\n")
-      # reference modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-      
+      else:
+        # default for nucleic acid
+          f_out.write("      distance_ideal = 2.91\n")
+      ########## reference modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       f_out.write("      sigma = 0.021\n")
       # /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
       # left bp from 26 to 20, I may need to lower the sigma even to 0.002
@@ -604,7 +613,7 @@ def show_time(time_start, time_end):
 ############### end of show_time function
 
 
-def write_custom_geometry(input_model_file_name):
+def write_custom_geometry(logfile, input_model_file_name):
 
   ######## produce pymol format secondary structure restraints #########
   # I heard that running phenix commandline directly is not ideal.
@@ -612,8 +621,10 @@ def write_custom_geometry(input_model_file_name):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  print("\nCryo_fit2 will generate pymol based secondary structure restraints for user input model file to enforce stronger secondary structure re\
-straints\n")
+  write_this = "\nCryo_fit2 will generate pymol based secondary structure restraints for user input model file to enforce stronger sigma\n"
+  print(write_this)
+  logfile.write(write_this)
+  
   make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
   libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
 

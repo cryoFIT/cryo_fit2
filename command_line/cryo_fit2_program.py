@@ -257,7 +257,8 @@ Options:
       print (write_this)
       logfile.write(write_this)
       
-      eff_file_name = write_custom_geometry(self.data_manager.get_default_model_name())
+      #eff_file_name = write_custom_geometry(self.data_manager.get_default_model_name())
+      eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name())
       args.append(eff_file_name)
     
     checked_whether_args_has_eff = check_whether_args_has_eff(args)

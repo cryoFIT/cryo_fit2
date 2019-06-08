@@ -30,7 +30,7 @@ if (__name__ == "__main__") :
     print "regression_path:", regression_path
     os.chdir(regression_path)
 
-    command_string = "python tst1_cryo_fit2.py" % locals()
+    command_string = "python tst1_cryo_fit2_test_total_number_of_steps.py" % locals()
     print "command_string:", command_string
     rc = libtbx.easy_run.call(command=command_string)
     assert rc==0 # make sure there is no error with this test
@@ -47,7 +47,7 @@ if (__name__ == "__main__") :
     print "regression_path:", regression_path
     os.chdir(regression_path)
 
-    command_string = "python tst2_cryo_fit2.py" % locals()
+    command_string = "python tst2_cryo_fit2_test_auto-rerun.py" % locals()
     print "command_string:", command_string
     rc = libtbx.easy_run.call(command=command_string)
     assert rc==0 # make sure there is no error with this test
