@@ -22,3 +22,4 @@ cryo_fit2 <user>.map <user>.pdb resolution=<x> strong_ss=True
 
 [How to see phenix generated secondary restraints]
 Open <user>.pdb and <user>pdb_ss.pml at pymol
+For example, at pymol commandline, @initial_3jcf_fitted_to_final_6553_no_Mg.pdb_ss.pml

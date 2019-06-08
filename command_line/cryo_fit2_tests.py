@@ -59,3 +59,17 @@ if (__name__ == "__main__") :
 
 
 
+    ############# test 3, simplest biomolecule test stong_ss ###############
+    regression_path = os.path.join(cryo_fit2_repository_dir,
+                                     'regression')
+    print "regression_path:", regression_path
+    os.chdir(regression_path)
+
+    command_string = "python tst3_cryo_fit2_test_strong_ss.py" % locals()
+    print "command_string:", command_string
+    rc = libtbx.easy_run.call(command=command_string)
+    assert rc==0 # make sure there is no error with this test
+    
+    # remove no longer needed folder and input_command file
+    rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
+    libtbx.easy_run.fully_buffered(rm_command_string)

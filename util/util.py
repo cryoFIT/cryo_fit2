@@ -546,8 +546,8 @@ geometry_restraints {
       resi1 = splited[5].strip()
       atom1 = splited[8]
       
-      if (hasNumbers(atom1) == False): #this_line_is_protein
-        continue
+      # if (hasNumbers(atom1) == False): #this_line_is_protein
+      #   continue
       
       write_this = "    bond {\n"
       f_out.write(write_this)
@@ -563,7 +563,7 @@ geometry_restraints {
       f_out.write(write_this)
       
       ########## for nucleic acids, atoms have numbers like N6, O4
-      ########## for proteins, atoms do not numbers like N, O
+      ########## for proteins, atoms do not have numbers like N, O
       this_line_is_protein = False # just initial assignment
       if ((atom1 == "N6" and atom2 ==  "O4") or (atom1 == "O4" and atom2 ==  "N6")):
         f_out.write("      distance_ideal = 3.0\n")
@@ -580,9 +580,10 @@ geometry_restraints {
           f_out.write("      distance_ideal = 2.82\n") # between A and T
         '''
       else:
-        # default for nucleic acid
+        # default H-bond length for nucleic acid base pairs and helix and sheet
           f_out.write("      distance_ideal = 2.91\n")
-      ########## reference modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+      ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+      ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
       f_out.write("      sigma = 0.021\n")
       # /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
       # left bp from 26 to 20, I may need to lower the sigma even to 0.002
@@ -621,7 +622,7 @@ def write_custom_geometry(logfile, input_model_file_name):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "\nCryo_fit2 will generate pymol based secondary structure restraints for user input model file to enforce stronger sigma\n"
+  write_this = "\nCryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce stronger sigma\n"
   print(write_this)
   logfile.write(write_this)
   
