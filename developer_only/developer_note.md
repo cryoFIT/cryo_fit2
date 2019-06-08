@@ -20,8 +20,6 @@ future    : Automatically estimate compactness, then assign colder start_tempara
 
 future    : Automatically identify less fitted local region and fit that region only as real_space_refine2 does
 
-future    : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase). I may need to use cryo_fit2_command.py to automatically use .eff file
-
 future    : Automatically support Nigel's phenix.eLBOW
 	    As Doonam sees cctbx_project/mmtbx/command_line/dynamics.py's "phenix.dynamics model.pdb ligands.cif", and https://www.phenix-online.org/documentation/reference/dynamics.html 's " any necessary restraints (CIF) files", he thought maybe eLBOW is already supported for cryo_fit2.
 	    However, even when I provided eLBOW generated .cif ligand, cryo_fit2 shows "Number of atoms with unknown nonbonded energy type symbols:"
@@ -29,7 +27,11 @@ future    : Automatically support Nigel's phenix.eLBOW
 	    Currently, with unknown ligand (e.g. DDB), automatic map_weight optimization doesn't work.
 	    With map_weight=x, cryo_fit2 runs but with "Number of atoms with unknown nonbonded energy type symbols:"
 
-current   : cryo_fit2 fits protein only model (Mg_channel) well, but it seems to need further restraints for RNA only model (L1 stalk, tRNA)
+
+
+current    : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase). When I used strong_ss for tRNA, cc values tend to be better (both weight_boost = 1 and 50) initially. However, eventually, using strong_ss tends not influence on cc.
+
+
 
 05/17/2019: Updated tst2 regression to test short auto-rerun of MD
 

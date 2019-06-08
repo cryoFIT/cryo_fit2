@@ -425,7 +425,7 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost):
   if (user_map_weight == ''):
-      write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for additional cryo_fit2 MD run\n"
+      write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for additional MD run\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
 
@@ -575,6 +575,10 @@ geometry_restraints {
       # reference modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       
       f_out.write("      sigma = 0.021\n")
+      # /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
+      # left bp from 26 to 20, I may need to lower the sigma even to 0.002
+      # However, /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
+      # used too large steps (3k;;;) and small cool_rate (10)
       
       write_this = "    }\n"
       f_out.write(write_this)

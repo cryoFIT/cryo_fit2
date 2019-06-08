@@ -445,7 +445,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write("Input command: ")
     logfile.write(str(cryo_fit2_input_command))
     
-  
     
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
@@ -467,7 +466,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     if (self.params.strong_ss == True):
       pymol_ss = input_model_file_name_wo_path + "_ss.pml"
-      print ("pymol_ss:",pymol_ss)
       mv_command_string = "mv " + pymol_ss + " " + eff_file_name + " " + output_dir_w_CC
       libtbx.easy_run.fully_buffered(mv_command_string)
     
