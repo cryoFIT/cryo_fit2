@@ -112,12 +112,18 @@ class cryo_fit2_class(object):
     
     splited_model_name = self.model_name[:-4].split("/")
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
-
+    
+    number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(self.logfile, self.model_name)
+    # Mg channel: 14,940
+    # L1 stalk: ~3,000
+    
     cc_check_after_every_this_cycle = ''
     if (model_file_name_only == "tst2_cryo_fit2_model"):
       cc_check_after_every_this_cycle = 10
+    elif (number_of_atoms_in_input_pdb < 5000):
+      cc_check_after_every_this_cycle = 4000
     else:
-      cc_check_after_every_this_cycle = 10000
+      cc_check_after_every_this_cycle = 1000
 
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
 

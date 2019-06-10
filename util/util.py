@@ -240,6 +240,18 @@ def know_how_much_map_origin_moved(map_file_name):
 ############## end of know_how_much_map_origin_moved function
 
 
+def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
+    command_string = "cat " + starting_pdb + " | grep ATOM | wc -l"
+    #print "\tcommand: ", command_string
+    num_ATOMs = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    number_of_atoms_in_input_pdb = int(num_ATOMs[0])
+    write_this = "User input pdb file, " + starting_pdb + ", has "+ str(number_of_atoms_in_input_pdb) + " atoms\n"
+    print (write_this)
+    logfile.write(write_this)
+    return number_of_atoms_in_input_pdb
+################# end of know_number_of_atoms_in_input_pdb()
+
+
 def line_prepender(filename, line):
     with open(filename, 'r+') as f:
         content = f.read()
@@ -507,7 +519,9 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss):
 ####### reference
 
-##### [pymol ss] dist chain "A" and resi   42  and name  N4  and alt '', chain "A" and resi   28  and name  O6  and alt ''
+#################### DISTANCE
+##### [pymol ss]
+#   dist chain "A" and resi   42  and name  N4  and alt '', chain "A" and resi   28  and name  O6  and alt ''
 
 ##### [custom geometry ss]
   '''
@@ -528,6 +542,24 @@ geometry_restraints {
   }
 }
   '''
+ 
+######################## ANGLE 
+
+##### [pymol ss]
+# angle a0, chain "A" and resi   42  and name  C4  and alt '', chain "A" and resi   42  and name  N4  and alt '', chain "A" and resi   28  and name  O6  and alt ''
+
+##### [custom geometry ss] http://www.phenix-online.org/pipermail/phenixbb/2014-September/021173.html
+  '''
+    angle {
+      atom_selection_1 = chain 'A' and resid 42 and name C4
+      atom_selection_2 = chain 'A' and resid 42 and name N4
+      atom_selection_3 = chain 'A' and resid 28 and name O6
+      angle_ideal = 117.3
+      sigma = 0.021
+    }
+  '''    
+
+
 
   f_in = open(user_input_pymol_ss)
   out_file = user_input_pymol_ss[:-4] + '_custom_geom.eff'
