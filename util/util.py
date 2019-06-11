@@ -657,7 +657,9 @@ geometry_restraints {
             f_out.write("      angle_ideal = 120.7\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
         elif (atom1 == "C2" and atom2 ==  "N2" and atom3 ==  "O2"):
             f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-        
+        else: 
+            f_out.write("      angle_ideal = 120.0\n") # just my guess
+            
         '''
         if (atom1 == "C4" and atom2 ==  "N4" and atom3 ==  "O6"): 
             f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and tRNA
