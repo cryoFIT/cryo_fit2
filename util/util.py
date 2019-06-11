@@ -552,7 +552,6 @@ geometry_restraints {
   for line in f_in:
     dist_angle_candidate = line[0:5]
     splited = line.split()
-    #dist_angle_candidate = splited[0]
     if (dist_angle_candidate == "dist "):
       write_this = "    bond {\n"
       f_out.write(write_this)
@@ -655,9 +654,9 @@ geometry_restraints {
         elif (atom1 == "C2" and atom2 ==  "N1" and atom3 ==  "N3"):
             f_out.write("      angle_ideal = 116.3\n") # either 119.1 or 116.3 # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
         elif (atom1 == "C2" and atom2 ==  "O2" and atom3 ==  "N2"):
-            f_out.write("      angle_ideal = 120.7\n") # derived from Oleg slide and tRNA
+            f_out.write("      angle_ideal = 120.7\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
         elif (atom1 == "C2" and atom2 ==  "N2" and atom3 ==  "O2"):
-            f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and tRNA
+            f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
         
         '''
         if (atom1 == "C4" and atom2 ==  "N4" and atom3 ==  "O6"): 
