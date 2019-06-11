@@ -542,24 +542,6 @@ geometry_restraints {
   }
 }
   '''
- 
-######################## ANGLE 
-
-##### [pymol ss]
-# angle a0, chain "A" and resi   42  and name  C4  and alt '', chain "A" and resi   42  and name  N4  and alt '', chain "A" and resi   28  and name  O6  and alt ''
-
-##### [custom geometry ss] http://www.phenix-online.org/pipermail/phenixbb/2014-September/021173.html
-  '''
-    angle {
-      atom_selection_1 = chain 'A' and resid 42 and name C4
-      atom_selection_2 = chain 'A' and resid 42 and name N4
-      atom_selection_3 = chain 'A' and resid 28 and name O6
-      angle_ideal = 117.3
-      sigma = 0.021
-    }
-  '''    
-
-
 
   f_in = open(user_input_pymol_ss)
   out_file = user_input_pymol_ss[:-4] + '_custom_geom.eff'
@@ -568,22 +550,17 @@ geometry_restraints {
   edits {
 ''')
   for line in f_in:
-    dist_candidate = line[0:4]
-    if (dist_candidate == "dist"):
-      splited = line.split()
-      
-      chain_candidate = splited[2]
-      splited_chain_candidate = chain_candidate.split("\"")
-      
-      resi1 = splited[5].strip()
-      atom1 = splited[8]
-      
-      # if (hasNumbers(atom1) == False): #this_line_is_protein
-      #   continue
-      
+    dist_angle_candidate = line[0:5]
+    splited = line.split()
+    #dist_angle_candidate = splited[0]
+    if (dist_angle_candidate == "dist "):
       write_this = "    bond {\n"
       f_out.write(write_this)
       
+      chain_candidate = splited[2]
+      splited_chain_candidate = chain_candidate.split("\"")
+      resi1 = splited[5].strip()
+      atom1 = splited[8]
       write_this = "      atom_selection_1 = chain \'" + splited_chain_candidate[1] + "\' and resid " + resi1 + " and name " + atom1 + "\n"
       f_out.write(write_this)
       
@@ -596,7 +573,6 @@ geometry_restraints {
       
       ########## for nucleic acids, atoms have numbers like N6, O4
       ########## for proteins, atoms do not have numbers like N, O
-      this_line_is_protein = False # just initial assignment
       if ((atom1 == "N6" and atom2 ==  "O4") or (atom1 == "O4" and atom2 ==  "N6")):
         f_out.write("      distance_ideal = 3.0\n")
       elif ((atom1 == "O6" and atom2 ==  "N4") or (atom1 == "N4" and atom2 ==  "O6")):
@@ -624,6 +600,88 @@ geometry_restraints {
       
       write_this = "    }\n"
       f_out.write(write_this)
+      ############# end of if (dist_angle_candidate == "dist"):
+        
+######################## ANGLE
+ ##### [pymol ss]
+# angle a0, chain "A" and resi   42  and name  C4  and alt '', chain "A" and resi   42  and name  N4  and alt '', chain "A" and resi   28  and name  O6  and alt ''
+
+##### [custom geometry ss] http://www.phenix-online.org/pipermail/phenixbb/2014-September/021173.html
+
+#    angle {
+#      atom_selection_1 = chain 'A' and resid 42 and name C4
+#      atom_selection_2 = chain 'A' and resid 42 and name N4
+#      atom_selection_3 = chain 'A' and resid 28 and name O6
+#      angle_ideal = 117.3
+#      sigma = 0.021
+#    }
+
+    elif (dist_angle_candidate == "angle"):
+
+        atom1 = splited[9]
+        if (hasNumbers(atom1) == False): #this_line_is_protein
+          continue
+        
+        write_this = "    angle {\n"
+        f_out.write(write_this)
+        
+        chain_candidate = splited[3]
+        splited_chain_candidate = chain_candidate.split("\"")
+        resi1 = splited[6].strip()
+        atom1 = splited[9]
+        write_this = "      atom_selection_1 = chain \'" + splited_chain_candidate[1] + "\' and resid " + resi1 + " and name " + atom1 + "\n"
+        f_out.write(write_this)
+      
+        chain_candidate = splited[14]
+        splited_chain_candidate = chain_candidate.split("\"")
+        resi2 = splited[17].strip()
+        atom2 = splited[20]
+        write_this = "      atom_selection_2 = chain \'" + splited_chain_candidate[1] + "\' and resid " + resi2 + " and name " + atom2 + "\n"
+        f_out.write(write_this)
+        
+        chain_candidate = splited[25]
+        splited_chain_candidate = chain_candidate.split("\"")
+        resi3 = splited[28].strip()
+        atom3 = splited[31]
+        write_this = "      atom_selection_3 = chain \'" + splited_chain_candidate[1] + "\' and resid " + resi3 + " and name " + atom3 + "\n"
+        f_out.write(write_this)
+        
+        if (atom1 == "C4" and atom2 ==  "N4" and atom3 ==  "O6"): 
+            f_out.write("      angle_ideal = 117.3\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+        elif (atom1 == "C6" and atom2 ==  "O6" and atom3 ==  "N4"):
+            f_out.write("      angle_ideal = 122.8\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+        elif (atom1 == "C2" and atom2 ==  "N3" and atom3 ==  "N1"): 
+            f_out.write("      angle_ideal = 119.1\n") # either 119.1 or 116.3 # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+        elif (atom1 == "C2" and atom2 ==  "N1" and atom3 ==  "N3"):
+            f_out.write("      angle_ideal = 116.3\n") # either 119.1 or 116.3 # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+        elif (atom1 == "C2" and atom2 ==  "O2" and atom3 ==  "N2"):
+            f_out.write("      angle_ideal = 120.7\n") # derived from Oleg slide and tRNA
+        elif (atom1 == "C2" and atom2 ==  "N2" and atom3 ==  "O2"):
+            f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and tRNA
+        
+        '''
+        if (atom1 == "C4" and atom2 ==  "N4" and atom3 ==  "O6"): 
+            f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and tRNA
+        elif (atom1 == "C6" and atom2 ==  "O6" and atom3 ==  "N4"):
+            f_out.write("      angle_ideal = 120.7\n") # derived from Oleg slide and tRNA
+        #elif (atom1 == "C2" and atom2 ==  "N3" and atom3 ==  "N1"): 
+        #    f_out.write("      angle_ideal = 115.3\n") # not defined in Oleg slide but checked w/ tRNA example
+        #elif (atom1 == "C2" and atom2 ==  "N1" and atom3 ==  "N3"): # not sure
+        #    f_out.write("      angle_ideal = 121.1\n") # not defined in Oleg slide but checked w/ tRNA example
+        elif (atom1 == "C2" and atom2 ==  "O2" and atom3 ==  "N2"):
+            f_out.write("      angle_ideal = 122.8\n") # derived from Oleg slide and tRNA
+        elif (atom1 == "C2" and atom2 ==  "N2" and atom3 ==  "O2"):
+            f_out.write("      angle_ideal = 117.3\n") # derived from Oleg slide and tRNA
+        '''
+        
+        f_out.write("      sigma = 0.021\n")
+        
+        write_this = "    }\n"
+        f_out.write(write_this)
+        ############# end of if (dist_angle_candidate == "angle"):
+     
+        
+        
   f_out.write('''  }
 }
 ''')
