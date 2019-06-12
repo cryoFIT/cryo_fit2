@@ -2,7 +2,8 @@
 *pyc
 *~
 #*
-*.DS_Store
+regression/cryo_fit2.input_command.txt
+regression/cryo_fit2.log
 regression/output*
 tutorial/cryo_fit2.input_command.txt
 tutorial/output*
