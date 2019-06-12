@@ -29,9 +29,11 @@ future    : Automatically support Nigel's phenix.eLBOW
 
 
 
-current    : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase). When I used strong_ss for tRNA, cc values tend to be better (both weight_boost = 1 and 50) initially. However, eventually, using strong_ss tends not influence on cc.
+current    : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase).
+             tRNA is the smallest molecule (fastest one to run) but more challenging than L1 stalk.
+	     /home/doonam/research/run/phenix/cryo_fit2/Mg_channel/20_steps_20_boost_strong_ss is promising for protein
 
-currently, custom_geom_ss defines distance only, angle seems to be needed to be define as well.
+
 
 
 05/17/2019: Updated tst2 regression to test short auto-rerun of MD

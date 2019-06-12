@@ -114,8 +114,12 @@ class cryo_fit2_class(object):
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
     
     number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(self.logfile, self.model_name)
+    # tRNA: 1,563
+    # L1 stalk: 3,289
     # Mg channel: 14,940
-    # L1 stalk: ~3,000
+    
+    # number_of_atoms_in_input_pdb seems irrelevant to cc_check_after_every_this_cycle assignment.
+    # but Mg channel with 10k check took 10 days!
     
     cc_check_after_every_this_cycle = ''
     if (model_file_name_only == "tst2_cryo_fit2_model"):
@@ -124,7 +128,7 @@ class cryo_fit2_class(object):
       cc_check_after_every_this_cycle = 4000
     else:
       cc_check_after_every_this_cycle = 1000
-
+  
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
 
     for i in range(100000000): # runs well with cryo_fit2.run_tests

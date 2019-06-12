@@ -245,7 +245,7 @@ def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
     #print "\tcommand: ", command_string
     num_ATOMs = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_atoms_in_input_pdb = int(num_ATOMs[0])
-    write_this = "User input pdb file, " + starting_pdb + ", has "+ str(number_of_atoms_in_input_pdb) + " atoms\n"
+    write_this = "A user input pdb file, " + starting_pdb + ", has "+ str(number_of_atoms_in_input_pdb) + " atoms\n"
     print (write_this)
     logfile.write(write_this)
     return number_of_atoms_in_input_pdb
@@ -556,6 +556,9 @@ geometry_restraints {
       write_this = "    bond {\n"
       f_out.write(write_this)
       
+      write_this = "      action = *add\n"
+      f_out.write(write_this)
+      
       chain_candidate = splited[2]
       splited_chain_candidate = chain_candidate.split("\"")
       resi1 = splited[5].strip()
@@ -567,6 +570,7 @@ geometry_restraints {
       splited_chain_candidate = chain_candidate.split("\"")
       resi2 = splited[16].strip()
       atom2 = splited[19]
+      
       write_this = "      atom_selection_2 = chain \'" + splited_chain_candidate[1] + "\' and resid " + resi2 + " and name " + atom2 + "\n"
       f_out.write(write_this)
       
@@ -624,6 +628,9 @@ geometry_restraints {
         write_this = "    angle {\n"
         f_out.write(write_this)
         
+        write_this = "      action = *add\n"
+        f_out.write(write_this)
+      
         chain_candidate = splited[3]
         splited_chain_candidate = chain_candidate.split("\"")
         resi1 = splited[6].strip()
