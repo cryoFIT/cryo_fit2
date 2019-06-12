@@ -33,7 +33,7 @@ current    : Automatically use sophisticated strong geometry restraints (Oleg's)
              tRNA is the smallest molecule (fastest one to run) but more challenging than L1 stalk.
 	     /home/doonam/research/run/phenix/cryo_fit2/Mg_channel/20_steps_20_boost_strong_ss is promising for protein
 
-here I confirmed that phenix.dynamics distance, angle, bonds moves are independent in each temp step (rather than cumulative)
+here I confirmed that distance, angle, bonds moves from phenix.dynamics are independent from each temperature step (rather than cumulative)
 ...
   temp= 1000.0 dist_moved=  0.20 angles=  2.63 bonds= 0.021
   temp=  900.0 dist_moved=  0.20 angles=  2.46 bonds= 0.020
