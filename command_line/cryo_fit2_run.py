@@ -124,10 +124,12 @@ class cryo_fit2_class(object):
     cc_check_after_every_this_cycle = ''
     if (model_file_name_only == "tst2_cryo_fit2_model"):
       cc_check_after_every_this_cycle = 10
+    elif (number_of_atoms_in_input_pdb < 3000):
+      cc_check_after_every_this_cycle = 2000
     elif (number_of_atoms_in_input_pdb < 5000):
-      cc_check_after_every_this_cycle = 4000
-    else:
       cc_check_after_every_this_cycle = 1000
+    else:
+      cc_check_after_every_this_cycle = 500
   
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
 
