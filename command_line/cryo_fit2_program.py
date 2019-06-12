@@ -88,13 +88,13 @@ record_states = False
     .help     = If True, cryo_fit2 records all states and save it to all_states.pdb. \
                 However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                 If False, cryo_fit2 doesn't record each state of molecular dynamics.
-strong_ss = False
+strong_ss = True
     .type   = bool
     .help   = If True, cryo_fit2 will use stronger sigma (e.g. 0.021) for secondary structure restraints \
               If False, it will use original sigma (e.g. 1)
-sigma = 0.021
+sigma = 0.000001
   .type = float
-  .short_caption = lower this value, the stronger custom made secondary structure restraints
+  .short_caption = The lower this value, the stronger custom made secondary structure restraints. Oleg recommended 0.021
 loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
@@ -253,8 +253,8 @@ Options:
     logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
     #logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
     log.register("logfile", logfile)
-    
-    
+
+
     if (self.params.strong_ss == True):
       write_this = "\nA user turned strong_ss=True\n"
       print (write_this)
@@ -265,11 +265,10 @@ Options:
     
     else:  
       if (self.params.sigma != 0.021):
-        write_this = "\nSpecifying sigma when a user turned strong_ss=False is meaningless. \nExit cryo_fit2 now.\n"
+        write_this = "\nSpecifying the sigma value when a user turned strong_ss=False is meaningless. \nExit cryo_fit2 now.\n"
         print (write_this)
         logfile.write(write_this)
         exit(1)
-        
     
     checked_whether_args_has_eff = check_whether_args_has_eff(args)
     
