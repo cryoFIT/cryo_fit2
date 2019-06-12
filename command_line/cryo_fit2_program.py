@@ -422,6 +422,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                  "_cool_" + str(self.params.cool_rate) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_strong_ss_" + str(self.params.strong_ss) + \
+                 "_weight_boost_" + str(round(self.params.weight_boost,1)) + \
                  "_sigma_" + str(self.params.sigma)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
