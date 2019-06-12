@@ -264,7 +264,7 @@ Options:
       args.append(eff_file_name)
     
     else:  
-      if (self.params.sigma != ''):
+      if (self.params.sigma != 0.021):
         write_this = "\nSpecifying sigma when a user turned strong_ss=False is meaningless. \nExit cryo_fit2 now.\n"
         print (write_this)
         logfile.write(write_this)
