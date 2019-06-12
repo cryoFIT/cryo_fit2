@@ -1,1 +1,0 @@
-phenix.cryo_fit2 /Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/regression/input/tst1_cryo_fit2_model.pdb /Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/regression/input/tst_cryo_fit2_map.ccp4 resolution=4.0 strong_ss=False start_temperature=300 final_temperature=280 cool_rate=10 number_of_steps=100 weight_boost=1.0 record_states=False total_number_of_steps=1000

@@ -516,7 +516,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 
 
 
-def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss):
+def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_from_option):
 ####### reference
 
 #################### DISTANCE
@@ -595,7 +595,14 @@ geometry_restraints {
           f_out.write("      distance_ideal = 2.91\n")
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
-      f_out.write("      sigma = 0.021\n")
+      
+      #f_out.write("      sigma = 0.021\n") # this is the lowest sigma value that Oleg recommended. Below this will be stronger than covalent bonds!!
+      
+      write_this = "      sigma = " + str(sigma_from_option) + "\n"
+      f_out.write(write_this) 
+      
+      
+      
       # /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
       # left bp from 26 to 20, I may need to lower the sigma even to 0.002
       # However, /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
@@ -712,7 +719,7 @@ def show_time(time_start, time_end):
 ############### end of show_time function
 
 
-def write_custom_geometry(logfile, input_model_file_name):
+def write_custom_geometry(logfile, input_model_file_name, sigma):
 
   ######## produce pymol format secondary structure restraints #########
   # I heard that running phenix commandline directly is not ideal.
@@ -731,9 +738,8 @@ def write_custom_geometry(logfile, input_model_file_name):
   input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
   
-  
   ########## rewrite_pymol_ss_to_custom_geometry_ss
-  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name)
+  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma)
   
   return eff_file_name
-########### end of write_custom_geometry(input_model_file_name)
+########### end of write_custom_geometry(input_model_file_name, sigma)

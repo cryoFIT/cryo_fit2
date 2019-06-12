@@ -92,6 +92,9 @@ strong_ss = False
     .type   = bool
     .help   = If True, cryo_fit2 will use stronger sigma (e.g. 0.021) for secondary structure restraints \
               If False, it will use original sigma (e.g. 1)
+sigma = 0.021
+  .type = float
+  .short_caption = lower this value, the stronger custom made secondary structure restraints
 loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
@@ -257,9 +260,16 @@ Options:
       print (write_this)
       logfile.write(write_this)
       
-      #eff_file_name = write_custom_geometry(self.data_manager.get_default_model_name())
-      eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name())
+      eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma)
       args.append(eff_file_name)
+    
+    else:  
+      if (self.params.sigma != ''):
+        write_this = "\nSpecifying sigma when a user turned strong_ss=False is meaningless. \nExit cryo_fit2 now.\n"
+        print (write_this)
+        logfile.write(write_this)
+        exit(1)
+        
     
     checked_whether_args_has_eff = check_whether_args_has_eff(args)
     
@@ -436,6 +446,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
                             + "strong_ss=" + str(self.params.strong_ss) + " " \
+                            + "sigma=" + str(self.params.sigma) + " " \
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
