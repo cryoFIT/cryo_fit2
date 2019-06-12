@@ -441,7 +441,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "cool_rate=" + str(self.params.cool_rate) + " " \
                             + "number_of_steps=" + str(self.params.number_of_steps) + " " \
                             + "weight_boost=" + str(round(self.params.weight_boost,1)) + " " \
-                            + "record_states=" + str(record_states) + " "
+                            + "record_states=" + str(self.params.record_states) + " "
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
