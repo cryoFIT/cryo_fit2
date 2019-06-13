@@ -315,7 +315,5 @@ class cryo_fit2_class(object):
     mv_command_string = "mv " + output_dir_w_CC + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
     
-    #os.mkdir(output_dir_final)
-    
     return output_dir_final
 ############# end of run function
