@@ -311,7 +311,11 @@ class cryo_fit2_class(object):
     output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file)
     if os.path.exists(output_dir_final):
       shutil.rmtree(output_dir_final)
-    os.mkdir(output_dir_final)
+    
+    mv_command_string = "mv " + output_dir_w_CC + " " + output_dir_final
+    libtbx.easy_run.fully_buffered(mv_command_string)
+    
+    #os.mkdir(output_dir_final)
     
     return output_dir_final
 ############# end of run function
