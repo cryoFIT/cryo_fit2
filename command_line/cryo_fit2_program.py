@@ -489,15 +489,14 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
 
     task_obj.validate()
     
-    output_dir_w_CC = task_obj.run()
+    output_dir_final = task_obj.run()
     ############### (end) core cryo_fit2
     
     
     if (self.params.strong_ss == True):
       pymol_ss = input_model_file_name_wo_path + "_ss.pml"
-      mv_command_string = "mv " + pymol_ss + " " + eff_file_name + " " + output_dir_w_CC
+      mv_command_string = "mv " + pymol_ss + " " + eff_file_name + " " + output_dir_final
       libtbx.easy_run.fully_buffered(mv_command_string)
-    
     
     header = "# Geometry restraints used for cryo_fit2\n"
     header += "# %s\n" % date_and_time()
@@ -507,17 +506,15 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         # Stuff for outputting ncs_groups
         #excessive_distance_limit=self.params.ncs.excessive_distance_limit)
         excessive_distance_limit=10)
-    #print ("r:",r)
+
     # this r is same as the RSR resulted .geo file, therefore I may not need to study write_geo(m)=True option
     geometry_restraints_file_name = "used_geometry_restraints.txt"
     geo_file = open(geometry_restraints_file_name, "w")
     geo_file.write(r)
     geo_file.close()
     
-    mv_command_string = "mv " + geometry_restraints_file_name + " " + output_dir_w_CC
-    libtbx.easy_run.fully_buffered(mv_command_string)
-    
-    mv_command_string = "mv " + log_file_name + " " + output_dir_w_CC
+    # clean up
+    mv_command_string = "mv cryo_fit2.input_command.txt " + geometry_restraints_file_name + " " + log_file_name + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
     
     time_total_end = time.time()

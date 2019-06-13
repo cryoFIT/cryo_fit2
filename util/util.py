@@ -51,6 +51,25 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
+def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC):
+    mv_command_string = "phenix.secondary_structure_restraints " + fitted_file_name_w_path
+    libtbx.easy_run.fully_buffered(mv_command_string)
+    
+    splited_fitted_file_name_w_path = fitted_file_name_w_path.split("/")
+    fitted_file_name_wo_path = splited_fitted_file_name_w_path[len(splited_fitted_file_name_w_path)-1]
+  
+    ss_file_name = fitted_file_name_wo_path + "_ss.eff"
+    command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
+    
+    grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    number_of_bp_in_fitted_pdb = int(grepped[0])
+    
+    mv_command_string = "mv " + ss_file_name + " " + output_dir_w_CC
+    libtbx.easy_run.fully_buffered(mv_command_string)
+    
+    return number_of_bp_in_fitted_pdb
+######################## end of def count_bp_in_fitted_file(fitted_file_name_w_path):
+
 
 def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file, weight_boost):
   pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
@@ -727,13 +746,16 @@ def write_custom_geometry(logfile, input_model_file_name, sigma):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "\nCryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce stronger sigma\n"
+  write_this = "\nCryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce stronger sigma\n\n"
   print(write_this)
   logfile.write(write_this)
   
   make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
+  print (make_pymol_ss_restraints)
+  logfile.write(make_pymol_ss_restraints)
   libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
-
+  
+  
   splited_input_model_file_name = input_model_file_name.split("/")
   input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"

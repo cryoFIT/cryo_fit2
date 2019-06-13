@@ -239,10 +239,10 @@ class cryo_fit2_class(object):
     self.model.set_xray_structure(result.xray_structure)
     
     fitted_file_name = model_file_name_only + "_cryo_fit2_fitted.pdb"
-    fitted_file = os.path.join(output_dir_w_CC, fitted_file_name)
+    fitted_file_name_w_path = os.path.join(output_dir_w_CC, fitted_file_name)
     
     ##### this is essential to spit cyro_fitted2 file
-    with open(fitted_file, "w") as f:
+    with open(fitted_file_name_w_path, "w") as f:
       f.write(self.model.model_as_pdb())
     f.close()
     
@@ -264,12 +264,12 @@ class cryo_fit2_class(object):
         write_this = "Restoring original xyz position for a cryo_fit2 fitted atomistic model\n\n"
         print (write_this)
         self.logfile.write(str(write_this))
-        return_to_origin_of_pdb_file(fitted_file, returned[0], returned[1], returned[2], returned[3])
+        return_to_origin_of_pdb_file(fitted_file_name_w_path, returned[0], returned[1], returned[2], returned[3])
     
     
     ########################## <begin> RMSD calculation (reference) cctbx_project/mmtbx/superpose.py
     fixed = self.model_name
-    moving = fitted_file
+    moving = fitted_file_name_w_path
     
     write_this = "\n===== RMSD calculation ====="
     print (write_this)
@@ -295,7 +295,7 @@ class cryo_fit2_class(object):
       quiet=False
     )
     for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
-      write_this = "\n\n===== Aligning %s to %s ====="%(fitted_file, self.model_name)
+      write_this = "\n\n===== Aligning %s to %s ====="%(fitted_file_name_w_path, self.model_name)
       print (write_this)
       self.logfile.write(str(write_this))
       if not self.params.selection_moving:
@@ -306,5 +306,12 @@ class cryo_fit2_class(object):
       self.logfile.write(str(write_this))
     ####################### <end> RMSD calculation ###########################
     
-    return output_dir_w_CC
+    bp_num_in_fitted_file = count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC)
+    
+    output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file)
+    if os.path.exists(output_dir_final):
+      shutil.rmtree(output_dir_final)
+    os.mkdir(output_dir_final)
+    
+    return output_dir_final
 ############# end of run function
