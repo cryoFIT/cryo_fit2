@@ -30,9 +30,10 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_map.ccp4",
     test=os.path.isfile)
   resolution = "resolution=3.6"
+  strong_ss = "strong_ss=False"
   map_weight = "map_weight=0.001" # for faster regression test
   assert (not None in [pdb_file, map_file])
-  cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution, map_weight])
+  cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution, strong_ss, map_weight])
 ############## end of exercise_cryo_fit2()
 
 

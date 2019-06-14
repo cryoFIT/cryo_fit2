@@ -1,6 +1,9 @@
 from __future__ import division, print_function
 from cctbx.uctbx import unit_cell
 from cctbx import xray
+
+import cryo_fit2_run
+
 import iotbx.phil, libtbx
 from iotbx import map_and_model
 from iotbx.xplor import crystal_symmetry_from_map
@@ -71,6 +74,38 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC):
 ######################## end of def count_bp_in_fitted_file(fitted_file_name_w_path):
 
 
+
+
+def determine_optimal_start_temperature(model_inp, map_inp, self, logfile, output_dir, user_map_weight):
+    print ("Cryo_fit2 is determining the optimal start_temperature")
+    self.params.total_number_of_steps = 10000
+    for start_temperature in range (300, 1001, 350):
+        print ("A current trying start_temperature:",start_temperature)
+        self.params.start_temperature = start_temperature
+        
+        output_dir = get_output_dir_name(self)
+        
+        task_obj = cryo_fit2_run.cryo_fit2_class(
+          model             = model_inp,
+          model_name        = self.data_manager.get_default_model_name(),
+          map_inp           = map_inp,
+          params            = self.params,
+          out               = self.logger,
+          map_name          = self.data_manager.get_default_real_map_name(),
+          logfile           = logfile,
+          output_dir        = output_dir,
+          user_map_weight   = user_map_weight,
+          weight_boost      = self.params.weight_boost)
+    
+        task_obj.validate()
+        
+        output_dir_final = task_obj.run()
+        
+    return optimal_start_temperature
+######################### end of determine_optimal_start_temperature
+
+
+
 def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file, weight_boost):
   pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
   f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
@@ -86,6 +121,7 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
   #return self.params.map_weight # 1x~10x of weight_boost were not enough for L1 stalk fitting
   return weight_boost*self.params.map_weight # up to 20x of weight_boost, nucleic acid geometry was ok, 30x broke it
 ######################### end of determine_optimal_weight_by_template
+
 
 
 '''
@@ -108,6 +144,29 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
     return self.params.map_weight
 ######################## end of determine_optimal_weight_as_macro_cycle_RSR()
 '''
+
+
+def get_output_dir_name(self):
+    # rename output_dir
+    output_dir_prefix = self.params.output_dir
+    output_dir = str(output_dir_prefix) + \
+                 "_resolution_" + str(self.params.resolution) + \
+                 "_start_" + str(self.params.start_temperature) + \
+                 "_final_" + str(self.params.final_temperature) + \
+                 "_cool_" + str(self.params.cool_rate) + \
+                 "_step_" + str(self.params.number_of_steps) + \
+                 "_strong_ss_" + str(self.params.strong_ss) + \
+                 "_weight_boost_" + str(round(self.params.weight_boost,1)) + \
+                 "_sigma_" + str(self.params.sigma)
+                 #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
+                 #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
+                 #"_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \
+                 #"_hb_dis_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + \
+                 #"_angle_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff)
+                 #"_bp_planar_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity) + \
+                 #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
+    return output_dir
+########## end of def get_output_dir_name(self)
 
 
 def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file):
@@ -746,7 +805,7 @@ def write_custom_geometry(logfile, input_model_file_name, sigma):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "\nCryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce stronger sigma\n\n"
+  write_this = "\nCryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce a stronger sigma\n\n"
   print(write_this)
   logfile.write(write_this)
   

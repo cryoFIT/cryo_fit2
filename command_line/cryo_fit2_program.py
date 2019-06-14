@@ -50,9 +50,10 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
-start_temperature = 300
+start_temperature = None
   .type = int
-  .short_caption = Starting temperature of annealing in Kelvin
+  .short_caption = Starting temperature of annealing in Kelvin. \
+                   If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 1000.
 final_temperature = 0
   .type = int
   .short_caption = Final temperature of annealing in Kelvin
@@ -64,7 +65,7 @@ number_of_steps = 100
   .short_caption = number of steps in phenix.dynamics
 total_number_of_steps = None
   .type = int
-  .short_caption = total number of steps in phenix.dynamics.\
+  .short_caption = The total number of steps in phenix.dynamics.\
                    If specified, run up to this number of steps no matter what.
 map_weight = None
   .type = float
@@ -81,8 +82,8 @@ output_dir = output
   .short_caption = Output folder PREFIX
 progress_on_screen = True
     .type          = bool
-    .help          = If True, temp=xx dist_moved=xx angles=xx bonds=xx is shown on screen rather than cryo_fit2.log \
-                     If False, temp=xx dist_moved=xx angles=xx bonds=xx is NOT shown on screen, and saved into cryo_fit2.log
+    .help          = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
+                     If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
 record_states = False
     .type     = bool
     .help     = If True, cryo_fit2 records all states and save it to all_states.pdb. \
@@ -90,11 +91,12 @@ record_states = False
                 If False, cryo_fit2 doesn't record each state of molecular dynamics.
 strong_ss = True
     .type   = bool
-    .help   = If True, cryo_fit2 will use stronger sigma (e.g. 0.021) for secondary structure restraints \
-              If False, it will use original sigma (e.g. 1)
+    .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
+              If False, it will use the original sigma (e.g. 1)
 sigma = 0.000001
   .type = float
-  .short_caption = The lower this value, the stronger custom made secondary structure restraints. Oleg recommended 0.021
+  .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
+                   Oleg recommended 0.021 which is the sigma value for covalent bond.
 loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
@@ -174,7 +176,7 @@ Options:
                                A user is recommended NOT to specify this, so that it will be automatically optimized.
                                If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
   
-  start_temperature            (default: 300)
+  start_temperature            If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 1000
   
   final_temperature            (default: 0)
   
@@ -250,8 +252,7 @@ Options:
     
     
     log_file_name = "cryo_fit2.log"
-    logfile = open(log_file_name, "w") # since it is 'w', an existing file with the same name will be erased
-    #logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
+    logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
     log.register("logfile", logfile)
 
 
@@ -263,16 +264,15 @@ Options:
       eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma)
       args.append(eff_file_name)
     
-    else:  
-      if (self.params.sigma != 0.021):
-        write_this = "\nSpecifying the sigma value when a user turned strong_ss=False is meaningless. \nExit cryo_fit2 now.\n"
-        print (write_this)
-        logfile.write(write_this)
-        exit(1)
-    
-    checked_whether_args_has_eff = check_whether_args_has_eff(args)
+    # else:  
+    #   if (self.params.sigma != 0.021):
+    #     write_this = "\nSpecifying the sigma value when a user turned strong_ss=False is meaningless. \nExit cryo_fit2 now.\n"
+    #     print (write_this)
+    #     logfile.write(write_this)
+    #     exit(1)
     
     print ("user entered resolution", str(self.params.resolution))
+    
     print ("start_temperature", str(self.params.start_temperature))
     print ("final_temperature", str(self.params.final_temperature))
     print ("cool_rate", str(self.params.cool_rate))
@@ -337,20 +337,10 @@ Options:
     '''
     ################# <end> Doonam's playground ################
     
-    '''
-    has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
-    if (has_nucleic_acid == True):
-      if (self.params.map_weight == None):
-        self.params.map_weight = 0.4
-      #elif (self.params.map_weight > 0.4): # for 20A saxs derived "cryo-EM" map
-      #  self.params.map_weight = 0.4
-      elif (self.params.map_weight > 5): # for 30A saxs derived "cryo-EM" map
-        self.params.map_weight = 5
-    '''
     
     if (self.params.loose_ss_def == True):
       self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
-      # default is 3.4, the longer this value the loose
+      # default is 3.4, the longer this value, the loose the restraint
       
       self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=30
       # default is 35, this angle doesn't have much effect on bvht RNA structure
@@ -411,26 +401,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.cool_rate = 10
       self.params.number_of_steps = 1
 
-    #"_map_wt_" + str(round(self.params.map_weight,1)) + \
-    # rename output_dir
-    output_dir_prefix = self.params.output_dir
-    output_dir = str(output_dir_prefix) + \
-                 "_resolution_" + str(self.params.resolution) + \
-                 "_start_" + str(self.params.start_temperature) + \
-                 "_final_" + str(self.params.final_temperature) + \
-                 "_cool_" + str(self.params.cool_rate) + \
-                 "_step_" + str(self.params.number_of_steps) + \
-                 "_strong_ss_" + str(self.params.strong_ss) + \
-                 "_weight_boost_" + str(round(self.params.weight_boost,1)) + \
-                 "_sigma_" + str(self.params.sigma)
-                 #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
-                 #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
-                 #"_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \
-                 #"_hb_dis_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + \
-                 #"_angle_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff)
-                 #"_bp_planar_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity) + \
-                 #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
+
 
     ###############  (begin) core cryo_fit2
     user_map_weight = ''
@@ -443,7 +415,13 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n\n")
-     
+    
+    #self.params.start_temperature = determine_optimal_start_temperature(model_inp, map_inp, self, logfile, output_dir, user_map_weight)
+    
+    output_dir = get_output_dir_name(self)
+    
+    ############################# all parameters are determined (either by user or automatic optimization)
+    
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
                             + "strong_ss=" + str(self.params.strong_ss) + " " \
@@ -507,8 +485,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         #excessive_distance_limit=self.params.ncs.excessive_distance_limit)
         excessive_distance_limit=10)
 
-    # this r is same as the RSR resulted .geo file, therefore I may not need to study write_geo(m)=True option
-    geometry_restraints_file_name = "used_geometry_restraints.txt"
+    # this r is same as the RSR resulted .geo file, therefore I don't need to study about write_geo(m)=True option
+    geometry_restraints_file_name = "used_geometry_restraints.geo"
     geo_file = open(geometry_restraints_file_name, "w")
     geo_file.write(r)
     geo_file.close()

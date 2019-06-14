@@ -32,6 +32,8 @@ future    : Automatically support Nigel's phenix.eLBOW
 current    : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase).
              tRNA is the smallest molecule (fastest one to run) but more challenging than L1 stalk.
 	     /home/doonam/research/run/phenix/cryo_fit2/Mg_channel/20_steps_20_boost_strong_ss is promising for protein
+	     
+plan       : if combination works, use Rob's multi threading to automatically explore
 
 
 here I confirmed that distance, angle, bonds moves from phenix.dynamics are independent from each temperature step (rather than cumulative)
