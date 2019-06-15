@@ -57,12 +57,16 @@ start_temperature = 300
 final_temperature = 0
   .type = int
   .short_caption = Final temperature of annealing in Kelvin
-cool_rate = 100
+cool_rate = None
   .type = int
   .short_caption = cooling rate of annealing in Kelvin
 number_of_steps = 100
   .type = int
   .short_caption = number of steps in phenix.dynamics
+number_of_MD_in_each_epoch = 4
+  .type = float
+  .short_caption = An epoch here is different from the one in deep learning. \
+                   Here, the epoch is each iteration of MD from start_temperature to final_temperature.
 total_number_of_steps = None
   .type = int
   .short_caption = The total number of steps in phenix.dynamics.\
@@ -275,6 +279,11 @@ Options:
     
     print ("start_temperature", str(self.params.start_temperature))
     print ("final_temperature", str(self.params.final_temperature))
+    
+    print ("number_of_MD_in_each_epoch", str(self.params.number_of_MD_in_each_epoch))
+    self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
+    
+    
     print ("cool_rate", str(self.params.cool_rate))
     print ("number_of_steps", str(self.params.number_of_steps)) 
     #print ("self.params.loose_ss_def:",self.params.loose_ss_def)

@@ -163,7 +163,7 @@ class cryo_fit2_class(object):
       total_number_of_steps_so_far = total_number_of_steps_so_far + params.number_of_steps*multiply_this
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
-      write_this = "cc after a small MD iteration: " + str(round(cc_after_small_MD, 4)) + "\n"
+      write_this = "cc after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
