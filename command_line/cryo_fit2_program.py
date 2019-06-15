@@ -51,17 +51,17 @@ citation {
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
 start_temperature = 300
-  .type = int
+  .type = float
   .short_caption = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 1000.
 final_temperature = 0
-  .type = int
+  .type = float
   .short_caption = Final temperature of annealing in Kelvin
 number_of_steps = 100
   .type = int
   .short_caption = number of steps in phenix.dynamics
 number_of_MD_in_each_epoch = 4
-  .type = float
+  .type = int
   .short_caption = An epoch here is different from the one in deep learning. \
                    Here, the epoch is each iteration of MD from start_temperature to final_temperature.
 cool_rate = None
@@ -384,8 +384,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.number_of_MD_in_each_epoch = 2
-      #self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
-      #self.params.cool_rate = 10
       self.params.number_of_steps = 1
       self.params.total_number_of_steps = 100
 
@@ -393,7 +391,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.number_of_MD_in_each_epoch = 5
-      #self.params.cool_rate = 10
       self.params.number_of_steps = 1000
       self.params.total_number_of_steps = 2000
 
@@ -402,7 +399,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.number_of_MD_in_each_epoch = 2
-      #self.params.cool_rate = 10
       self.params.number_of_steps = 100
       self.params.total_number_of_steps = 1000
 
@@ -411,12 +407,9 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.number_of_MD_in_each_epoch = 2
-      #self.params.cool_rate = 10
       self.params.number_of_steps = 1
 
-    
     self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
-    
     print ("cool_rate", str(self.params.cool_rate))
 
     ###############  (begin) core cryo_fit2
