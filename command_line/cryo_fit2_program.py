@@ -50,7 +50,7 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
-start_temperature = None
+start_temperature = 300
   .type = int
   .short_caption = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 1000.
