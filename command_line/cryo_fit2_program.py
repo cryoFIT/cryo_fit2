@@ -97,10 +97,11 @@ strong_ss = True
     .type   = bool
     .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
               If False, it will use the original sigma (e.g. 1)
-sigma = 0.000001
+sigma = 0.021
   .type = float
   .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                   Oleg recommended 0.021 which is the sigma value for covalent bond.
+                   Oleg recommended 0.021 which is the sigma value for covalent bond. \
+                   Doo Nam's benchmark (144 combinations of options) shows that 1.00E-06, 0.1, and 0.2 do not make any difference in base_pair keeping
 loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
@@ -279,12 +280,7 @@ Options:
     
     print ("user entered resolution", str(self.params.resolution))
     
-    print ("start_temperature", str(self.params.start_temperature))
-    print ("final_temperature", str(self.params.final_temperature))
-    
-    print ("number_of_MD_in_each_epoch", str(self.params.number_of_MD_in_each_epoch))
-    
-    print ("number_of_steps", str(self.params.number_of_steps)) 
+
     #print ("self.params.loose_ss_def:",self.params.loose_ss_def)
 
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
@@ -408,11 +404,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.final_temperature = 280
       self.params.number_of_MD_in_each_epoch = 2
       self.params.number_of_steps = 1
-
-    self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
-    print ("cool_rate", str(self.params.cool_rate))
-
-    ###############  (begin) core cryo_fit2
+    
+    ########## <begin> Automatic map weight determination
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'', self.params.weight_boost)
@@ -423,6 +416,32 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n\n")
+    ########## <end> Automatic map weight determination
+    
+    '''
+    argstuples = [( self, wx, start_temp, final_temp, cool_rate, number_of_steps), \
+                    ( self, wx*10, start_temp, final_temp, cool_rate, number_of_steps), \
+                    ( self, wx*10, start_temp, final_temp, cool_rate, number_of_steps*10), \
+                    ( self, wx*100, start_temp, final_temp, cool_rate, number_of_steps*100), \
+                    ( self, wx*1000, start_temp, final_temp, cool_rate, number_of_steps*1000) ]
+    for args, res, errstr in easy_mp.multi_core_run( cryo_fit2_by_multi_core, argstuples, 4): # the last argument is nproc
+        #print ('arguments: %s \nresult: %s \nerror: %s\n' %(args, res, errstr))
+        #print ('arguments: %s \n' %(args))
+        print ('arguments: ', str(args))
+    ''' 
+        
+    print ("start_temperature: ", str(self.params.start_temperature))
+    print ("final_temperature: ", str(self.params.final_temperature))
+    print ("number_of_MD_in_each_epoch: ", str(self.params.number_of_MD_in_each_epoch))
+    print ("number_of_steps: ", str(self.params.number_of_steps))
+    
+    self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
+    print ("cool_rate", str(self.params.cool_rate))
+
+    ###############  (begin) core cryo_fit2
+    
+    
+    
     
     #self.params.start_temperature = determine_optimal_start_temperature(model_inp, map_inp, self, logfile, output_dir, user_map_weight)
     
