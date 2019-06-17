@@ -419,6 +419,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     
     '''
+    ###### Although I commit to github as comments, below multi_core works well
+    
     ##################### < begin> explore the optimal combination of parameters
     ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
     ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
@@ -427,21 +429,22 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     if (self.params.start_temperature == None):
       total_combi_num = 0
       start_temperature_array = []
+      number_of_total_cores = know_total_number_of_cores(logfile)
       for start_temperature in range (300, 901, 300):
         total_combi_num = total_combi_num + 1
         start_temperature_array.append(start_temperature)
       
-      number_of_total_cores = know_total_number_of_cores(logfile)
-      
-      argstuples = [( self, self.params, start_temperature_array[0], logfile), \
-                    ( self, self.params, start_temperature_array[1], logfile), \
-                    ( self, self.params, start_temperature_array[2], logfile) ]
-      for args, res, errstr in easy_mp.multi_core_run( cryo_fit2_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
+      argstuples = [( self, self.params, start_temperature_array[0], logfile, user_map_weight), \
+                    ( self, self.params, start_temperature_array[1], logfile, user_map_weight), \
+                    ( self, self.params, start_temperature_array[2], logfile, user_map_weight) ]
+      for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
         print ('arguments: %s \n result: %s \n error: %s\n' %(args, res, errstr))
           #print ('arguments: %s \n' %(args))
           #print ('arguments: ', str(args))
     ##################### < end> explore the optimal combination of parameters
-    #'''
+    '''
+    
+    #STOP()
     
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300

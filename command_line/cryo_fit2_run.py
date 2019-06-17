@@ -122,7 +122,7 @@ class cryo_fit2_class(object):
     # but Mg channel with 10k check took 10 days!
     
     cc_check_after_every_this_cycle = ''
-    if (model_file_name_only == "tst2_cryo_fit2_model"):
+    if ((model_file_name_only == "tst2_cryo_fit2_model") or (model_file_name_only == "model_w_CRYST1.pdb")):
       cc_check_after_every_this_cycle = 10
     elif (number_of_atoms_in_input_pdb < 3000):
       cc_check_after_every_this_cycle = 2000
@@ -163,7 +163,7 @@ class cryo_fit2_class(object):
       total_number_of_steps_so_far = total_number_of_steps_so_far + params.number_of_steps*multiply_this
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
-      write_this = "cc after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 4)) + "\n"
+      write_this = "cc after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       

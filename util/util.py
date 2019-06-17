@@ -78,10 +78,9 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC):
 
 
 
-def cryo_fit2_by_multi_core(self, params, start_temperature_iter, logfile):
+def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfile, user_map_weight):
 
-    print ("params.map_weight:", str(params.map_weight))
-    print ("start_temperature_iter:", str(start_temperature_iter))
+    print ("\nstart_temperature_iter:", str(start_temperature_iter))
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.number_of_MD_in_each_epoch:", str(params.number_of_MD_in_each_epoch))
     
@@ -90,6 +89,11 @@ def cryo_fit2_by_multi_core(self, params, start_temperature_iter, logfile):
     
     print ("params.number_of_steps", str(params.number_of_steps))
     
+    params.total_number_of_steps = 10000 # this multi core run is to explore options
+    print ("params.total_number_of_steps", str(params.total_number_of_steps))
+    
+    print ("params.map_weight:", str(params.map_weight), "\n")
+    
     model_inp = self.data_manager.get_model()
     map_inp = self.data_manager.get_real_map()
 
@@ -97,6 +101,7 @@ def cryo_fit2_by_multi_core(self, params, start_temperature_iter, logfile):
     params.start_temperature = start_temperature_iter
     
     output_dir = get_output_dir_name(self)
+    
     
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
@@ -112,7 +117,7 @@ def cryo_fit2_by_multi_core(self, params, start_temperature_iter, logfile):
     
     task_obj.validate()
     task_obj.run()
-############ end of cryo_fit2_by_multi_core()
+############ end of explore_parameters_by_multi_core()
 
 
 
