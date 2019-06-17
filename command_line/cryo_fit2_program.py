@@ -65,7 +65,7 @@ number_of_MD_in_each_epoch = 4
   .short_caption = An epoch here is different from the one in deep learning. \
                    Here, the epoch is each iteration of MD from start_temperature to final_temperature.
 cool_rate = None
-  .type = int
+  .type = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
 total_number_of_steps = None
   .type = int
