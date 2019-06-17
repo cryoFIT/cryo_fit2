@@ -250,39 +250,6 @@ Options:
 
   # ---------------------------------------------------------------------------
   
-  
-  def cryo_fit2_by_multi_core(self, wx, start_temp, final_temp, number_of_MD_in_each_epoch, number_of_steps):
-    print ("wx", str(wx))
-    print ("start_temperature", str(start_temp))
-    print ("final_temperature", str(final_temp))
-    print ("number_of_MD_in_each_epoch", str(number_of_MD_in_each_epoch))
-    print ("number_of_steps", str(number_of_steps))
-    
-    model = self.data_manager.get_model()
-    map_inp = self.data_manager.get_real_map()
-    
-    
-    # redefine params for below
-    params.start_temperature = start_temp
-    params.final_temperature = final_temp
-    params.number_of_MD_in_each_epoch = number_of_MD_in_each_epoch
-    params.number_of_steps = number_of_steps
-    params.wx = wx
-    
-    task_obj = mmtbx.cryo_fit2.cryo_fit2.cryo_fit2(
-      model             = model,
-      model_name        = self.data_manager.get_default_model_name(),
-      map_inp           = map_inp,
-      params            = self.params,
-      out               = self.logger,
-      map_name          = self.data_manager.get_default_real_map_name(),
-      logfile           = logfile)
-    
-    task_obj.validate()
-    task_obj.run()
-############ end of cryo_fit2_by_multi_core()
-
-
   def run(self):
     time_total_start = time.time()
     args = sys.argv[1:]
@@ -443,7 +410,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'', self.params.weight_boost)
       logfile.write("\nAutomatically optimized map_weight: ")
     else:
-      user_map_weight = self.params.map_weight
+      user_map_weight = self.params.map_weight # this user_map_weight will be used later
       logfile.write("\nUser specified map_weight: ")
     
     logfile.write(str(round(self.params.map_weight,1)))
@@ -465,15 +432,16 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         start_temperature_array.append(start_temperature)
       
       number_of_total_cores = know_total_number_of_cores(logfile)
-      argstuples = [( self, wx, start_temperature_array[0], final_temp, number_of_MD_in_each_epoch, number_of_steps), \
-                    ( self, wx, start_temperature_array[1], final_temp, number_of_MD_in_each_epoch, number_of_steps), \
-                    ( self, wx, start_temperature_array[2], final_temp, number_of_MD_in_each_epoch, number_of_steps*10) ]
+      
+      argstuples = [( self, self.params, start_temperature_array[0], logfile), \
+                    ( self, self.params, start_temperature_array[1], logfile), \
+                    ( self, self.params, start_temperature_array[2], logfile) ]
       for args, res, errstr in easy_mp.multi_core_run( cryo_fit2_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
-        print ('arguments: %s \nresult: %s \nerror: %s\n' %(args, res, errstr))
+        print ('arguments: %s \n result: %s \n error: %s\n' %(args, res, errstr))
           #print ('arguments: %s \n' %(args))
           #print ('arguments: ', str(args))
     ##################### < end> explore the optimal combination of parameters
-    '''
+    #'''
     
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300

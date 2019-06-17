@@ -4,6 +4,9 @@ from cctbx import xray
 
 import cryo_fit2_run
 
+import os, platform, subprocess
+#from subprocess import check_output, Popen, PIPE
+
 import iotbx.phil, libtbx
 from iotbx import map_and_model
 from iotbx.xplor import crystal_symmetry_from_map
@@ -12,7 +15,7 @@ from libtbx import group_args
 from libtbx.utils import Sorry
 from libtbx.utils import null_out
 
-import mmtbx.utils, os
+import mmtbx.utils
 from mmtbx.dynamics import simulated_annealing as sa
 from mmtbx.refinement.real_space import weight
 
@@ -75,34 +78,41 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC):
 
 
 
+def cryo_fit2_by_multi_core(self, params, start_temperature_iter, logfile):
 
-def determine_optimal_start_temperature(model_inp, map_inp, self, logfile, output_dir, user_map_weight):
-    print ("Cryo_fit2 is determining the optimal start_temperature")
-    self.params.total_number_of_steps = 10000
-    for start_temperature in range (300, 1001, 350):
-        print ("A current trying start_temperature:",start_temperature)
-        self.params.start_temperature = start_temperature
-        
-        output_dir = get_output_dir_name(self)
-        
-        task_obj = cryo_fit2_run.cryo_fit2_class(
-          model             = model_inp,
-          model_name        = self.data_manager.get_default_model_name(),
-          map_inp           = map_inp,
-          params            = self.params,
-          out               = self.logger,
-          map_name          = self.data_manager.get_default_real_map_name(),
-          logfile           = logfile,
-          output_dir        = output_dir,
-          user_map_weight   = user_map_weight,
-          weight_boost      = self.params.weight_boost)
+    print ("params.map_weight:", str(params.map_weight))
+    print ("start_temperature_iter:", str(start_temperature_iter))
+    print ("params.final_temperature:", str(params.final_temperature))
+    print ("params.number_of_MD_in_each_epoch:", str(params.number_of_MD_in_each_epoch))
     
-        task_obj.validate()
-        
-        output_dir_final = task_obj.run()
-        
-    return optimal_start_temperature
-######################### end of determine_optimal_start_temperature
+    params.cool_rate = (start_temperature_iter-params.final_temperature)/(params.number_of_MD_in_each_epoch-1)
+    print ("params.cool_rate", str(params.cool_rate))
+    
+    print ("params.number_of_steps", str(params.number_of_steps))
+    
+    model_inp = self.data_manager.get_model()
+    map_inp = self.data_manager.get_real_map()
+
+    # redefine params for below
+    params.start_temperature = start_temperature_iter
+    
+    output_dir = get_output_dir_name(self)
+    
+    task_obj = cryo_fit2_run.cryo_fit2_class(
+      model             = model_inp,
+      model_name        = self.data_manager.get_default_model_name(),
+      map_inp           = map_inp,
+      params            = self.params,
+      out               = self.logger,
+      map_name          = self.data_manager.get_default_real_map_name(),
+      logfile           = logfile,
+      output_dir        = output_dir,
+      user_map_weight   = user_map_weight,
+      weight_boost      = self.params.weight_boost)
+    
+    task_obj.validate()
+    task_obj.run()
+############ end of cryo_fit2_by_multi_core()
 
 
 
@@ -153,7 +163,7 @@ def get_output_dir_name(self):
                  "_resolution_" + str(self.params.resolution) + \
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
-                 "_cool_" + str(round(self.params.cool_rate,1)) + \
+                 "_number_of_MD_in_each_epoch_" + str(self.params.number_of_MD_in_each_epoch) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_strong_ss_" + str(self.params.strong_ss) + \
                  "_weight_boost_" + str(round(self.params.weight_boost,1)) + \
