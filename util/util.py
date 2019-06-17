@@ -253,6 +253,7 @@ def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
 
 
+
 def know_how_much_map_origin_moved(map_file_name):
     print ("#### Know how much map origin moved ####")
     
@@ -328,6 +329,28 @@ def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
     logfile.write(write_this)
     return number_of_atoms_in_input_pdb
 ################# end of know_number_of_atoms_in_input_pdb()
+
+
+def know_total_number_of_cores(logfile):
+    if ((platform.system() != "Darwin") and (platform.system() != "Linux")):
+        color_print ("User's computer's operating system could be windows")
+        number_of_total_cores = 1
+        return number_of_total_cores
+        
+    number_of_total_cores = '' # just initial value
+    if (platform.system() == "Darwin"):
+        command_string = "sysctl -n hw.ncpu "
+        number_of_total_cores = subprocess.check_output(command_string, stderr=subprocess.STDOUT,shell=True)
+    elif (platform.system() == "Linux"):
+        command_string = "nproc"
+        number_of_total_cores = subprocess.check_output(command_string, stderr=subprocess.STDOUT,shell=True)
+    else: # maybe Windows
+        number_of_total_cores = 2
+    
+    print ("\tUser's computer's operating system: " + platform.system(), "\n")
+    return number_of_total_cores
+######### end of know_total_number_of_cores function
+
 
 
 def line_prepender(filename, line):

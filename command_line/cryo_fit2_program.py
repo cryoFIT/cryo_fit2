@@ -50,7 +50,7 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
-start_temperature = 300
+start_temperature = None
   .type = float
   .short_caption = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 1000.
@@ -249,6 +249,40 @@ Options:
       raise Sorry("Map resolution is required. A user can get the resolution either by EMDB reported value or by running phenix.mtriage. Type \"phenix.cryo_fit2\" to know minimally required options")
 
   # ---------------------------------------------------------------------------
+  
+  
+  def cryo_fit2_by_multi_core(self, wx, start_temp, final_temp, number_of_MD_in_each_epoch, number_of_steps):
+    print ("wx", str(wx))
+    print ("start_temperature", str(start_temp))
+    print ("final_temperature", str(final_temp))
+    print ("number_of_MD_in_each_epoch", str(number_of_MD_in_each_epoch))
+    print ("number_of_steps", str(number_of_steps))
+    
+    model = self.data_manager.get_model()
+    map_inp = self.data_manager.get_real_map()
+    
+    
+    # redefine params for below
+    params.start_temperature = start_temp
+    params.final_temperature = final_temp
+    params.number_of_MD_in_each_epoch = number_of_MD_in_each_epoch
+    params.number_of_steps = number_of_steps
+    params.wx = wx
+    
+    task_obj = mmtbx.cryo_fit2.cryo_fit2.cryo_fit2(
+      model             = model,
+      model_name        = self.data_manager.get_default_model_name(),
+      map_inp           = map_inp,
+      params            = self.params,
+      out               = self.logger,
+      map_name          = self.data_manager.get_default_real_map_name(),
+      logfile           = logfile)
+    
+    task_obj.validate()
+    task_obj.run()
+############ end of cryo_fit2_by_multi_core()
+
+
   def run(self):
     time_total_start = time.time()
     args = sys.argv[1:]
@@ -280,9 +314,6 @@ Options:
     
     print ("user entered resolution", str(self.params.resolution))
     
-
-    #print ("self.params.loose_ss_def:",self.params.loose_ss_def)
-
     print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
@@ -405,6 +436,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.number_of_MD_in_each_epoch = 2
       self.params.number_of_steps = 1
     
+    
     ########## <begin> Automatic map weight determination
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
@@ -418,18 +450,35 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write("\n\n")
     ########## <end> Automatic map weight determination
     
+    
     '''
-    argstuples = [( self, wx, start_temp, final_temp, cool_rate, number_of_steps), \
-                    ( self, wx*10, start_temp, final_temp, cool_rate, number_of_steps), \
-                    ( self, wx*10, start_temp, final_temp, cool_rate, number_of_steps*10), \
-                    ( self, wx*100, start_temp, final_temp, cool_rate, number_of_steps*100), \
-                    ( self, wx*1000, start_temp, final_temp, cool_rate, number_of_steps*1000) ]
-    for args, res, errstr in easy_mp.multi_core_run( cryo_fit2_by_multi_core, argstuples, 4): # the last argument is nproc
-        #print ('arguments: %s \nresult: %s \nerror: %s\n' %(args, res, errstr))
-        #print ('arguments: %s \n' %(args))
-        print ('arguments: ', str(args))
-    ''' 
-        
+    ##################### < begin> explore the optimal combination of parameters
+    ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
+    ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
+    ## final_temperature is fixed as 0
+    ## sigma is fixed as 0.1
+    if (self.params.start_temperature == None):
+      total_combi_num = 0
+      start_temperature_array = []
+      for start_temperature in range (300, 901, 300):
+        total_combi_num = total_combi_num + 1
+        start_temperature_array.append(start_temperature)
+      
+      number_of_total_cores = know_total_number_of_cores(logfile)
+      argstuples = [( self, wx, start_temperature_array[0], final_temp, number_of_MD_in_each_epoch, number_of_steps), \
+                    ( self, wx, start_temperature_array[1], final_temp, number_of_MD_in_each_epoch, number_of_steps), \
+                    ( self, wx, start_temperature_array[2], final_temp, number_of_MD_in_each_epoch, number_of_steps*10) ]
+      for args, res, errstr in easy_mp.multi_core_run( cryo_fit2_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
+        print ('arguments: %s \nresult: %s \nerror: %s\n' %(args, res, errstr))
+          #print ('arguments: %s \n' %(args))
+          #print ('arguments: ', str(args))
+    ##################### < end> explore the optimal combination of parameters
+    '''
+    
+    if (self.params.start_temperature == None):
+      self.params.start_temperature = 300
+    
+    ###############  (begin) core cryo_fit2    
     print ("start_temperature: ", str(self.params.start_temperature))
     print ("final_temperature: ", str(self.params.final_temperature))
     print ("number_of_MD_in_each_epoch: ", str(self.params.number_of_MD_in_each_epoch))
@@ -437,24 +486,19 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
     print ("cool_rate", str(self.params.cool_rate))
-
-    ###############  (begin) core cryo_fit2
-    
-    
-    
-    
-    #self.params.start_temperature = determine_optimal_start_temperature(model_inp, map_inp, self, logfile, output_dir, user_map_weight)
     
     output_dir = get_output_dir_name(self)
     
     ############################# all parameters are determined (either by user or automatic optimization)
     
-    cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " + self.data_manager.get_default_real_map_name() + " " \
+    cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " \
+                            + self.data_manager.get_default_real_map_name() + " " \
                             + "resolution=" + str(self.params.resolution) + " " \
                             + "strong_ss=" + str(self.params.strong_ss) + " " \
                             + "sigma=" + str(self.params.sigma) + " " \
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
+                            + "number_of_MD_in_each_epoch=" + str(self.params.number_of_MD_in_each_epoch) + " " \
                             + "cool_rate=" + str(round(self.params.cool_rate,1)) + " " \
                             + "number_of_steps=" + str(self.params.number_of_steps) + " " \
                             + "weight_boost=" + str(round(self.params.weight_boost,1)) + " " \
