@@ -153,7 +153,7 @@ def get_output_dir_name(self):
                  "_resolution_" + str(self.params.resolution) + \
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
-                 "_cool_" + str(self.params.cool_rate) + \
+                 "_cool_" + str(round(self.params.cool_rate,1)) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_strong_ss_" + str(self.params.strong_ss) + \
                  "_weight_boost_" + str(round(self.params.weight_boost,1)) + \

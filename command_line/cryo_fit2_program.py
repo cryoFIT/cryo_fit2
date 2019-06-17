@@ -455,7 +455,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "sigma=" + str(self.params.sigma) + " " \
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
-                            + "cool_rate=" + str(self.params.cool_rate) + " " \
+                            + "cool_rate=" + str(round(self.params.cool_rate,1)) + " " \
                             + "number_of_steps=" + str(self.params.number_of_steps) + " " \
                             + "weight_boost=" + str(round(self.params.weight_boost,1)) + " " \
                             + "record_states=" + str(self.params.record_states) + " "
