@@ -222,6 +222,7 @@ class cryo_fit2_class(object):
           break
 ######################### <end> iterate until cryo_fit2 derived cc saturates
     
+    
     cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
     write_this = "\n\ncc after cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
     print('%s' %(write_this))
@@ -306,7 +307,7 @@ class cryo_fit2_class(object):
       self.logfile.write(str(write_this))
     ####################### <end> RMSD calculation ###########################
     
-    bp_num_in_fitted_file = count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC)
+    bp_num_in_fitted_file = count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
     
     output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file)
     if os.path.exists(output_dir_final):

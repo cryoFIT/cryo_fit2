@@ -50,6 +50,9 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
+explore_parameters = False
+  .type = bool
+  .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.
 start_temperature = None
   .type = float
   .short_caption = Starting temperature of annealing in Kelvin. \
@@ -379,7 +382,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.final_temperature = 280
       self.params.number_of_MD_in_each_epoch = 2
       self.params.number_of_steps = 1
-      self.params.total_number_of_steps = 100
+      self.params.total_number_of_steps = 50
 
     elif (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
@@ -418,19 +421,28 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ########## <end> Automatic map weight determination
     
     
-    '''
-    ###### Although I commit to github as comments, below multi_core works well
     
-    ##################### < begin> explore the optimal combination of parameters
-    ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
-    ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
-    ## final_temperature is fixed as 0
-    ## sigma is fixed as 0.1
-    if (self.params.start_temperature == None):
+    if (self.params.explore_parameters == True):
+    ####################### < begin> Explore the optimal combination of parameters
+      ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
+      ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
+      ## final_temperature is fixed as 0
+      ## sigma is fixed as 0.1
+      if (self.params.start_temperature != None):
+        # save a user entered value now
+        user_start_temperature = self.params.start_temperature
+      
+      if (os.path.isdir("parameters_exploration") == True):
+        shutil.rmtree("parameters_exploration")
+      os.mkdir("parameters_exploration")
+      
       total_combi_num = 0
       start_temperature_array = []
       number_of_total_cores = know_total_number_of_cores(logfile)
       for start_temperature in range (300, 901, 300):
+        write_this = "Cryo_fit2 will explore " + str(start_temperature) + " start_temperature\n"
+        logfile.write(write_this)
+        
         total_combi_num = total_combi_num + 1
         start_temperature_array.append(start_temperature)
       
@@ -438,12 +450,18 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                     ( self, self.params, start_temperature_array[1], logfile, user_map_weight), \
                     ( self, self.params, start_temperature_array[2], logfile, user_map_weight) ]
       for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
-        print ('arguments: %s \n result: %s \n error: %s\n' %(args, res, errstr))
+          #print ('arguments: %s \n result: %s \n error: %s\n' %(args, res, errstr))
           #print ('arguments: %s \n' %(args))
-          #print ('arguments: ', str(args))
-    ##################### < end> explore the optimal combination of parameters
-    '''
-    
+          print ('Arguments: ', str(args))
+      write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " number of MD parameter combinations\n"
+      logfile.write(write_this)
+      
+      if (self.params.start_temperature != None):
+        # override self.params.start_temperature with a user entered value
+        self.params.start_temperature = user_start_temperature
+        
+    ####################### < end> explore the optimal combination of parameters
+  
     #STOP()
     
     if (self.params.start_temperature == None):

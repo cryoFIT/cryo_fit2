@@ -57,21 +57,28 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
-def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC):
-    mv_command_string = "phenix.secondary_structure_restraints " + fitted_file_name_w_path
-    libtbx.easy_run.fully_buffered(mv_command_string)
+def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
+    starting_dir = os.getcwd()
+    
+    os.chdir(output_dir_w_CC)
     
     splited_fitted_file_name_w_path = fitted_file_name_w_path.split("/")
     fitted_file_name_wo_path = splited_fitted_file_name_w_path[len(splited_fitted_file_name_w_path)-1]
+    
+    command_string = "phenix.secondary_structure_restraints " + fitted_file_name_wo_path
+    logfile.write(command_string+"\n")
+    print (command_string+"\n\n")
+    libtbx.easy_run.fully_buffered(command_string)
+    
   
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
-    
+    print (command_string+"\n")
+    logfile.write(command_string+"\n\n")
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
     
-    mv_command_string = "mv " + ss_file_name + " " + output_dir_w_CC
-    libtbx.easy_run.fully_buffered(mv_command_string)
+    os.chdir(starting_dir)
     
     return number_of_bp_in_fitted_pdb
 ######################## end of def count_bp_in_fitted_file(fitted_file_name_w_path):
@@ -79,7 +86,7 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC):
 
 
 def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfile, user_map_weight):
-
+    
     print ("\nstart_temperature_iter:", str(start_temperature_iter))
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.number_of_MD_in_each_epoch:", str(params.number_of_MD_in_each_epoch))
@@ -89,7 +96,9 @@ def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfi
     
     print ("params.number_of_steps", str(params.number_of_steps))
     
-    params.total_number_of_steps = 10000 # this multi core run is to explore options
+    #params.total_number_of_steps = 10000 # this multi core run is to explore options
+    params.total_number_of_steps = 30 # temporary for development
+    
     print ("params.total_number_of_steps", str(params.total_number_of_steps))
     
     print ("params.map_weight:", str(params.map_weight), "\n")
@@ -116,7 +125,14 @@ def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfi
       weight_boost      = self.params.weight_boost)
     
     task_obj.validate()
-    task_obj.run()
+    output_dir_final = task_obj.run()
+    
+    command_string = "mv " + str(output_dir_final) + " parameters_exploration"
+    logfile.write(command_string)
+    print ("command:", command_string)
+    
+    libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    
 ############ end of explore_parameters_by_multi_core()
 
 
