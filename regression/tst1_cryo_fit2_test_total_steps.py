@@ -32,7 +32,7 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   resolution = "resolution=4"
   strong_ss = "strong_ss=False"
   explore = "explore=False"
-  total_steps = "total_steps=1000"
+  total_steps = "total_steps=300"
   start_temperature = "start_temperature=300"
   final_temperature = "final_temperature=280"
   number_of_MD_in_each_epoch = "number_of_MD_in_each_epoch = 2"

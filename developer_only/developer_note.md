@@ -60,7 +60,7 @@ here I confirmed that distance, angle, bonds moves from phenix.dynamics are inde
 
 05/10/2019: Fine-tuneed default parameters (decrease number_of_steps, increase cool_rate) to better maintain starting geometry. Seems to work for L1_stalk
 
-05/04/2019: Added a new option: total_number_of_steps
+05/04/2019: Added a new option: total_steps
 
 05/02/2019: Automatically re-run cryo_fit2 until cc becomes a plateau
 

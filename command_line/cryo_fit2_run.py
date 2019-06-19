@@ -52,6 +52,7 @@ class cryo_fit2_class(object):
         models = [self.model], map_inps=[self.map_inp])
   
   def run(self):
+    
     hierarchy = self.model.get_hierarchy()
     map_data, grid_unit_cell = None, None
     # sanity check for map and model
@@ -94,7 +95,6 @@ class cryo_fit2_class(object):
     
     cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
     write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n\n"
-    
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
     

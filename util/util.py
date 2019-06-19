@@ -116,15 +116,10 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     logfile.write(command_string+"\n\n")
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
-    print ("grepped:",grepped)
-    print ("number_of_bp_in_fitted_pdb:",number_of_bp_in_fitted_pdb)
-    #STOP()
     os.chdir(starting_dir)
     
     return number_of_bp_in_fitted_pdb
 ######################## end of def count_bp_in_fitted_file(fitted_file_name_w_path):
-
-
 
 
 
@@ -178,25 +173,26 @@ def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfi
     print ("params.number_of_MD_in_each_epoch:", str(params.number_of_MD_in_each_epoch))
     
     params.cool_rate = (start_temperature_iter-params.final_temperature)/(params.number_of_MD_in_each_epoch-1)
-    print ("params.cool_rate", str(params.cool_rate))
+    print ("params.cool_rate:", str(params.cool_rate))
     
-    print ("params.map_weight:", str(params.map_weight), "\n")
-    print ("params.number_of_steps", str(params.number_of_steps))
+    print ("params.map_weight:", str(round(params.map_weight,2)))
+    print ("params.number_of_steps:", str(params.number_of_steps))
     
-    #params.total_number_of_steps = 10000 # this multi core run is to explore options
-    params.total_number_of_steps = 30 # temporary for development
+    #params.total_steps = 10000 # this multi core run is to explore options
+    params.total_steps = 30 # temporary for development
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
-      params.total_number_of_steps = 30 # for regression only
-    print ("params.total_number_of_steps", str(params.total_number_of_steps))
+      params.total_steps = 30 # for regression only
+    print ("params.total_steps:", str(params.total_steps))
+
     
     model_inp = self.data_manager.get_model()
     map_inp = self.data_manager.get_real_map()
 
-    # Redefine params for below cryo_fit2 run
+    # Re-assign params for below cryo_fit2 run
     params.start_temperature = start_temperature_iter
     
-    output_dir = get_output_dir_name(self)
+    init_output_dir = get_output_dir_name(self)
     
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
@@ -206,13 +202,13 @@ def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfi
       out               = self.logger,
       map_name          = self.data_manager.get_default_real_map_name(),
       logfile           = logfile,
-      output_dir        = output_dir,
+      output_dir        = init_output_dir,
       user_map_weight   = user_map_weight,
       weight_boost      = self.params.weight_boost)
     
     task_obj.validate()
-    output_dir_final = task_obj.run()
     
+    output_dir_final = task_obj.run()
     splited = output_dir_final.split("_bp_")
     bp = splited[len(splited)-1]
     
@@ -241,7 +237,7 @@ def extract_the_best_cc_parameters(logfile):
     if (os.path.isdir("parameters_exploration/bp_kept") == True):
         os.chdir("parameters_exploration/bp_kept")
     else:
-        write_this = "There is no base pairs in this user given model file.\n Since there is no base pair to maintain during MD, run cryo_fit2 with explore_parameters=False\n"
+        write_this = "There is no base pairs in this user given model file.\nSince there is no base pair to maintain during MD, run cryo_fit2 with explore_parameters=False\n"
         logfile.write(write_this)
         print (write_this)
         exit(1)

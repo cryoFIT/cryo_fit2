@@ -1,0 +1,28 @@
+# These parameters are suitable for use in e.g. phenix.real_space_refine
+# or geometry_minimization. To use them in phenix.refine add 
+# 'refinement.' if front of pdb_interpretation.
+pdb_interpretation {
+  secondary_structure {
+    nucleic_acid {
+      base_pair {
+        base1 = chain 'A' and resid 2
+        base2 = chain 'A' and resid 71
+        saenger_class = 19
+      }
+      base_pair {
+        base1 = chain 'A' and resid 1
+        base2 = chain 'A' and resid 72
+        saenger_class = 19
+      }
+      stacking_pair {
+        base1 = chain 'A' and resid 1
+        base2 = chain 'A' and resid 2
+      }
+      stacking_pair {
+        base1 = chain 'A' and resid 71
+        base2 = chain 'A' and resid 72
+      }
+    }
+    enabled = True
+  }
+}

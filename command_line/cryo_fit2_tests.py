@@ -76,7 +76,7 @@ if (__name__ == "__main__") :
     
     
     
-    '''
+    #'''
     ############# test 4
     regression_path = os.path.join(cryo_fit2_repository_dir,
                                      'regression')
@@ -91,7 +91,7 @@ if (__name__ == "__main__") :
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
     libtbx.easy_run.fully_buffered(rm_command_string)
-    '''
+    #'''
     
     ############# test 5
     regression_path = os.path.join(cryo_fit2_repository_dir,

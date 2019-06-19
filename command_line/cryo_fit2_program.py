@@ -53,6 +53,9 @@ include scope libtbx.phil.interface.tracking_params
 devel = False
     .type   = bool
     .help   = If True, run quickly only to check sanity
+explore = True
+  .type = bool
+  .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
@@ -62,9 +65,6 @@ loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
               If False, use Oleg's original strict definition. 
-explore = False
-  .type = bool
-  .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.
 start_temperature = None
   .type = float
   .short_caption = Starting temperature of annealing in Kelvin. \
@@ -422,7 +422,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       ## final_temperature is fixed as 0
       ## sigma is fixed as 0.1
       bp_cutoff = bp_in_a_user_pdb_file * 0.95
-      write_this = "bp_cutoff from a user pdb file:" + str(round(bp_cutoff,1)) + "\n"
+      write_this = "bp_cutoff from a user pdb file: " + str(round(bp_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
       
@@ -437,7 +437,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff)
       
       number_of_total_cores = know_total_number_of_cores(logfile)
-      for args, res, errstr in easy_mp.multi_core_run( explore_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
+      for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
           print ('Result (bp): %s ' %(res)) # well returned correct bp
           #print ('Arguments: ', str(args)) # "Arguments:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           #print ('Arguments: %s' %(args)) # "TypeError: not all arguments converted during string formatting"
