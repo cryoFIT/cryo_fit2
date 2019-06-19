@@ -29,18 +29,13 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   map_file = libtbx.env.find_in_repositories(
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_helix.ccp4",
     test=os.path.isfile)
-  resolution = "resolution=4"
+  resolution = "resolution=3"
   strong_ss = "strong_ss=True"
-  explore = "explore=False"
-  total_steps = "total_steps=1000"
-  start_temperature = "start_temperature=300"
-  final_temperature = "final_temperature=280"
-  number_of_MD_in_each_epoch = "number_of_MD_in_each_epoch = 2"
-  number_of_steps = "number_of_steps=50"
+  explore = "explore=True"
+  total_steps = "total_steps=100"
   assert (not None in [pdb_file, map_file])
   cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, \
-                                  args=[pdb_file, map_file, resolution, start_temperature, final_temperature, \
-                                        number_of_MD_in_each_epoch, number_of_steps, strong_ss, explore, \
+                                  args=[pdb_file, map_file, resolution, strong_ss, explore,\
                                         total_steps])
 ############## end of exercise_cryo_fit2()
 

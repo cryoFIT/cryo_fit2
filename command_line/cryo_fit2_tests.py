@@ -24,13 +24,13 @@ if (__name__ == "__main__") :
       regression_path = regression_path + splited[i] + "/"
 
 
-    ############# test 1, simplest biomolecule with total_number_of_steps ###############
+    ############# test 1, simplest biomolecule with total_steps ###############
     regression_path = os.path.join(cryo_fit2_repository_dir,
                                      'regression')
     print "regression_path:", regression_path
     os.chdir(regression_path)
 
-    command_string = "python tst1_cryo_fit2_test_total_number_of_steps.py" % locals()
+    command_string = "python tst1_cryo_fit2_test_total_steps.py" % locals()
     print "command_string:", command_string
     rc = libtbx.easy_run.call(command=command_string)
     assert rc==0 # make sure there is no error with this test
@@ -73,3 +73,38 @@ if (__name__ == "__main__") :
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
     libtbx.easy_run.fully_buffered(rm_command_string)
+    
+    
+    
+    '''
+    ############# test 4
+    regression_path = os.path.join(cryo_fit2_repository_dir,
+                                     'regression')
+    print "regression_path:", regression_path
+    os.chdir(regression_path)
+
+    command_string = "python tst4_cryo_fit2_test_parameters_exploration_RNA.py" % locals()
+    print "command_string:", command_string
+    rc = libtbx.easy_run.call(command=command_string)
+    assert rc==0 # make sure there is no error with this test
+    
+    # remove no longer needed folder and input_command file
+    rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
+    libtbx.easy_run.fully_buffered(rm_command_string)
+    '''
+    
+    ############# test 5
+    regression_path = os.path.join(cryo_fit2_repository_dir,
+                                     'regression')
+    print "regression_path:", regression_path
+    os.chdir(regression_path)
+
+    command_string = "python tst5_cryo_fit2_test_parameters_exploration_protein.py" % locals()
+    print "command_string:", command_string
+    rc = libtbx.easy_run.call(command=command_string)
+    assert rc==0 # make sure there is no error with this test
+    
+    # remove no longer needed folder and input_command file
+    rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
+    libtbx.easy_run.fully_buffered(rm_command_string)
+    

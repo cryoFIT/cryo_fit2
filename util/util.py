@@ -4,8 +4,7 @@ from cctbx import xray
 
 import cryo_fit2_run
 
-import os, platform, subprocess
-#from subprocess import check_output, Popen, PIPE
+import glob, os, platform, subprocess
 
 import iotbx.phil, libtbx
 from iotbx import map_and_model
@@ -18,6 +17,7 @@ from libtbx.utils import null_out
 import mmtbx.utils
 from mmtbx.dynamics import simulated_annealing as sa
 from mmtbx.refinement.real_space import weight
+from mmtbx.superpose import *
 
 import shutil
 
@@ -33,6 +33,47 @@ def calculate_cc(map_data, model, resolution):
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_cc function
 
+
+def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/mmtbx/superpose.py
+    fixed = self.model_name
+    moving = fitted_file_name_w_path
+    
+    write_this = "\n===== RMSD calculation ====="
+    print (write_this)
+    self.logfile.write(str(write_this))
+    # The fixed model can only contain a single model.
+    # It will raise an Exception if there is more than one!
+    fixed = SuperposePDB(
+      fixed,
+      selection=self.params.selection_fixed,
+      preset=self.params.selection_fixed_preset,
+      log=None,
+      quiet=False,
+      desc=fixed
+    )
+    
+    # The moving pdb can contain many models. These will each be aligned to the
+    # fixed model and output as a separate file...
+    moving_args = dict(
+      selection=self.params.selection_moving,
+      preset=self.params.selection_moving_preset,
+      desc=moving,
+      log=None,
+      quiet=False
+    )
+    for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
+      write_this = "\n\n===== Aligning %s to %s ====="%(fitted_file_name_w_path, self.model_name)
+      print (write_this)
+      self.logfile.write(str(write_this))
+      if not self.params.selection_moving:
+        moving.selectomatic(fixed)
+      rmsd, lsq = moving.superpose(fixed)
+      write_this = "\n\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
+      print (write_this)
+      self.logfile.write(str(write_this))
+############ def calculate_RMSD(self):
+
+    
 
 def check_whether_args_has_eff(args):
   for i in range(len(args)):
@@ -59,7 +100,6 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 
 def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     starting_dir = os.getcwd()
-    
     os.chdir(output_dir_w_CC)
     
     splited_fitted_file_name_w_path = fitted_file_name_w_path.split("/")
@@ -70,14 +110,15 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     print (command_string+"\n\n")
     libtbx.easy_run.fully_buffered(command_string)
     
-  
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
     print (command_string+"\n")
     logfile.write(command_string+"\n\n")
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
-    
+    print ("grepped:",grepped)
+    print ("number_of_bp_in_fitted_pdb:",number_of_bp_in_fitted_pdb)
+    #STOP()
     os.chdir(starting_dir)
     
     return number_of_bp_in_fitted_pdb
@@ -85,55 +126,6 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
 
 
 
-def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfile, user_map_weight):
-    
-    print ("\nstart_temperature_iter:", str(start_temperature_iter))
-    print ("params.final_temperature:", str(params.final_temperature))
-    print ("params.number_of_MD_in_each_epoch:", str(params.number_of_MD_in_each_epoch))
-    
-    params.cool_rate = (start_temperature_iter-params.final_temperature)/(params.number_of_MD_in_each_epoch-1)
-    print ("params.cool_rate", str(params.cool_rate))
-    
-    print ("params.number_of_steps", str(params.number_of_steps))
-    
-    #params.total_number_of_steps = 10000 # this multi core run is to explore options
-    params.total_number_of_steps = 30 # temporary for development
-    
-    print ("params.total_number_of_steps", str(params.total_number_of_steps))
-    
-    print ("params.map_weight:", str(params.map_weight), "\n")
-    
-    model_inp = self.data_manager.get_model()
-    map_inp = self.data_manager.get_real_map()
-
-    # redefine params for below
-    params.start_temperature = start_temperature_iter
-    
-    output_dir = get_output_dir_name(self)
-    
-    
-    task_obj = cryo_fit2_run.cryo_fit2_class(
-      model             = model_inp,
-      model_name        = self.data_manager.get_default_model_name(),
-      map_inp           = map_inp,
-      params            = self.params,
-      out               = self.logger,
-      map_name          = self.data_manager.get_default_real_map_name(),
-      logfile           = logfile,
-      output_dir        = output_dir,
-      user_map_weight   = user_map_weight,
-      weight_boost      = self.params.weight_boost)
-    
-    task_obj.validate()
-    output_dir_final = task_obj.run()
-    
-    command_string = "mv " + str(output_dir_final) + " parameters_exploration"
-    logfile.write(command_string)
-    print ("command:", command_string)
-    
-    libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-    
-############ end of explore_parameters_by_multi_core()
 
 
 
@@ -177,6 +169,107 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 '''
 
 
+
+
+def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfile, user_map_weight, bp_cutoff):
+    
+    print ("\nExplored start_temperature:", str(start_temperature_iter))
+    print ("params.final_temperature:", str(params.final_temperature))
+    print ("params.number_of_MD_in_each_epoch:", str(params.number_of_MD_in_each_epoch))
+    
+    params.cool_rate = (start_temperature_iter-params.final_temperature)/(params.number_of_MD_in_each_epoch-1)
+    print ("params.cool_rate", str(params.cool_rate))
+    
+    print ("params.map_weight:", str(params.map_weight), "\n")
+    print ("params.number_of_steps", str(params.number_of_steps))
+    
+    #params.total_number_of_steps = 10000 # this multi core run is to explore options
+    params.total_number_of_steps = 30 # temporary for development
+    
+    if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
+      params.total_number_of_steps = 30 # for regression only
+    print ("params.total_number_of_steps", str(params.total_number_of_steps))
+    
+    model_inp = self.data_manager.get_model()
+    map_inp = self.data_manager.get_real_map()
+
+    # Redefine params for below cryo_fit2 run
+    params.start_temperature = start_temperature_iter
+    
+    output_dir = get_output_dir_name(self)
+    
+    task_obj = cryo_fit2_run.cryo_fit2_class(
+      model             = model_inp,
+      model_name        = self.data_manager.get_default_model_name(),
+      map_inp           = map_inp,
+      params            = self.params,
+      out               = self.logger,
+      map_name          = self.data_manager.get_default_real_map_name(),
+      logfile           = logfile,
+      output_dir        = output_dir,
+      user_map_weight   = user_map_weight,
+      weight_boost      = self.params.weight_boost)
+    
+    task_obj.validate()
+    output_dir_final = task_obj.run()
+    
+    splited = output_dir_final.split("_bp_")
+    bp = splited[len(splited)-1]
+    
+    if (float(bp) > float(bp_cutoff)):
+        if (os.path.isdir("parameters_exploration/bp_kept") == False):
+            os.mkdir("parameters_exploration/bp_kept")
+        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_kept"
+        logfile.write(command_string)
+        print ("command:", command_string)
+        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    else:
+        if (os.path.isdir("parameters_exploration/bp_not_kept") == False):
+            os.mkdir("parameters_exploration/bp_not_kept")
+        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_not_kept"
+        logfile.write(command_string)
+        print ("command:", command_string)
+        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    
+    return bp    
+############ end of explore_parameters_by_multi_core()
+
+
+
+def extract_the_best_cc_parameters(logfile):
+    starting_dir = os.getcwd()
+    if (os.path.isdir("parameters_exploration/bp_kept") == True):
+        os.chdir("parameters_exploration/bp_kept")
+    else:
+        write_this = "There is no base pairs in this user given model file.\n Since there is no base pair to maintain during MD, run cryo_fit2 with explore_parameters=False\n"
+        logfile.write(write_this)
+        print (write_this)
+        exit(1)
+        
+    best_cc_so_far = -999
+    for check_this_dir in glob.glob("output*"):
+        splited = check_this_dir.split("_cc_")
+        splited2 = splited[1].split("_bp_")
+        cc = splited2[len(splited2)-2]
+        if (float(cc) > float(best_cc_so_far)):
+            best_cc_so_far = cc
+    
+    for check_this_dir in glob.glob("output*"):
+        splited = check_this_dir.split("_cc_")
+        splited2 = splited[1].split("_bp_")
+        cc = splited2[len(splited2)-2]
+        print ("cc:",cc)
+        if (float(cc) == float(best_cc_so_far)):
+            splited = check_this_dir.split("_start_")
+            splited2 = splited[1].split("_final_")
+            optimum_start_temperature = splited2[0]
+            os.chdir(starting_dir)
+            return optimum_start_temperature
+            #break
+############ end of def extract_the_best_cc_parameters():
+
+
+
 def get_output_dir_name(self):
     # rename output_dir
     output_dir_prefix = self.params.output_dir
@@ -198,6 +291,7 @@ def get_output_dir_name(self):
                  #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     return output_dir
 ########## end of def get_output_dir_name(self)
+
 
 
 def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file):
@@ -285,6 +379,34 @@ def hasNumbers(inputString):
 
 
 
+def know_bp_in_a_user_pdb_file(user_pdb_file, logfile):
+    starting_dir = os.getcwd()
+    
+    command_string = "phenix.secondary_structure_restraints " + user_pdb_file
+    logfile.write(command_string+"\n")
+    print (command_string+"\n\n")
+    libtbx.easy_run.fully_buffered(command_string)
+    
+    splited_user_pdb_file_w_path = user_pdb_file.split("/")
+    user_pdb_file_wo_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-1]
+    ss_file_name = user_pdb_file_wo_path + "_ss.eff"
+    
+    user_pdb_file_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-2]
+    
+    command_string = "mv " + str(ss_file_name) + " " + str(user_pdb_file_path)
+    logfile.write(command_string)
+    print ("command:", command_string)
+    
+    command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
+    print (command_string+"\n")
+    logfile.write(command_string+"\n\n")
+    grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    number_of_bp_in_fitted_pdb = int(grepped[0])
+    
+    return number_of_bp_in_fitted_pdb, ss_file_name
+######################## end of def know_bp_in_a_user_pdb_file(user_pdb_file):
+
+
 def know_how_much_map_origin_moved(map_file_name):
     print ("#### Know how much map origin moved ####")
     
@@ -352,7 +474,6 @@ def know_how_much_map_origin_moved(map_file_name):
 
 def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
     command_string = "cat " + starting_pdb + " | grep ATOM | wc -l"
-    #print "\tcommand: ", command_string
     num_ATOMs = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_atoms_in_input_pdb = int(num_ATOMs[0])
     write_this = "A user input pdb file, " + starting_pdb + ", has "+ str(number_of_atoms_in_input_pdb) + " atoms\n"
@@ -378,7 +499,7 @@ def know_total_number_of_cores(logfile):
     else: # maybe Windows
         number_of_total_cores = 2
     
-    print ("\tUser's computer's operating system: " + platform.system(), "\n")
+    print ("User's computer's operating system: " + platform.system(), "\n")
     return number_of_total_cores
 ######### end of know_total_number_of_cores function
 
@@ -390,6 +511,23 @@ def line_prepender(filename, line):
         f.seek(0, 0)
         f.write(line.rstrip('\r\n') + '\n' + content)
 #################### end of line_prepender()
+
+def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
+    total_combi_num = 0
+    start_temperature_array = []
+    
+    for start_temperature in range (300, 901, 300):
+      write_this = "Cryo_fit2 will explore " + str(start_temperature) + " start_temperature\n"
+      logfile.write(write_this)
+      total_combi_num = total_combi_num + 1
+      start_temperature_array.append(start_temperature)
+    
+    argstuples = [( self, self.params, start_temperature_array[0], logfile, user_map_weight, bp_cutoff), \
+                  ( self, self.params, start_temperature_array[1], logfile, user_map_weight, bp_cutoff), \
+                  ( self, self.params, start_temperature_array[2], logfile, user_map_weight, bp_cutoff) ]
+    return total_combi_num, argstuples
+##### end of def make_argstuples(logfile):
+
 
 
 def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):

@@ -24,16 +24,23 @@ from iotbx.cli_parser import run_program
 
 def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   pdb_file = libtbx.env.find_in_repositories(
-    relative_path="cryo_fit2/regression/input/tst2_cryo_fit2_model.pdb",
+    relative_path="cryo_fit2/regression/input/tst_cryo_fit2_helix.pdb",
     test=os.path.isfile)
   map_file = libtbx.env.find_in_repositories(
-    relative_path="cryo_fit2/regression/input/tst_cryo_fit2_map.ccp4",
+    relative_path="cryo_fit2/regression/input/tst_cryo_fit2_helix.ccp4",
     test=os.path.isfile)
   resolution = "resolution=3.6"
   strong_ss = "strong_ss=False"
   map_weight = "map_weight=0.001" # for faster regression test
+  explore = "explore=False"
+  start_temperature = "start_temperature=300"
+  final_temperature = "final_temperature=280"
+  number_of_MD_in_each_epoch = "number_of_MD_in_each_epoch = 2"
+  number_of_steps = "number_of_steps=1"
   assert (not None in [pdb_file, map_file])
-  cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, args=[pdb_file, map_file, resolution, strong_ss, map_weight])
+  cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, \
+                                  args=[pdb_file, map_file, resolution, start_temperature, final_temperature, \
+                                        number_of_MD_in_each_epoch, number_of_steps, map_weight, explore])
 ############## end of exercise_cryo_fit2()
 
 

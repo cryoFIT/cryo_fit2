@@ -81,9 +81,9 @@ class cryo_fit2_class(object):
     params.cool_rate               = self.params.cool_rate
     params.number_of_steps         = self.params.number_of_steps
     
-    total_number_of_steps = ''
-    if (self.params.total_number_of_steps != None):
-      total_number_of_steps   = self.params.total_number_of_steps
+    total_steps = ''
+    if (self.params.total_steps != None):
+      total_steps   = self.params.total_steps
     
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
@@ -101,7 +101,7 @@ class cryo_fit2_class(object):
     
 ########################### <begin> iterate until cryo_fit2 derived cc saturates
     result = ''
-    total_number_of_steps_so_far = 0
+    total_steps_so_far = 0
 
     if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None
@@ -114,22 +114,22 @@ class cryo_fit2_class(object):
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
     
     number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(self.logfile, self.model_name)
-    # tRNA: 1,563
-    # L1 stalk: 3,289
+    # tRNA      : 1,563
+    # L1 stalk  : 3,289
     # Mg channel: 14,940
     
     # number_of_atoms_in_input_pdb seems irrelevant to cc_check_after_every_this_cycle assignment.
     # but Mg channel with 10k check took 10 days!
     
     cc_check_after_every_this_cycle = ''
-    if ((model_file_name_only == "tst2_cryo_fit2_model") or (model_file_name_only == "model_w_CRYST1.pdb")):
-      cc_check_after_every_this_cycle = 10
+    if (model_file_name_only == "tst_cryo_fit2_helix"):
+      cc_check_after_every_this_cycle = 5
     elif (number_of_atoms_in_input_pdb < 3000):
-      cc_check_after_every_this_cycle = 2000
-    elif (number_of_atoms_in_input_pdb < 5000):
       cc_check_after_every_this_cycle = 1000
-    else:
+    elif (number_of_atoms_in_input_pdb < 5000):
       cc_check_after_every_this_cycle = 500
+    else:
+      cc_check_after_every_this_cycle = 200
   
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
 
@@ -160,17 +160,17 @@ class cryo_fit2_class(object):
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
       
       multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
-      total_number_of_steps_so_far = total_number_of_steps_so_far + params.number_of_steps*multiply_this
+      total_steps_so_far = total_steps_so_far + params.number_of_steps*multiply_this
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
       write_this = "cc after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
-      if (total_number_of_steps != ''):
-        if (total_number_of_steps_so_far >= total_number_of_steps):
-          write_this = "\ntotal_number_of_steps_so_far (" + str(total_number_of_steps_so_far) + \
-                       ") >= user specified total_number_of_steps (" + str(total_number_of_steps) + ")\n"
+      if (total_steps != ''):
+        if (total_steps_so_far >= total_steps):
+          write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
+                       ") >= user specified total_steps (" + str(total_steps) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
@@ -216,7 +216,7 @@ class cryo_fit2_class(object):
           cc_2nd_array = [] # reset
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)
         else:
-          write_this = "\ncc values are saturated\ntotal_number_of_steps_so_far: " + str(total_number_of_steps_so_far) + "\n"
+          write_this = "\ncc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
@@ -259,7 +259,8 @@ class cryo_fit2_class(object):
 #############################################################
 #print (print_this,"\n")
     '''
-
+    
+    
     returned = know_how_much_map_origin_moved(str(self.map_name))
     if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
         write_this = "Restoring original xyz position for a cryo_fit2 fitted atomistic model\n\n"
@@ -267,46 +268,11 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file_name_w_path, returned[0], returned[1], returned[2], returned[3])
     
-    
-    ########################## <begin> RMSD calculation (reference) cctbx_project/mmtbx/superpose.py
-    fixed = self.model_name
-    moving = fitted_file_name_w_path
-    
-    write_this = "\n===== RMSD calculation ====="
-    print (write_this)
-    self.logfile.write(str(write_this))
-    # The fixed model can only contain a single model.
-    # It will raise an Exception if there is more than one!
-    fixed = SuperposePDB(
-      fixed,
-      selection=self.params.selection_fixed,
-      preset=self.params.selection_fixed_preset,
-      log=None,
-      quiet=False,
-      desc=fixed
-    )
-    
-    # The moving pdb can contain many models. These will each be aligned to the
-    # fixed model and output as a separate file...
-    moving_args = dict(
-      selection=self.params.selection_moving,
-      preset=self.params.selection_moving_preset,
-      desc=moving,
-      log=None,
-      quiet=False
-    )
-    for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
-      write_this = "\n\n===== Aligning %s to %s ====="%(fitted_file_name_w_path, self.model_name)
-      print (write_this)
-      self.logfile.write(str(write_this))
-      if not self.params.selection_moving:
-        moving.selectomatic(fixed)
-      rmsd, lsq = moving.superpose(fixed)
-      write_this = "\n\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
-      print (write_this)
-      self.logfile.write(str(write_this))
-    ####################### <end> RMSD calculation ###########################
-    
+    # To save a regression test time
+    #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False): #"AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
+    if (("tst_cryo_fit2" in fitted_file_name_w_path) == False): 
+      calculate_RMSD(self, fitted_file_name_w_path)
+    #STOP()
     bp_num_in_fitted_file = count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
     
     output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file)

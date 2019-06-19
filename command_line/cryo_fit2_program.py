@@ -50,7 +50,19 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
-explore_parameters = False
+devel = False
+    .type   = bool
+    .help   = If True, run quickly only to check sanity
+keep_origin = True
+    .type   = bool
+    .help   = If True, write out model with origin in original location.  \
+              If False, shift map origin to (0,0,0). 
+    .short_caption = Keep origin of a resulted atomic model
+loose_ss_def = False
+    .type   = bool
+    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
+              If False, use Oleg's original strict definition. 
+explore = False
   .type = bool
   .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.
 start_temperature = None
@@ -70,10 +82,6 @@ number_of_MD_in_each_epoch = 4
 cool_rate = None
   .type = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
-total_number_of_steps = None
-  .type = int
-  .short_caption = The total number of steps in phenix.dynamics.\
-                   If specified, run up to this number of steps no matter what.
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
@@ -105,18 +113,10 @@ sigma = 0.021
   .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
                    Oleg recommended 0.021 which is the sigma value for covalent bond. \
                    Doo Nam's benchmark (144 combinations of options) shows that 1.00E-06, 0.1, and 0.2 do not make any difference in base_pair keeping
-loose_ss_def = False
-    .type   = bool
-    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
-              If False, use Oleg's original strict definition. 
-keep_origin = True
-    .type   = bool
-    .help   = If True, write out model with origin in original location.  \
-              If False, shift map origin to (0,0,0). 
-    .short_caption = Keep origin of a resulted atomic model
-devel = False
-    .type   = bool
-    .help   = If True, run quickly only to check sanity
+total_steps = None
+  .type = int
+  .short_caption = The total number of steps in phenix.dynamics.\
+                   If specified, run up to this number of steps no matter what.
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
 selection_fixed = None
@@ -194,7 +194,7 @@ Options:
   
   number_of_steps              (default: 20)
   
-  total_number_of_steps        (default: None)
+  total_steps        (default: None)
                                If specified, run up to this number of step no matter what.
   
   secondary_structure.enabled  (default: True)
@@ -282,12 +282,12 @@ Options:
     #     logfile.write(write_this)
     #     exit(1)
     
-    print ("user entered resolution", str(self.params.resolution))
+    print ("A user entered resolution", str(self.params.resolution))
     
-    print('User input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
+    print('A user input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
-    print('User input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
+    print('A user input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
     
     
@@ -382,31 +382,15 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.final_temperature = 280
       self.params.number_of_MD_in_each_epoch = 2
       self.params.number_of_steps = 1
-      self.params.total_number_of_steps = 50
+      self.params.total_steps = 50
 
     elif (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.number_of_MD_in_each_epoch = 5
       self.params.number_of_steps = 1000
-      self.params.total_number_of_steps = 2000
+      self.params.total_steps = 2000
 
-    # regression with total_number_of_steps
-    elif (input_model_file_name_wo_path == "tst1_cryo_fit2_model.pdb"): 
-      self.params.start_temperature = 300
-      self.params.final_temperature = 280
-      self.params.number_of_MD_in_each_epoch = 2
-      self.params.number_of_steps = 100
-      self.params.total_number_of_steps = 1000
-
-    # regression test auto-rerun
-    elif (input_model_file_name_wo_path == "tst2_cryo_fit2_model.pdb"): 
-      self.params.start_temperature = 300
-      self.params.final_temperature = 280
-      self.params.number_of_MD_in_each_epoch = 2
-      self.params.number_of_steps = 1
-    
-    
     ########## <begin> Automatic map weight determination
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
@@ -421,48 +405,56 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ########## <end> Automatic map weight determination
     
     
+    user_start_temperature = None # important initially declared global variable
+    bp_in_a_user_pdb_file, ss_file = know_bp_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
+    if (bp_in_a_user_pdb_file == 0):
+        write_this = "A user input file has no base pair between nucleic acids, no explore (for now)\n"
+        print(write_this)
+        logfile.write(write_this)
     
-    if (self.params.explore_parameters == True):
-    ####################### < begin> Explore the optimal combination of parameters
+    if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
+      self.params.number_of_MD_in_each_epoch = 2
+      
+    if ((self.params.explore == True) and (bp_in_a_user_pdb_file != 0)):
+    ####################### <begin> Explore the optimal combination of parameters
       ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
       ## final_temperature is fixed as 0
       ## sigma is fixed as 0.1
+      bp_cutoff = bp_in_a_user_pdb_file * 0.95
+      write_this = "bp_cutoff from a user pdb file:" + str(round(bp_cutoff,1)) + "\n"
+      print(write_this)
+      logfile.write(write_this)
+      
       if (self.params.start_temperature != None):
-        # save a user entered value now
+        # save a user entered start_temperature now
         user_start_temperature = self.params.start_temperature
       
       if (os.path.isdir("parameters_exploration") == True):
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
       
-      total_combi_num = 0
-      start_temperature_array = []
-      number_of_total_cores = know_total_number_of_cores(logfile)
-      for start_temperature in range (300, 901, 300):
-        write_this = "Cryo_fit2 will explore " + str(start_temperature) + " start_temperature\n"
-        logfile.write(write_this)
-        
-        total_combi_num = total_combi_num + 1
-        start_temperature_array.append(start_temperature)
+      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff)
       
-      argstuples = [( self, self.params, start_temperature_array[0], logfile, user_map_weight), \
-                    ( self, self.params, start_temperature_array[1], logfile, user_map_weight), \
-                    ( self, self.params, start_temperature_array[2], logfile, user_map_weight) ]
-      for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
-          #print ('arguments: %s \n result: %s \n error: %s\n' %(args, res, errstr))
-          #print ('arguments: %s \n' %(args))
-          print ('Arguments: ', str(args))
+      number_of_total_cores = know_total_number_of_cores(logfile)
+      for args, res, errstr in easy_mp.multi_core_run( explore_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
+          print ('Result (bp): %s ' %(res)) # well returned correct bp
+          #print ('Arguments: ', str(args)) # "Arguments:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
+          #print ('Arguments: %s' %(args)) # "TypeError: not all arguments converted during string formatting"
+
       write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " number of MD parameter combinations\n"
       logfile.write(write_this)
-      
-      if (self.params.start_temperature != None):
+
+      optimum_start_temperature = extract_the_best_cc_parameters(logfile)
+      print ("An optimum start_temperature: ", str(optimum_start_temperature))
+      self.params.start_temperature = float(optimum_start_temperature)
+
+      if (user_start_temperature != None):
         # override self.params.start_temperature with a user entered value
         self.params.start_temperature = user_start_temperature
-        
-    ####################### < end> explore the optimal combination of parameters
+    ####################### <end> explore the optimal combination of parameters
   
-    #STOP()
+    
     
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
@@ -470,15 +462,16 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ###############  (begin) core cryo_fit2    
     print ("start_temperature: ", str(self.params.start_temperature))
     print ("final_temperature: ", str(self.params.final_temperature))
-    print ("number_of_MD_in_each_epoch: ", str(self.params.number_of_MD_in_each_epoch))
     print ("number_of_steps: ", str(self.params.number_of_steps))
+    
+    print ("number_of_MD_in_each_epoch: ", str(self.params.number_of_MD_in_each_epoch))
     
     self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
     print ("cool_rate", str(self.params.cool_rate))
     
     output_dir = get_output_dir_name(self)
     
-    ############################# all parameters are determined (either by user or automatic optimization)
+    ############################# all parameters are determined (either by a user or automatic optimization)
     
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " \
                             + self.data_manager.get_default_real_map_name() + " " \
@@ -498,8 +491,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
                             #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
-    if (self.params.total_number_of_steps != None):
-      cryo_fit2_input_command = cryo_fit2_input_command + "total_number_of_steps=" + str(self.params.total_number_of_steps) + "\n"
+    if (self.params.total_steps != None):
+      cryo_fit2_input_command = cryo_fit2_input_command + "total_steps=" + str(self.params.total_steps) + "\n"
     else:
       cryo_fit2_input_command = cryo_fit2_input_command + "\n"
                               
@@ -552,7 +545,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     geo_file.close()
     
     # clean up
-    mv_command_string = "mv cryo_fit2.input_command.txt " + geometry_restraints_file_name + " " + log_file_name + " " + output_dir_final
+    mv_command_string = "mv cryo_fit2.input_command.txt " + ss_file + " " + geometry_restraints_file_name + " " + log_file_name + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
     
     time_total_end = time.time()

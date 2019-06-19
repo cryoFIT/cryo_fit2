@@ -30,7 +30,7 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_helix.ccp4",
     test=os.path.isfile)
   resolution = "resolution=4"
-  strong_ss = "strong_ss=True"
+  strong_ss = "strong_ss=False"
   explore = "explore=False"
   total_steps = "total_steps=1000"
   start_temperature = "start_temperature=300"

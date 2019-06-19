@@ -1,0 +1,12 @@
+Takes 10~20 seconds each
+
+tst1_cryo_fit2_test_total_number_of_steps
+tst2_cryo_fit2_test_auto-rerun
+tst3_cryo_fit2_test_strong_ss
+tst5_cryo_fit2_test_parameters_exploration_protein
+
+
+
+Needs fix
+Used to take 1~2 minutes, working to speed up
+tst4_cryo_fit2_test_parameters_exploration_RNA
