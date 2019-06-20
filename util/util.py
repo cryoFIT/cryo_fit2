@@ -383,8 +383,6 @@ def know_bp_in_a_user_pdb_file(user_pdb_file, logfile):
     starting_dir = os.getcwd()
     
     command_string = "phenix.secondary_structure_restraints " + user_pdb_file
-    #print (command_string+"\n\n")
-    #logfile.write(command_string+"\n")
     libtbx.easy_run.fully_buffered(command_string)
     
     splited_user_pdb_file_w_path = user_pdb_file.split("/")
@@ -393,13 +391,7 @@ def know_bp_in_a_user_pdb_file(user_pdb_file, logfile):
     
     user_pdb_file_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-2]
     
-    command_string = "mv " + str(ss_file_name) + " " + str(user_pdb_file_path)
-    #print ("command:", command_string) # boring to print this out
-    #logfile.write(command_string)
-    
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
-    #print (command_string+"\n")
-    #logfile.write(command_string+"\n\n")
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
     
@@ -513,33 +505,20 @@ def line_prepender(filename, line):
 
 
 def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
-    start_temperature_array = []
-    number_of_MD_in_each_epoch_array = []
-    
-    for start_temperature in range (300, 901, 300):
-        start_temperature_array.append(start_temperature)
-    for number_of_MD_in_each_epoch in range (1, 22, 10):
-        number_of_MD_in_each_epoch_array.append(number_of_MD_in_each_epoch)
-    
-    # Look up other ez mp cases
-    # Consider to use append
-
-    argstuples = [( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[0], number_of_MD_in_each_epoch_array[0]), \
-                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[0], number_of_MD_in_each_epoch_array[1]), \
-                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[0], number_of_MD_in_each_epoch_array[2]), \
-                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[1], number_of_MD_in_each_epoch_array[0]), \
-                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[1], number_of_MD_in_each_epoch_array[1]), \
-                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[1], number_of_MD_in_each_epoch_array[2]), \
-                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[2], number_of_MD_in_each_epoch_array[0]), \
-                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[2], number_of_MD_in_each_epoch_array[1]), \
-                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[2], number_of_MD_in_each_epoch_array[2])]
-    #print ("argstuples:",argstuples) # "[(<cryo_fit2_program.Program object at 0x119d16cd0>, <libtbx.phil.scope_extract object at 0x119d16f10>, <open file 'cryo_fit2.log', mode 'w' at 0x119de8b70>, '', 1.9, 300), (<cryo_fit2_program.Program object at 0x119d16cd0>, <libtbx.phil.scope_extract object at 0x119d16f10>, <open file 'cryo_fit2.log', mode 'w' at 0x119de8b70>, '', 1.9, 600), (<cryo_fit2_program.Program object at 0x119d16cd0>, <libtbx.phil.scope_extract object at 0x119d16f10>, <open file 'cryo_fit2.log', mode 'w' at 0x119de8b70>, '', 1.9, 900)]"
-    
     total_combi_num = 0
-    for start_temperature in range (300, 901, 300):
-        for number_of_MD_in_each_epoch in range (1, 40, 6):
-            total_combi_num = total_combi_num + 1
-            
+    argstuples = []
+    ## final_temperature is fixed as 0
+    ## sigma is fixed as 0.1
+    if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
+        for start_temperature in range (300, 901, 300):
+            for number_of_MD_in_each_epoch in range (1, 22, 10):
+                total_combi_num = total_combi_num + 1
+                argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature, number_of_MD_in_each_epoch])
+    else: # to save regression time
+        for start_temperature in range (300, 601, 300):
+            for number_of_MD_in_each_epoch in range (1, 12, 10):
+                total_combi_num = total_combi_num + 1
+                argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature, number_of_MD_in_each_epoch])
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
 
@@ -1012,7 +991,7 @@ def write_custom_geometry(logfile, input_model_file_name, sigma):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "\nCryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce a stronger sigma\n\n"
+  write_this = "\nCryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce a stronger sigma (e.g. " + str(sigma) + ")\n\n"
   print(write_this)
   logfile.write(write_this)
   

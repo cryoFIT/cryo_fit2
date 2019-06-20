@@ -414,15 +414,11 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         print(write_this)
         logfile.write(write_this)
     
-    if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
-      self.params.number_of_MD_in_each_epoch = 2
-      
+    
     if ((self.params.explore == True) and (bp_in_a_user_pdb_file != 0)):
     ####################### <begin> Explore the optimal combination of parameters
       ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
-      ## final_temperature is fixed as 0
-      ## sigma is fixed as 0.1
       bp_cutoff = bp_in_a_user_pdb_file * 0.95
       write_this = "bp_cutoff from a user pdb file: " + str(round(bp_cutoff,1)) + "\n"
       print(write_this)
@@ -442,8 +438,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       
       number_of_total_cores = know_total_number_of_cores(logfile)
       for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
-          print ('Result (bp): %s ' %(res))
-          #STOP()
+          print ("each easy_mp.multi_core_run ran")
+          #print ('Result (bp): %s ' %(res))
           # 1st it returned None
           # Then, it well returned correct bp
           # It seems that easy_mp.multi_core_run( explore_parameters_by_multi_core... runs twice unexpectedly. Either I couldn't use properly or easy_mp has some glitches?
@@ -466,7 +462,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         self.params.number_of_MD_in_each_epoch = user_number_of_MD_in_each_epoch
     ####################### <end> explore the optimal combination of parameters
   
-    
+    ### Assign default values if not specified
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
     if (self.params.number_of_MD_in_each_epoch == None):

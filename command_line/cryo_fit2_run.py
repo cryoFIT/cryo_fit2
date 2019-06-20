@@ -133,9 +133,7 @@ class cryo_fit2_class(object):
   
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
 
-    for i in range(100000000): # runs well with cryo_fit2.run_tests
-    #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
- 
+    for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       if (self.params.progress_on_screen == True): # default choice
         result = sa.run(
           params = params,
@@ -146,7 +144,6 @@ class cryo_fit2_class(object):
           wx                 = self.params.map_weight, 
           wc                 = 1, # weight for geometry conformation
           states_collector   = states) 
-        
       else: # (self.params.progress_on_screen = False):
         result = sa.run(
           params = params,
@@ -182,7 +179,6 @@ class cryo_fit2_class(object):
         cc_2nd_array.append(cc_after_small_MD)
       
       if (cycle_so_far >= cc_check_after_every_this_cycle):
-        
         write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
