@@ -122,9 +122,6 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
 ######################## end of def count_bp_in_fitted_file(fitted_file_name_w_path):
 
 
-
-
-#def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file, weight_boost):
 def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
   pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
   f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
@@ -137,11 +134,8 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
     pdb_hierarchy               = pi.ph,
     geometry_restraints_manager = pi.grm).weight
 
-  #return self.params.map_weight # 1x~10x of weight_boost were not enough for L1 stalk fitting
-  #return weight_boost*self.params.map_weight # up to 20x of weight_boost, nucleic acid geometry was ok, 30x broke it
-  return self.params.map_weight # up to 20x of weight_boost, nucleic acid geometry was ok, 30x broke it
+  return self.params.map_weight 
 ######################### end of determine_optimal_weight_by_template
-
 
 
 '''
@@ -525,8 +519,8 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
                     argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature, number_of_MD_in_each_epoch, weight_boost])
     else: # to save regression time
         for start_temperature in range (300, 601, 300):
-            for number_of_MD_in_each_epoch in range (2, 13, 10):
-                for weight_boost in range (1, 12, 10):
+            for number_of_MD_in_each_epoch in range (2, 4, 10):
+                for weight_boost in range (1, 3, 10):
                     total_combi_num = total_combi_num + 1
                     argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature, number_of_MD_in_each_epoch, weight_boost])
     return total_combi_num, argstuples
@@ -712,7 +706,6 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 ########################### end of remove_R_prefix_in_RNA function
 
 
-#def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost):
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
       write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for additional MD run\n"
@@ -724,7 +717,6 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
         f.write(self.model.model_as_pdb())
       f.close()
       
-      #self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, current_fitted_file_name, weight_boost)
       self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, current_fitted_file_name)
       
       cmd = "rm " + current_fitted_file_name
