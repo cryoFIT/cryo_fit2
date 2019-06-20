@@ -65,20 +65,21 @@ loose_ss_def = False
     .type   = bool
     .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
               If False, use Oleg's original strict definition. 
-start_temperature = None
-  .type = float
-  .short_caption = Starting temperature of annealing in Kelvin. \
-                   If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 1000.
 final_temperature = 0
   .type = float
   .short_caption = Final temperature of annealing in Kelvin
 number_of_steps = 100
   .type = int
   .short_caption = number of steps in phenix.dynamics
-number_of_MD_in_each_epoch = 4
+number_of_MD_in_each_epoch = None
   .type = int
   .short_caption = An epoch here is different from the one in deep learning. \
-                   Here, the epoch is each iteration of MD from start_temperature to final_temperature.
+                   Here, the epoch is each iteration of MD from start_temperature to final_temperature. \
+                   If not specified, cryo_fit2 will use the optimized value after automatic exploration.
+start_temperature = None
+  .type = float
+  .short_caption = Starting temperature of annealing in Kelvin. \
+                   If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 cool_rate = None
   .type = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
@@ -188,9 +189,9 @@ Options:
   
   final_temperature            (default: 0)
   
-  number_of_MD_in_each_epoch   (default: 4)
-                               An epoch here is different from the one in deep learning.
+  number_of_MD_in_each_epoch   An epoch here is different from the one in deep learning.
                                Here, the epoch is each iteration of MD from start_temperature to final_temperature.
+                               If not specified, cryo_fit2 will use the optimized value after automatic exploration.
   
   number_of_steps              (default: 20)
   
@@ -406,6 +407,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     
     user_start_temperature = None # important initially declared global variable
+    user_number_of_MD_in_each_epoch = None # important initially declared global variable
     bp_in_a_user_pdb_file, ss_file = know_bp_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
     if (bp_in_a_user_pdb_file == 0):
         write_this = "A user input file has no base pair between nucleic acids, no explore (for now)\n"
@@ -426,10 +428,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       print(write_this)
       logfile.write(write_this)
       
+      # save a user entered params.* now
       if (self.params.start_temperature != None):
-        # save a user entered start_temperature now
         user_start_temperature = self.params.start_temperature
-      
+      if (self.params.number_of_MD_in_each_epoch != None):
+        user_number_of_MD_in_each_epoch = self.params.number_of_MD_in_each_epoch
+        
       if (os.path.isdir("parameters_exploration") == True):
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
@@ -438,34 +442,42 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       
       number_of_total_cores = know_total_number_of_cores(logfile)
       for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
-          print ('Result (bp): %s ' %(res)) # well returned correct bp
+          print ('Result (bp): %s ' %(res))
+          #STOP()
+          # 1st it returned None
+          # Then, it well returned correct bp
+          # It seems that easy_mp.multi_core_run( explore_parameters_by_multi_core... runs twice unexpectedly. Either I couldn't use properly or easy_mp has some glitches?
+          
           #print ('Arguments: ', str(args)) # "Arguments:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           #print ('Arguments: %s' %(args)) # "TypeError: not all arguments converted during string formatting"
 
       write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " number of MD parameter combinations\n"
       logfile.write(write_this)
 
-      optimum_start_temperature = extract_the_best_cc_parameters(logfile)
-      print ("An optimum start_temperature: ", str(optimum_start_temperature))
+      optimum_start_temperature, optimum_number_of_MD_in_each_epoch = extract_the_best_cc_parameters(logfile)
+      
       self.params.start_temperature = float(optimum_start_temperature)
+      self.params.number_of_MD_in_each_epoch = float(optimum_number_of_MD_in_each_epoch)
 
+      # override self.params.* with user entered values
       if (user_start_temperature != None):
-        # override self.params.start_temperature with a user entered value
         self.params.start_temperature = user_start_temperature
+      if (user_number_of_MD_in_each_epoch != None):
+        self.params.number_of_MD_in_each_epoch = user_number_of_MD_in_each_epoch
     ####################### <end> explore the optimal combination of parameters
   
     
-    
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
-    
+    if (self.params.number_of_MD_in_each_epoch == None):
+      self.params.number_of_MD_in_each_epoch = 4
+      
     ###############  (begin) core cryo_fit2    
+    print ("Final MD parameters after user input/automatic optimization")
     print ("start_temperature: ", str(self.params.start_temperature))
     print ("final_temperature: ", str(self.params.final_temperature))
     print ("number_of_steps: ", str(self.params.number_of_steps))
-    
     print ("number_of_MD_in_each_epoch: ", str(self.params.number_of_MD_in_each_epoch))
-    
     self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
     print ("cool_rate", str(self.params.cool_rate))
     
@@ -502,7 +514,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     input_command_file.write(str(cryo_fit2_input_command))
     input_command_file.close()
     
-    logfile.write("Input command: ")
+    logfile.write("An input command for final cryo_fit2 MD run: ")
     logfile.write(str(cryo_fit2_input_command))
     
     

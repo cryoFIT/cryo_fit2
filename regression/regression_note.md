@@ -1,4 +1,4 @@
-Takes 16~30 seconds each
+Takes 16~90 seconds each
 
 tst1_cryo_fit2_test_total_steps
 tst2_cryo_fit2_test_auto-rerun
@@ -10,5 +10,5 @@ tst5_cryo_fit2_test_parameters_exploration_protein
 wall clock time: 15.58 seconds
 wall clock time: 18.91 seconds
 wall clock time: 17.76 seconds
-wall clock time: 29.22 seconds
+wall clock time: 89.22 seconds
 wall clock time: 18.11 seconds

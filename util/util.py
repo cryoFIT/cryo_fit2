@@ -112,8 +112,8 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
-    print (command_string+"\n")
-    logfile.write(command_string+"\n\n")
+    #print (command_string+"\n")
+    #logfile.write(command_string+"\n\n")
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
     os.chdir(starting_dir)
@@ -166,31 +166,31 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 
-def explore_parameters_by_multi_core(self, params, start_temperature_iter, logfile, user_map_weight, bp_cutoff):
+def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, start_temperature_iter, number_of_MD_in_each_epoch_iter):
     
-    print ("\nExplored start_temperature:", str(start_temperature_iter))
+    print ("\nstart_temperature that will be explored:", str(start_temperature_iter))
+    print ("number_of_MD_in_each_epoch that will be explored:", str(number_of_MD_in_each_epoch_iter))
+    
     print ("params.final_temperature:", str(params.final_temperature))
-    print ("params.number_of_MD_in_each_epoch:", str(params.number_of_MD_in_each_epoch))
-    
-    params.cool_rate = (start_temperature_iter-params.final_temperature)/(params.number_of_MD_in_each_epoch-1)
-    print ("params.cool_rate:", str(params.cool_rate))
-    
     print ("params.map_weight:", str(round(params.map_weight,2)))
     print ("params.number_of_steps:", str(params.number_of_steps))
     
-    #params.total_steps = 10000 # this multi core run is to explore options
-    params.total_steps = 30 # temporary for development
+    params.total_steps = 10000 # this multi core run is to explore options
+    #params.total_steps = 30 # temporary for development
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
       params.total_steps = 30 # for regression only
     print ("params.total_steps:", str(params.total_steps))
-
     
     model_inp = self.data_manager.get_model()
     map_inp = self.data_manager.get_real_map()
 
     # Re-assign params for below cryo_fit2 run
     params.start_temperature = start_temperature_iter
+    params.number_of_MD_in_each_epoch = number_of_MD_in_each_epoch_iter
+    
+    params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.number_of_MD_in_each_epoch)-1))
+    print ("params.cool_rate:", str(round(params.cool_rate,2)))
     
     init_output_dir = get_output_dir_name(self)
     
@@ -250,18 +250,22 @@ def extract_the_best_cc_parameters(logfile):
         if (float(cc) > float(best_cc_so_far)):
             best_cc_so_far = cc
     
+    
     for check_this_dir in glob.glob("output*"):
         splited = check_this_dir.split("_cc_")
         splited2 = splited[1].split("_bp_")
         cc = splited2[len(splited2)-2]
-        print ("cc:",cc)
         if (float(cc) == float(best_cc_so_far)):
             splited = check_this_dir.split("_start_")
             splited2 = splited[1].split("_final_")
             optimum_start_temperature = splited2[0]
+            
+            splited = check_this_dir.split("_number_of_MD_in_each_epoch_")
+            splited2 = splited[1].split("_step_")
+            optimum_number_of_MD_in_each_epoch = splited2[0]
+            
             os.chdir(starting_dir)
-            return optimum_start_temperature
-            #break
+            return optimum_start_temperature, optimum_number_of_MD_in_each_epoch
 ############ end of def extract_the_best_cc_parameters():
 
 
@@ -379,8 +383,8 @@ def know_bp_in_a_user_pdb_file(user_pdb_file, logfile):
     starting_dir = os.getcwd()
     
     command_string = "phenix.secondary_structure_restraints " + user_pdb_file
-    logfile.write(command_string+"\n")
-    print (command_string+"\n\n")
+    #print (command_string+"\n\n")
+    #logfile.write(command_string+"\n")
     libtbx.easy_run.fully_buffered(command_string)
     
     splited_user_pdb_file_w_path = user_pdb_file.split("/")
@@ -390,12 +394,12 @@ def know_bp_in_a_user_pdb_file(user_pdb_file, logfile):
     user_pdb_file_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-2]
     
     command_string = "mv " + str(ss_file_name) + " " + str(user_pdb_file_path)
-    logfile.write(command_string)
-    print ("command:", command_string)
+    #print ("command:", command_string) # boring to print this out
+    #logfile.write(command_string)
     
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
-    print (command_string+"\n")
-    logfile.write(command_string+"\n\n")
+    #print (command_string+"\n")
+    #logfile.write(command_string+"\n\n")
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
     
@@ -404,12 +408,12 @@ def know_bp_in_a_user_pdb_file(user_pdb_file, logfile):
 
 
 def know_how_much_map_origin_moved(map_file_name):
-    print ("#### Know how much map origin moved ####")
+    #print ("#### Know how much a map origin moved ####")
     
     # Compute a target map
     from iotbx import ccp4_map
     ccp4_map = ccp4_map.map_reader(map_file_name)
-    print ("\tMap read from", str(map_file_name))
+    #print ("\tMap read from", str(map_file_name))
     ccp4_map_data = ccp4_map.map_data()
     
     # try
@@ -425,27 +429,27 @@ def know_how_much_map_origin_moved(map_file_name):
     #print ("\tdir(acc): ", dir(acc)) # ['__call__', '__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__getinitargs__', '__getstate__', '__hash__', '__init__', '__instance_size__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__safe_for_unpickling__', '__setattr__', '__setstate__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'all', 'focus', 'focus_size_1d', 'is_0_based', 'is_padded', 'is_trivial_1d', 'is_valid_index', 'last', 'nd', 'origin', 'set_focus', 'shift_origin', 'show_summary', 'size_1d']
     
     acc_all = ccp4_map_data.accessor().all() # keep for now
-    print ("\tacc_all =", acc_all)
+    #print ("\tacc_all =", acc_all)
     # L1 stalk original emd_6315 (0, 0, 0)
     # L1 stalk boxed map (by DN) (99, 87, 85)
     
     #print ("\tdir(acc_all): ", dir(acc_all)) # ['__add__', '__class__', '__contains__', '__delattr__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__getnewargs__', '__getslice__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__rmul__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'count', 'index']
     
-    print ("\tccp4_map_data.origin():", str(ccp4_map_data.origin()))
+    #print ("\tccp4_map_data.origin():", str(ccp4_map_data.origin()))
     
     emmap_x0 = ccp4_map_data.origin()[0] # origin in x axis, tRNA: 0, nucleosome: -98    
     emmap_y0 = ccp4_map_data.origin()[1] # origin in y axis, tRNA: 0, nucleosome: -98
     emmap_z0 = ccp4_map_data.origin()[2] # origin in z axis, tRNA: 0, nucleosome: -98
-    print ("\temmap_x0:",emmap_x0,"emmap_y0:",emmap_y0,"emmap_z0:",emmap_z0)
+    #print ("\temmap_x0:",emmap_x0,"emmap_y0:",emmap_y0,"emmap_z0:",emmap_z0)
     # L1 stalk original emd_6315 (0, 0, 0)
     # L1 stalk boxed map (by DN) (132, 94, 203)
     #################### Doonam confirmed that this is an answer to fix origin problem
     
     a,b,c = ccp4_map.unit_cell_parameters[:3]
-    print ("\ta:",a,"b:",b,"c:",c)
+    #print ("\ta:",a,"b:",b,"c:",c)
     # L1 stalk both 'original emd_6315' and 'boxed map (by DN)': (377.9999694824219, 377.9999694824219, 377.9999694824219, 90.0, 90.0, 90.0)
     
-    print ("\tccp4_map_data.all():",ccp4_map_data.all()) # these are same as map grid for L1 stalk both original and map_boxed map
+    #print ("\tccp4_map_data.all():",ccp4_map_data.all()) # these are same as map grid for L1 stalk both original and map_boxed map
     # L1 stalk original emd_6315 (360, 360, 360)
     # L1 stalk boxed map (by DN) (99, 87, 85)
     
@@ -456,7 +460,7 @@ def know_how_much_map_origin_moved(map_file_name):
     # widthx (3.82) is much larger than pixel size (1.05) for L1 stalk original map
     
     widthx = a/ccp4_map.unit_cell_grid[0]
-    print ("\twidthx", str(widthx)) # with nucleosome, I confirmed that widthx doesn't change by origin shift
+    #print ("\twidthx", str(widthx)) # with nucleosome, I confirmed that widthx doesn't change by origin shift
     
     if (emmap_x0 == 0 and emmap_y0 == 0 and emmap_z0 == 0):
         return "origin_is_all_zero"
@@ -500,7 +504,6 @@ def know_total_number_of_cores(logfile):
 ######### end of know_total_number_of_cores function
 
 
-
 def line_prepender(filename, line):
     with open(filename, 'r+') as f:
         content = f.read()
@@ -508,19 +511,35 @@ def line_prepender(filename, line):
         f.write(line.rstrip('\r\n') + '\n' + content)
 #################### end of line_prepender()
 
+
 def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
-    total_combi_num = 0
     start_temperature_array = []
+    number_of_MD_in_each_epoch_array = []
     
     for start_temperature in range (300, 901, 300):
-      write_this = "Cryo_fit2 will explore " + str(start_temperature) + " start_temperature\n"
-      logfile.write(write_this)
-      total_combi_num = total_combi_num + 1
-      start_temperature_array.append(start_temperature)
+        start_temperature_array.append(start_temperature)
+    for number_of_MD_in_each_epoch in range (1, 22, 10):
+        number_of_MD_in_each_epoch_array.append(number_of_MD_in_each_epoch)
     
-    argstuples = [( self, self.params, start_temperature_array[0], logfile, user_map_weight, bp_cutoff), \
-                  ( self, self.params, start_temperature_array[1], logfile, user_map_weight, bp_cutoff), \
-                  ( self, self.params, start_temperature_array[2], logfile, user_map_weight, bp_cutoff) ]
+    # Look up other ez mp cases
+    # Consider to use append
+
+    argstuples = [( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[0], number_of_MD_in_each_epoch_array[0]), \
+                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[0], number_of_MD_in_each_epoch_array[1]), \
+                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[0], number_of_MD_in_each_epoch_array[2]), \
+                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[1], number_of_MD_in_each_epoch_array[0]), \
+                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[1], number_of_MD_in_each_epoch_array[1]), \
+                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[1], number_of_MD_in_each_epoch_array[2]), \
+                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[2], number_of_MD_in_each_epoch_array[0]), \
+                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[2], number_of_MD_in_each_epoch_array[1]), \
+                  ( self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature_array[2], number_of_MD_in_each_epoch_array[2])]
+    #print ("argstuples:",argstuples) # "[(<cryo_fit2_program.Program object at 0x119d16cd0>, <libtbx.phil.scope_extract object at 0x119d16f10>, <open file 'cryo_fit2.log', mode 'w' at 0x119de8b70>, '', 1.9, 300), (<cryo_fit2_program.Program object at 0x119d16cd0>, <libtbx.phil.scope_extract object at 0x119d16f10>, <open file 'cryo_fit2.log', mode 'w' at 0x119de8b70>, '', 1.9, 600), (<cryo_fit2_program.Program object at 0x119d16cd0>, <libtbx.phil.scope_extract object at 0x119d16f10>, <open file 'cryo_fit2.log', mode 'w' at 0x119de8b70>, '', 1.9, 900)]"
+    
+    total_combi_num = 0
+    for start_temperature in range (300, 901, 300):
+        for number_of_MD_in_each_epoch in range (1, 40, 6):
+            total_combi_num = total_combi_num + 1
+            
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
 

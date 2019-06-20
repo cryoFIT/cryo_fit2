@@ -122,7 +122,8 @@ class cryo_fit2_class(object):
     # but Mg channel with 10k check took 10 days!
     
     cc_check_after_every_this_cycle = ''
-    if (model_file_name_only == "tst_cryo_fit2_helix"):
+    if (("tst_cryo_fit2" in model_file_name_only) == True):
+    #if (model_file_name_only == "tst_cryo_fit2_helix"):
       cc_check_after_every_this_cycle = 5
     elif (number_of_atoms_in_input_pdb < 3000):
       cc_check_after_every_this_cycle = 1000
@@ -136,7 +137,7 @@ class cryo_fit2_class(object):
     for i in range(100000000): # runs well with cryo_fit2.run_tests
     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
  
-      if (self.params.progress_on_screen == True):
+      if (self.params.progress_on_screen == True): # default choice
         result = sa.run(
           params = params,
           xray_structure     = self.model.get_xray_structure(),
@@ -163,7 +164,7 @@ class cryo_fit2_class(object):
       total_steps_so_far = total_steps_so_far + params.number_of_steps*multiply_this
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
-      write_this = "cc after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
+      write_this = "cc after an epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
@@ -192,7 +193,7 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
 
         if (best_cc_so_far < cc_after_small_MD):
-          write_this = "\nTherefore, run longer MD.\n"
+          write_this = "Therefore, run longer MD.\n\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           best_cc_so_far = cc_after_small_MD
