@@ -75,7 +75,7 @@ number_of_MD_in_each_epoch = None
   .type = int
   .short_caption = An epoch here is different from the one in deep learning. \
                    Here, the epoch is each iteration of MD from start_temperature to final_temperature. \
-                   If not specified, cryo_fit2 will use the optimized value after automatic exploration.
+                   If not specified, cryo_fit2 will use the optimized value by automatic exploration.
 start_temperature = None
   .type = float
   .short_caption = Starting temperature of annealing in Kelvin. \
@@ -87,9 +87,6 @@ map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
-weight_boost = 1
-  .type = float
-  .short_caption = boost cryo-EM map weight by this much. For a helix, 20 keeps geometry, 100 breaks it.
 resolution = None
   .type = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
@@ -118,6 +115,10 @@ total_steps = None
   .type = int
   .short_caption = The total number of steps in phenix.dynamics.\
                    If specified, run up to this number of steps no matter what.
+weight_boost = None
+  .type = float
+  .short_caption = boost cryo-EM map weight by this much. For a helix, 20 keeps geometry, 100 breaks it (w/o special sigma) \
+                   If not specified, cryo_fit2 will use the optimized value by automatic exploration.
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
 selection_fixed = None
@@ -395,8 +396,9 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ########## <begin> Automatic map weight determination
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
-      self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'', self.params.weight_boost)
-      logfile.write("\nAutomatically optimized map_weight: ")
+      #self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'', self.params.weight_boost)
+      self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
+      logfile.write("\nAutomatically optimized map_weight (before any boost): ")
     else:
       user_map_weight = self.params.map_weight # this user_map_weight will be used later
       logfile.write("\nUser specified map_weight: ")
@@ -408,6 +410,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     user_start_temperature = None # important initially declared global variable
     user_number_of_MD_in_each_epoch = None # important initially declared global variable
+    user_weight_boost = None # important initially declared global variable
     bp_in_a_user_pdb_file, ss_file = know_bp_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
     if (bp_in_a_user_pdb_file == 0):
         write_this = "A user input file has no base pair between nucleic acids, no explore (for now)\n"
@@ -429,6 +432,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         user_start_temperature = self.params.start_temperature
       if (self.params.number_of_MD_in_each_epoch != None):
         user_number_of_MD_in_each_epoch = self.params.number_of_MD_in_each_epoch
+      if (self.params.weight_boost != None):
+        user_weight_boost = self.params.weight_boost
         
       if (os.path.isdir("parameters_exploration") == True):
         shutil.rmtree("parameters_exploration")
@@ -447,19 +452,23 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
           #print ('Arguments: ', str(args)) # "Arguments:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           #print ('Arguments: %s' %(args)) # "TypeError: not all arguments converted during string formatting"
 
-      write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " number of MD parameter combinations\n"
+      write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " combinations of MD parameter\n"
+      print (write_this)
       logfile.write(write_this)
 
-      optimum_start_temperature, optimum_number_of_MD_in_each_epoch = extract_the_best_cc_parameters(logfile)
+      optimum_start_temperature, optimum_number_of_MD_in_each_epoch, optimum_weight_boost = extract_the_best_cc_parameters(logfile)
       
       self.params.start_temperature = float(optimum_start_temperature)
       self.params.number_of_MD_in_each_epoch = float(optimum_number_of_MD_in_each_epoch)
+      self.params.weight_boost= float(optimum_weight_boost)
 
       # override self.params.* with user entered values
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
       if (user_number_of_MD_in_each_epoch != None):
         self.params.number_of_MD_in_each_epoch = user_number_of_MD_in_each_epoch
+      if (user_weight_boost != None):
+        self.params.weight_boost = user_weight_boost
     ####################### <end> explore the optimal combination of parameters
   
     ### Assign default values if not specified
@@ -467,6 +476,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.start_temperature = 300
     if (self.params.number_of_MD_in_each_epoch == None):
       self.params.number_of_MD_in_each_epoch = 4
+    if (self.params.weight_boost == None):
+      self.params.weight_boost = 5
       
     ###############  (begin) core cryo_fit2    
     print ("Final MD parameters after user input/automatic optimization")
@@ -510,7 +521,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     input_command_file.write(str(cryo_fit2_input_command))
     input_command_file.close()
     
-    logfile.write("An input command for final cryo_fit2 MD run: ")
+    logfile.write("\nAn input command for final cryo_fit2 MD run: ")
     logfile.write(str(cryo_fit2_input_command))
     
     

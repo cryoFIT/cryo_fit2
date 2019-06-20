@@ -133,6 +133,9 @@ class cryo_fit2_class(object):
   
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
 
+    # this is the only place whether weight_boost is applied
+    self.params.map_weight = self.params.map_weight * weight_boost
+    
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       if (self.params.progress_on_screen == True): # default choice
         result = sa.run(
@@ -195,7 +198,8 @@ class cryo_fit2_class(object):
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
-          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)
+          #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)
+          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
           continue
         
         write_this = "np.mean(cc_1st_array):" + str(np.mean(cc_1st_array)) + "\n"
@@ -210,7 +214,8 @@ class cryo_fit2_class(object):
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
-          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)
+          #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, weight_boost)
+          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
         else:
           write_this = "\ncc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"
           print('%s' %(write_this))
