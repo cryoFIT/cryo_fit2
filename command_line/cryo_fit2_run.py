@@ -123,12 +123,11 @@ class cryo_fit2_class(object):
     
     cc_check_after_every_this_cycle = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
-    #if (model_file_name_only == "tst_cryo_fit2_helix"):
       cc_check_after_every_this_cycle = 5
     elif (number_of_atoms_in_input_pdb < 3000):
-      cc_check_after_every_this_cycle = 1000
+      cc_check_after_every_this_cycle = 600
     elif (number_of_atoms_in_input_pdb < 5000):
-      cc_check_after_every_this_cycle = 500
+      cc_check_after_every_this_cycle = 400
     else:
       cc_check_after_every_this_cycle = 200
   
