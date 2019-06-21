@@ -7,8 +7,8 @@ tst4_cryo_fit2_test_parameters_exploration_RNA
 tst5_cryo_fit2_test_parameters_exploration_protein
 
 
-wall clock time: 15.79 seconds
-wall clock time: 19.90 seconds
-wall clock time: 19.41 seconds
-wall clock time: 24.58 seconds
-wall clock time: 17.59 seconds
+wall clock time: 17.04 seconds
+wall clock time: 19.03 seconds
+wall clock time: 18.82 seconds
+wall clock time: 24.75 seconds
+wall clock time: 18.75 seconds

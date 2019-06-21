@@ -99,7 +99,7 @@ class cryo_fit2_class(object):
     self.logfile.write(str(write_this))
     
     
-########################### <begin> iterate until cryo_fit2 derived cc saturates
+
     result = ''
     total_steps_so_far = 0
 
@@ -131,6 +131,7 @@ class cryo_fit2_class(object):
     else:
       cc_check_after_every_this_cycle = 200
   
+  ########################### <begin> iterate until cryo_fit2 derived cc saturates
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
     
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)

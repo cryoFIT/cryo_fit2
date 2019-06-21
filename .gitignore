@@ -6,5 +6,7 @@ regression/cryo_fit2.input_command.txt
 regression/cryo_fit2.log
 regression/output*
 regression/parameter*
+regression/*.eff
+regression/*.pml
 tutorial/cryo_fit2.input_command.txt
 tutorial/output*

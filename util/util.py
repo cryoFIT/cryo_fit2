@@ -107,7 +107,7 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     
     command_string = "phenix.secondary_structure_restraints " + fitted_file_name_wo_path
     #print (command_string+"\n\n")
-    logfile.write(command_string+"\n")
+    #logfile.write(command_string+"\n")
     libtbx.easy_run.fully_buffered(command_string)
     
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
@@ -161,16 +161,15 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 
-
-def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, start_temperature, number_of_MD_in_each_epoch, weight_boost):
-    
-    print ("\nstart_temperature that will be explored:", str(start_temperature))
-    print ("number_of_MD_in_each_epoch that will be explored:", str(number_of_MD_in_each_epoch))
-    print ("weight_boost that will be explored:", str(weight_boost))
+def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, \
+                                     number_of_steps, start_temperature, weight_boost):
+    print ("\nMD_in_each_epoch that will be explored:", str(MD_in_each_epoch))
+    print ("number_of_steps that will be explored:",    str(number_of_steps))
+    print ("start_temperature that will be explored:",  str(start_temperature))
+    print ("weight_boost that will be explored:",       str(weight_boost))
     
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.map_weight:", str(round(params.map_weight,2)))
-    print ("params.number_of_steps:", str(params.number_of_steps))
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         params.total_steps = 10000 # this multi core run is to explore options
@@ -183,10 +182,11 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
 
     # Re-assign params for below cryo_fit2 run
     params.start_temperature = start_temperature
-    params.number_of_MD_in_each_epoch = number_of_MD_in_each_epoch
+    params.MD_in_each_epoch = MD_in_each_epoch
+    params.number_of_steps = number_of_steps
     params.weight_boost = weight_boost
     
-    params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.number_of_MD_in_each_epoch)-1))
+    params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_epoch)-1))
     print ("params.cool_rate:", str(round(params.cool_rate, 1)))
     
     init_output_dir = get_output_dir_name(self)
@@ -213,15 +213,11 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         if (os.path.isdir("parameters_exploration/bp_kept") == False):
             os.mkdir("parameters_exploration/bp_kept")
         command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_kept"
-        logfile.write(command_string)
-        #print ("command:", command_string)
         libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     else:
         if (os.path.isdir("parameters_exploration/bp_not_kept") == False):
             os.mkdir("parameters_exploration/bp_not_kept")
         command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_not_kept"
-        logfile.write(command_string)
-        #print ("command:", command_string)
         libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     
     return bp    
@@ -254,22 +250,25 @@ def extract_the_best_cc_parameters(logfile):
         splited2 = splited[1].split("_bp_")
         cc = splited2[len(splited2)-2]
         if (float(cc) == float(best_cc_so_far)):
+            splited = check_this_dir.split("_MD_in_each_epoch_")
+            splited2 = splited[1].split("_step_")
+            optimum_MD_in_each_epoch = splited2[0]
+            
+            splited = check_this_dir.split("_step_")
+            splited2 = splited[1].split("_strong_ss_")
+            optimum_number_of_steps = splited2[0]
+            
             splited = check_this_dir.split("_start_")
             splited2 = splited[1].split("_final_")
             optimum_start_temperature = splited2[0]
-            
-            splited = check_this_dir.split("_number_of_MD_in_each_epoch_")
-            splited2 = splited[1].split("_step_")
-            optimum_number_of_MD_in_each_epoch = splited2[0]
             
             splited = check_this_dir.split("_weight_boost_")
             splited2 = splited[1].split("_sigma_")
             optimum_weight_boost = splited2[0]
             
             os.chdir(starting_dir)
-            return optimum_start_temperature, optimum_number_of_MD_in_each_epoch, optimum_weight_boost
+            return optimum_MD_in_each_epoch, optimum_number_of_steps, optimum_start_temperature, optimum_weight_boost
 ############ end of def extract_the_best_cc_parameters():
-
 
 
 def get_output_dir_name(self):
@@ -279,7 +278,7 @@ def get_output_dir_name(self):
                  "_resolution_" + str(self.params.resolution) + \
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
-                 "_number_of_MD_in_each_epoch_" + str(self.params.number_of_MD_in_each_epoch) + \
+                 "_MD_in_each_epoch_" + str(self.params.MD_in_each_epoch) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_strong_ss_" + str(self.params.strong_ss) + \
                  "_weight_boost_" + str(round(self.params.weight_boost,1)) + \
@@ -293,7 +292,6 @@ def get_output_dir_name(self):
                  #"_bp_hb_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     return output_dir
 ########## end of def get_output_dir_name(self)
-
 
 
 def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file):
@@ -376,6 +374,7 @@ map_weight can't be optimized automatically.
 ######################## end of get_pdb_inputs_by_pdb_file_name function
 
 
+
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
 
@@ -399,6 +398,7 @@ def know_bp_in_a_user_pdb_file(user_pdb_file, logfile):
     
     return number_of_bp_in_fitted_pdb, ss_file_name
 ######################## end of def know_bp_in_a_user_pdb_file(user_pdb_file):
+
 
 
 def know_how_much_map_origin_moved(map_file_name):
@@ -466,6 +466,7 @@ def know_how_much_map_origin_moved(map_file_name):
 ############## end of know_how_much_map_origin_moved function
 
 
+
 def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
     command_string = "cat " + starting_pdb + " | grep ATOM | wc -l"
     num_ATOMs = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
@@ -475,6 +476,7 @@ def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
     logfile.write(write_this)
     return number_of_atoms_in_input_pdb
 ################# end of know_number_of_atoms_in_input_pdb()
+
 
 
 def know_total_number_of_cores(logfile):
@@ -498,12 +500,14 @@ def know_total_number_of_cores(logfile):
 ######### end of know_total_number_of_cores function
 
 
+
 def line_prepender(filename, line):
     with open(filename, 'r+') as f:
         content = f.read()
         f.seek(0, 0)
         f.write(line.rstrip('\r\n') + '\n' + content)
 #################### end of line_prepender()
+
 
 
 def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
@@ -513,16 +517,18 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
     ## sigma is fixed as 0.1
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         for start_temperature in range (300, 901, 300):
-            for number_of_MD_in_each_epoch in range (2, 23, 10):
+            for MD_in_each_epoch in range (2, 23, 10):
                 for weight_boost in range (1, 101, 10):
-                    total_combi_num = total_combi_num + 1
-                    argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature, number_of_MD_in_each_epoch, weight_boost])
+                    for number_of_steps in range (1, 501, 100):
+                        total_combi_num = total_combi_num + 1
+                        argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_boost])
     else: # to save regression time
         for start_temperature in range (300, 601, 300):
-            for number_of_MD_in_each_epoch in range (2, 4, 10):
+            for MD_in_each_epoch in range (2, 4, 10):
                 for weight_boost in range (1, 3, 10):
-                    total_combi_num = total_combi_num + 1
-                    argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, start_temperature, number_of_MD_in_each_epoch, weight_boost])
+                    for number_of_steps in range (1, 51, 100):
+                        total_combi_num = total_combi_num + 1
+                        argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_boost])
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
 
@@ -661,8 +667,6 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     return file_name_w_user_s_original_pdb_info
 ############################ end of prepend_extracted_CRYST1_to_pdb_file
 
-
-
 def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style of RNA file
     f_in = open(input_pdb_file_name)
     output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_cryo_fit2.pdb"
@@ -705,7 +709,6 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
     return cleaned, output_pdb_file_name
 ########################### end of remove_R_prefix_in_RNA function
 
-
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
       write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for additional MD run\n"
@@ -731,7 +734,6 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   return self.params.map_weight
 ############### end of reoptimize_map_weight_if_not_specified function
             
-
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
     print ("widthx:",widthx)
     move_x_by = move_x_by*widthx
@@ -781,7 +783,6 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
     command = "mv " + output_pdb_file_name + " " + input_pdb_file_name
     libtbx.easy_run.call(command)
 ################################## end of return_to_origin_of_pdb_file ()
-
 
 
 def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_from_option):

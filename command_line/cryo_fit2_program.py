@@ -61,20 +61,21 @@ keep_origin = True
     .help   = If True, write out model with origin in original location.  \
               If False, shift map origin to (0,0,0). 
     .short_caption = Keep origin of a resulted atomic model
-loose_ss_def = False
-    .type   = bool
-    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
-              If False, use Oleg's original strict definition. 
 final_temperature = 0
   .type = float
   .short_caption = Final temperature of annealing in Kelvin
-number_of_steps = 100
-  .type = int
-  .short_caption = number of steps in phenix.dynamics
-number_of_MD_in_each_epoch = None
+loose_ss_def = False
+    .type   = bool
+    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
+              If False, use Oleg's original strict definition.
+MD_in_each_epoch = None
   .type = int
   .short_caption = An epoch here is different from the one in deep learning. \
                    Here, the epoch is each iteration of MD from start_temperature to final_temperature. \
+                   If not specified, cryo_fit2 will use the optimized value by automatic exploration.
+number_of_steps = None
+  .type = int
+  .short_caption = The number of MD steps in each phenix.dynamics \
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
 start_temperature = None
   .type = float
@@ -140,7 +141,6 @@ selection_moving_preset = * ca backbone all
 ''' ############## end of base_master_phil_str
 
 
-
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
 modified_master_phil_str = change_default_phil_values(
   base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
@@ -190,13 +190,14 @@ Options:
   
   final_temperature            (default: 0)
   
-  number_of_MD_in_each_epoch   An epoch here is different from the one in deep learning.
+  MD_in_each_epoch   An epoch here is different from the one in deep learning.
                                Here, the epoch is each iteration of MD from start_temperature to final_temperature.
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
   
-  number_of_steps              (default: 20)
+  number_of_steps              The number of MD steps in each phenix.dynamics
+                               If not specified, cryo_fit2 will use the optimized value after automatic exploration.
   
-  total_steps        (default: None)
+  total_steps                  (default: None)
                                If specified, run up to this number of step no matter what.
   
   secondary_structure.enabled  (default: True)
@@ -210,7 +211,8 @@ Options:
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
   
-  output_dir                   output folder name prefix (default: output)
+  output_dir                   (default: output)
+                               output folder name prefix 
   
   keep_origin                  (default: True)
                                If True, write out model with origin in original location.
@@ -382,14 +384,14 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     if (self.params.devel == True) :
       self.params.start_temperature = 300
       self.params.final_temperature = 280
-      self.params.number_of_MD_in_each_epoch = 2
+      self.params.MD_in_each_epoch = 2
       self.params.number_of_steps = 1
       self.params.total_steps = 50
 
     elif (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
-      self.params.number_of_MD_in_each_epoch = 5
+      self.params.MD_in_each_epoch = 5
       self.params.number_of_steps = 1000
       self.params.total_steps = 2000
 
@@ -408,9 +410,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ########## <end> Automatic map weight determination
     
     
-    user_start_temperature = None # important initially declared global variable
-    user_number_of_MD_in_each_epoch = None # important initially declared global variable
-    user_weight_boost = None # important initially declared global variable
+    # importantly declared initial global variables
+    user_start_temperature = None 
+    user_MD_in_each_epoch = None 
+    user_number_of_steps = None 
+    user_weight_boost = None
+    
     bp_in_a_user_pdb_file, ss_file = know_bp_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
     if (bp_in_a_user_pdb_file == 0):
         write_this = "A user input file has no base pair between nucleic acids, no explore (for now)\n"
@@ -419,7 +424,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     
     if ((self.params.explore == True) and (bp_in_a_user_pdb_file != 0)):
-    ####################### <begin> Explore the optimal combination of parameters
+      ####################### <begin> Explore the optimal combination of parameters
       ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
       bp_cutoff = bp_in_a_user_pdb_file * 0.95
@@ -430,8 +435,10 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       # save a user entered params.* now
       if (self.params.start_temperature != None):
         user_start_temperature = self.params.start_temperature
-      if (self.params.number_of_MD_in_each_epoch != None):
-        user_number_of_MD_in_each_epoch = self.params.number_of_MD_in_each_epoch
+      if (self.params.MD_in_each_epoch != None):
+        user_MD_in_each_epoch = self.params.MD_in_each_epoch
+      if (self.params.number_of_steps != None):
+        user_number_of_steps = self.params.number_of_steps
       if (self.params.weight_boost != None):
         user_weight_boost = self.params.weight_boost
         
@@ -439,11 +446,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
       
-      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff)
+      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff) # user_map_weight should tag along for a later usage
       
       number_of_total_cores = know_total_number_of_cores(logfile)
+      # so far ran well
       for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
-          print ("each easy_mp.multi_core_run ran")
+          print ("explore_parameters_by_multi_core ran")
           #print ('Result (bp): %s ' %(res))
           # 1st it returned None
           # Then, it well returned correct bp
@@ -452,21 +460,25 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
           #print ('Arguments: ', str(args)) # "Arguments:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           #print ('Arguments: %s' %(args)) # "TypeError: not all arguments converted during string formatting"
 
-      write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " combinations of MD parameter\n"
+      write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " combinations of MD parameters.\n It will run fully with optimized parameters.\n"
       print (write_this)
       logfile.write(write_this)
 
-      optimum_start_temperature, optimum_number_of_MD_in_each_epoch, optimum_weight_boost = extract_the_best_cc_parameters(logfile)
+      optimum_MD_in_each_epoch, optimum_number_of_steps, optimum_start_temperature, optimum_weight_boost = extract_the_best_cc_parameters(logfile)
       
+
+      self.params.MD_in_each_epoch = int(optimum_MD_in_each_epoch)
+      self.params.number_of_steps = int(optimum_number_of_steps)
       self.params.start_temperature = float(optimum_start_temperature)
-      self.params.number_of_MD_in_each_epoch = float(optimum_number_of_MD_in_each_epoch)
       self.params.weight_boost= float(optimum_weight_boost)
 
       # override self.params.* with user entered values
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
-      if (user_number_of_MD_in_each_epoch != None):
-        self.params.number_of_MD_in_each_epoch = user_number_of_MD_in_each_epoch
+      if (user_MD_in_each_epoch != None):
+        self.params.MD_in_each_epoch = user_MD_in_each_epoch
+      if (user_number_of_steps != None):
+        self.params.number_of_steps = user_number_of_steps
       if (user_weight_boost != None):
         self.params.weight_boost = user_weight_boost
     ####################### <end> explore the optimal combination of parameters
@@ -474,8 +486,10 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ### Assign default values if not specified
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
-    if (self.params.number_of_MD_in_each_epoch == None):
-      self.params.number_of_MD_in_each_epoch = 4
+    if (self.params.MD_in_each_epoch == None):
+      self.params.MD_in_each_epoch = 4
+    if (self.params.number_of_steps == None):
+      self.params.number_of_steps = 100
     if (self.params.weight_boost == None):
       self.params.weight_boost = 5
       
@@ -484,8 +498,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     print ("start_temperature: ", str(self.params.start_temperature))
     print ("final_temperature: ", str(self.params.final_temperature))
     print ("number_of_steps: ", str(self.params.number_of_steps))
-    print ("number_of_MD_in_each_epoch: ", str(self.params.number_of_MD_in_each_epoch))
-    self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.number_of_MD_in_each_epoch-1)
+    print ("MD_in_each_epoch: ", str(self.params.MD_in_each_epoch))
+    self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
     print ("cool_rate", str(self.params.cool_rate))
     
     output_dir = get_output_dir_name(self)
@@ -499,7 +513,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
                             + "sigma=" + str(self.params.sigma) + " " \
                             + "start_temperature=" + str(self.params.start_temperature) + " " \
                             + "final_temperature=" + str(self.params.final_temperature) + " " \
-                            + "number_of_MD_in_each_epoch=" + str(self.params.number_of_MD_in_each_epoch) + " " \
+                            + "MD_in_each_epoch=" + str(self.params.MD_in_each_epoch) + " " \
                             + "cool_rate=" + str(round(self.params.cool_rate,1)) + " " \
                             + "number_of_steps=" + str(self.params.number_of_steps) + " " \
                             + "weight_boost=" + str(round(self.params.weight_boost,1)) + " " \

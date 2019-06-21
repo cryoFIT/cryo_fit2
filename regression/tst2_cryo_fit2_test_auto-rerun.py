@@ -35,12 +35,12 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   explore = "explore=False"
   start_temperature = "start_temperature=300"
   final_temperature = "final_temperature=280"
-  number_of_MD_in_each_epoch = "number_of_MD_in_each_epoch=2"
+  MD_in_each_epoch = "MD_in_each_epoch=2"
   number_of_steps = "number_of_steps=1"
   assert (not None in [pdb_file, map_file])
   cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, \
                                   args=[pdb_file, map_file, resolution, start_temperature, final_temperature, \
-                                        number_of_MD_in_each_epoch, number_of_steps, map_weight, explore])
+                                        MD_in_each_epoch, number_of_steps, map_weight, explore])
 ############## end of exercise_cryo_fit2()
 
 
