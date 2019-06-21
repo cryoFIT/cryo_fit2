@@ -50,6 +50,9 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
+cool_rate = None
+  .type = float
+  .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
 devel = False
     .type   = bool
     .help   = If True, run quickly only to check sanity
@@ -81,16 +84,10 @@ start_temperature = None
   .type = float
   .short_caption = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
-cool_rate = None
-  .type = float
-  .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
 map_weight = None
   .type = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
-resolution = None
-  .type = float
-  .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
 output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
@@ -103,15 +100,18 @@ record_states = False
     .help     = If True, cryo_fit2 records all states and save it to all_states.pdb. \
                 However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                 If False, cryo_fit2 doesn't record each state of molecular dynamics.
-strong_ss = True
-    .type   = bool
-    .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
-              If False, it will use the original sigma (e.g. 1)
+resolution = None
+  .type = float
+  .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
 sigma = 0.021
   .type = float
   .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
                    Oleg recommended 0.021 which is the sigma value for covalent bond. \
                    Doo Nam's benchmark (144 combinations of options) shows that 1.00E-06, 0.1, and 0.2 do not make any difference in base_pair keeping
+strong_ss = True
+    .type   = bool
+    .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
+              If False, it will use the original sigma (e.g. 1)
 total_steps = None
   .type = int
   .short_caption = The total number of steps in phenix.dynamics.\
@@ -190,7 +190,7 @@ Options:
   
   final_temperature            (default: 0)
   
-  MD_in_each_epoch   An epoch here is different from the one in deep learning.
+  MD_in_each_epoch             An epoch here is different from the one in deep learning.
                                Here, the epoch is each iteration of MD from start_temperature to final_temperature.
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
   
@@ -411,9 +411,10 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     
     # importantly declared initial global variables
-    user_start_temperature = None 
+    user_cool_rate = None
     user_MD_in_each_epoch = None 
     user_number_of_steps = None 
+    user_start_temperature = None
     user_weight_boost = None
     
     bp_in_a_user_pdb_file, ss_file = know_bp_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
@@ -433,12 +434,14 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.write(write_this)
       
       # save a user entered params.* now
-      if (self.params.start_temperature != None):
-        user_start_temperature = self.params.start_temperature
+      if (self.params.cool_rate != None):
+        user_cool_rate = self.params.cool_rate
       if (self.params.MD_in_each_epoch != None):
         user_MD_in_each_epoch = self.params.MD_in_each_epoch
       if (self.params.number_of_steps != None):
         user_number_of_steps = self.params.number_of_steps
+      if (self.params.start_temperature != None):
+        user_start_temperature = self.params.start_temperature
       if (self.params.weight_boost != None):
         user_weight_boost = self.params.weight_boost
         
@@ -466,30 +469,29 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
 
       optimum_MD_in_each_epoch, optimum_number_of_steps, optimum_start_temperature, optimum_weight_boost = extract_the_best_cc_parameters(logfile)
       
-
       self.params.MD_in_each_epoch = int(optimum_MD_in_each_epoch)
       self.params.number_of_steps = int(optimum_number_of_steps)
       self.params.start_temperature = float(optimum_start_temperature)
       self.params.weight_boost= float(optimum_weight_boost)
 
       # override self.params.* with user entered values
-      if (user_start_temperature != None):
-        self.params.start_temperature = user_start_temperature
       if (user_MD_in_each_epoch != None):
         self.params.MD_in_each_epoch = user_MD_in_each_epoch
       if (user_number_of_steps != None):
         self.params.number_of_steps = user_number_of_steps
+      if (user_start_temperature != None):
+        self.params.start_temperature = user_start_temperature
       if (user_weight_boost != None):
         self.params.weight_boost = user_weight_boost
     ####################### <end> explore the optimal combination of parameters
   
-    ### Assign default values if not specified
-    if (self.params.start_temperature == None):
-      self.params.start_temperature = 300
+    ### Assign default values if not specified till now
     if (self.params.MD_in_each_epoch == None):
       self.params.MD_in_each_epoch = 4
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
+    if (self.params.start_temperature == None):
+      self.params.start_temperature = 300
     if (self.params.weight_boost == None):
       self.params.weight_boost = 5
       
@@ -499,7 +501,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     print ("final_temperature: ", str(self.params.final_temperature))
     print ("number_of_steps: ", str(self.params.number_of_steps))
     print ("MD_in_each_epoch: ", str(self.params.MD_in_each_epoch))
-    self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
+    
+    # override self.params.* with user entered values
+    if (user_cool_rate != None):
+        self.params.cool_rate = user_cool_rate
+    else:
+      self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
     print ("cool_rate", str(self.params.cool_rate))
     
     output_dir = get_output_dir_name(self)
