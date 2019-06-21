@@ -56,9 +56,10 @@ cool_rate = None
 devel = False
     .type   = bool
     .help   = If True, run quickly only to check sanity
-explore = True
+explore = False
   .type = bool
-  .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.
+  .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.\
+                   But this exploration requires a lot of computing power (e.g. >128 GB memory, > 20 cores).
 keep_origin = True
     .type   = bool
     .help   = If True, write out model with origin in original location.  \
@@ -286,7 +287,7 @@ Options:
     #     logfile.write(write_this)
     #     exit(1)
     
-    print ("A user entered resolution", str(self.params.resolution))
+    print ("A user entered resolution:", str(self.params.resolution))
     
     print('A user input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
@@ -463,7 +464,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
           #print ('Arguments: ', str(args)) # "Arguments:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           #print ('Arguments: %s' %(args)) # "TypeError: not all arguments converted during string formatting"
 
-      write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " combinations of MD parameters.\n It will run fully with optimized parameters.\n"
+      write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " combinations of MD parameters.\nIt will run fully with optimized parameters.\n"
       print (write_this)
       logfile.write(write_this)
 

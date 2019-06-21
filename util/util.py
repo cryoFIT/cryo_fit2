@@ -181,9 +181,9 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     map_inp = self.data_manager.get_real_map()
 
     # Re-assign params for below cryo_fit2 run
-    params.start_temperature = start_temperature
     params.MD_in_each_epoch = MD_in_each_epoch
     params.number_of_steps = number_of_steps
+    params.start_temperature = start_temperature
     params.weight_boost = weight_boost
     
     params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_epoch)-1))
@@ -516,13 +516,14 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
     ## final_temperature is fixed as 0
     ## sigma is fixed as 0.1
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        for start_temperature in range (300, 901, 300):
-            for MD_in_each_epoch in range (2, 23, 10):
-                for weight_boost in range (1, 101, 10):
-                    for number_of_steps in range (1, 501, 100):
+        # explore 450 combinations
+        for start_temperature in range (300, 901, 300): #3
+            for MD_in_each_epoch in range (2, 23, 10): # 3
+                for weight_boost in range (1, 101, 10): # 10
+                    for number_of_steps in range (1, 501, 100): #5
                         total_combi_num = total_combi_num + 1
                         argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_boost])
-    else: # to save regression time
+    else: # just explore 2 combinations to save regression time
         for start_temperature in range (300, 601, 300):
             for MD_in_each_epoch in range (2, 4, 10):
                 for weight_boost in range (1, 3, 10):
@@ -538,7 +539,8 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     write_this_CRYST1 = "CRYST1"
     unit_cell_parameters_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
     splited = unit_cell_parameters_from_map.split(",") # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
-    
+
+    # worked for part_tRNA, full_tRNA, L1_stalk, a helix and Mg_Channel
     soon_a = splited[0]
     splited_soon_a = soon_a.split("(")
     a = splited_soon_a[1]
@@ -547,17 +549,13 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     multi_after_period = ''
     
     splited_a = a.split(".")
-    if (len(splited_a) == 1): # just 336
+    if (len(splited_a) == 1): # just 336 without numbers after .
         multi_before_period = 5-len(splited_a[0])
         multi_after_period  = 3
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + multi_after_period*" "    
     else:
-        if (len(splited_a[0]) <= 5):
-          multi_before_period = 5-len(splited_a[0])
-          multi_after_period = 3-len(splited_a[1])
-        else:
-          multi_before_period = 7-len(splited_a[0])
-          multi_after_period = 0-len(splited_a[1])
+        multi_before_period = 4-len(splited_a[0])
+        multi_after_period = 4-len(splited_a[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + "." + splited_a[1]+multi_after_period*" "    
     
     
@@ -568,12 +566,8 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
         multi_after_period  = 3
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + multi_after_period*" " 
     else:
-        if (len(splited_b[0]) <= 5):
-            multi_before_period = 5-len(splited_b[0])
-            multi_after_period = 3-len(splited_b[1])
-        else:
-            multi_before_period = 7-len(splited_b[0])
-            multi_after_period = 0-len(splited_b[1])
+        multi_before_period = 4-len(splited_b[0])
+        multi_after_period = 4-len(splited_b[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + "." + splited_b[1]+multi_after_period*" "
 
     
@@ -584,12 +578,8 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
         multi_after_period  = 3
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + multi_after_period*" "
     else:
-        if (len(splited_c[0]) <= 5):
-            multi_before_period = 5-len(splited_c[0])
-            multi_after_period = 3-len(splited_c[1])
-        else:
-            multi_before_period = 7-len(splited_c[0])
-            multi_after_period = 0-len(splited_c[1])
+        multi_before_period = 4-len(splited_c[0])
+        multi_after_period = 4-len(splited_c[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + "." + splited_c[1]+multi_after_period*" "
     
 
@@ -642,7 +632,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
     
     
-    print ("Examplar correct CRYST1 format: CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
+    print ("Examplar correct CRYST1 format                : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
     
     if (map_inp.space_group_number == 19):
       write_this = "space_group_number from user input map = 19. Therefore, assign P 21 21 21 to a user input pdb file\n" # http://img.chem.ucl.ac.uk/sgp/large/019a.htm
@@ -652,7 +642,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     else:  
       write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to the user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
     
-    print ("Cryo_fit2 will prepend this CRYST1 information :",write_this_CRYST1, " to a user pdb file")
+    print ("Cryo_fit2 will prepend this CRYST1 information:",write_this_CRYST1, " to a user pdb file")
     
     file_name_w_user_s_original_pdb_info = self.data_manager.get_default_model_name() + ".original"
     command = "cp " + self.data_manager.get_default_model_name() + " " + file_name_w_user_s_original_pdb_info
@@ -666,6 +656,8 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     
     return file_name_w_user_s_original_pdb_info
 ############################ end of prepend_extracted_CRYST1_to_pdb_file
+
+
 
 def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style of RNA file
     f_in = open(input_pdb_file_name)
@@ -708,6 +700,8 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
       libtbx.easy_run.call(cmd)
     return cleaned, output_pdb_file_name
 ########################### end of remove_R_prefix_in_RNA function
+
+
 
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
@@ -996,7 +990,7 @@ def write_custom_geometry(logfile, input_model_file_name, sigma):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "\nCryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce a stronger sigma (e.g. " + str(sigma) + ")\n\n"
+  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce a stronger sigma (e.g. " + str(sigma) + ").\n"
   print(write_this)
   logfile.write(write_this)
   
