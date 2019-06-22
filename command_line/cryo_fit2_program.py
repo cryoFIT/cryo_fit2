@@ -53,75 +53,75 @@ include scope libtbx.phil.interface.tracking_params
 cool_rate        = None
   .type          = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
-devel            = False
-  .type          = bool
-  .short_caption          = If True, run quickly only to check sanity
-explore          = False
-  .type          = bool
+devel = False
+    .type   = bool
+    .help   = If True, run quickly only to check sanity
+explore = True
+  .type = bool
   .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.\
                    However, this exploration requires a lot of computing power (e.g. > 128 GB memory, > 20 cores).\
                    Exploring at a macbook pro (16 GB memory, 2 cores) crashed.
-keep_origin      = True
-  .type          = bool
-  .help          = If True, write out model with origin in original location.  \
-                   If False, shift map origin to (0,0,0). 
-  .short_caption = Keep origin of a resulted atomic model
 final_temperature = 0
-  .type           = float
-  .short_caption  = Final temperature of annealing in Kelvin
-loose_ss_def      = False
-  .type           = bool
-  .help           = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
-                    If False, use Oleg's original strict definition.
-MD_in_each_epoch = None
-  .type          = int
-  .short_caption = An epoch here is different from the one in deep learning. \
-                   Here, the epoch is each iteration of MD from start_temperature to final_temperature. \
-                   If not specified, cryo_fit2 will use the default value.
-number_of_steps  = None
-  .type          = int
-  .short_caption = The number of MD steps in each phenix.dynamics \
-                   If not specified, cryo_fit2 will use the default value.
-start_temperature = None
-  .type           = float
-  .short_caption = Starting temperature of annealing in Kelvin. \
-                   If not specified, cryo_fit2 will use the default value.
+  .type = float
+  .short_caption = Final temperature of annealing in Kelvin
+keep_origin = True
+    .type   = bool
+    .help   = If True, write out model with origin in original location.  \
+              If False, shift map origin to (0,0,0).
+    .short_caption = Keep origin of a resulted atomic model
+loose_ss_def = False
+    .type   = bool
+    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
+              If False, use Oleg's original strict definition.
 map_weight = None
-  .type          = float
+  .type = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
-output_dir       = output
-  .type          = path
-  .short_caption = Prefix of output folder
+MD_in_each_epoch = None
+  .type = int
+  .short_caption = An epoch here is different from the one in deep learning. \
+                   Here, the epoch is each iteration of MD from start_temperature to final_temperature. \
+                   If not specified, cryo_fit2 will use the optimized value by automatic exploration.
+number_of_steps = None
+  .type = int
+  .short_caption = The number of MD steps in each phenix.dynamics \
+                   If not specified, cryo_fit2 will use the optimized value by automatic exploration.
+output_dir = output
+  .type = path
+  .short_caption = Output folder PREFIX
 progress_on_screen = True
-  .type          = bool
-  .help          = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
-                   If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
+    .type          = bool
+    .help          = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
+                     If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
 record_states = False
-  .type          = bool
-  .help          = If True, cryo_fit2 records all states and save it to all_states.pdb. \
-                   However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
-                   If False, cryo_fit2 doesn't record each state of molecular dynamics.
+    .type     = bool
+    .help     = If True, cryo_fit2 records all states and save it to all_states.pdb. \
+                However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
+                If False, cryo_fit2 doesn't record each state of molecular dynamics.
 resolution = None
-  .type          = float
+  .type = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
 sigma = 0.021
-  .type          = float
+  .type = float
   .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
                    Oleg recommended 0.021 which is the sigma value for covalent bond. \
                    Doo Nam's benchmark (144 combinations of options) shows that 1.00E-06, 0.1, and 0.2 do not make any difference in base_pair keeping
+start_temperature = None
+  .type = float
+  .short_caption = Starting temperature of annealing in Kelvin. \
+                   If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 strong_ss = True
-  .type          = bool
-  .help          = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
-                   If False, it will use the original sigma (e.g. 1)
+    .type   = bool
+    .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
+              If False, it will use the original sigma (e.g. 1)
 total_steps = None
-  .type          = int
+  .type = int
   .short_caption = The total number of steps in phenix.dynamics.\
                    If specified, run up to this number of steps no matter what.
 weight_multiply = None
-  .type         = float
-  .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much.\ 
-                   If not specified, cryo_fit2 will use the default value (e.g. 1)\
+  .type = float
+  .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
+                   If not specified, cryo_fit2 will use the default value (e.g. 1) \
                    Usually a small molecule (a helix) requires only 1 (not multiply). \
                    For a helix, 20 keeps geometry, 100 breaks it (w/o special sigma) \
                    However, a large molecule needs a larger value (e.g. 10~50).
@@ -142,9 +142,9 @@ selection_fixed_preset = * ca backbone all
   .help = Selection preset for fixed model.
 selection_moving_preset = * ca backbone all
   .type = choice
-  .help = Selection preset for moving model.  
-''' ############## end of base_master_phil_str
-
+  .help = Selection preset for moving model.
+''' ############## end of base_master_phil_str  
+  
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
 modified_master_phil_str = change_default_phil_values(
