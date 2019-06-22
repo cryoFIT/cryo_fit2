@@ -162,11 +162,11 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, \
-                                     number_of_steps, start_temperature, weight_boost):
+                                     number_of_steps, start_temperature, weight_multiply):
     print ("\nMD_in_each_epoch that will be explored:", str(MD_in_each_epoch))
     print ("number_of_steps that will be explored:",    str(number_of_steps))
     print ("start_temperature that will be explored:",  str(start_temperature))
-    print ("weight_boost that will be explored:",       str(weight_boost))
+    print ("weight_multiply that will be explored:",       str(weight_multiply))
     
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.map_weight:", str(round(params.map_weight,2)))
@@ -184,7 +184,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     params.MD_in_each_epoch = MD_in_each_epoch
     params.number_of_steps = number_of_steps
     params.start_temperature = start_temperature
-    params.weight_boost = weight_boost
+    params.weight_multiply = weight_multiply
     
     params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_epoch)-1))
     print ("params.cool_rate:", str(round(params.cool_rate, 1)))
@@ -201,7 +201,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
       logfile           = logfile,
       output_dir        = init_output_dir,
       user_map_weight   = user_map_weight,
-      weight_boost      = self.params.weight_boost)
+      weight_multiply      = self.params.weight_multiply)
     
     task_obj.validate()
     
@@ -262,12 +262,12 @@ def extract_the_best_cc_parameters(logfile):
             splited2 = splited[1].split("_final_")
             optimum_start_temperature = splited2[0]
             
-            splited = check_this_dir.split("_weight_boost_")
+            splited = check_this_dir.split("_weight_multiply_")
             splited2 = splited[1].split("_sigma_")
-            optimum_weight_boost = splited2[0]
+            optimum_weight_multiply = splited2[0]
             
             os.chdir(starting_dir)
-            return optimum_MD_in_each_epoch, optimum_number_of_steps, optimum_start_temperature, optimum_weight_boost
+            return optimum_MD_in_each_epoch, optimum_number_of_steps, optimum_start_temperature, optimum_weight_multiply
 ############ end of def extract_the_best_cc_parameters():
 
 
@@ -281,7 +281,7 @@ def get_output_dir_name(self):
                  "_MD_in_each_epoch_" + str(self.params.MD_in_each_epoch) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_strong_ss_" + str(self.params.strong_ss) + \
-                 "_weight_boost_" + str(round(self.params.weight_boost,1)) + \
+                 "_weight_multiply_" + str(round(self.params.weight_multiply,1)) + \
                  "_sigma_" + str(self.params.sigma)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
@@ -519,17 +519,17 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
         # explore 450 combinations
         for start_temperature in range (300, 901, 300): #3
             for MD_in_each_epoch in range (2, 23, 10): # 3
-                for weight_boost in range (1, 101, 10): # 10
+                for weight_multiply in range (1, 101, 10): # 10
                     for number_of_steps in range (1, 501, 100): #5
                         total_combi_num = total_combi_num + 1
-                        argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_boost])
+                        argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_multiply])
     else: # just explore 2 combinations to save regression time
         for start_temperature in range (300, 601, 300):
             for MD_in_each_epoch in range (2, 4, 10):
-                for weight_boost in range (1, 3, 10):
+                for weight_multiply in range (1, 3, 10):
                     for number_of_steps in range (1, 51, 100):
                         total_combi_num = total_combi_num + 1
-                        argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_boost])
+                        argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_multiply])
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
 
@@ -705,7 +705,7 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
-      write_this = "User didn't specify map_weight. Therefore, automatically optimize map_weight for additional MD run\n"
+      write_this = "\nA user didn't specify a map_weight. Therefore, cryo_fit2 will automatically optimize map_weight for additional MD run\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
 

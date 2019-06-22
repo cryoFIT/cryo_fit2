@@ -27,7 +27,7 @@ from util import *
 
 
 class cryo_fit2_class(object):
-  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir, user_map_weight, weight_boost):
+  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir, user_map_weight, weight_multiply):
     self.model             = model
     self.model_name        = model_name
     self.map_inp           = map_inp
@@ -38,7 +38,7 @@ class cryo_fit2_class(object):
     self.output_dir        = output_dir
     self.desc              = os.path.basename(model_name)
     self.user_map_weight   = user_map_weight
-    self.weight_boost      = weight_boost
+    self.weight_multiply      = weight_multiply
   
   def __execute(self):
     self.caller(self.write_geo_file,       "Write GEO file")
@@ -91,7 +91,7 @@ class cryo_fit2_class(object):
     #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
     map_inp                        = self.map_inp
     user_map_weight                = self.user_map_weight
-    weight_boost                   = self.weight_boost
+    weight_multiply                   = self.weight_multiply
     
     cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
     write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n\n"
@@ -124,22 +124,26 @@ class cryo_fit2_class(object):
     cc_check_after_every_this_cycle = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       cc_check_after_every_this_cycle = 5
-    elif (number_of_atoms_in_input_pdb < 3000):
-      cc_check_after_every_this_cycle = 600
-    elif (number_of_atoms_in_input_pdb < 5000):
-      cc_check_after_every_this_cycle = 400
     else:
-      cc_check_after_every_this_cycle = 200
-  
+      cc_check_after_every_this_cycle = 500
+    '''
+    elif (number_of_atoms_in_input_pdb < 3000):
+      cc_check_after_every_this_cycle = 500
+    elif (number_of_atoms_in_input_pdb < 5000):
+      cc_check_after_every_this_cycle = 300
+    else:
+      cc_check_after_every_this_cycle = 100
+    '''
+    
   ########################### <begin> iterate until cryo_fit2 derived cc saturates
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
     
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
-      self.params.map_weight = self.params.map_weight * weight_boost
-      # This is the only place whether weight_boost is applied
-      # 1x~10x of weight_boost were not enough for L1 stalk fitting
-      # up to 20x of weight_boost, nucleic acid geometry was ok, 30x broke it
+      self.params.map_weight = self.params.map_weight * weight_multiply
+      # This is the only place whether weight_multiply is applied
+      # 1x~10x of weight_multiply were not enough for L1 stalk fitting
+      # up to 20x of weight_multiply, nucleic acid geometry was ok, 30x broke it
       
       if (self.params.progress_on_screen == True): # default choice
         result = sa.run(
@@ -167,7 +171,7 @@ class cryo_fit2_class(object):
       total_steps_so_far = total_steps_so_far + params.number_of_steps*multiply_this
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
-      write_this = "cc after an epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
+      write_this = "CC after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
