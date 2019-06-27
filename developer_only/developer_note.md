@@ -28,17 +28,14 @@ future    : Automatically support Nigel's phenix.eLBOW
 	    With map_weight=x, cryo_fit2 runs but with "Number of atoms with unknown nonbonded energy type symbols:"
 
 
-
-current    : Automatically use sophisticated strong geometry restraints (Oleg's) for nucleic acids and protein to solve floppy protein local structures (Mg_channel, adenylate kinase).
-             tRNA is the smallest molecule (fastest one to run) but more challenging than L1 stalk.
-	     /home/doonam/research/run/phenix/cryo_fit2/Mg_channel/20_steps_20_boost_strong_ss is promising for protein
+06/27/2019: Cryo_fit2 uses available number of cores automatically using from libtbx.introspection import number_of_processors
 	     
-now       : if combination works, use Rob's multi threading to automatically explore
+06/26/2019: Cryo_fit2 uses Rob's multi threading to automatically explore different MD parameters.
 
-As I checked with several extreme cases, different parameters combination exploration does have decent reproducibility.
+06/26/2019: As I checked with several extreme cases, different parameters combination exploration does have decent reproducibility.
 
-
-here I confirmed that distance, angle, bonds moves from phenix.dynamics are independent from each temperature step (rather than cumulative)
+06/25/2019:
+Here, I confirmed that distance, angle, bonds moves from phenix.dynamics are independent from each temperature step (rather than cumulative)
 ...
   temp= 1000.0 dist_moved=  0.20 angles=  2.63 bonds= 0.021
   temp=  900.0 dist_moved=  0.20 angles=  2.46 bonds= 0.020
@@ -52,7 +49,6 @@ here I confirmed that distance, angle, bonds moves from phenix.dynamics are inde
   temp=  100.0 dist_moved=  0.22 angles=  1.85 bonds= 0.014
   temp=    0.0 dist_moved=  0.22 angles=  1.85 bonds= 0.014
 ...
-
 
 05/17/2019: Updated tst2 regression to test short auto-rerun of MD
 

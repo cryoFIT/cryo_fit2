@@ -11,6 +11,7 @@ from libtbx import easy_pickle
 from libtbx import phil
 import iotbx.pdb
 import iotbx.phil
+from libtbx.introspection import number_of_processors # modules/dials/command_line/batch_analysis.py
 from libtbx.phil import change_default_phil_values
 import libtbx.phil
 import libtbx.phil.command_line
@@ -53,7 +54,7 @@ include scope libtbx.phil.interface.tracking_params
 cool_rate        = None
   .type          = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
-cores            = None
+cores_from_user  = None
   .type          = int
   .short_caption = Number of cores to use for MD parameter exploration.
 devel = False
@@ -458,11 +459,21 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff) # user_map_weight should tag along for a later usage
       
       #number_of_total_cores = know_total_number_of_cores(logfile)
+      # sparky resulted in 40
       # using a maximum number of total cores crashed at sparky
       
-      cores_to_use = self.params.weight_multiply
+      cores_to_use = ''
+      if (self.params.cores_from_user != None):
+        cores_to_use = self.params.cores_from_user
+      else:
+        cores_to_use = number_of_processors(return_value_if_unknown=-1)
+        # kaguya resulted in 32
+        # sparky resulted in 40
       
-      #for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
+      write_this = "Cryo_fit2 will use " + str(cores_to_use) + " number of cores to explore multiple MD parameters\n"
+      print(write_this)
+      logfile.write(write_this)
+      
       for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
           #print ('Result (bp): %s ' %(res))
