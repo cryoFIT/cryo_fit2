@@ -97,8 +97,6 @@ class cryo_fit2_class(object):
     write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
-    
-    
 
     result = ''
     total_steps_so_far = 0

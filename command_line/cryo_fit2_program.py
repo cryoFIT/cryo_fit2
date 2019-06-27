@@ -53,11 +53,14 @@ include scope libtbx.phil.interface.tracking_params
 cool_rate        = None
   .type          = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
+cores            = None
+  .type          = int
+  .short_caption = Number of cores to use for MD parameter exploration.
 devel = False
-    .type   = bool
-    .help   = If True, run quickly only to check sanity
-explore = True
-  .type = bool
+  .type          = bool
+  .help          = If True, run quickly only to check sanity
+explore          = True
+  .type          = bool
   .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.\
                    However, this exploration requires a lot of computing power (e.g. > 128 GB memory, > 20 cores).\
                    Exploring at a macbook pro (16 GB memory, 2 cores) crashed.
@@ -65,13 +68,13 @@ final_temperature = 0
   .type = float
   .short_caption = Final temperature of annealing in Kelvin
 keep_origin = True
-    .type   = bool
-    .help   = If True, write out model with origin in original location.  \
+  .type   = bool
+  .help   = If True, write out model with origin in original location.  \
               If False, shift map origin to (0,0,0).
-    .short_caption = Keep origin of a resulted atomic model
+  .short_caption = Keep origin of a resulted atomic model
 loose_ss_def = False
-    .type   = bool
-    .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
+  .type   = bool
+  .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
               If False, use Oleg's original strict definition.
 map_weight = None
   .type = float
@@ -90,12 +93,12 @@ output_dir = output
   .type = path
   .short_caption = Output folder PREFIX
 progress_on_screen = True
-    .type          = bool
-    .help          = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
+  .type          = bool
+  .help          = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
 record_states = False
-    .type     = bool
-    .help     = If True, cryo_fit2 records all states and save it to all_states.pdb. \
+  .type     = bool
+  .help     = If True, cryo_fit2 records all states and save it to all_states.pdb. \
                 However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                 If False, cryo_fit2 doesn't record each state of molecular dynamics.
 resolution = None
@@ -111,8 +114,8 @@ start_temperature = None
   .short_caption = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 strong_ss = True
-    .type   = bool
-    .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
+  .type   = bool
+  .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
               If False, it will use the original sigma (e.g. 1)
 total_steps = None
   .type = int
@@ -371,7 +374,6 @@ Options:
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
-    
     old_style_RNA, removed_R_prefix_in_RNA_pdb_file_name = remove_R_prefix_in_RNA(self.data_manager.get_default_model_name())
     if (old_style_RNA == True):
       write_this ='''Archaic style of nucleic acids (e.g. RA, RU, RT, RG, RC) were detected in user's pdb file.
@@ -455,9 +457,13 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       
       total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff) # user_map_weight should tag along for a later usage
       
-      number_of_total_cores = know_total_number_of_cores(logfile)
-      # so far ran well
-      for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
+      #number_of_total_cores = know_total_number_of_cores(logfile)
+      # using a maximum number of total cores crashed at sparky
+      
+      cores_to_use = self.params.weight_multiply
+      
+      #for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, number_of_total_cores): # the last argument is nproc
+      for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
           #print ('Result (bp): %s ' %(res))
           # 1st it returned None

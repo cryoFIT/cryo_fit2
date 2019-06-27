@@ -727,7 +727,9 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
 
   return self.params.map_weight
 ############### end of reoptimize_map_weight_if_not_specified function
-            
+           
+           
+
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
     print ("widthx:",widthx)
     move_x_by = move_x_by*widthx
