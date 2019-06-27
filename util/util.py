@@ -166,7 +166,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     print ("\nMD_in_each_epoch that will be explored:", str(MD_in_each_epoch))
     print ("number_of_steps that will be explored:",    str(number_of_steps))
     print ("start_temperature that will be explored:",  str(start_temperature))
-    print ("weight_multiply that will be explored:",       str(weight_multiply))
+    print ("weight_multiply that will be explored:",    str(weight_multiply))
     
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.map_weight:", str(round(params.map_weight,2)))

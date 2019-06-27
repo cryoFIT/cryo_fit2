@@ -468,7 +468,11 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       else:
         cores_to_use = number_of_processors(return_value_if_unknown=-1)
         # kaguya resulted in 32
-        # sparky resulted in 40
+        # sparky resulted in 40 (I expected to see 34 since I was running 6 cores at that time. \
+        #It seems that number_of_processors returned all # of processors)
+        
+        cores_to_use = cores_to_use/2
+        # just to avoid crash
       
       write_this = "Cryo_fit2 will use " + str(cores_to_use) + " number of cores to explore multiple MD parameters\n"
       print(write_this)
@@ -529,7 +533,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         self.params.cool_rate = user_cool_rate
     else:
       self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
-    print ("cool_rate", str(self.params.cool_rate))
+    print ("cool_rate: ", str(self.params.cool_rate))
     
     output_dir = get_output_dir_name(self)
     
