@@ -278,9 +278,11 @@ class cryo_fit2_class(object):
     if (("tst_cryo_fit2" in fitted_file_name_w_path) == False): 
       calculate_RMSD(self, fitted_file_name_w_path)
 
-    bp_num_in_fitted_file, H_num_in_fitted_file = count_bp_H_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
+    bp_num_in_fitted_file, H_num_in_fitted_file, E_num_in_fitted_file = \
+      count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
     
-    output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file) + "_H_" + str(H_num_in_fitted_file)
+    output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file) \
+                      + "_H_" + str(H_num_in_fitted_file) + "_E_" + str(E_num_in_fitted_file)
     if os.path.exists(output_dir_final):
       shutil.rmtree(output_dir_final)
     
