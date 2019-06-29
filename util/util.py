@@ -18,9 +18,8 @@ import mmtbx.utils
 from mmtbx.dynamics import simulated_annealing as sa
 from mmtbx.refinement.real_space import weight
 from mmtbx.superpose import *
-
+import numpy as np
 import shutil
-
 
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
@@ -161,10 +160,12 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 
-def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, \
-                                     number_of_steps, start_temperature, weight_multiply):
+def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, \
+                                     MD_in_each_epoch, number_of_steps, sigma, start_temperature, \
+                                     weight_multiply):
     print ("\nMD_in_each_epoch that will be explored:", str(MD_in_each_epoch))
     print ("number_of_steps that will be explored:",    str(number_of_steps))
+    print ("sigma that will be explored:",  str(sigma))
     print ("start_temperature that will be explored:",  str(start_temperature))
     print ("weight_multiply that will be explored:",    str(weight_multiply))
     
@@ -183,6 +184,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     # Re-assign params for below cryo_fit2 run
     params.MD_in_each_epoch = MD_in_each_epoch
     params.number_of_steps = number_of_steps
+    params.sigma = sigma
     params.start_temperature = start_temperature
     params.weight_multiply = weight_multiply
     
@@ -230,7 +232,7 @@ def extract_the_best_cc_parameters(logfile):
     if (os.path.isdir("parameters_exploration/bp_kept") == True):
         os.chdir("parameters_exploration/bp_kept")
     else:
-        write_this = "There is no base pairs in this user given model file (maybe protein only?).\nSince there is no base pair to maintain during MD, run cryo_fit2 with explore_parameters=False\n"
+        write_this = "There is no base pair in this user given model file.\nMaybe this input pdb is protein only? Otherwise, expand explore combination.\nOtherwise, since there is no base pair to maintain during MD, run cryo_fit2 with explore_parameters=False\n"
         logfile.write(write_this)
         print (write_this)
         exit(1)
@@ -254,20 +256,25 @@ def extract_the_best_cc_parameters(logfile):
             splited2 = splited[1].split("_step_")
             optimum_MD_in_each_epoch = splited2[0]
             
-            splited = check_this_dir.split("_step_")
-            splited2 = splited[1].split("_strong_ss_")
-            optimum_number_of_steps = splited2[0]
+            splited = check_this_dir.split("_sigma_")
+            splited2 = splited[1].split("_cc_")
+            optimum_sigma = splited2[0]
             
             splited = check_this_dir.split("_start_")
             splited2 = splited[1].split("_final_")
             optimum_start_temperature = splited2[0]
+            
+            splited = check_this_dir.split("_step_")
+            splited2 = splited[1].split("_strong_ss_")
+            optimum_step = splited2[0]
             
             splited = check_this_dir.split("_weight_multiply_")
             splited2 = splited[1].split("_sigma_")
             optimum_weight_multiply = splited2[0]
             
             os.chdir(starting_dir)
-            return optimum_MD_in_each_epoch, optimum_number_of_steps, optimum_start_temperature, optimum_weight_multiply
+            return optimum_MD_in_each_epoch, optimum_sigma, optimum_start_temperature, \
+                   optimum_step, optimum_weight_multiply
 ############ end of def extract_the_best_cc_parameters():
 
 
@@ -479,28 +486,6 @@ def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
 
 
 
-def know_total_number_of_cores(logfile):
-    if ((platform.system() != "Darwin") and (platform.system() != "Linux")):
-        color_print ("User's computer's operating system could be windows")
-        number_of_total_cores = 1
-        return number_of_total_cores
-        
-    number_of_total_cores = '' # just initial value
-    if (platform.system() == "Darwin"):
-        command_string = "sysctl -n hw.ncpu "
-        number_of_total_cores = subprocess.check_output(command_string, stderr=subprocess.STDOUT,shell=True)
-    elif (platform.system() == "Linux"):
-        command_string = "nproc"
-        number_of_total_cores = subprocess.check_output(command_string, stderr=subprocess.STDOUT,shell=True)
-    else: # maybe Windows
-        number_of_total_cores = 2
-    
-    print ("User's computer's operating system: " + platform.system(), "\n")
-    return number_of_total_cores
-######### end of know_total_number_of_cores function
-
-
-
 def line_prepender(filename, line):
     with open(filename, 'r+') as f:
         content = f.read()
@@ -516,20 +501,28 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
     ## final_temperature is fixed as 0
     ## sigma is fixed as 0.1
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        # explore 450 combinations
-        for start_temperature in range (300, 901, 300): #3
-            for MD_in_each_epoch in range (2, 23, 10): # 3
-                for weight_multiply in range (1, 101, 10): # 10
-                    for number_of_steps in range (1, 501, 100): #5
-                        total_combi_num = total_combi_num + 1
-                        argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_multiply])
+        # explore 1,350 combinations        
+        for MD_in_each_epoch in range (2, 23, 10): # 3
+            for number_of_steps in range (1, 501, 100): #5
+                for sigma in np.arange (0.001, 0.3, 0.1): #3
+                    for start_temperature in range (300, 901, 300): #3
+                        for weight_multiply in range (1, 101, 10): # 10
+                            total_combi_num = total_combi_num + 1
+                            argstuples.append([self, self.params, logfile, user_map_weight, \
+                                               bp_cutoff, MD_in_each_epoch, number_of_steps, \
+                                               sigma, start_temperature, weight_multiply])
     else: # just explore 2 combinations to save regression time
-        for start_temperature in range (300, 601, 300):
-            for MD_in_each_epoch in range (2, 4, 10):
-                for weight_multiply in range (1, 3, 10):
-                    for number_of_steps in range (1, 51, 100):
-                        total_combi_num = total_combi_num + 1
-                        argstuples.append([self, self.params, logfile, user_map_weight, bp_cutoff, MD_in_each_epoch, number_of_steps, start_temperature, weight_multiply])
+        for MD_in_each_epoch in range (2, 4, 10):
+            for number_of_steps in range (1, 51, 100):
+                for sigma in np.arange (0.001, 0.2, 0.1): #2
+                    for start_temperature in range (300, 301, 300):
+                        for weight_multiply in range (1, 3, 10):
+                            total_combi_num = total_combi_num + 1
+                            argstuples.append([self, self.params, logfile, user_map_weight, \
+                                               bp_cutoff, MD_in_each_epoch, number_of_steps, \
+                                               sigma, start_temperature, weight_multiply])
+    print ("total_combi_num:",total_combi_num)
+
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
 

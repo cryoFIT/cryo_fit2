@@ -105,7 +105,7 @@ record_states = False
 resolution = None
   .type = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
-sigma = 0.021
+sigma = None
   .type = float
   .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
                    Oleg recommended 0.021 which is the sigma value for covalent bond. \
@@ -216,7 +216,8 @@ Options:
                                automatic search of the existing secondary structures in the given 
                                input pdb file will not be executed.
   
-  secondary_structure.protein.remove_outliers (default: True)
+  secondary_structure.protein.remove_outliers
+                               (default: True)
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
   
@@ -422,6 +423,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     user_cool_rate = None
     user_MD_in_each_epoch = None 
     user_number_of_steps = None 
+    user_sigma = None
     user_start_temperature = None
     user_weight_multiply = None
     
@@ -432,7 +434,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         logfile.write(write_this)
     
     ####################### <begin> Explore the optimal combination of parameters
-    if ((self.params.explore == True) and (bp_in_a_user_pdb_file != 0)):
+    if ((self.params.devel == False) and (self.params.explore == True) and (bp_in_a_user_pdb_file != 0)):
       ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
       bp_cutoff = bp_in_a_user_pdb_file * 0.95
@@ -447,6 +449,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         user_MD_in_each_epoch = self.params.MD_in_each_epoch
       if (self.params.number_of_steps != None):
         user_number_of_steps = self.params.number_of_steps
+      if (self.params.sigma != None):
+        user_sigma = self.params.sigma
       if (self.params.start_temperature != None):
         user_start_temperature = self.params.start_temperature
       if (self.params.weight_multiply != None):
@@ -458,10 +462,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       
       total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff) # user_map_weight should tag along for a later usage
       
-      #number_of_total_cores = know_total_number_of_cores(logfile)
-      # sparky resulted in 40
-      # using a maximum number of total cores crashed at sparky
-      
       cores_to_use = ''
       if (self.params.cores_from_user != None):
         cores_to_use = self.params.cores_from_user
@@ -469,16 +469,17 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         cores_to_use = number_of_processors(return_value_if_unknown=-1)
         # kaguya resulted in 32
         # sparky resulted in 40 (I expected to see 34 since I was running 6 cores at that time. \
-        #It seems that number_of_processors returned all # of processors)
+        #It seems that number_of_processors returned just all # of processors)
         
         cores_to_use = cores_to_use/2
-        # just to avoid crash
+        # just to avoid crash, it seems like sparky linux machine can't handle more than 40 cores
       
-      write_this = "Cryo_fit2 will use " + str(cores_to_use) + " number of cores to explore multiple MD parameters\n"
+      write_this = "Cryo_fit2 will use " + str(int(cores_to_use)) + " cores to explore multiple MD parameters.\n"
       print(write_this)
       logfile.write(write_this)
       
-      for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, cores_to_use): # the last argument is nproc
+      for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, \
+                                                       cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
           #print ('Result (bp): %s ' %(res))
           # 1st it returned None
@@ -492,11 +493,15 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       print (write_this)
       logfile.write(write_this)
 
-      optimum_MD_in_each_epoch, optimum_number_of_steps, optimum_start_temperature, optimum_weight_multiply = extract_the_best_cc_parameters(logfile)
+      optimum_MD_in_each_epoch, optimum_sigma, optimum_start_temperature, optimum_steps,  \
+      optimum_weight_multiply = extract_the_best_cc_parameters(logfile)
+      
+      print ("optimum_sigma:",optimum_sigma)
       
       self.params.MD_in_each_epoch = int(optimum_MD_in_each_epoch)
-      self.params.number_of_steps = int(optimum_number_of_steps)
+      self.params.sigma = float(optimum_sigma)
       self.params.start_temperature = float(optimum_start_temperature)
+      self.params.number_of_steps = int(optimum_steps)
       self.params.weight_multiply= float(optimum_weight_multiply)
 
       # override self.params.* with user entered values
@@ -504,6 +509,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         self.params.MD_in_each_epoch = user_MD_in_each_epoch
       if (user_number_of_steps != None):
         self.params.number_of_steps = user_number_of_steps
+      if (user_sigma != None):
+        self.params.sigma = user_sigma
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
       if (user_weight_multiply != None):
@@ -516,6 +523,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.MD_in_each_epoch = 4
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
+    if (self.params.sigma == None):
+      self.params.sigma = 0.021
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
