@@ -1,7 +1,8 @@
 ######to do list
 # To run cryo_fit2 at windows as well, replace all unix command like libtbx.easy_run.fully_buffered
-
 from __future__ import division, print_function
+
+import math, os, shutil, subprocess, sys, time
 
 from iotbx import file_reader
 from iotbx.xplor import crystal_symmetry_from_map
@@ -19,7 +20,6 @@ from libtbx.utils import date_and_time, multi_out, Sorry
 
 import mmtbx
 import cryo_fit2_run
-import os, shutil, subprocess, sys, time
 
 from mmtbx.refinement.real_space import weight
 
@@ -57,73 +57,73 @@ cool_rate        = None
 cores_from_user  = None
   .type          = int
   .short_caption = Number of cores to use for MD parameter exploration.
-devel = False
-  .type          = bool
-  .help          = If True, run quickly only to check sanity
 explore          = True
   .type          = bool
   .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.\
                    However, this exploration requires a lot of computing power (e.g. > 128 GB memory, > 20 cores).\
                    Exploring at a macbook pro (16 GB memory, 2 cores) crashed.
 final_temperature = 0
-  .type = float
-  .short_caption = Final temperature of annealing in Kelvin
-keep_origin = True
-  .type   = bool
-  .help   = If True, write out model with origin in original location.  \
-              If False, shift map origin to (0,0,0).
+  .type           = float
+  .short_caption  = Final temperature of annealing in Kelvin
+keep_origin      = True
+  .type          = bool
+  .help          = If True, write out model with origin in original location.  \
+                   If False, shift map origin to (0,0,0).
   .short_caption = Keep origin of a resulted atomic model
 loose_ss_def = False
-  .type   = bool
-  .help   = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
-              If False, use Oleg's original strict definition.
-map_weight = None
-  .type = float
+  .type      = bool
+  .help      = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
+               If False, use Oleg's original strict definition.
+map_weight       = None
+  .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
 MD_in_each_epoch = None
-  .type = int
+  .type          = int
   .short_caption = An epoch here is different from the one in deep learning. \
                    Here, the epoch is each iteration of MD from start_temperature to final_temperature. \
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
-number_of_steps = None
-  .type = int
+number_of_steps  = None
+  .type          = int
   .short_caption = The number of MD steps in each phenix.dynamics \
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
-output_dir = output
-  .type = path
+output_dir       = output
+  .type          = path
   .short_caption = Output folder PREFIX
 progress_on_screen = True
-  .type          = bool
-  .help          = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
+  .type            = bool
+  .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
-record_states = False
-  .type     = bool
-  .help     = If True, cryo_fit2 records all states and save it to all_states.pdb. \
-                However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
-                If False, cryo_fit2 doesn't record each state of molecular dynamics.
-resolution = None
-  .type = float
+record_states    = False
+  .type          = bool
+  .help          = If True, cryo_fit2 records all states and save it to all_states.pdb. \
+                   However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
+                   If False, cryo_fit2 doesn't record each state of molecular dynamics.
+resolution       = None
+  .type          = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
-sigma = None
-  .type = float
+short            = False
+  .type          = bool
+  .help          = If True, run quickly only to check sanity
+sigma            = None
+  .type          = float
   .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
                    Oleg recommended 0.021 which is the sigma value for covalent bond. \
                    Doo Nam's benchmark (144 combinations of options) shows that 1.00E-06, 0.1, and 0.2 do not make any difference in base_pair keeping
 start_temperature = None
-  .type = float
-  .short_caption = Starting temperature of annealing in Kelvin. \
+  .type           = float
+  .short_caption  = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 strong_ss = True
   .type   = bool
   .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
-              If False, it will use the original sigma (e.g. 1)
-total_steps = None
-  .type = int
+            If False, it will use the original sigma (e.g. 1)
+total_steps      = None
+  .type          = int
   .short_caption = The total number of steps in phenix.dynamics.\
                    If specified, run up to this number of steps no matter what.
-weight_multiply = None
-  .type = float
+weight_multiply  = None
+  .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
                    If not specified, cryo_fit2 will use the default value (e.g. 1) \
                    Usually a small molecule (a helix) requires only 1 (not multiply). \
@@ -237,7 +237,7 @@ Options:
                                However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory.
                                If False, cryo_fit2 doesn't record states of molecular dynamics.
   
-  devel                        (default: False)
+  short                        (default: False)
                                If True, run quickly only to check sanity
 '''
 
@@ -279,7 +279,7 @@ Options:
     log_file_name = "cryo_fit2.log"
     logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
     log.register("logfile", logfile)
-
+    logfile.write(str(date_and_time()))
 
     if (self.params.strong_ss == True):
       write_this = "\nA user turned strong_ss=True\n"
@@ -390,7 +390,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     splited = self.data_manager.get_default_model_name().split("/")
     input_model_file_name_wo_path = splited [len(splited)-1]
 
-    if (self.params.devel == True) :
+    if (self.params.short == True) :
       self.params.start_temperature = 300
       self.params.final_temperature = 280
       self.params.MD_in_each_epoch = 2
@@ -427,21 +427,40 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     user_start_temperature = None
     user_weight_multiply = None
     
-    bp_in_a_user_pdb_file, ss_file = know_bp_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
-    if (bp_in_a_user_pdb_file == 0):
-        write_this = "A user input file has no base pair between nucleic acids, no explore (for now)\n"
+    '''
+    bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
+      know_bp_H_E_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
+    '''
+    
+    bp_in_a_user_pdb_file, H_in_a_user_pdb_file, ss_file = \
+      know_bp_H_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
+    
+    if ((bp_in_a_user_pdb_file == 0) and (H_in_a_user_pdb_file == 0)):
+        write_this = "A user input file has no base pair or helix.\nTherefore, cryo_fit2 will not explore MD parameters\n"
         print(write_this)
         logfile.write(write_this)
+        self.params.explore == False
     
     ####################### <begin> Explore the optimal combination of parameters
-    if ((self.params.devel == False) and (self.params.explore == True) and (bp_in_a_user_pdb_file != 0)):
+    if ((self.params.short == False) and (self.params.explore == True)):
+      
       ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
       bp_cutoff = bp_in_a_user_pdb_file * 0.95
-      write_this = "bp_cutoff from a user pdb file: " + str(round(bp_cutoff,1)) + "\n"
+      write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
       
+      H_cutoff = H_in_a_user_pdb_file * 0.95
+      write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1)) + "\n"
+      print(write_this)
+      logfile.write(write_this)
+      '''
+      E_cutoff = E_in_a_user_pdb_file * 0.95
+      write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1)) + "\n"
+      print(write_this)
+      logfile.write(write_this)
+      '''
       # save a user entered params.* now
       if (self.params.cool_rate != None):
         user_cool_rate = self.params.cool_rate
@@ -460,7 +479,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
       
-      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff) # user_map_weight should tag along for a later usage
+      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff) # user_map_weight should tag along for a later usage
       
       cores_to_use = ''
       if (self.params.cores_from_user != None):
@@ -471,10 +490,11 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         # sparky resulted in 40 (I expected to see 34 since I was running 6 cores at that time. \
         #It seems that number_of_processors returned just all # of processors)
         
-        cores_to_use = cores_to_use/2
-        # just to avoid crash, it seems like sparky linux machine can't handle more than 40 cores
+        cores_to_use = math.ceil(cores_to_use/4) # will use at least 1 core, since math.ceil rounds up to the next greater integer
+        # just to avoid crash, it seems like sparky linux machine can't handle more than 40 cores (even 20 cores)
+        # when I used 13 cores, the load average reached 20!
       
-      write_this = "Cryo_fit2 will use " + str(int(cores_to_use)) + " cores to explore multiple MD parameters.\n"
+      write_this = "Cryo_fit2 will use " + str(int(cores_to_use)) + " core(s) to explore multiple MD parameters.\n"
       print(write_this)
       logfile.write(write_this)
       
@@ -495,8 +515,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
 
       optimum_MD_in_each_epoch, optimum_sigma, optimum_start_temperature, optimum_steps,  \
       optimum_weight_multiply = extract_the_best_cc_parameters(logfile)
-      
-      print ("optimum_sigma:",optimum_sigma)
       
       self.params.MD_in_each_epoch = int(optimum_MD_in_each_epoch)
       self.params.sigma = float(optimum_sigma)
@@ -532,10 +550,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       
     ###############  (begin) core cryo_fit2    
     print ("Final MD parameters after user input/automatic optimization")
-    print ("start_temperature: ", str(self.params.start_temperature))
+    
     print ("final_temperature: ", str(self.params.final_temperature))
-    print ("number_of_steps: ", str(self.params.number_of_steps))
     print ("MD_in_each_epoch: ", str(self.params.MD_in_each_epoch))
+    print ("number_of_steps: ", str(self.params.number_of_steps))
+    print ("sigma: ", str(self.params.sigma))
+    print ("start_temperature: ", str(self.params.start_temperature))
     
     # override self.params.* with user entered values
     if (user_cool_rate != None):
@@ -629,4 +649,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write(str("cryo_fit2"))
     logfile.write(str(time_took))
     logfile.write("\n")
+    
+    logfile.write(str(date_and_time()))
+    
     logfile.close()

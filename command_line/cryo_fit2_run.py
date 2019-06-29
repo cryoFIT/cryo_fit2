@@ -91,7 +91,7 @@ class cryo_fit2_class(object):
     #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
     map_inp                        = self.map_inp
     user_map_weight                = self.user_map_weight
-    weight_multiply                   = self.weight_multiply
+    weight_multiply                = self.weight_multiply
     
     cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
     write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n\n"
@@ -111,7 +111,7 @@ class cryo_fit2_class(object):
     splited_model_name = self.model_name[:-4].split("/")
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
     
-    number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(self.logfile, self.model_name)
+    #number_of_atoms_in_input_pdb = know_number_of_atoms_in_input_pdb(self.logfile, self.model_name)
     # tRNA      : 1,563
     # L1 stalk  : 3,289
     # Mg channel: 14,940
@@ -277,10 +277,10 @@ class cryo_fit2_class(object):
     #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False): #"AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
     if (("tst_cryo_fit2" in fitted_file_name_w_path) == False): 
       calculate_RMSD(self, fitted_file_name_w_path)
-    #STOP()
-    bp_num_in_fitted_file = count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
+
+    bp_num_in_fitted_file, H_num_in_fitted_file = count_bp_H_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
     
-    output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file)
+    output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file) + "_H_" + str(H_num_in_fitted_file)
     if os.path.exists(output_dir_final):
       shutil.rmtree(output_dir_final)
     

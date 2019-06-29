@@ -97,7 +97,7 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
-def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
+def count_bp_H_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     starting_dir = os.getcwd()
     os.chdir(output_dir_w_CC)
     
@@ -110,15 +110,25 @@ def count_bp_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     libtbx.easy_run.fully_buffered(command_string)
     
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
+    
+    
+    ## count bp
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
     #print (command_string+"\n")
     #logfile.write(command_string+"\n\n")
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
+    
+    ## count H
+    command_string = "cat " + ss_file_name + " | grep \"helix {\" | wc -l"
+    grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    number_of_H_in_fitted_pdb = int(grepped[0])
+    
+    
     os.chdir(starting_dir)
     
-    return number_of_bp_in_fitted_pdb
-######################## end of def count_bp_in_fitted_file(fitted_file_name_w_path):
+    return number_of_bp_in_fitted_pdb, number_of_H_in_fitted_pdb
+######################## end of def count_bp_H_in_fitted_file(fitted_file_name_w_path):
 
 
 def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
@@ -160,14 +170,14 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 
-def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, \
+def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, \
                                      MD_in_each_epoch, number_of_steps, sigma, start_temperature, \
                                      weight_multiply):
     print ("\nMD_in_each_epoch that will be explored:", str(MD_in_each_epoch))
     print ("number_of_steps that will be explored:",    str(number_of_steps))
     print ("sigma that will be explored:",  str(sigma))
     print ("start_temperature that will be explored:",  str(start_temperature))
-    print ("weight_multiply that will be explored:",    str(weight_multiply))
+    print ("weight_multiply that will be explored:",    str(weight_multiply), "\n")
     
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.map_weight:", str(round(params.map_weight,2)))
@@ -178,6 +188,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         params.total_steps = 30 # temporary for development
     print ("params.total_steps:", str(params.total_steps))
     
+    #print ("(\"tst_cryo_fit2\" in self.data_manager.get_default_model_name()):",(\"tst_cryo_fit2\" in self.data_manager.get_default_model_name()))
     model_inp = self.data_manager.get_model()
     map_inp = self.data_manager.get_real_map()
 
@@ -208,10 +219,19 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     task_obj.validate()
     
     output_dir_final = task_obj.run()
-    splited = output_dir_final.split("_bp_")
-    bp = splited[len(splited)-1]
     
-    if (float(bp) > float(bp_cutoff)):
+    #splited = output_dir_final.split("_bp_")
+    #bp = splited[len(splited)-1]
+    
+    splited = output_dir_final.split("_bp_")
+    splited2 = splited[1].split("_H_")
+    bp = splited2[0]
+    
+    splited = output_dir_final.split("_H_")
+    H = splited[len(splited)-1]
+    
+    '''
+    if (float(bp) >= float(bp_cutoff)):
         if (os.path.isdir("parameters_exploration/bp_kept") == False):
             os.mkdir("parameters_exploration/bp_kept")
         command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_kept"
@@ -221,18 +241,35 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
             os.mkdir("parameters_exploration/bp_not_kept")
         command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_not_kept"
         libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    '''
     
-    return bp    
+    if ( (float(bp) >= float(bp_cutoff)) and (float(H) >= float(H_cutoff)) ):
+        if (os.path.isdir("parameters_exploration/bp_H_kept") == False):
+            os.mkdir("parameters_exploration/bp_H_kept")
+        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_kept"
+        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    else:
+        if (os.path.isdir("parameters_exploration/bp_H_not_kept") == False):
+            os.mkdir("parameters_exploration/bp_H_not_kept")
+        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_not_kept"
+        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    
+    return bp, H    
 ############ end of explore_parameters_by_multi_core()
 
 
 
 def extract_the_best_cc_parameters(logfile):
     starting_dir = os.getcwd()
-    if (os.path.isdir("parameters_exploration/bp_kept") == True):
-        os.chdir("parameters_exploration/bp_kept")
+    if (os.path.isdir("parameters_exploration/bp_H_kept") == True):
+        os.chdir("parameters_exploration/bp_H_kept")
     else:
-        write_this = "There is no base pair in this user given model file.\nMaybe this input pdb is protein only? Otherwise, expand explore combination.\nOtherwise, since there is no base pair to maintain during MD, run cryo_fit2 with explore_parameters=False\n"
+        write_this = '''MD parameter exploration didn't find parameter combination that kept \
+        user base pairs and helices in this user given model file.\n\
+        Maybe this input pdb has no base_pairs and helices in the first place?\n\
+        Otherwise, expand explore combination.\n\
+        Otherwise, run cryo_fit2 with explore_parameters=False\n
+        '''
         logfile.write(write_this)
         print (write_this)
         exit(1)
@@ -387,24 +424,27 @@ def hasNumbers(inputString):
 
 
 
-def know_bp_in_a_user_pdb_file(user_pdb_file, logfile):
-    starting_dir = os.getcwd()
-    
-    command_string = "phenix.secondary_structure_restraints " + user_pdb_file
-    libtbx.easy_run.fully_buffered(command_string)
-    
+def know_bp_H_in_a_user_pdb_file(user_pdb_file, logfile):    
     splited_user_pdb_file_w_path = user_pdb_file.split("/")
     user_pdb_file_wo_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-1]
     ss_file_name = user_pdb_file_wo_path + "_ss.eff"
+    
+    if (os.path.isfile(ss_file_name) == False):
+        command_string = "phenix.secondary_structure_restraints " + user_pdb_file
+        libtbx.easy_run.fully_buffered(command_string)
     
     user_pdb_file_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-2]
     
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-    number_of_bp_in_fitted_pdb = int(grepped[0])
+    number_of_bp_in_pdb_file = int(grepped[0])
     
-    return number_of_bp_in_fitted_pdb, ss_file_name
-######################## end of def know_bp_in_a_user_pdb_file(user_pdb_file):
+    command_string = "cat " + ss_file_name + " | grep \"helix {\" | wc -l"
+    grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    number_of_H_in_pdb_file = int(grepped[0])
+    
+    return number_of_bp_in_pdb_file, number_of_H_in_pdb_file, ss_file_name
+######################## end of def know_bp_H_in_a_user_pdb_file(user_pdb_file):
 
 
 
@@ -495,7 +535,7 @@ def line_prepender(filename, line):
 
 
 
-def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
+def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff):
     total_combi_num = 0
     argstuples = []
     ## final_temperature is fixed as 0
@@ -509,8 +549,9 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
                         for weight_multiply in range (1, 101, 10): # 10
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
-                                               bp_cutoff, MD_in_each_epoch, number_of_steps, \
-                                               sigma, start_temperature, weight_multiply])
+                                               bp_cutoff, H_cutoff, MD_in_each_epoch, \
+                                               number_of_steps, sigma, start_temperature, \
+                                               weight_multiply])
     else: # just explore 2 combinations to save regression time
         for MD_in_each_epoch in range (2, 4, 10):
             for number_of_steps in range (1, 51, 100):
@@ -519,8 +560,9 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff):
                         for weight_multiply in range (1, 3, 10):
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
-                                               bp_cutoff, MD_in_each_epoch, number_of_steps, \
-                                               sigma, start_temperature, weight_multiply])
+                                               bp_cutoff, H_cutoff, MD_in_each_epoch, \
+                                               number_of_steps, sigma, start_temperature, \
+                                               weight_multiply])
     print ("total_combi_num:",total_combi_num)
 
     return total_combi_num, argstuples
