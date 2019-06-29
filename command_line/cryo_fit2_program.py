@@ -427,13 +427,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     user_start_temperature = None
     user_weight_multiply = None
     
-    #'''
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
       know_bp_H_E_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
-    #'''
-    
-    #bp_in_a_user_pdb_file, H_in_a_user_pdb_file, ss_file = \
-    #  know_bp_H_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
     
     if ((bp_in_a_user_pdb_file == 0) and (H_in_a_user_pdb_file == 0)):
         write_this = "A user input file has no base pair or helix.\nTherefore, cryo_fit2 will not explore MD parameters\n"
@@ -455,12 +450,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
-      #'''
+      
       E_cutoff = E_in_a_user_pdb_file * 0.95
       write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
-      #'''
+      
       # save a user entered params.* now
       if (self.params.cool_rate != None):
         user_cool_rate = self.params.cool_rate
