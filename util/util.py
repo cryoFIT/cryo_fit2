@@ -194,14 +194,14 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     
     #print ("(\"tst_cryo_fit2\" in self.data_manager.get_default_model_name()):",(\"tst_cryo_fit2\" in self.data_manager.get_default_model_name()))
     model_inp = self.data_manager.get_model()
-    map_inp = self.data_manager.get_real_map()
+    map_inp   = self.data_manager.get_real_map()
 
     # Re-assign params for below cryo_fit2 run
-    params.MD_in_each_epoch = MD_in_each_epoch
-    params.number_of_steps = number_of_steps
-    params.sigma = sigma
+    params.MD_in_each_epoch  = MD_in_each_epoch
+    params.number_of_steps   = number_of_steps
+    params.sigma             = sigma
     params.start_temperature = start_temperature
-    params.weight_multiply = weight_multiply
+    params.weight_multiply   = weight_multiply
     
     params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_epoch)-1))
     print ("params.cool_rate:", str(round(params.cool_rate, 1)))
@@ -218,14 +218,11 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
       logfile           = logfile,
       output_dir        = init_output_dir,
       user_map_weight   = user_map_weight,
-      weight_multiply      = self.params.weight_multiply)
+      weight_multiply   = self.params.weight_multiply)
     
     task_obj.validate()
     
     output_dir_final = task_obj.run()
-    
-    #splited = output_dir_final.split("_bp_")
-    #bp = splited[len(splited)-1]
     
     splited = output_dir_final.split("_bp_")
     splited2 = splited[1].split("_H_")
@@ -551,14 +548,33 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     total_combi_num = 0
     argstuples = []
     ## final_temperature is fixed as 0
-    ## sigma is fixed as 0.1
+    
+    # original
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        # explore 1,350 combinations        
-        for MD_in_each_epoch in range (2, 23, 10): # 3
-            for number_of_steps in range (1, 501, 100): #5
-                for sigma in np.arange (0.001, 0.3, 0.1): #3
-                    for start_temperature in range (300, 901, 300): #3
-                        for weight_multiply in range (1, 101, 10): # 10
+    
+    # temp
+    #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) != False):
+        
+        # original
+        '''   
+        for MD_in_each_epoch in range (2, 23, 10): # 3 (minimum should be >=2)
+            for number_of_steps in range (1, 501, 100): # 5 (e.g. 1, 101, 201, 301, 401)
+                for sigma in np.arange (0.001, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
+                    for start_temperature in range (300, 901, 300): # 3 (e.g. 300, 600, 900)
+                        for weight_multiply in range (1, 101, 10): # 10 # explore 1,350 combinations        
+                        #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
+        '''
+        
+        # temp
+        #'''   
+        for MD_in_each_epoch in range (2, 13, 10): # 3 (minimum should be >=2)
+            for number_of_steps in range (1, 202, 100): # 5 (e.g. 1, 101, 201, 301, 401)
+                for sigma in np.arange (0.001, 0.2, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
+                    for start_temperature in range (300, 601, 300): # 3 (e.g. 300, 600, 900)
+                        for weight_multiply in range (1, 21, 10): # 10 # explore 1,350 combinations        
+                        #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
+        #'''
+        
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                                bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \

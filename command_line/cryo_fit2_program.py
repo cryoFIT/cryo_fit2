@@ -446,12 +446,13 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       print(write_this)
       logfile.write(write_this)
       
-      H_cutoff = H_in_a_user_pdb_file * 0.95
+      # stricter cutoff for H/E than bp
+      H_cutoff = H_in_a_user_pdb_file * 0.99
       write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
       
-      E_cutoff = E_in_a_user_pdb_file * 0.95
+      E_cutoff = E_in_a_user_pdb_file * 0.99
       write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
@@ -480,12 +481,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       if (self.params.cores_from_user != None):
         cores_to_use = self.params.cores_from_user
       else:
-        cores_to_use = number_of_processors(return_value_if_unknown=-1)
+        returned_nproc = number_of_processors(return_value_if_unknown=-1)
         # kaguya resulted in 32
         # sparky resulted in 40 (I expected to see 34 since I was running 6 cores at that time. \
         #It seems that number_of_processors returned just all # of processors)
         
-        cores_to_use = math.ceil(cores_to_use/4) # will use at least 1 core, since math.ceil rounds up to the next greater integer
+        cores_to_use = math.ceil(returned_nproc/7) # will use at least 1 core, since math.ceil rounds up to the next greater integer
         # just to avoid crash, it seems like sparky linux machine can't handle more than 40 cores (even 20 cores)
         # when I used 13 cores, the load average reached 20!
       
@@ -496,14 +497,25 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, \
                                                        cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
-          #print ('Result (bp): %s ' %(res))
+          
+          #print ('args: %s ' %(args)) # "args:   [<cryo_fit2_program.Program object at 0x11b54ffd0>, <libtbx.phil.scope_extract object at 0x11b54fd50>, <open file 'cryo_fit2.log', mode 'w' at 0x11b45b9c0>, '', 0.0, 0.99, 0.0, 2, 1, 0.001, 300, 1]"
+          #print ('args: ', str(args)) # "args:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
+          
+          #print ('Result: %s ' %(res)) # "TypeError: not all arguments converted during string formatting"
           # 1st it returned None
           # Then, it well returned correct bp
           # It seems that easy_mp.multi_core_run( explore_parameters_by_multi_core... runs twice unexpectedly. Either I couldn't use properly or easy_mp has some glitches?
           
-          #print ('Arguments: ', str(args)) # "Arguments:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
-          #print ('Arguments: %s' %(args)) # "TypeError: not all arguments converted during string formatting"
-
+          #print ('errstr: %s ' %(errstr)) # None returned, maybe because there was no error in the first place?
+          
+          
+      # /home/doonam/research/run/phenix/cryo_fit2/L1_stalk/explore_w_multicore,
+      # made 1,107 folders (=26+71+1010) out of 1,350, then no record after making cryo_fit2.input_command.txt
+      
+      # /home/doonam/research/run/phenix/cryo_fit2/Mg_channel/part
+      # made 1,107 folders (=479+628) out of 1,350, then no record after making cryo_fit2.input_command.txt
+      
+      
       write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " combinations of MD parameters.\nIt will run fully with optimized parameters.\n"
       print (write_this)
       logfile.write(write_this)
