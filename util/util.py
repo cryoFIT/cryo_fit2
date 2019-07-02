@@ -235,19 +235,6 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     splited = output_dir_final.split("_E_")
     E = splited[len(splited)-1]
     
-    '''
-    if (float(bp) >= float(bp_cutoff)):
-        if (os.path.isdir("parameters_exploration/bp_kept") == False):
-            os.mkdir("parameters_exploration/bp_kept")
-        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_kept"
-        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-    else:
-        if (os.path.isdir("parameters_exploration/bp_not_kept") == False):
-            os.mkdir("parameters_exploration/bp_not_kept")
-        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_not_kept"
-        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-    '''
-    
     if ( (float(bp) >= float(bp_cutoff)) and (float(H) >= float(H_cutoff)) and (float(E) >= float(E_cutoff))):
         if (os.path.isdir("parameters_exploration/bp_H_E_kept") == False):
             os.mkdir("parameters_exploration/bp_H_E_kept")
@@ -549,32 +536,13 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     argstuples = []
     ## final_temperature is fixed as 0
     
-    # original
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-    
-    # temp
-    #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) != False):
-        
-        # original
-        '''   
         for MD_in_each_epoch in range (2, 23, 10): # 3 (minimum should be >=2)
             for number_of_steps in range (1, 501, 100): # 5 (e.g. 1, 101, 201, 301, 401)
                 for sigma in np.arange (0.001, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
                     for start_temperature in range (300, 901, 300): # 3 (e.g. 300, 600, 900)
-                        for weight_multiply in range (1, 101, 10): # 10 # explore 1,350 combinations        
-                        #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
-        '''
-        
-        # temp
-        #'''   
-        for MD_in_each_epoch in range (2, 13, 10): # 3 (minimum should be >=2)
-            for number_of_steps in range (1, 202, 100): # 5 (e.g. 1, 101, 201, 301, 401)
-                for sigma in np.arange (0.001, 0.2, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
-                    for start_temperature in range (300, 601, 300): # 3 (e.g. 300, 600, 900)
-                        for weight_multiply in range (1, 21, 10): # 10 # explore 1,350 combinations        
-                        #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
-        #'''
-        
+                        #for weight_multiply in range (1, 101, 10): # 10 # explore 1,350 combinations        
+                        for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                                bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \

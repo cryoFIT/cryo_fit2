@@ -409,7 +409,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     if (self.params.map_weight == None): # a user didn't specify map_weight
       #self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'', self.params.weight_multiply)
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
-      logfile.write("\nAutomatically optimized map_weight (before any boost): ")
+      logfile.write("\nAutomatically optimized map_weight (before any multiplication to this): ")
     else:
       user_map_weight = self.params.map_weight # this user_map_weight will be used later
       logfile.write("\nUser specified map_weight: ")
