@@ -28,6 +28,10 @@ future    : Automatically support Nigel's phenix.eLBOW
 	    With map_weight=x, cryo_fit2 runs but with "Number of atoms with unknown nonbonded energy type symbols:"
 
 
+07/04/2019: both kaguya and sparky stopped working after making 1,107 parameter exploration folders
+
+
+
 06/27/2019: Cryo_fit2 uses available number of cores automatically using from libtbx.introspection import number_of_processors
 	     
 06/26/2019: Cryo_fit2 uses Rob's multi threading to automatically explore different MD parameters.
