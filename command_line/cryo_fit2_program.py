@@ -575,18 +575,19 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     
     ############################# all parameters are determined (either by a user or automatic optimization)
     
-    cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() + " " \
-                            + self.data_manager.get_default_real_map_name() + " " \
-                            + "resolution=" + str(self.params.resolution) + " " \
-                            + "strong_ss=" + str(self.params.strong_ss) + " " \
-                            + "sigma=" + str(self.params.sigma) + " " \
-                            + "start_temperature=" + str(self.params.start_temperature) + " " \
-                            + "final_temperature=" + str(self.params.final_temperature) + " " \
-                            + "MD_in_each_epoch=" + str(self.params.MD_in_each_epoch) + " " \
-                            + "cool_rate=" + str(round(self.params.cool_rate,1)) + " " \
-                            + "number_of_steps=" + str(self.params.number_of_steps) + " " \
-                            + "weight_multiply=" + str(round(self.params.weight_multiply,1)) + " " \
-                            + "record_states=" + str(self.params.record_states) + " "
+    cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() \
+                            + " " + self.data_manager.get_default_real_map_name()  \
+                            + " resolution=" + str(self.params.resolution)  \
+                            + " strong_ss=" + str(self.params.strong_ss) \
+                            + " sigma=" + str(self.params.sigma) \
+                            + " start_temperature=" + str(self.params.start_temperature)  \
+                            + " final_temperature=" + str(self.params.final_temperature) \
+                            + " MD_in_each_epoch=" + str(self.params.MD_in_each_epoch) \
+                            + " cool_rate=" + str(round(self.params.cool_rate,1)) \
+                            + " number_of_steps=" + str(self.params.number_of_steps) \
+                            + " weight_multiply=" + str(round(self.params.weight_multiply,1)) \
+                            + " record_states=" + str(self.params.record_states) \
+                            + " explore=False "
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
