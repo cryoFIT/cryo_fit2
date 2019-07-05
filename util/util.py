@@ -536,8 +536,11 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     argstuples = []
     ## final_temperature is fixed as 0
     
-    # Both kaguya and sparky stopped working after making 1,107 parameter exploration folder
-    # Therefore, make total combination less than 1,100 
+    # Both kaguya and sparky stopped working after making 1,107 parameter exploration folder (total should be 1,350)
+    # (solution) Therefore, make total combination less than 1,100
+    
+    # when I set total combi as 1,350, L1 stalk at sparky stopped after making 1,108 folders
+    # when I aimed total combi as 810 w/ 10 cores, L1 stalk at sparky stopped after making 595 folders
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 100): # 5 (e.g. 1, 101, 201, 301, 401)
