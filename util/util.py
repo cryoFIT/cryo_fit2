@@ -98,6 +98,12 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 
 
 def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
+    
+    if (os.path.isfile(fitted_file_name_w_path) == False):
+        write_this = str(fitted_file_name_w_path) + " doesn't exist"
+        print (write_this)
+        logfile.write(write_this)
+        
     starting_dir = os.getcwd()
     os.chdir(output_dir_w_CC)
     
@@ -105,17 +111,13 @@ def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfil
     fitted_file_name_wo_path = splited_fitted_file_name_w_path[len(splited_fitted_file_name_w_path)-1]
     
     command_string = "phenix.secondary_structure_restraints " + fitted_file_name_wo_path
-    #print (command_string+"\n\n")
-    #logfile.write(command_string+"\n")
     libtbx.easy_run.fully_buffered(command_string)
     
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
     
-    
+
     ## count bp
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
-    #print (command_string+"\n")
-    #logfile.write(command_string+"\n\n")
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
     
@@ -222,8 +224,22 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     
     task_obj.validate()
     
-    output_dir_final = task_obj.run()
+    #'''
+    # this try/except will not report number of parameter exploration combinations that ran successfully
+    # however, I expect that this may help incomplete running issue
+    output_dir_final = ''
+    try:
+        output_dir_final = task_obj.run()
+    except:
+        write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition"
+        print (write_this)
+        logfile.write(str(write_this))
+        return 0 # return early
+    #'''
     
+    
+    #output_dir_final = task_obj.run()
+
     splited = output_dir_final.split("_bp_")
     splited2 = splited[1].split("_H_")
     bp = splited2[0]
@@ -413,7 +429,7 @@ map_weight can't be optimized automatically.
 
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
-
+####################### end of hasNumbers fn
 
 
 def know_bp_H_E_in_a_user_pdb_file(user_pdb_file, logfile):    
@@ -421,7 +437,7 @@ def know_bp_H_E_in_a_user_pdb_file(user_pdb_file, logfile):
     user_pdb_file_wo_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-1]
     ss_file_name = user_pdb_file_wo_path + "_ss.eff"
     
-    if (os.path.isfile(ss_file_name) == False):
+    if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
         command_string = "phenix.secondary_structure_restraints " + user_pdb_file
         libtbx.easy_run.fully_buffered(command_string)
     
@@ -539,31 +555,91 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     # Both kaguya and sparky stopped working after making 1,107 parameter exploration folder (total should be 1,350)
     # (solution) Therefore, make total combination less than 1,100
     
-    # when I set total combi as 1,350, L1 stalk at sparky stopped after making 1,108 folders
-    # when I aimed total combi as 810 w/ 10 cores, L1 stalk at sparky stopped after making 595 folders
+    # When I set total combi as 1,350 at sparky,
+    #L1 stalk stopped after making 1,108 folders
+    
+    # When I aimed total combi as 810 w/ 10 cores at sparky,
+    #L1 stalk stopped after making 595 folders
+    
+    # When I aimed total combi as 810 w/ 1 core at macbook,
+    #tRNA_devel ran till final, making 671 exploration folders and 4 not-moved exploration-output folders
+    # wrote Date 11 times
+    
+    # When I aimed 48 total combi w/ 1 core at macbook,
+    #tRNA_devel ran till final, making 32 exploration folders and 0 not-moved exploration-output folders
+    # 32/48 = 67 %
+    # wrote Date 5 times (I removed the date_and_time after cryo_fit2 running)
+    
+    # When I aimed 32 total combi w/ 1 core at macbook,
+    #tRNA_devel ran till final, making 24 exploration folders and 0 not-moved exploration-output folders
+    # 24/32 = 75 %
+    # wrote Date 5 times (I removed the date_and_time after cryo_fit2 running)
+    
+    # When I aimed 8 total combi w/ 1 core at macbook,
+    #tRNA_devel ran till final, making 4 exploration folders and 0 not-moved exploration-output folders
+    # 4/8 = 50 %
+    # wrote Date 3 times (I removed the date_and_time after cryo_fit2 running)
+    
+    # When I aimed 4 total combi w/ 1 core at macbook,
+    #tRNA_devel ran till final, making 2 exploration folders and 0 not-moved exploration-output folders
+    # 2/4 = 50 %
+    # wrote Date 3 times (I removed the date_and_time after cryo_fit2 running)
+    
+    # When I aimed 2 total combi w/ 1 core at macbook,
+    #tRNA_devel ran till final, making 1 exploration folders and 0 not-moved exploration-output folders
+    # 1/2 = 50 %
+    # wrote Date 2 times (I removed the date_and_time after cryo_fit2 running)
+    
+    # When I aimed 2 combi w/ tst_cryofit2... file at sparky,
+    #L1_stalks worked perfectly (wrote Date once, cutoffs from user file once)
+    
+    # When I aimed 2 combi w/ tst_cryofit2... file at macbook,
+    #tRNA_devel worked perfectly (wrote Date once, cutoffs from user file once)
+    
+    # The current issue is that 5~30% of the times,
+    #output_exploration folder moved to parameters_exploration folder well
+    #These output_exploration folders lack bp_0_H_10_E_1 suffix
+    
+    
+    ############# <KEEP THIS NOTE> I think that I figured out the reason of this problem finally.
+    ############# Writing "Date" multiple times is nothing but spurious error. Number of "Date" writing is somehow random
+    ############# The most probable cause of this error is when cryo_fit2 fails to run ("nan")
+    
+    
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
-            for number_of_steps in range (1, 501, 100): # 5 (e.g. 1, 101, 201, 301, 401)
-                for sigma in np.arange (0.001, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
-                    for start_temperature in range (300, 901, 300): # 3 (e.g. 300, 600, 900)
-                        for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
+                            
+        '''
+            # original combi for 810 cases
+            for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
+                for number_of_steps in range (1, 501, 100): # 5 (e.g. 1, 101, 201, 301, 401)
+                    for sigma in np.arange (0.001, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
+                        for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
+                            for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
+        '''    
+        # for devel
+        for MD_in_each_epoch in range (2, 23, 30): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
+            for number_of_steps in range (1, 501, 700): # 5 (e.g. 1, 101, 201, 301, 401)
+                for sigma in np.arange (0.001, 0.3, 0.9): # 3 (e.g. 0.001, 0.1001, 0.2001)
+                    for start_temperature in np.arange (300.0, 901.0, 800.0): # 3 (e.g. 300, 600, 900)
+                        for weight_multiply in range (1, 102, 60): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
-                                               bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
-                                               number_of_steps, sigma, start_temperature, \
-                                               weight_multiply])
+                                            bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
+                                            number_of_steps, sigma, start_temperature, \
+                                            weight_multiply])
+                            
     else: # just explore 2 combinations to save regression time
         for MD_in_each_epoch in range (2, 4, 10):
             for number_of_steps in range (1, 51, 100):
                 for sigma in np.arange (0.001, 0.2, 0.1): #2
-                    for start_temperature in range (300, 301, 300):
+                    for start_temperature in np.arange (300.0, 301.0, 300.0):
                         for weight_multiply in range (1, 3, 10):
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                                bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
                                                number_of_steps, sigma, start_temperature, \
                                                weight_multiply])
-    print ("total_combi_num:",total_combi_num)
+    #print ("total_combi_num:",total_combi_num)
 
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
@@ -738,16 +814,28 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 
 
 
+#def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, output_dir):
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
       write_this = "\nA user didn't specify a map_weight. Therefore, cryo_fit2 will automatically optimize map_weight for additional MD run\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
 
+      
+      # old comment: this file is written at a starting folder, this may cause conflict during MPI run
+      # new comment: this has nothing to do with MPI run error
       current_fitted_file_name = "current_fitted_file.pdb"
       with open(current_fitted_file_name, "w") as f:
         f.write(self.model.model_as_pdb())
       f.close()
+      
+      
+      '''
+      current_fitted_file_name = output_dir + "/current_fitted_file.pdb"
+      with open(current_fitted_file_name, "w") as f:
+        f.write(self.model.model_as_pdb())
+      f.close()
+      '''
       
       self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, current_fitted_file_name)
       
@@ -1027,15 +1115,17 @@ def write_custom_geometry(logfile, input_model_file_name, sigma):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for user input model file to enforce a stronger sigma (e.g. " + str(sigma) + ").\n"
+  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger sigma "
   print(write_this)
   logfile.write(write_this)
   
+  if (sigma != None):
+    write_this = "(e.g. " + str(sigma) + ").\n"
+    print(write_this)
+    logfile.write(write_this)
+    
   make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
-  #print (make_pymol_ss_restraints)
-  #logfile.write(make_pymol_ss_restraints)
   libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
-  
   
   splited_input_model_file_name = input_model_file_name.split("/")
   input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]

@@ -68,8 +68,7 @@ class cryo_fit2_class(object):
       grid_unit_cell = self.map_inp.grid_unit_cell()
     hierarchy.atoms().reset_i_seq()
   
-    ########### Pavel original
-    # Initialize states accumulator
+    # Initialize states accumulator # Pavel's original
     states = mmtbx.utils.states(
      pdb_hierarchy  = self.model.get_hierarchy(),
      xray_structure = self.model.get_xray_structure())
@@ -123,7 +122,8 @@ class cryo_fit2_class(object):
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       cc_check_after_every_this_cycle = 5
     else:
-      cc_check_after_every_this_cycle = 500
+      #cc_check_after_every_this_cycle = 500
+      cc_check_after_every_this_cycle = 5
     '''
     elif (number_of_atoms_in_input_pdb < 3000):
       cc_check_after_every_this_cycle = 500
@@ -170,7 +170,7 @@ class cryo_fit2_class(object):
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
       write_this = "CC after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
-      print('%s' %(write_this))
+      #print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
       if (total_steps != ''):
@@ -204,6 +204,10 @@ class cryo_fit2_class(object):
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
+          
+          ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
+          ### new comment: commenting this out didn't help incomplete problem
+          #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, str(self.output_dir))
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
           continue
         
@@ -219,6 +223,10 @@ class cryo_fit2_class(object):
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
+          
+          ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
+          ### new comment: commenting this out didn't help incomplete problem
+          #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, str(self.output_dir))
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
         else:
           write_this = "\ncc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"

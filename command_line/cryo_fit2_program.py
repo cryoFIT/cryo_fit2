@@ -90,7 +90,7 @@ number_of_steps  = None
 output_dir       = output
   .type          = path
   .short_caption = Output folder PREFIX
-progress_on_screen = True
+progress_on_screen = False
   .type            = bool
   .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
@@ -264,7 +264,6 @@ Options:
       raise Sorry("Supply a map file. Type \"phenix.cryo_fit2\" to know minimally required options")
     if not (self.params.resolution):
       raise Sorry("Map resolution is required. A user can get the resolution either by EMDB reported value or by running phenix.mtriage. Type \"phenix.cryo_fit2\" to know minimally required options")
-
   # ---------------------------------------------------------------------------
   
   def run(self):
@@ -274,7 +273,6 @@ Options:
     log = multi_out()
     out=sys.stdout
     log.register("stdout", out)
-    
     
     log_file_name = "cryo_fit2.log"
     logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
@@ -404,10 +402,10 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.number_of_steps = 1000
       self.params.total_steps = 2000
 
+
     ########## <begin> Automatic map weight determination
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
-      #self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'', self.params.weight_multiply)
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
       logfile.write("\nAn automatically optimized map_weight (before any multiplication to this): ")
     else:
@@ -419,7 +417,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ########## <end> Automatic map weight determination
     
     
-    # importantly declared initial global variables
+    # Importantly declared initial global variables
     user_cool_rate = None
     user_MD_in_each_epoch = None 
     user_number_of_steps = None 
@@ -430,16 +428,17 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
       know_bp_H_E_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
     
-    if ((bp_in_a_user_pdb_file == 0) and (H_in_a_user_pdb_file == 0)):
-        write_this = "A user input file has no base pair or helix.\nTherefore, cryo_fit2 will not explore MD parameters\n"
+    if ((bp_in_a_user_pdb_file == 0) and (H_in_a_user_pdb_file == 0) and (E_in_a_user_pdb_file == 0)):
+        write_this = "A user input file has no base pair or Helix/Sheet.\nMaybe this is an intrinsic molecule. Therefore, cryo_fit2 will not explore MD parameters\n"
         print(write_this)
         logfile.write(write_this)
         self.params.explore == False
-    
+
+
     ####################### <begin> Explore the optimal combination of parameters
     if ((self.params.short == False) and (self.params.explore == True)):
-      
-      ######## Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
+
+      ########  Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
       bp_cutoff = bp_in_a_user_pdb_file * 0.95
       write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) + "\n"
@@ -490,10 +489,11 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         # just to avoid crash, it seems like sparky linux machine can't handle more than 40 cores (even 20 cores)
         # when I used 13 cores, the load average reached 20!
       
-      write_this = "Cryo_fit2 will use " + str(int(cores_to_use)) + " core(s) to explore multiple MD parameters.\n"
+      write_this = "Cryo_fit2 will use " + str(int(cores_to_use)) + " core(s) to explore up to " + str(total_combi_num) + " MD parameters.\n"
       print(write_this)
       logfile.write(write_this)
       
+      success_exploration_count = 0
       for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, \
                                                        cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
@@ -502,21 +502,44 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
           #print ('args: ', str(args)) # "args:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           
           #print ('Result: %s ' %(res)) # "TypeError: not all arguments converted during string formatting"
-          # 1st it returned None
-          # Then, it well returned correct bp
-          # It seems that easy_mp.multi_core_run( explore_parameters_by_multi_core... runs twice unexpectedly. Either I couldn't use properly or easy_mp has some glitches?
           
-          #print ('errstr: %s ' %(errstr)) # None returned, maybe because there was no error in the first place?
+          write_this = 'errstr: %s ' %(errstr) + '\n'
+          # either "None" or
+          '''/Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: expone\
+nt_table: excessive range.
+Traceback (most recent call last):
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/libtbx/scheduling/job_scheduler.py", line 64, in job_\
+cycle
+    value = target( *args, **kwargs )
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/util/util.py", line 237, in explore_parameters_by_multi_c\
+ore
+    output_dir_final = task_obj.run()
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/command_line/cryo_fit2_run.py", line 170, in run
+    cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/util/util.py", line 26, in calculate_cc
+    fc = xrs.structure_factors(d_min = resolution).f_calc()
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure.py", line 1573, in structure_fac\
+tors
+    algorithm=algorithm)
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure_factors/from_scatterers.py", lin\
+e 53, in __call__
+    algorithm=algorithm) # passing algorithm allows f to decide on CPU/GPU implementation
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure_factors/from_scatterers_fft.py",\
+ line 38, in __init__
+    tolerance_positive_definite=manager.tolerance_positive_definite())""
+    '''
+    
+          print (write_this)
+          logfile.write(write_this)
           
-          
-      # /home/doonam/research/run/phenix/cryo_fit2/L1_stalk/explore_w_multicore,
-      # made 1,107 folders (=26+71+1010) out of 1,350, then no record after making cryo_fit2.input_command.txt
+          if (errstr == None):
+            success_exploration_count = success_exploration_count + 1
       
-      # /home/doonam/research/run/phenix/cryo_fit2/Mg_channel/part
-      # made 1,107 folders (=479+628) out of 1,350, then no record after making cryo_fit2.input_command.txt
+      #write_this = "\ncryo_fit2 explored " + str(total_combi_num-success_exploration_count) + " combination(s) of MD parameters " + \
+      #             "out of " + str(total_combi_num) + " total combinations.\nIt will run fully with optimized parameters.\n"
       
+      write_this = "\ncryo_fit2 finished MD parameter exploration.\nIt will run fully with optimized parameters.\n"
       
-      write_this = "\nCryo_fit2 explored " + str(total_combi_num) + " combinations of MD parameters.\nIt will run fully with optimized parameters.\n"
       print (write_this)
       logfile.write(write_this)
 
@@ -525,7 +548,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       
       self.params.MD_in_each_epoch = int(optimum_MD_in_each_epoch)
       self.params.sigma = float(optimum_sigma)
-      self.params.start_temperature = float(optimum_start_temperature)
+      self.params.start_temperature = float(optimum_start_temperature) # make it as float to format it consistent as in parameter exploration and user input
       self.params.number_of_steps = int(optimum_steps)
       self.params.weight_multiply= float(optimum_weight_multiply)
 
@@ -554,7 +577,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
       self.params.weight_multiply = 1
-      
+
+
     ###############  (begin) core cryo_fit2    
     print ("Final MD parameters after user input/automatic optimization")
     
@@ -605,7 +629,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     input_command_file.write(str(cryo_fit2_input_command))
     input_command_file.close()
     
-    logfile.write("\nAn input command for final cryo_fit2 MD run: ")
+    logfile.write("\nAn input command for final cryo_fit2 MD run:\n")
     logfile.write(str(cryo_fit2_input_command))
     
     
@@ -619,7 +643,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile           = logfile,
       output_dir        = output_dir,
       user_map_weight   = user_map_weight,
-      weight_multiply      = self.params.weight_multiply)
+      weight_multiply   = self.params.weight_multiply)
 
     task_obj.validate()
     
@@ -657,7 +681,5 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write(str("cryo_fit2"))
     logfile.write(str(time_took))
     logfile.write("\n")
-    
-    logfile.write(str(date_and_time()))
     
     logfile.close()
