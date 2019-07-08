@@ -99,6 +99,9 @@ record_states    = False
   .help          = If True, cryo_fit2 records all states and save it to all_states.pdb. \
                    However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                    If False, cryo_fit2 doesn't record each state of molecular dynamics.
+reoptimize_map_weight_after_each_epoch = False
+  .type                                = bool
+  .help                                = If True, cryo_fit2 will reoptimize map_weight after each epoch.
 resolution       = None
   .type          = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
@@ -593,7 +596,7 @@ e 53, in __call__
         self.params.cool_rate = user_cool_rate
     else:
       self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
-    print ("cool_rate: ", str(self.params.cool_rate))
+    print ("cool_rate: ", str(round(self.params.cool_rate,1)))
     
     output_dir = get_output_dir_name(self)
     
@@ -611,6 +614,7 @@ e 53, in __call__
                             + " number_of_steps=" + str(self.params.number_of_steps) \
                             + " weight_multiply=" + str(round(self.params.weight_multiply,1)) \
                             + " record_states=" + str(self.params.record_states) \
+                            + " reoptimize_map_weight_after_each_epoch=" + str(self.params.reoptimize_map_weight_after_each_epoch) \
                             + " explore=False "
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \

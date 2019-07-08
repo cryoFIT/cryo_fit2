@@ -205,10 +205,12 @@ class cryo_fit2_class(object):
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
           
-          ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
-          ### new comment: commenting this out didn't help incomplete problem
-          #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, str(self.output_dir))
-          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
+          if (self.params.reoptimize_map_weight_after_each_epoch == True):
+            ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
+            ### new comment: commenting this out didn't help incomplete problem
+            #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, str(self.output_dir))
+            self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
+            # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
           continue
         
         write_this = "np.mean(cc_1st_array):" + str(np.mean(cc_1st_array)) + "\n"
@@ -224,10 +226,11 @@ class cryo_fit2_class(object):
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
           
-          ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
-          ### new comment: commenting this out didn't help incomplete problem
-          #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, str(self.output_dir))
-          self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
+          if (self.params.reoptimize_map_weight_after_each_epoch == True):
+            ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
+            ### new comment: commenting this out didn't help incomplete problem
+            self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
+            # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
         else:
           write_this = "\ncc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"
           print('%s' %(write_this))
