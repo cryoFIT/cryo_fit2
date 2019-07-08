@@ -224,10 +224,17 @@ class cryo_fit2_class(object):
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
             # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
         else:
-          write_this = "\ncc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"
-          print('%s' %(write_this))
-          self.logfile.write(str(write_this))
-          break
+          if (total_steps_so_far < self.params.total_steps_for_exploration):
+            write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
+                       ") < total_steps_for_exploration (" + str(self.params.total_steps_for_exploration) + ")\n"
+            print('%s' %(write_this))
+            self.logfile.write(str(write_this))
+            continue
+          else:
+            write_this = "\ncc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"
+            print('%s' %(write_this))
+            self.logfile.write(str(write_this))
+            break
 ######################### <end> iterate until cryo_fit2 derived cc saturates
     
     

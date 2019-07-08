@@ -125,6 +125,9 @@ total_steps      = None
   .type          = int
   .short_caption = The total number of steps in phenix.dynamics.\
                    If specified, run up to this number of steps no matter what.
+total_steps_for_exploration  = 5000
+  .type                      = int
+  .short_caption             = The total number of steps for MD parameter exploration
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 

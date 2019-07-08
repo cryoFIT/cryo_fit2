@@ -179,11 +179,12 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
                                      MD_in_each_epoch, number_of_steps, sigma, start_temperature, \
                                      weight_multiply):
-    print ("\nMD_in_each_epoch that will be explored:", str(MD_in_each_epoch))
-    print ("number_of_steps that will be explored:",    str(number_of_steps))
-    print ("sigma that will be explored:",              str(sigma))
-    print ("start_temperature that will be explored:",  str(start_temperature))
-    print ("weight_multiply that will be explored:",    str(weight_multiply), "\n")
+    print ("\nMD parameres that will be explored.")
+    print ("MD_in_each_epoch:", str(MD_in_each_epoch))
+    print ("number_of_steps:",    str(number_of_steps))
+    print ("sigma:",              str(sigma))
+    print ("start_temperature:",  str(start_temperature))
+    print ("weight_multiply:",    str(weight_multiply), "\n\n")
     
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.map_weight:", str(round(params.map_weight,2)))
@@ -191,10 +192,11 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         # this multi core run is to explore options
         #params.total_steps = 10000 # this high number of steps tends to make nan errors (~25%)
-        params.total_steps = 5000 
+        #params.total_steps = 5000
+        params.total_steps = params.total_steps_for_exploration
     else:
         params.total_steps = 30 # temporary for development
-    print ("params.total_steps:", str(params.total_steps))
+    print ("params.total_steps for MD parameter exploration:", str(params.total_steps))
     
     #print ("(\"tst_cryo_fit2\" in self.data_manager.get_default_model_name()):",(\"tst_cryo_fit2\" in self.data_manager.get_default_model_name()))
     model_inp = self.data_manager.get_model()
