@@ -122,16 +122,8 @@ class cryo_fit2_class(object):
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       cc_check_after_every_this_cycle = 5
     else:
-      #cc_check_after_every_this_cycle = 500
-      cc_check_after_every_this_cycle = 5
-    '''
-    elif (number_of_atoms_in_input_pdb < 3000):
       cc_check_after_every_this_cycle = 500
-    elif (number_of_atoms_in_input_pdb < 5000):
-      cc_check_after_every_this_cycle = 300
-    else:
-      cc_check_after_every_this_cycle = 100
-    '''
+  
     
   ########################### <begin> iterate until cryo_fit2 derived cc saturates
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
