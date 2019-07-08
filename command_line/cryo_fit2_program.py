@@ -600,8 +600,7 @@ e 53, in __call__
     
     output_dir = get_output_dir_name(self)
     
-    ############################# all parameters are determined (either by a user or automatic optimization)
-    
+    # All parameters are determined (either by a user or automatic optimization)    
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() \
                             + " " + self.data_manager.get_default_real_map_name()  \
                             + " resolution=" + str(self.params.resolution)  \

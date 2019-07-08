@@ -189,7 +189,9 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     print ("params.map_weight:", str(round(params.map_weight,2)))
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        params.total_steps = 10000 # this multi core run is to explore options
+        # this multi core run is to explore options
+        #params.total_steps = 10000 # this high number of steps tends to make nan errors (~25%)
+        params.total_steps = 5000 
     else:
         params.total_steps = 30 # temporary for development
     print ("params.total_steps:", str(params.total_steps))
