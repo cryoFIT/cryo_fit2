@@ -158,7 +158,7 @@ class cryo_fit2_class(object):
           log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
       
       multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
-      total_steps_so_far = total_steps_so_far + params.number_of_steps*multiply_this
+      total_steps_so_far = total_steps_so_far + int(params.number_of_steps*multiply_this)
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
       write_this = "CC after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
@@ -168,7 +168,7 @@ class cryo_fit2_class(object):
       if (total_steps != ''):
         if (total_steps_so_far >= total_steps):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
-                       ") >= user specified total_steps (" + str(total_steps) + ")\n"
+                       ") >= A user specified total_steps (" + str(total_steps) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
@@ -184,19 +184,19 @@ class cryo_fit2_class(object):
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
         
-        write_this = "best_cc_so_far:" + str(best_cc_so_far) + ", current cc_after_small_MD:" + str(cc_after_small_MD) + "\n"
-        print('%s' %(write_this))
-        self.logfile.write(str(write_this))
-
-        if (best_cc_so_far < cc_after_small_MD):
-          write_this = "Therefore, run longer MD.\n\n"
+        if (cc_after_small_MD > best_cc_so_far):
+          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + ")"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+        
+          write_this = "Therefore, run longer MD.\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           best_cc_so_far = cc_after_small_MD
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
-          
+
           if (self.params.reoptimize_map_weight_after_each_epoch == True):
             ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
             ### new comment: commenting this out didn't help incomplete problem
@@ -204,16 +204,16 @@ class cryo_fit2_class(object):
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
             # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
           continue
-        
-        write_this = "np.mean(cc_1st_array):" + str(np.mean(cc_1st_array)) + "\n"
+
+        write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
-        
-        write_this = "np.mean(cc_2nd_array):" + str(np.mean(cc_2nd_array)) + "\n"
-        print('%s' %(write_this))
-        self.logfile.write(str(write_this))
-        
+
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
+          write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+        
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
@@ -224,6 +224,10 @@ class cryo_fit2_class(object):
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
             # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
         else:
+          write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          
           if (total_steps_so_far < self.params.total_steps_for_exploration):
             write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
                        ") < total_steps_for_exploration (" + str(self.params.total_steps_for_exploration) + ")\n"
@@ -290,7 +294,7 @@ class cryo_fit2_class(object):
 
     bp_num_in_fitted_file, H_num_in_fitted_file, E_num_in_fitted_file = \
       count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
-    
+      
     output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file) \
                       + "_H_" + str(H_num_in_fitted_file) + "_E_" + str(E_num_in_fitted_file)
     if os.path.exists(output_dir_final):

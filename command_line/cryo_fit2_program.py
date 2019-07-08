@@ -509,8 +509,13 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
           
           #print ('Result: %s ' %(res)) # "TypeError: not all arguments converted during string formatting"
           
+          write_this = str(res)
+          print ('Result: ', write_this) # 1, 0, 0
+          logfile.write(write_this)
+          
           write_this = 'errstr: %s ' %(errstr) + '\n'
-          # either "None" or
+          
+          # -> this errstr will be either "None" or
           '''/Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: expone\
 nt_table: excessive range.
 Traceback (most recent call last):
@@ -534,17 +539,16 @@ e 53, in __call__
  line 38, in __init__
     tolerance_positive_definite=manager.tolerance_positive_definite())""
     '''
-    
+      
           print (write_this)
           logfile.write(write_this)
           
           if (errstr == None):
             success_exploration_count = success_exploration_count + 1
       
-      #write_this = "\ncryo_fit2 explored " + str(total_combi_num-success_exploration_count) + " combination(s) of MD parameters " + \
-      #             "out of " + str(total_combi_num) + " total combinations.\nIt will run fully with optimized parameters.\n"
-      
-      write_this = "\ncryo_fit2 finished MD parameter exploration.\nIt will run fully with optimized parameters.\n"
+      write_this = "\ncryo_fit2 explored " + str(total_combi_num-success_exploration_count) + " combination(s) of MD parameters " + \
+                   "out of " + str(total_combi_num) + " total combinations.\nIt will run fully with optimized parameters.\n"
+      #write_this = "\ncryo_fit2 finished MD parameter exploration.\nIt will run fully with optimized parameters.\n"
       
       print (write_this)
       logfile.write(write_this)

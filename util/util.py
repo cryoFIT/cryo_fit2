@@ -110,11 +110,32 @@ def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfil
     splited_fitted_file_name_w_path = fitted_file_name_w_path.split("/")
     fitted_file_name_wo_path = splited_fitted_file_name_w_path[len(splited_fitted_file_name_w_path)-1]
     
+    
     command_string = "phenix.secondary_structure_restraints " + fitted_file_name_wo_path
-    libtbx.easy_run.fully_buffered(command_string)
+    try:
+        libtbx.easy_run.fully_buffered(command_string)
+    except:
+        write_this = '''
+          Maybe the \"fitted\" structure is broken with a following message,,,
+          /home/doonam/bin/phenix-dev-3311/build/lib/scitbx_array_family_flex_ext.so(boost::python::detail::caller_arity<2u>::impl<scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > (*)(scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&), boost::python::default_call_policies, boost::mpl::vector3<scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > >, scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&> >::operator()(_object*, _object*)+0x123) [0x7f589e621013]
+          /home/doonam/bin/phenix-dev-3311/build/lib/scitbx_array_family_flex_ext.so(scitbx::af::boost_python::flex_wrapper<double, boost::python::return_value_policy<boost::python::copy_non_const_reference, boost::python::default_call_policies> >::div_a_s(scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&)+0x9e) [0x7f589e60cf3e]
+          /lib/x86_64-linux-gnu/libc.so.6(+0x354b0) [0x7f58a3f444b0]
+          Floating-point error (Python and libc call stacks above)
+                This crash may be due to a problem in any imported
+                Python module, including modules which are not part
+                of the cctbx project. To disable the traps leading
+                to this message, define these environment variables
+                (e.g. assign the value 1):
+                    BOOST_ADAPTBX_FPE_DEFAULT
+                    BOOST_ADAPTBX_SIGNALS_DEFAULT
+                This will NOT solve the problem, just mask it, but
+                may allow you to proceed in case it is not critical.
+        '''
+        print (write_this)
+        logfile.write(write_this)
+        return None, None, None
     
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
-    
 
     ## count bp
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
@@ -228,21 +249,20 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     
     task_obj.validate()
     
-    #'''
+    '''
     # this try/except will not report number of parameter exploration combinations that ran successfully
-    # however, I expect that this may help incomplete running issue
+    # however, I expect that this may help incomplete running issue (however this try/except loop didn't help incomplete running issue)
     output_dir_final = ''
     try:
-        output_dir_final = task_obj.run()
+        output_dir_final = task_obj.run()    
     except:
         write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition"
         print (write_this)
         logfile.write(str(write_this))
         return 0 # return early
-    #'''
+    '''
     
-    
-    #output_dir_final = task_obj.run()
+    output_dir_final = task_obj.run()
 
     splited = output_dir_final.split("_bp_")
     splited2 = splited[1].split("_H_")
@@ -254,6 +274,13 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     
     splited = output_dir_final.split("_E_")
     E = splited[len(splited)-1]
+    
+    if (bp == "None"):
+        if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
+            os.mkdir("parameters_exploration/bp_H_E_not_calculated")
+        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
+        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+        return None, None, None
     
     if ( (float(bp) >= float(bp_cutoff)) and (float(H) >= float(H_cutoff)) and (float(E) >= float(E_cutoff))):
         if (os.path.isdir("parameters_exploration/bp_H_E_kept") == False):
@@ -614,9 +641,11 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
         # original combi for 810 cases
         for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 100): # 5 (e.g. 1, 101, 201, 301, 401)
-                for sigma in np.arange (0.001, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
+                #for sigma in np.arange (0.001, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001) # maybe the very low sigma is a cause of nan error?
+                for sigma in np.arange (0.021, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
                     for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
-                        for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
+                        #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
+                        for weight_multiply in range (1, 62, 20): # 4 (e.g. 1,21,41,61) 
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
