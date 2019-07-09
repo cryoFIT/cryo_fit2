@@ -264,6 +264,13 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     output_dir_final = task_obj.run()
 
     splited = output_dir_final.split("_bp_")
+    if (len(splited)) == 1:
+        if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
+            os.mkdir("parameters_exploration/bp_H_E_not_calculated")
+        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
+        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+        return None, None, None
+    
     splited2 = splited[1].split("_H_")
     bp = splited2[0]
     
@@ -273,13 +280,6 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     
     splited = output_dir_final.split("_E_")
     E = splited[len(splited)-1]
-    
-    if (bp == "None"):
-        if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
-            os.mkdir("parameters_exploration/bp_H_E_not_calculated")
-        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
-        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-        return None, None, None
     
     if ( (float(bp) >= float(bp_cutoff)) and (float(H) >= float(H_cutoff)) and (float(E) >= float(E_cutoff))):
         if (os.path.isdir("parameters_exploration/bp_H_E_kept") == False):
