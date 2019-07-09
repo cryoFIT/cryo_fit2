@@ -112,7 +112,7 @@ sigma            = None
   .type          = float
   .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
                    Oleg recommended 0.021 which is the sigma value for covalent bond. \
-                   Doo Nam's benchmark (144 combinations of options) shows that 1.00E-06, 0.1, and 0.2 do not make any difference in base_pair keeping
+                   Doo Nam's benchmark (144 combinations of options along with frequent reoptimization of map_weight) shows that 1.00E-06, 0.1, and 0.2 do not make any difference in base_pair keeping
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
@@ -581,7 +581,7 @@ e 53, in __call__
       self.params.MD_in_each_epoch = 4
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
-    if (self.params.sigma == None):
+    if ((self.params.sigma == None) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
       self.params.sigma = 0.021
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300

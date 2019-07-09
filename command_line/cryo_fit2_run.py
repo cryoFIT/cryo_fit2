@@ -38,7 +38,7 @@ class cryo_fit2_class(object):
     self.output_dir        = output_dir
     self.desc              = os.path.basename(model_name)
     self.user_map_weight   = user_map_weight
-    self.weight_multiply      = weight_multiply
+    self.weight_multiply   = weight_multiply
   
   def __execute(self):
     self.caller(self.write_geo_file,       "Write GEO file")
@@ -185,13 +185,10 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         
         if (cc_after_small_MD > best_cc_so_far):
-          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + ")"
+          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, run longer MD.\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
         
-          write_this = "Therefore, run longer MD.\n"
-          print('%s' %(write_this))
-          self.logfile.write(str(write_this))
           best_cc_so_far = cc_after_small_MD
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
@@ -203,7 +200,8 @@ class cryo_fit2_class(object):
             #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, str(self.output_dir))
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
             # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
-          continue
+            # I confirmed that reoptimizing map_weight_after_each_epoch did change result (cc, SS stat) significantly
+          continue 
 
         write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")"
         print('%s' %(write_this))
@@ -223,6 +221,7 @@ class cryo_fit2_class(object):
             ### new comment: commenting this out didn't help incomplete problem
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
             # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
+            # I confirmed that reoptimizing map_weight_after_each_epoch did change result (cc, SS stat) significantly
         else:
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
           print('%s' %(write_this))
@@ -235,7 +234,7 @@ class cryo_fit2_class(object):
             self.logfile.write(str(write_this))
             continue
           else:
-            write_this = "\ncc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"
+            write_this = "cc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"
             print('%s' %(write_this))
             self.logfile.write(str(write_this))
             break
@@ -243,7 +242,7 @@ class cryo_fit2_class(object):
     
     
     cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
-    write_this = "\n\ncc after cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
+    write_this = "\ncc after cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
     

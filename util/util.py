@@ -116,7 +116,9 @@ def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfil
         libtbx.easy_run.fully_buffered(command_string)
     except:
         write_this = '''
-          Maybe the \"fitted\" structure is broken with a following message,,,
+          Maybe the \"fitted\" structure is broken with a following message.
+          I confirmed this with both RNA (L1 stalk) and protein (Mg_channel).
+          
           /home/doonam/bin/phenix-dev-3311/build/lib/scitbx_array_family_flex_ext.so(boost::python::detail::caller_arity<2u>::impl<scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > (*)(scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&), boost::python::default_call_policies, boost::mpl::vector3<scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > >, scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&> >::operator()(_object*, _object*)+0x123) [0x7f589e621013]
           /home/doonam/bin/phenix-dev-3311/build/lib/scitbx_array_family_flex_ext.so(scitbx::af::boost_python::flex_wrapper<double, boost::python::return_value_policy<boost::python::copy_non_const_reference, boost::python::default_call_policies> >::div_a_s(scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&)+0x9e) [0x7f589e60cf3e]
           /lib/x86_64-linux-gnu/libc.so.6(+0x354b0) [0x7f58a3f444b0]
@@ -457,7 +459,6 @@ map_weight can't be optimized automatically.
 ######################## end of get_pdb_inputs_by_pdb_file_name function
 
 
-
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
 ####################### end of hasNumbers fn
@@ -556,7 +557,6 @@ def know_how_much_map_origin_moved(map_file_name):
 ############## end of know_how_much_map_origin_moved function
 
 
-
 def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
     command_string = "cat " + starting_pdb + " | grep ATOM | wc -l"
     num_ATOMs = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
@@ -568,14 +568,12 @@ def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
 ################# end of know_number_of_atoms_in_input_pdb()
 
 
-
 def line_prepender(filename, line):
     with open(filename, 'r+') as f:
         content = f.read()
         f.seek(0, 0)
         f.write(line.rstrip('\r\n') + '\n' + content)
 #################### end of line_prepender()
-
 
 
 def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
@@ -664,7 +662,7 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     else: # just explore 2 combinations to save regression time
         for MD_in_each_epoch in range (2, 4, 10):
             for number_of_steps in range (1, 51, 100):
-                for sigma in np.arange (0.001, 0.2, 0.1): #2
+                for sigma in np.arange (0.021, 0.2, 0.1): #2
                     for start_temperature in np.arange (300.0, 301.0, 300.0):
                         for weight_multiply in range (1, 3, 10):
                             total_combi_num = total_combi_num + 1
@@ -675,7 +673,6 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
 
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
-
 
 
 def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
@@ -801,7 +798,6 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
 ############################ end of prepend_extracted_CRYST1_to_pdb_file
 
 
-
 def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style of RNA file
     f_in = open(input_pdb_file_name)
     output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_cryo_fit2.pdb"
@@ -845,7 +841,6 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 ########################### end of remove_R_prefix_in_RNA function
 
 
-
 #def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, output_dir):
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
@@ -884,7 +879,6 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
 ############### end of reoptimize_map_weight_if_not_specified function
            
            
-
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
     print ("widthx:",widthx)
     move_x_by = move_x_by*widthx
@@ -1163,7 +1157,7 @@ def write_custom_geometry(logfile, input_model_file_name, sigma):
   input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
   
-  ########## rewrite_pymol_ss_to_custom_geometry_ss
+  ##### rewrite_pymol_ss_to_custom_geometry_ss
   eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma)
   
   return eff_file_name
