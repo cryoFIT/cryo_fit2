@@ -1,2 +1,3 @@
 python: 2.7
-solution: "cryo_fit2.run_tests"
+solution: "phenix.python command_line/cryo_fit2_tests.py" 
+# "cryo_fit2.run_tests" will not work
