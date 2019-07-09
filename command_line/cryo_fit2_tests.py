@@ -17,12 +17,10 @@ if (__name__ == "__main__") :
     assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory' # added by Nigel so that this test runs in a clear path
 
 #    print "This phenix.cryo_fit2.run_tests executable comes from ", cryo_fit2_repository_dir
-
     splited = cryo_fit2_repository_dir.split("/")
     regression_path = ''
     for i in range(len(splited)-1):
       regression_path = regression_path + splited[i] + "/"
-
 
     ############# test 1, simplest biomolecule with total_steps ###############
     regression_path = os.path.join(cryo_fit2_repository_dir,
