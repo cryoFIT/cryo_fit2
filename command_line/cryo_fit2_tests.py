@@ -55,7 +55,6 @@ if (__name__ == "__main__") :
     libtbx.easy_run.fully_buffered(rm_command_string)
 
 
-
     ############# test 3, simplest biomolecule test stong_ss ###############
     regression_path = os.path.join(cryo_fit2_repository_dir,
                                      'regression')
