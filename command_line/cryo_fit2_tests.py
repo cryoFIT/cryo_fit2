@@ -3,6 +3,7 @@
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export PHENIX_GUI_ENVIRONMENT
 
 import glob, iotbx.pdb.hierarchy, os, subprocess, sys, time
+#import glob, os, subprocess, sys, time
 from libtbx import phil
 import libtbx.phil.command_line
 from libtbx.utils import Sorry
@@ -102,7 +103,7 @@ if (__name__ == "__main__") :
     rc = libtbx.easy_run.call(command=command_string)
     assert rc==0 # make sure there is no error with this test
     
-    # remove no longer needed folder and input_command file
+    # remove a no longer needed folder and an input command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
     libtbx.easy_run.fully_buffered(rm_command_string)
     
