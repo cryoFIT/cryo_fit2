@@ -67,7 +67,7 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
       if not self.params.selection_moving:
         moving.selectomatic(fixed)
       rmsd, lsq = moving.superpose(fixed)
-      write_this = "\n\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
+      write_this = "\n\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n"
       print (write_this)
       self.logfile.write(str(write_this))
 ############ def calculate_RMSD(self):
@@ -203,7 +203,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
                                      MD_in_each_epoch, number_of_steps, sigma, start_temperature, \
                                      weight_multiply):
     print ("\nMD parameres that will be explored.")
-    print ("MD_in_each_epoch:", str(MD_in_each_epoch))
+    print ("MD_in_each_epoch:",   str(MD_in_each_epoch))
     print ("number_of_steps:",    str(number_of_steps))
     print ("sigma:",              str(sigma))
     print ("start_temperature:",  str(start_temperature))
@@ -213,10 +213,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     print ("params.map_weight:", str(round(params.map_weight,2)))
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        # this multi core run is to explore options
-        #params.total_steps = 10000 # this high number of steps tends to make nan errors (~25%)
-        #params.total_steps = 5000
-        params.total_steps = params.total_steps_for_exploration
+        params.total_steps = params.total_steps_for_exploration # as of now 5k, this multi core run is to explore options (10k tends to make nan errors (~25%))
     else:
         params.total_steps = 30 # temporary for development
     print ("params.total_steps for MD parameter exploration:", str(params.total_steps))

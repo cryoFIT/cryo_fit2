@@ -131,7 +131,7 @@ class cryo_fit2_class(object):
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
       self.params.map_weight = self.params.map_weight * weight_multiply
-      # This is the only place whether weight_multiply is applied
+      # This is the only place where weight_multiply is applied
       # 1x~10x of weight_multiply were not enough for L1 stalk fitting
       # up to 20x of weight_multiply, nucleic acid geometry was ok, 30x broke it
       
@@ -168,7 +168,7 @@ class cryo_fit2_class(object):
       if (total_steps != ''):
         if (total_steps_so_far >= total_steps):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
-                       ") >= A user specified total_steps (" + str(total_steps) + ")\n"
+                       ") >= A specified total_steps (" + str(total_steps) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break

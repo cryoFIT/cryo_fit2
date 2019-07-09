@@ -447,18 +447,18 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       ########  Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
       bp_cutoff = bp_in_a_user_pdb_file * 0.95
-      write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) + "\n"
+      write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) 
       print(write_this)
       logfile.write(write_this)
       
       # stricter cutoff for H/E than bp
       H_cutoff = H_in_a_user_pdb_file * 0.99
-      write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1)) + "\n"
+      write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1))
       print(write_this)
       logfile.write(write_this)
       
       E_cutoff = E_in_a_user_pdb_file * 0.99
-      write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1)) + "\n"
+      write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1))
       print(write_this)
       logfile.write(write_this)
       
@@ -507,13 +507,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
           #print ('args: %s ' %(args)) # "args:   [<cryo_fit2_program.Program object at 0x11b54ffd0>, <libtbx.phil.scope_extract object at 0x11b54fd50>, <open file 'cryo_fit2.log', mode 'w' at 0x11b45b9c0>, '', 0.0, 0.99, 0.0, 2, 1, 0.001, 300, 1]"
           #print ('args: ', str(args)) # "args:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           
-          #print ('Result: %s ' %(res)) # "TypeError: not all arguments converted during string formatting"
+          if (str(res[0]) != "None"):
+            write_this = 'bp:' + str(res[0]) + ', H:' + str(res[1]) + ', E:' + str(res[2])
+            print (write_this) # 1, 0, 0
+            logfile.write(write_this)
           
-          write_this = 'result: ' + str(res) + '\n'
-          print (write_this) # 1, 0, 0
-          logfile.write(write_this)
-          
-          write_this = 'errstr: %s ' %(errstr) + '\n'
+          write_this = 'error string: %s ' %(errstr) + '\n'
           
           # -> this errstr will be either "None" or
           '''/Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: expone\
