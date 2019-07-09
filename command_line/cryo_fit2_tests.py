@@ -56,7 +56,6 @@ if (__name__ == "__main__") :
 
 
 
-
     ############# test 3, simplest biomolecule test stong_ss ###############
     regression_path = os.path.join(cryo_fit2_repository_dir,
                                      'regression')
