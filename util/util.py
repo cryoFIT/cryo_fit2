@@ -269,7 +269,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
             os.mkdir("parameters_exploration/bp_H_E_not_calculated")
         command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
         libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-        return None, None, None
+        return None, None, None 
     
     splited2 = splited[1].split("_H_")
     bp = splited2[0]
