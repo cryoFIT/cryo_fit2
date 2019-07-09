@@ -1,1 +1,3 @@
 language: python
+script:
+	- cryo_fit2.run_tests
