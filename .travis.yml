@@ -1,3 +1,15 @@
-python: 2.7
-solution: "phenix.python command_line/cryo_fit2_tests.py" 
+language: python
+
+matrix:
+  include:
+    - env: PYTHON_VERSION="2.7"
+
+os:
+    linux
+    osx
+
+script: 
+    - mkdir empty
+    - cd empty
+    - phenix.python ../command_line/cryo_fit2_tests.py
 # "cryo_fit2.run_tests" will not work
