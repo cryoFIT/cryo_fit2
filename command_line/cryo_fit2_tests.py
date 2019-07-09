@@ -3,7 +3,6 @@
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export PHENIX_GUI_ENVIRONMENT
 
 import glob, iotbx.pdb.hierarchy, os, subprocess, sys, time
-#import glob, os, subprocess, sys, time
 from libtbx import phil
 import libtbx.phil.command_line
 from libtbx.utils import Sorry
