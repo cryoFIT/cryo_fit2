@@ -1,2 +1,2 @@
-language: python
+python: 2.7
 solution: "cryo_fit2.run_tests"
