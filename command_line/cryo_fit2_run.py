@@ -170,8 +170,7 @@ class cryo_fit2_class(object):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
                        ") >= A specified total_steps (" + str(total_steps) + ")\n"
           print('%s' %(write_this))
-          #self.logfile.write(str(write_this))
-          self.logfile.write(str(write_t
+          self.logfile.write(str(write_this))
           break
       elif (cycle_so_far < cc_check_after_every_this_cycle/2):
         cycle_so_far = cycle_so_far + 1
