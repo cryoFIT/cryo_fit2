@@ -108,19 +108,18 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity
-sigma            = None
-  .type          = float
-  .short_caption = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                   Oleg recommended 0.021 which is the sigma value for covalent bond. \
-                   Doo Nam's benchmark (144 combinations of options along with frequent reoptimization of map_weight) shows that 1.00E-06, 0.1, and 0.2 do not make any difference in base_pair keeping
+sigma_for_custom_geom = None
+  .type               = float
+  .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
+                        Oleg recommended 0.021 which is the sigma value for covalent bond.
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 strong_ss = True
   .type   = bool
-  .help   = If True, cryo_fit2 will use a stronger sigma (e.g. 0.021) for secondary structure restraints. \
-            If False, it will use the original sigma (e.g. 1)
+  .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom (e.g. 0.021) for secondary structure restraints. \
+            If False, it will use the original sigma_for_custom_geom (e.g. 1)
 total_steps      = None
   .type          = int
   .short_caption = The total number of steps in phenix.dynamics.\
@@ -285,20 +284,28 @@ Options:
     log.register("logfile", logfile)
     logfile.write(str(date_and_time()))
 
-    if (self.params.strong_ss == True):
-      write_this = "\nA user turned strong_ss=True\n"
-      print (write_this)
-      logfile.write(write_this)
-      
-      eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma)
-      args.append(eff_file_name)
+    # Importantly declared initial global variables
+    user_cool_rate = None
+    user_MD_in_each_epoch = None 
+    user_number_of_steps = None 
+    user_sigma_for_custom_geom = None
+    user_start_temperature = None
+    user_weight_multiply = None
     
-    # else:  
-    #   if (self.params.sigma != 0.021):
-    #     write_this = "\nSpecifying the sigma value when a user turned strong_ss=False is meaningless. \nExit cryo_fit2 now.\n"
-    #     print (write_this)
-    #     logfile.write(write_this)
-    #     exit(1)
+    # save a user entered params.* now
+    if (self.params.cool_rate != None):
+      user_cool_rate = self.params.cool_rate
+    if (self.params.MD_in_each_epoch != None):
+      user_MD_in_each_epoch = self.params.MD_in_each_epoch
+    if (self.params.number_of_steps != None):
+      user_number_of_steps = self.params.number_of_steps
+    if (self.params.sigma_for_custom_geom != None):
+      user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
+    if (self.params.start_temperature != None):
+      user_start_temperature = self.params.start_temperature
+    if (self.params.weight_multiply != None):
+      user_weight_multiply = self.params.weight_multiply
+
     
     print ("A user entered resolution:", str(self.params.resolution))
     
@@ -423,13 +430,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ########## <end> Automatic map weight determination
     
     
-    # Importantly declared initial global variables
-    user_cool_rate = None
-    user_MD_in_each_epoch = None 
-    user_number_of_steps = None 
-    user_sigma = None
-    user_start_temperature = None
-    user_weight_multiply = None
+    
     
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
       know_bp_H_E_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
@@ -441,12 +442,24 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         self.params.explore == False
 
 
+    if (self.params.strong_ss == True):
+      write_this = "\nA user turned strong_ss=True\n"
+      print (write_this)
+      logfile.write(write_this)
+      
+      if ((self.params.sigma_for_custom_geom == None) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
+        self.params.sigma_for_custom_geom = 0.021
+      
+      eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
+      args.append(eff_file_name)
+      
+
     ####################### <begin> Explore the optimal combination of parameters
     if ((self.params.short == False) and (self.params.explore == True)):
 
       ########  Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
-      bp_cutoff = bp_in_a_user_pdb_file * 0.95
+      bp_cutoff = bp_in_a_user_pdb_file * 0.96
       write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) 
       print(write_this)
       logfile.write(write_this)
@@ -462,19 +475,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       print(write_this)
       logfile.write(write_this)
       
-      # save a user entered params.* now
-      if (self.params.cool_rate != None):
-        user_cool_rate = self.params.cool_rate
-      if (self.params.MD_in_each_epoch != None):
-        user_MD_in_each_epoch = self.params.MD_in_each_epoch
-      if (self.params.number_of_steps != None):
-        user_number_of_steps = self.params.number_of_steps
-      if (self.params.sigma != None):
-        user_sigma = self.params.sigma
-      if (self.params.start_temperature != None):
-        user_start_temperature = self.params.start_temperature
-      if (self.params.weight_multiply != None):
-        user_weight_multiply = self.params.weight_multiply
+      
         
       if (os.path.isdir("parameters_exploration") == True):
         shutil.rmtree("parameters_exploration")
@@ -552,22 +553,22 @@ e 53, in __call__
       print (write_this)
       logfile.write(write_this)
 
-      optimum_MD_in_each_epoch, optimum_sigma, optimum_start_temperature, optimum_steps,  \
+      optimum_MD_in_each_epoch, optimum_sigma_for_custom_geom, optimum_start_temperature, optimum_steps,  \
       optimum_weight_multiply = extract_the_best_cc_parameters(logfile)
       
-      self.params.MD_in_each_epoch = int(optimum_MD_in_each_epoch)
-      self.params.sigma = float(optimum_sigma)
-      self.params.start_temperature = float(optimum_start_temperature) # make it as float to format it consistent as in parameter exploration and user input
-      self.params.number_of_steps = int(optimum_steps)
-      self.params.weight_multiply= float(optimum_weight_multiply)
+      self.params.MD_in_each_epoch      = int(optimum_MD_in_each_epoch)
+      self.params.sigma_for_custom_geom = float(optimum_sigma_for_custom_geom)
+      self.params.start_temperature     = float(optimum_start_temperature) # make it as float to format it consistent as in parameter exploration and user input
+      self.params.number_of_steps       = int(optimum_steps)
+      self.params.weight_multiply       = float(optimum_weight_multiply)
 
-      # override self.params.* with user entered values
+      # Override self.params.* with user entered values
       if (user_MD_in_each_epoch != None):
         self.params.MD_in_each_epoch = user_MD_in_each_epoch
       if (user_number_of_steps != None):
         self.params.number_of_steps = user_number_of_steps
-      if (user_sigma != None):
-        self.params.sigma = user_sigma
+      if (user_sigma_for_custom_geom != None):
+        self.params.sigma_for_custom_geom = user_sigma_for_custom_geom
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
       if (user_weight_multiply != None):
@@ -580,8 +581,8 @@ e 53, in __call__
       self.params.MD_in_each_epoch = 4
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
-    if ((self.params.sigma == None) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
-      self.params.sigma = 0.021
+    if (self.params.sigma_for_custom_geom == None):
+      self.params.sigma_for_custom_geom = 100
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
@@ -594,7 +595,7 @@ e 53, in __call__
     print ("final_temperature: ", str(self.params.final_temperature))
     print ("MD_in_each_epoch: ", str(self.params.MD_in_each_epoch))
     print ("number_of_steps: ", str(self.params.number_of_steps))
-    print ("sigma: ", str(self.params.sigma))
+    print ("sigma_for_custom_geom: ", str(self.params.sigma_for_custom_geom))
     print ("start_temperature: ", str(self.params.start_temperature))
     
     # override self.params.* with user entered values
@@ -611,7 +612,7 @@ e 53, in __call__
                             + " " + self.data_manager.get_default_real_map_name()  \
                             + " resolution=" + str(self.params.resolution)  \
                             + " strong_ss=" + str(self.params.strong_ss) \
-                            + " sigma=" + str(self.params.sigma) \
+                            + " sigma_for_custom_geom=" + str(self.params.sigma_for_custom_geom) \
                             + " start_temperature=" + str(self.params.start_temperature)  \
                             + " final_temperature=" + str(self.params.final_temperature) \
                             + " MD_in_each_epoch=" + str(self.params.MD_in_each_epoch) \

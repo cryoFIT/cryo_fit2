@@ -200,17 +200,17 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
-                                     MD_in_each_epoch, number_of_steps, sigma, start_temperature, \
+                                     MD_in_each_epoch, number_of_steps, sigma_for_custom_geom, start_temperature, \
                                      weight_multiply):
     print ("\nMD parameres that will be explored.")
-    print ("MD_in_each_epoch:",   str(MD_in_each_epoch))
-    print ("number_of_steps:",    str(number_of_steps))
-    print ("sigma:",              str(sigma))
-    print ("start_temperature:",  str(start_temperature))
-    print ("weight_multiply:",    str(weight_multiply), "\n\n")
+    print ("MD_in_each_epoch:",        str(MD_in_each_epoch))
+    print ("number_of_steps:",         str(number_of_steps))
+    print ("sigma_for_custom_geom:",   str(sigma_for_custom_geom))
+    print ("start_temperature:",       str(start_temperature))
+    print ("weight_multiply:",         str(weight_multiply), "\n\n")
     
-    print ("params.final_temperature:", str(params.final_temperature))
-    print ("params.map_weight:", str(round(params.map_weight,2)))
+    print ("params.final_temperature:",str(params.final_temperature))
+    print ("params.map_weight:",       str(round(params.map_weight,2)))
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         params.total_steps = params.total_steps_for_exploration # as of now 5k, this multi core run is to explore options (10k tends to make nan errors (~25%))
@@ -223,11 +223,11 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     map_inp   = self.data_manager.get_real_map()
 
     # Re-assign params for below cryo_fit2 run
-    params.MD_in_each_epoch  = MD_in_each_epoch
-    params.number_of_steps   = number_of_steps
-    params.sigma             = sigma
-    params.start_temperature = start_temperature
-    params.weight_multiply   = weight_multiply
+    params.MD_in_each_epoch         = MD_in_each_epoch
+    params.number_of_steps          = number_of_steps
+    params.sigma_for_custom_geom    = sigma_for_custom_geom
+    params.start_temperature        = start_temperature
+    params.weight_multiply          = weight_multiply
     
     params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_epoch)-1))
     print ("params.cool_rate:", str(round(params.cool_rate, 1)))
@@ -331,9 +331,9 @@ Otherwise, run cryo_fit2 with explore_parameters=False\n
             splited2 = splited[1].split("_step_")
             optimum_MD_in_each_epoch = splited2[0]
             
-            splited = check_this_dir.split("_sigma_")
+            splited = check_this_dir.split("_sigma_for_custom_geom_")
             splited2 = splited[1].split("_cc_")
-            optimum_sigma = splited2[0]
+            optimum_sigma_for_custom_geom = splited2[0]
             
             splited = check_this_dir.split("_start_")
             splited2 = splited[1].split("_final_")
@@ -344,11 +344,11 @@ Otherwise, run cryo_fit2 with explore_parameters=False\n
             optimum_step = splited2[0]
             
             splited = check_this_dir.split("_weight_multiply_")
-            splited2 = splited[1].split("_sigma_")
+            splited2 = splited[1].split("_sigma_for_custom_geom_")
             optimum_weight_multiply = splited2[0]
             
             os.chdir(starting_dir)
-            return optimum_MD_in_each_epoch, optimum_sigma, optimum_start_temperature, \
+            return optimum_MD_in_each_epoch, optimum_sigma_for_custom_geom, optimum_start_temperature, \
                    optimum_step, optimum_weight_multiply
 ############ end of def extract_the_best_cc_parameters():
 
@@ -364,7 +364,7 @@ def get_output_dir_name(self):
                  "_step_" + str(self.params.number_of_steps) + \
                  "_strong_ss_" + str(self.params.strong_ss) + \
                  "_weight_multiply_" + str(round(self.params.weight_multiply,1)) + \
-                 "_sigma_" + str(self.params.sigma)
+                 "_sigma_for_custom_geom_" + str(self.params.sigma_for_custom_geom)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
                  #"_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \
@@ -636,36 +636,27 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
         # original combi for 810 cases
         for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 100): # 5 (e.g. 1, 101, 201, 301, 401)
-                #for sigma in np.arange (0.001, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001) # maybe the very low sigma is a cause of nan error?
-                for sigma in np.arange (0.021, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
+                for sigma_for_custom_geom in np.arange (0.021, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
                     for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
                         #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
                         for weight_multiply in range (1, 62, 20): # 4 (e.g. 1,21,41,61) 
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
-                                            number_of_steps, sigma, start_temperature, \
+                                            number_of_steps, sigma_for_custom_geom, start_temperature, \
                                             weight_multiply])
         
-        '''
-        # for devel
-        for MD_in_each_epoch in range (2, 23, 30): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
-            for number_of_steps in range (1, 501, 700): # 5 (e.g. 1, 101, 201, 301, 401)
-                for sigma in np.arange (0.001, 0.3, 0.9): # 3 (e.g. 0.001, 0.1001, 0.2001)
-                    for start_temperature in np.arange (300.0, 901.0, 800.0): # 3 (e.g. 300, 600, 900)
-                        for weight_multiply in range (1, 102, 60): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
-        '''
                             
     else: # just explore 2 combinations to save regression time
         for MD_in_each_epoch in range (2, 4, 10):
             for number_of_steps in range (1, 51, 100):
-                for sigma in np.arange (0.021, 0.2, 0.1): #2
+                for sigma_for_custom_geom in np.arange (0.021, 0.2, 0.1): #2
                     for start_temperature in np.arange (300.0, 301.0, 300.0):
                         for weight_multiply in range (1, 3, 10):
                             total_combi_num = total_combi_num + 1
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                                bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
-                                               number_of_steps, sigma, start_temperature, \
+                                               number_of_steps, sigma_for_custom_geom, start_temperature, \
                                                weight_multiply])
 
     return total_combi_num, argstuples
@@ -927,7 +918,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
-def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_from_option):
+def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_custom_geom):
 ####### reference
 
 #################### DISTANCE
@@ -1009,7 +1000,7 @@ geometry_restraints {
       
       #f_out.write("      sigma = 0.021\n") # this is the lowest sigma value that Oleg recommended. Below this will be stronger than covalent bonds!!
       
-      write_this = "      sigma = " + str(sigma_from_option) + "\n"
+      write_this = "      sigma = " + str(sigma_for_custom_geom) + "\n"
       f_out.write(write_this) 
       
       
@@ -1100,7 +1091,8 @@ geometry_restraints {
             f_out.write("      angle_ideal = 117.3\n") # derived from Oleg slide and tRNA
         '''
         
-        f_out.write("      sigma = 0.021\n")
+        #f_out.write("      sigma = 0.021\n")
+        write_this = "      sigma = " + str(sigma_for_custom_geom) + "\n"
         
         write_this = "    }\n"
         f_out.write(write_this)
@@ -1130,7 +1122,7 @@ def show_time(time_start, time_end):
 ############### end of show_time function
 
 
-def write_custom_geometry(logfile, input_model_file_name, sigma):
+def write_custom_geometry(logfile, input_model_file_name, sigma_for_custom_geom):
 
   ######## produce pymol format secondary structure restraints #########
   # I heard that running phenix commandline directly is not ideal.
@@ -1138,14 +1130,19 @@ def write_custom_geometry(logfile, input_model_file_name, sigma):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger sigma "
+  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger sigma_for_custom_geom "
   print(write_this)
   logfile.write(write_this)
   
-  if (sigma != None):
-    write_this = "(e.g. " + str(sigma) + ").\n"
+  if (sigma_for_custom_geom != None):
+    write_this = "(e.g. " + str(sigma_for_custom_geom) + ").\n"
     print(write_this)
     logfile.write(write_this)
+  else:
+    write_this = "sigma_for_custom_geom = None till now, debug now\n"
+    print(write_this)
+    logfile.write(write_this)
+    exit(1)
     
   make_pymol_ss_restraints = "phenix.secondary_structure_restraints " + input_model_file_name + " format=pymol"
   libtbx.easy_run.fully_buffered(make_pymol_ss_restraints)
@@ -1155,7 +1152,7 @@ def write_custom_geometry(logfile, input_model_file_name, sigma):
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
   
   ##### rewrite_pymol_ss_to_custom_geometry_ss
-  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma)
+  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_custom_geom)
   
   return eff_file_name
-########### end of write_custom_geometry(input_model_file_name, sigma)
+########### end of write_custom_geometry(input_model_file_name, sigma_for_custom_geom)
