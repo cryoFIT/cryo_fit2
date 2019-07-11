@@ -199,7 +199,7 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 
-def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
+def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
                                      MD_in_each_epoch, number_of_steps, sigma_for_custom_geom, start_temperature, \
                                      weight_multiply):
     print ("\nMD parameres that will be explored.")
@@ -212,6 +212,12 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     print ("params.final_temperature:",str(params.final_temperature))
     print ("params.map_weight:",       str(round(params.map_weight,2)))
     
+    
+    eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
+                                          sigma_for_custom_geom)
+    args.append(eff_file_name)
+    
+        
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         params.total_steps = params.total_steps_for_exploration # as of now 5k, this multi core run is to explore options (10k tends to make nan errors (~25%))
     else:
@@ -262,7 +268,8 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     '''
     
     output_dir_final = task_obj.run()
-
+    args.remove(str(eff_file_name))
+    
     splited = output_dir_final.split("_bp_")
     if (len(splited)) == 1:
         if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
@@ -573,64 +580,16 @@ def line_prepender(filename, line):
 #################### end of line_prepender()
 
 
-def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
+def make_argstuples(self, args, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
+    print ("args:",args)
+    
     total_combi_num = 0
     argstuples = []
     ## final_temperature is fixed as 0
     
-    # Both kaguya and sparky stopped working after making 1,107 parameter exploration folder (total should be 1,350)
-    # (solution) Therefore, make total combination less than 1,100
-    
-    # When I set total combi as 1,350 at sparky,
-    #L1 stalk stopped after making 1,108 folders
-    
-    # When I aimed total combi as 810 w/ 10 cores at sparky,
-    #L1 stalk stopped after making 595 folders
-    
-    # When I aimed total combi as 810 w/ 1 core at macbook,
-    #tRNA_devel ran till final, making 671 exploration folders and 4 not-moved exploration-output folders
-    # wrote Date 11 times
-    
-    # When I aimed 48 total combi w/ 1 core at macbook,
-    #tRNA_devel ran till final, making 32 exploration folders and 0 not-moved exploration-output folders
-    # 32/48 = 67 %
-    # wrote Date 5 times (I removed the date_and_time after cryo_fit2 running)
-    
-    # When I aimed 32 total combi w/ 1 core at macbook,
-    #tRNA_devel ran till final, making 24 exploration folders and 0 not-moved exploration-output folders
-    # 24/32 = 75 %
-    # wrote Date 5 times (I removed the date_and_time after cryo_fit2 running)
-    
-    # When I aimed 8 total combi w/ 1 core at macbook,
-    #tRNA_devel ran till final, making 4 exploration folders and 0 not-moved exploration-output folders
-    # 4/8 = 50 %
-    # wrote Date 3 times (I removed the date_and_time after cryo_fit2 running)
-    
-    # When I aimed 4 total combi w/ 1 core at macbook,
-    #tRNA_devel ran till final, making 2 exploration folders and 0 not-moved exploration-output folders
-    # 2/4 = 50 %
-    # wrote Date 3 times (I removed the date_and_time after cryo_fit2 running)
-    
-    # When I aimed 2 total combi w/ 1 core at macbook,
-    #tRNA_devel ran till final, making 1 exploration folders and 0 not-moved exploration-output folders
-    # 1/2 = 50 %
-    # wrote Date 2 times (I removed the date_and_time after cryo_fit2 running)
-    
-    # When I aimed 2 combi w/ tst_cryofit2... file at sparky,
-    #L1_stalks worked perfectly (wrote Date once, cutoffs from user file once)
-    
-    # When I aimed 2 combi w/ tst_cryofit2... file at macbook,
-    #tRNA_devel worked perfectly (wrote Date once, cutoffs from user file once)
-    
-    # The current issue is that 5~30% of the times,
-    #output_exploration folder moved to parameters_exploration folder well
-    #These output_exploration folders lack bp_0_H_10_E_1 suffix
-    
-    
     ############# <KEEP THIS NOTE> I think that I figured out the reason of this problem finally.
     ############# Writing "Date" multiple times is nothing but spurious error. Number of "Date" writing is somehow random
     ############# The most probable cause of this error is when cryo_fit2 fails to run ("nan")
-    
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         # original combi for 810 cases
@@ -641,7 +600,7 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
                         #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
                         for weight_multiply in range (1, 62, 20): # 4 (e.g. 1,21,41,61) 
                             total_combi_num = total_combi_num + 1
-                            argstuples.append([self, self.params, logfile, user_map_weight, \
+                            argstuples.append([self, args, self.params, logfile, user_map_weight, \
                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
                                             number_of_steps, sigma_for_custom_geom, start_temperature, \
                                             weight_multiply])
@@ -654,7 +613,7 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
                     for start_temperature in np.arange (300.0, 301.0, 300.0):
                         for weight_multiply in range (1, 3, 10):
                             total_combi_num = total_combi_num + 1
-                            argstuples.append([self, self.params, logfile, user_map_weight, \
+                            argstuples.append([self, args, self.params, logfile, user_map_weight, \
                                                bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
                                                number_of_steps, sigma_for_custom_geom, start_temperature, \
                                                weight_multiply])
@@ -998,8 +957,6 @@ geometry_restraints {
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
       
-      #f_out.write("      sigma = 0.021\n") # this is the lowest sigma value that Oleg recommended. Below this will be stronger than covalent bonds!!
-      
       write_this = "      sigma = " + str(sigma_for_custom_geom) + "\n"
       f_out.write(write_this) 
       
@@ -1130,14 +1087,12 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_custom_geom)
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
   write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger sigma_for_custom_geom "
+  if (sigma_for_custom_geom != None):
+    write_this = write_this + "(e.g. " + str(sigma_for_custom_geom) + ").\n"
   print(write_this)
   logfile.write(write_this)
-  
-  if (sigma_for_custom_geom != None):
-    write_this = "(e.g. " + str(sigma_for_custom_geom) + ").\n"
-    print(write_this)
-    logfile.write(write_this)
-  else:
+    
+  if (sigma_for_custom_geom == None):
     write_this = "sigma_for_custom_geom = None till now, debug now\n"
     print(write_this)
     logfile.write(write_this)

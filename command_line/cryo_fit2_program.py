@@ -426,10 +426,8 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.write("\nA user specified map_weight: ")
     
     logfile.write(str(round(self.params.map_weight,1)))
-    logfile.write("\n\n")
+    logfile.write("\n")
     ########## <end> Automatic map weight determination
-    
-    
     
     
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
@@ -441,25 +439,18 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         logfile.write(write_this)
         self.params.explore == False
 
-
     if (self.params.strong_ss == True):
       write_this = "\nA user turned strong_ss=True\n"
       print (write_this)
       logfile.write(write_this)
       
-      if ((self.params.sigma_for_custom_geom == None) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
-        self.params.sigma_for_custom_geom = 0.021
       
-      eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
-      args.append(eff_file_name)
-      
-
     ####################### <begin> Explore the optimal combination of parameters
     if ((self.params.short == False) and (self.params.explore == True)):
 
       ########  Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
-      bp_cutoff = bp_in_a_user_pdb_file * 0.96
+      bp_cutoff = bp_in_a_user_pdb_file * 0.97
       write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) 
       print(write_this)
       logfile.write(write_this)
@@ -474,14 +465,12 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1))
       print(write_this)
       logfile.write(write_this)
-      
-      
         
       if (os.path.isdir("parameters_exploration") == True):
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
       
-      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage
+      total_combi_num, argstuples = make_argstuples(self, args, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage
       
       cores_to_use = ''
       if (self.params.cores_from_user != None):
@@ -501,14 +490,14 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.write(write_this)
       
       success_exploration_count = 0
-      for args, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, \
+      for arguments_for_explore, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, \
                                                        cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
           
-          #print ('args: %s ' %(args)) # "args:   [<cryo_fit2_program.Program object at 0x11b54ffd0>, <libtbx.phil.scope_extract object at 0x11b54fd50>, <open file 'cryo_fit2.log', mode 'w' at 0x11b45b9c0>, '', 0.0, 0.99, 0.0, 2, 1, 0.001, 300, 1]"
-          #print ('args: ', str(args)) # "args:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
+          #print ('arguments_for_explore: %s ' %(arguments_for_explore)) # "arguments_for_explore:   [<cryo_fit2_program.Program object at 0x11b54ffd0>, <libtbx.phil.scope_extract object at 0x11b54fd50>, <open file 'cryo_fit2.log', mode 'w' at 0x11b45b9c0>, '', 0.0, 0.99, 0.0, 2, 1, 0.001, 300, 1]"
+          #print ('arguments_for_explore: ', str(arguments_for_explore)) # "arguments_for_explore:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           
-          if (str(res[0]) != "None"):
+          if (res != None):
             write_this = 'bp:' + str(res[0]) + ', H:' + str(res[1]) + ', E:' + str(res[2])
             print (write_this) # 1, 0, 0
             logfile.write(write_this)
@@ -539,7 +528,7 @@ e 53, in __call__
  line 38, in __init__
     tolerance_positive_definite=manager.tolerance_positive_definite())""
     '''
-      
+
           print (write_this)
           logfile.write(write_this)
           
@@ -548,7 +537,6 @@ e 53, in __call__
       
       write_this = "\ncryo_fit2 explored " + str(success_exploration_count) + " combination(s) of MD parameters " + \
                    "out of " + str(total_combi_num) + " total combinations.\nIt will run fully with optimized parameters.\n"
-      #write_this = "\ncryo_fit2 finished MD parameter exploration.\nIt will run fully with optimized parameters.\n"
       
       print (write_this)
       logfile.write(write_this)
@@ -582,7 +570,7 @@ e 53, in __call__
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
     if (self.params.sigma_for_custom_geom == None):
-      self.params.sigma_for_custom_geom = 100
+      self.params.sigma_for_custom_geom = 0.021
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
@@ -591,13 +579,12 @@ e 53, in __call__
 
     ###############  (begin) core cryo_fit2    
     print ("Final MD parameters after user input/automatic optimization")
-    
     print ("final_temperature: ", str(self.params.final_temperature))
     print ("MD_in_each_epoch: ", str(self.params.MD_in_each_epoch))
     print ("number_of_steps: ", str(self.params.number_of_steps))
     print ("sigma_for_custom_geom: ", str(self.params.sigma_for_custom_geom))
     print ("start_temperature: ", str(self.params.start_temperature))
-    
+        
     # override self.params.* with user entered values
     if (user_cool_rate != None):
         self.params.cool_rate = user_cool_rate
@@ -605,6 +592,13 @@ e 53, in __call__
       self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
     print ("cool_rate: ", str(round(self.params.cool_rate,1)))
     
+    if (self.params.sigma_for_custom_geom == None):
+      self.params.sigma_for_custom_geom = 0.021
+    
+    if (self.params.strong_ss == True): # If optimal sigma is not found (or exploration is not tried in the first place)
+      eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
+      args.append(eff_file_name)
+        
     output_dir = get_output_dir_name(self)
     
     # All parameters are determined (either by a user or automatic optimization)    
@@ -641,7 +635,6 @@ e 53, in __call__
     
     logfile.write("\nAn input command for final cryo_fit2 MD run:\n")
     logfile.write(str(cryo_fit2_input_command))
-    
     
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,

@@ -185,7 +185,7 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         
         if (cc_after_small_MD > best_cc_so_far):
-          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, run longer MD.\n"
+          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, run longer MD.\n\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
         
@@ -203,7 +203,7 @@ class cryo_fit2_class(object):
             # I confirmed that reoptimizing map_weight_after_each_epoch did change result (cc, SS stat) significantly
           continue 
 
-        write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")"
+        write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
 
