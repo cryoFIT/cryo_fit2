@@ -1004,7 +1004,6 @@ geometry_restraints {
       f_out.write(write_this) 
       
       
-      
       # /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
       # left bp from 26 to 20, I may need to lower the sigma even to 0.002
       # However, /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
@@ -1091,8 +1090,8 @@ geometry_restraints {
             f_out.write("      angle_ideal = 117.3\n") # derived from Oleg slide and tRNA
         '''
         
-        #f_out.write("      sigma = 0.021\n")
         write_this = "      sigma = " + str(sigma_for_custom_geom) + "\n"
+        f_out.write(write_this)
         
         write_this = "    }\n"
         f_out.write(write_this)
