@@ -581,7 +581,7 @@ def line_prepender(filename, line):
 
 
 def make_argstuples(self, args, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
-    print ("args:",args)
+    print ("args:",args) # sometimes this is empty "[]", maybe because of unstable easy_mp re-running?
     
     total_combi_num = 0
     argstuples = []
