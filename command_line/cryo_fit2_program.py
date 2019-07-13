@@ -136,22 +136,22 @@ weight_multiply  = None
                    However, a large molecule needs a larger value (e.g. 10~50).
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
-selection_fixed = None
-  .type = str
+selection_fixed  = None
+  .type          = str
   .short_caption = Selection for fixed model
-  .input_size = 400
-  .help = Selection of the target atoms to fit to (optional)
+  .input_size    = 400
+  .help          = Selection of the target atoms to fit to (optional)
 selection_moving = None
-  .type = str
+  .type          = str
   .short_caption = Selection for moving model
-  .input_size = 400
-  .help = Selection of the atoms that will be fit to selection_fixed (optional)
+  .input_size    = 400
+  .help          = Selection of the atoms that will be fit to selection_fixed (optional)
 selection_fixed_preset = * ca backbone all
-  .type = choice
-  .help = Selection preset for fixed model.
+  .type                = choice
+  .help                = Selection preset for fixed model.
 selection_moving_preset = * ca backbone all
-  .type = choice
-  .help = Selection preset for moving model.
+  .type                 = choice
+  .help                 = Selection preset for moving model.
 ''' ############## end of base_master_phil_str  
   
 
@@ -604,12 +604,12 @@ e 53, in __call__
         eff_file_provided = True
     
     if ((eff_file_provided == False) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
-      write_this = "A user didn't provide .eff file, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints."
+      write_this = "A user didn't provide .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints."
       print (write_this)
       logfile.write(write_this)
       eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
       args.append(eff_file_name)
-        
+    
     output_dir = get_output_dir_name(self)
     
     # All parameters are determined (either by a user or automatic optimization)    
@@ -664,35 +664,19 @@ e 53, in __call__
     output_dir_final = task_obj.run()
     ############### (end) core cryo_fit2
     
-    
     if (self.params.strong_ss == True):
       pymol_ss = input_model_file_name_wo_path + "_ss.pml"
       mv_command_string = "mv " + pymol_ss + " " + eff_file_name + " " + output_dir_final
       libtbx.easy_run.fully_buffered(mv_command_string)
     
-    header = "# Geometry restraints used for cryo_fit2\n"
-    header += "# %s\n" % date_and_time()
-    
-    r = model_inp.restraints_as_geo(
-        header=header,
-        # Stuff for outputting ncs_groups
-        #excessive_distance_limit=self.params.ncs.excessive_distance_limit)
-        excessive_distance_limit=10)
-
-    # this r is same as the RSR resulted .geo file, therefore I don't need to study about write_geo(m)=True option
-    geometry_restraints_file_name = "used_geometry_restraints.geo"
-    geo_file = open(geometry_restraints_file_name, "w")
-    geo_file.write(r)
-    geo_file.close()
-    
+    write_geo(self, model_inp, "used_geometry_restraints.geo")
+  
     # clean up
-    mv_command_string = "mv cryo_fit2.input_command.txt " + ss_file + " " + geometry_restraints_file_name + " " + log_file_name + " " + output_dir_final
+    mv_command_string = "mv cryo_fit2.input_command.txt " + ss_file + " used_geometry_restraints.geo " + log_file_name + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
     
     time_total_end = time.time()
-    time_took = show_time(time_total_start, time_total_end)
-    
-    logfile.write(str("cryo_fit2"))
+    time_took = show_time("cryo_fit2", time_total_start, time_total_end)
     logfile.write(str(time_took))
     logfile.write("\n")
     

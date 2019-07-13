@@ -1066,14 +1066,14 @@ geometry_restraints {
 ########## end of rewrite_pymol_ss_to_custom_geometry_ss function
 
 
-def show_time(time_start, time_end):
+def show_time(app, time_start, time_end):
   time_took = 0 # temporary of course
   if (round((time_end-time_start)/60, 1) < 1):
-    time_took = " finished in " + str(round((time_end-time_start), 1)) + " seconds (wallclock)."
+    time_took = str(app) + " finished in " + str(round((time_end-time_start), 1)) + " seconds (wallclock)."
   elif (round((time_end-time_start)/60/60, 1) < 1):
-    time_took = " finished in " + str(round((time_end-time_start)/60, 1)) + " minutes (wallclock)."
+    time_took = str(app) + " finished in " + str(round((time_end-time_start)/60, 1)) + " minutes (wallclock)."
   else:
-    time_took = " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
+    time_took = str(app) + " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
   return time_took
 ############### end of show_time function
 
@@ -1110,3 +1110,12 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_custom_geom)
   
   return eff_file_name
 ########### end of write_custom_geometry(input_model_file_name, sigma_for_custom_geom)
+
+
+def write_geo(self, model_inp, file_name):
+    geo_str = model_inp.restraints_as_geo(
+        header="# Geometry restraints, cryo_fit2\n")
+    with open(file_name, 'w') as f:
+      f.write(geo_str)
+    return True
+###### end of write_geo
