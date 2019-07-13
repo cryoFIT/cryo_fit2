@@ -445,7 +445,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.write(write_this)
       
     
-    print ("args outside of make_argstuples fn:",args)
+    print ("args outside of make_argstuples fn:",args) # sometimes, [], sometimes, correct arguments
     
     ####################### <begin> Explore the optimal combination of parameters
     if ((self.params.short == False) and (self.params.explore == True)):
@@ -597,15 +597,15 @@ e 53, in __call__
     if (self.params.sigma_for_custom_geom == None):
       self.params.sigma_for_custom_geom = 0.021
     
-    eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
+    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
     
     generated_eff_file_name = ''
-    if ((eff_file_provided == False) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
+    if ((user_eff_file_provided == False) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
       write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
       print (write_this)
       logfile.write(write_this)
       generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
-      args.append(generated_eff_file_name)
+      args.append(generated_eff_file_name) # Unfortunately, appending custom_eff NOW didn't effect sigma at all.
     
     output_dir = get_output_dir_name(self)
     
@@ -614,7 +614,6 @@ e 53, in __call__
                             + " " + self.data_manager.get_default_real_map_name()  \
                             + " resolution=" + str(self.params.resolution)  \
                             + " strong_ss=" + str(self.params.strong_ss) \
-                            + " sigma_for_custom_geom=" + str(self.params.sigma_for_custom_geom) \
                             + " start_temperature=" + str(self.params.start_temperature)  \
                             + " final_temperature=" + str(self.params.final_temperature) \
                             + " MD_in_each_epoch=" + str(self.params.MD_in_each_epoch) \
@@ -630,10 +629,14 @@ e 53, in __call__
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
                             #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
-    if (eff_file_provided == True):
+    if (user_eff_file_provided == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name
+    else:
+      cryo_fit2_input_command = cryo_fit2_input_command + " sigma_for_custom_geom=" + str(self.params.sigma_for_custom_geom)
+    
     if (self.params.total_steps != None):
       cryo_fit2_input_command = cryo_fit2_input_command + " total_steps=" + str(self.params.total_steps)
+    
     cryo_fit2_input_command = cryo_fit2_input_command + "\n"
     
     print ("\ncryo_fit2_input_command:",cryo_fit2_input_command)

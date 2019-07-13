@@ -215,11 +215,9 @@ def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weigh
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.map_weight:       ", str(round(params.map_weight,2)))
     
-    
-    eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
-                                          sigma_for_custom_geom)
-    args.append(eff_file_name)
-    
+    #eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
+    #                                      sigma_for_custom_geom)
+    #args.append(eff_file_name)
         
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         params.total_steps = params.total_steps_for_exploration # as of now 5k, this multi core run is to explore options (10k tends to make nan errors (~25%))
@@ -227,7 +225,6 @@ def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weigh
         params.total_steps = 30 # temporary for development
     print ("params.total_steps for MD parameter exploration:", str(params.total_steps))
     
-    #print ("(\"tst_cryo_fit2\" in self.data_manager.get_default_model_name()):",(\"tst_cryo_fit2\" in self.data_manager.get_default_model_name()))
     model_inp = self.data_manager.get_model()
     map_inp   = self.data_manager.get_real_map()
 
