@@ -579,11 +579,11 @@ e 53, in __call__
 
     ###############  (begin) core cryo_fit2    
     print ("Final MD parameters after user input/automatic optimization")
-    print ("final_temperature: ", str(self.params.final_temperature))
-    print ("MD_in_each_epoch: ", str(self.params.MD_in_each_epoch))
-    print ("number_of_steps: ", str(self.params.number_of_steps))
+    print ("final_temperature:     ", str(self.params.final_temperature))
+    print ("MD_in_each_epoch:      ", str(self.params.MD_in_each_epoch))
+    print ("number_of_steps:       ", str(self.params.number_of_steps))
     print ("sigma_for_custom_geom: ", str(self.params.sigma_for_custom_geom))
-    print ("start_temperature: ", str(self.params.start_temperature))
+    print ("start_temperature:     ", str(self.params.start_temperature))
         
     # override self.params.* with user entered values
     if (user_cool_rate != None):

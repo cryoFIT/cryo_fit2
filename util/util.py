@@ -203,14 +203,14 @@ def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weigh
                                      MD_in_each_epoch, number_of_steps, sigma_for_custom_geom, start_temperature, \
                                      weight_multiply):
     print ("\nMD parameres that will be explored.")
-    print ("MD_in_each_epoch:",        str(MD_in_each_epoch))
-    print ("number_of_steps:",         str(number_of_steps))
-    print ("sigma_for_custom_geom:",   str(sigma_for_custom_geom))
-    print ("start_temperature:",       str(start_temperature))
-    print ("weight_multiply:",         str(weight_multiply), "\n\n")
+    print ("MD_in_each_epoch:        ", str(MD_in_each_epoch))
+    print ("number_of_steps:         ", str(number_of_steps))
+    print ("sigma_for_custom_geom:   ", str(sigma_for_custom_geom))
+    print ("start_temperature:       ", str(start_temperature))
+    print ("weight_multiply:         ", str(weight_multiply), "\n\n")
     
-    print ("params.final_temperature:",str(params.final_temperature))
-    print ("params.map_weight:",       str(round(params.map_weight,2)))
+    print ("params.final_temperature:", str(params.final_temperature))
+    print ("params.map_weight:       ", str(round(params.map_weight,2)))
     
     
     eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
