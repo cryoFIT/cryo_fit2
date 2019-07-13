@@ -677,6 +677,7 @@ e 53, in __call__
     
     time_total_end = time.time()
     time_took = show_time("cryo_fit2", time_total_start, time_total_end)
+    print (time_took)
     logfile.write(str(time_took))
     logfile.write("\n")
     
