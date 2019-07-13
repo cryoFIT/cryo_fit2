@@ -597,27 +597,15 @@ e 53, in __call__
     if (self.params.sigma_for_custom_geom == None):
       self.params.sigma_for_custom_geom = 0.021
     
-    eff_file_provided = check_whether_args_has_eff(args, logfile)
+    eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
     
-    
-    ''' # old works
-    eff_file_provided = False
-    for i in range(len(args)):
-      if ((args[i][(len(args[i])-4):len(args[i])]) == ".eff"):
-        user_eff_file_name = str(args[i])
-        write_this = "A user provided an .eff file (e.g. " + user_eff_file_name + "), cryo_fit2 will use it."
-        print (write_this)
-        logfile.write(write_this)
-        eff_file_provided = True
-    '''
-    
+    generated_eff_file_name = ''
     if ((eff_file_provided == False) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
       write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
       print (write_this)
       logfile.write(write_this)
-      eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
-      args.append(eff_file_name)
-    
+      generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
+      args.append(generated_eff_file_name)
     
     output_dir = get_output_dir_name(self)
     
@@ -674,14 +662,24 @@ e 53, in __call__
     output_dir_final = task_obj.run()
     ############### (end) core cryo_fit2
     
-    if (self.params.strong_ss == True):
-      pymol_ss = input_model_file_name_wo_path + "_ss.pml"
-      mv_command_string = "mv " + pymol_ss + " " + eff_file_name + " " + output_dir_final
+    write_geo(self, model_inp, "used_geometry_restraints.geo")
+    
+    ###### Clean up used files
+    pymol_ss = input_model_file_name_wo_path + "_ss.pml"
+    if (os.path.isfile(pymol_ss) == True):
+      mv_command_string = "mv " + pymol_ss + " " + output_dir_final
       libtbx.easy_run.fully_buffered(mv_command_string)
     
-    write_geo(self, model_inp, "used_geometry_restraints.geo")
-  
-    # clean up
+    ''' We don't need to move a user provided eff file.
+    if (os.path.isfile(user_eff_file_name) == True):
+      mv_command_string = "mv " + user_eff_file_name + " " + output_dir_final
+      libtbx.easy_run.fully_buffered(mv_command_string)
+    '''
+    
+    if (generated_eff_file_name != None):
+      mv_command_string = "mv " + generated_eff_file_name + " " + output_dir_final
+      libtbx.easy_run.fully_buffered(mv_command_string)
+    
     mv_command_string = "mv cryo_fit2.input_command.txt " + ss_file + " used_geometry_restraints.geo " + log_file_name + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
     

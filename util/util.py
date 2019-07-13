@@ -81,8 +81,8 @@ def check_whether_args_has_eff(args, logfile):
         write_this = "A user provided an .eff file (e.g. " + user_eff_file_name + "), cryo_fit2 will use it."
         print (write_this)
         logfile.write(write_this)
-        return True
-  return False
+        return True, user_eff_file_name
+  return False, ""
 ######## end of check_whether_args_has_eff(args)
 
 
