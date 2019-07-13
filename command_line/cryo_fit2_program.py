@@ -445,7 +445,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.write(write_this)
       
     
-    print ("args outside of make_argstuples fn:",args) # sometimes, [], sometimes, correct arguments
+    print ("args outside of make_argstuples fn:",args) # sometimes [], sometimes correct arguments
     
     ####################### <begin> Explore the optimal combination of parameters
     if ((self.params.short == False) and (self.params.explore == True)):
@@ -457,7 +457,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       print(write_this)
       logfile.write(write_this)
       
-      # stricter cutoff for H/E than bp
+      # Stricter cutoff for H/E than bp
       H_cutoff = H_in_a_user_pdb_file * 0.99
       write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1))
       print(write_this)

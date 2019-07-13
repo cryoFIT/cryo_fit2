@@ -268,7 +268,8 @@ def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weigh
     '''
     
     output_dir_final = task_obj.run()
-    args.remove(str(eff_file_name))
+    
+    #args.remove(str(eff_file_name))
     
     splited = output_dir_final.split("_bp_")
     if (len(splited)) == 1:
