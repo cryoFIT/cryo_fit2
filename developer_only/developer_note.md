@@ -27,10 +27,9 @@ future    : Automatically support Nigel's phenix.eLBOW
 	    Currently, with unknown ligand (e.g. DDB), automatic map_weight optimization doesn't work.
 	    With map_weight=x, cryo_fit2 runs but with "Number of atoms with unknown nonbonded energy type symbols:"
 
+07/13/2019: When eff file is provided as an argument, sigma works. If the file was generated and then appended during cryo_fit2, sigma not works.
 
 07/04/2019: both kaguya and sparky stopped working after making 1,107 parameter exploration folders
-
-
 
 06/27/2019: Cryo_fit2 uses available number of cores automatically using from libtbx.introspection import number_of_processors
 	     

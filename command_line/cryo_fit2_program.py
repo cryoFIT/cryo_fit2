@@ -444,7 +444,9 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
       print (write_this)
       logfile.write(write_this)
       
-      
+    
+    print ("args outside of make_argstuples fn:",args)
+    
     ####################### <begin> Explore the optimal combination of parameters
     if ((self.params.short == False) and (self.params.explore == True)):
 
@@ -579,36 +581,43 @@ e 53, in __call__
 
     ###############  (begin) core cryo_fit2    
     print ("Final MD parameters after user input/automatic optimization")
-    print ("final_temperature:     ", str(self.params.final_temperature))
-    print ("MD_in_each_epoch:      ", str(self.params.MD_in_each_epoch))
-    print ("number_of_steps:       ", str(self.params.number_of_steps))
-    print ("sigma_for_custom_geom: ", str(self.params.sigma_for_custom_geom))
-    print ("start_temperature:     ", str(self.params.start_temperature))
+    print ("final_temperature     :", str(self.params.final_temperature))
+    print ("MD_in_each_epoch      :", str(self.params.MD_in_each_epoch))
+    print ("number_of_steps       :", str(self.params.number_of_steps))
+    print ("sigma_for_custom_geom :", str(self.params.sigma_for_custom_geom))
+    print ("start_temperature     :", str(self.params.start_temperature))
         
     # override self.params.* with user entered values
     if (user_cool_rate != None):
         self.params.cool_rate = user_cool_rate
     else:
       self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
-    print ("cool_rate: ", str(round(self.params.cool_rate,1)))
+    print ("cool_rate             :", str(round(self.params.cool_rate,1)), "\n")
     
     if (self.params.sigma_for_custom_geom == None):
       self.params.sigma_for_custom_geom = 0.021
     
+    eff_file_provided = check_whether_args_has_eff(args, logfile)
+    
+    
+    ''' # old works
     eff_file_provided = False
     for i in range(len(args)):
       if ((args[i][(len(args[i])-4):len(args[i])]) == ".eff"):
-        write_this = "A user provided .eff file, cryo_fit2 will use it."
+        user_eff_file_name = str(args[i])
+        write_this = "A user provided an .eff file (e.g. " + user_eff_file_name + "), cryo_fit2 will use it."
         print (write_this)
         logfile.write(write_this)
         eff_file_provided = True
+    '''
     
     if ((eff_file_provided == False) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
-      write_this = "A user didn't provide .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints."
+      write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
       print (write_this)
       logfile.write(write_this)
       eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
       args.append(eff_file_name)
+    
     
     output_dir = get_output_dir_name(self)
     
@@ -626,18 +635,19 @@ e 53, in __call__
                             + " weight_multiply=" + str(round(self.params.weight_multiply,1)) \
                             + " record_states=" + str(self.params.record_states) \
                             + " reoptimize_map_weight_after_each_epoch=" + str(self.params.reoptimize_map_weight_after_each_epoch) \
-                            + " explore=False "
+                            + " explore=False"
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
                             #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
+    if (eff_file_provided == True):
+      cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name
     if (self.params.total_steps != None):
-      cryo_fit2_input_command = cryo_fit2_input_command + "total_steps=" + str(self.params.total_steps) + "\n"
-    else:
-      cryo_fit2_input_command = cryo_fit2_input_command + "\n"
-                              
+      cryo_fit2_input_command = cryo_fit2_input_command + " total_steps=" + str(self.params.total_steps)
+    cryo_fit2_input_command = cryo_fit2_input_command + "\n"
+    
     print ("\ncryo_fit2_input_command:",cryo_fit2_input_command)
     
     input_command_file = open("cryo_fit2.input_command.txt", "w")

@@ -74,11 +74,14 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
 
     
 
-def check_whether_args_has_eff(args):
+def check_whether_args_has_eff(args, logfile):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
-      #return True
-      return args[i]
+        user_eff_file_name = str(args[i])
+        write_this = "A user provided an .eff file (e.g. " + user_eff_file_name + "), cryo_fit2 will use it."
+        print (write_this)
+        logfile.write(write_this)
+        return True
   return False
 ######## end of check_whether_args_has_eff(args)
 
@@ -581,7 +584,9 @@ def line_prepender(filename, line):
 
 
 def make_argstuples(self, args, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
-    print ("args:",args) # sometimes this is empty "[]", maybe because of unstable easy_mp re-running?
+    print ("args: in make_argstuples fn",args)
+    # sometimes this is fine "['input/tRNA_initial_box.pdb', 'input/tRNA_final_box_6_regions2.mrc', 'resolution=4', 'total_steps=100']"
+    # sometimes this is empty "[]", maybe because of unstable easy_mp re-running?
     
     total_combi_num = 0
     argstuples = []
