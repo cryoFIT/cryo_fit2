@@ -420,7 +420,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
-      logfile.write("\nAn automatically optimized map_weight (before any multiplication to this): ")
+      logfile.write("\nAn automatically optimized map_weight (before any multiplication): ")
     else:
       user_map_weight = self.params.map_weight # this user_map_weight will be used later
       logfile.write("\nA user specified map_weight: ")
@@ -440,7 +440,7 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
         self.params.explore == False
 
     if (self.params.strong_ss == True):
-      write_this = "\nA user turned strong_ss=True\n"
+      write_this = "A user turned strong_ss=True\n"
       print (write_this)
       logfile.write(write_this)
       
@@ -595,7 +595,18 @@ e 53, in __call__
     if (self.params.sigma_for_custom_geom == None):
       self.params.sigma_for_custom_geom = 0.021
     
-    if (self.params.strong_ss == True): # If optimal sigma is not found (or exploration is not tried in the first place)
+    eff_file_provided = False
+    for i in range(len(args)):
+      if ((args[i][(len(args[i])-4):len(args[i])]) == ".eff"):
+        write_this = "A user provided .eff file, cryo_fit2 will use it."
+        print (write_this)
+        logfile.write(write_this)
+        eff_file_provided = True
+    
+    if ((eff_file_provided == False) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
+      write_this = "A user didn't provide .eff file, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints."
+      print (write_this)
+      logfile.write(write_this)
       eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
       args.append(eff_file_name)
         
