@@ -275,6 +275,9 @@ Options:
     time_total_start = time.time()
     args = sys.argv[1:]
     
+    print ("args after possible making .eff file:",args) # sometimes [], sometimes correct arguments
+    #STOP()
+    
     log = multi_out()
     out=sys.stdout
     log.register("stdout", out)
@@ -318,7 +321,6 @@ Options:
     
     
     ################# <begin> Doonam's playground ################
-    
     ####### works
     #print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
     #['__doc__', '__init__', '__module__', 'cannot_be_sharpened', 'crystal_symmetry', 'data', 'external_origin', 'get_additional_labels', 'get_labels', 'get_limitation', 'get_limitations', 'grid_unit_cell', 'header_max', 'header_mean', 'header_min', 'header_rms', 'is_in_limitations', 'is_similar_map', 'labels', 'map_data', 'nxstart_nystart_nzstart', 'origin', 'pixel_sizes', 'show_summary', 'space_group_number', 'statistics', 'unit_cell', 'unit_cell_crystal_symmetry', 'unit_cell_grid', 'unit_cell_parameters']
@@ -388,16 +390,6 @@ Options:
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
     
-    old_style_RNA, removed_R_prefix_in_RNA_pdb_file_name = remove_R_prefix_in_RNA(self.data_manager.get_default_model_name())
-    if (old_style_RNA == True):
-      write_this ='''Archaic style of nucleic acids (e.g. RA, RU, RT, RG, RC) were detected in user's pdb file.
-phenix can't run with this type of naming.
-cryo_fit2 replaced these with A,U,T,G,C and rewrote into ''' + removed_R_prefix_in_RNA_pdb_file_name + '''
-please rerun cryo_fit2 with this re-written pdb file\n'''
-      print (write_this)
-      logfile.write(write_this)
-      logfile.close()
-      exit(1)
     
     splited = self.data_manager.get_default_model_name().split("/")
     input_model_file_name_wo_path = splited [len(splited)-1]
@@ -429,18 +421,6 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n")
     ########## <end> Automatic map weight determination
-    
-    
-    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
-    generated_eff_file_name = ''
-    if ((user_eff_file_provided == False) and (self.params.strong_ss == True)):
-      write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
-      print (write_this)
-      logfile.write(write_this)
-      generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
-      args.append(generated_eff_file_name) # Unfortunately, appending custom_eff NOW didn't effect sigma at all.
-    print ("args outside of make_argstuples fn after possible making .eff file:",args) # sometimes [], sometimes correct arguments
-    
     
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
       know_bp_H_E_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
@@ -626,6 +606,7 @@ e 53, in __call__
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
                             #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
+    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
     if (user_eff_file_provided == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name
     else:
@@ -670,14 +651,8 @@ e 53, in __call__
       mv_command_string = "mv " + pymol_ss + " " + output_dir_final
       libtbx.easy_run.fully_buffered(mv_command_string)
     
-    ''' We don't need to move a user provided eff file.
-    if (os.path.isfile(user_eff_file_name) == True):
+    if (user_eff_file_name != ""):
       mv_command_string = "mv " + user_eff_file_name + " " + output_dir_final
-      libtbx.easy_run.fully_buffered(mv_command_string)
-    '''
-    
-    if (generated_eff_file_name != None):
-      mv_command_string = "mv " + generated_eff_file_name + " " + output_dir_final
       libtbx.easy_run.fully_buffered(mv_command_string)
     
     mv_command_string = "mv cryo_fit2.input_command.txt " + ss_file + " used_geometry_restraints.geo " + log_file_name + " " + output_dir_final

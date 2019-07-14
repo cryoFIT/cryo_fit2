@@ -236,7 +236,7 @@ def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weigh
     params.weight_multiply          = weight_multiply
     
     params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_epoch)-1))
-    print ("params.cool_rate:", str(round(params.cool_rate, 1)))
+    print ("params.cool_rate:       ", str(round(params.cool_rate, 1)))
     
     init_output_dir = get_output_dir_name(self)
     
