@@ -255,8 +255,9 @@ def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weigh
     task_obj.validate()
     
     '''
-    # this try/except will not report number of parameter exploration combinations that ran successfully
-    # however, I expect that this may help incomplete running issue (however this try/except loop didn't help incomplete running issue)
+    # This try/except will not report number of parameter exploration combinations that ran successfully.
+    # However, I expected that this may help incomplete running issue.
+    # However it turned out that this try/except loop didn't help incomplete running issue.
     output_dir_final = ''
     try:
         output_dir_final = task_obj.run()    

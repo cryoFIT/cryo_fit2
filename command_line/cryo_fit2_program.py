@@ -292,7 +292,7 @@ Options:
     user_start_temperature = None
     user_weight_multiply = None
     
-    # save a user entered params.* now
+    # Save a user entered params.* now
     if (self.params.cool_rate != None):
       user_cool_rate = self.params.cool_rate
     if (self.params.MD_in_each_epoch != None):
@@ -301,12 +301,13 @@ Options:
       user_number_of_steps = self.params.number_of_steps
     if (self.params.sigma_for_custom_geom != None):
       user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
+    else:
+      self.params.sigma_for_custom_geom = 0.021
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
     if (self.params.weight_multiply != None):
       user_weight_multiply = self.params.weight_multiply
 
-    
     print ("A user entered resolution:", str(self.params.resolution))
     
     print('A user input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
@@ -430,6 +431,17 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     ########## <end> Automatic map weight determination
     
     
+    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
+    generated_eff_file_name = ''
+    if ((user_eff_file_provided == False) and (self.params.strong_ss == True)):
+      write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
+      print (write_this)
+      logfile.write(write_this)
+      generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
+      args.append(generated_eff_file_name) # Unfortunately, appending custom_eff NOW didn't effect sigma at all.
+    print ("args outside of make_argstuples fn after possible making .eff file:",args) # sometimes [], sometimes correct arguments
+    
+    
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
       know_bp_H_E_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
     
@@ -442,17 +454,15 @@ please rerun cryo_fit2 with this re-written pdb file\n'''
     if (self.params.strong_ss == True):
       write_this = "A user turned strong_ss=True\n"
       print (write_this)
-      logfile.write(write_this)
-      
+      logfile.write(write_this)    
     
-    print ("args outside of make_argstuples fn:",args) # sometimes [], sometimes correct arguments
     
     ####################### <begin> Explore the optimal combination of parameters
     if ((self.params.short == False) and (self.params.explore == True)):
 
       ########  Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
-      bp_cutoff = bp_in_a_user_pdb_file * 0.97
+      bp_cutoff = bp_in_a_user_pdb_file * 0.98
       write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) 
       print(write_this)
       logfile.write(write_this)
@@ -564,21 +574,19 @@ e 53, in __call__
       if (user_weight_multiply != None):
         self.params.weight_multiply = user_weight_multiply
     ####################### <end> explore the optimal combination of parameters
-  
-  
+      
     ### Assign default values if not specified till now
     if (self.params.MD_in_each_epoch == None):
       self.params.MD_in_each_epoch = 4
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
-    if (self.params.sigma_for_custom_geom == None):
-      self.params.sigma_for_custom_geom = 0.021
+    
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
       self.params.weight_multiply = 1
 
-
+      
     ###############  (begin) core cryo_fit2    
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))
@@ -586,7 +594,7 @@ e 53, in __call__
     print ("number_of_steps       :", str(self.params.number_of_steps))
     print ("sigma_for_custom_geom :", str(self.params.sigma_for_custom_geom))
     print ("start_temperature     :", str(self.params.start_temperature))
-        
+
     # override self.params.* with user entered values
     if (user_cool_rate != None):
         self.params.cool_rate = user_cool_rate
@@ -594,18 +602,7 @@ e 53, in __call__
       self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
     print ("cool_rate             :", str(round(self.params.cool_rate,1)), "\n")
     
-    if (self.params.sigma_for_custom_geom == None):
-      self.params.sigma_for_custom_geom = 0.021
     
-    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
-    
-    generated_eff_file_name = ''
-    if ((user_eff_file_provided == False) and (self.params.strong_ss == True)): # If optimal sigma is not found (or exploration is not tried in the first place)
-      write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
-      print (write_this)
-      logfile.write(write_this)
-      generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
-      args.append(generated_eff_file_name) # Unfortunately, appending custom_eff NOW didn't effect sigma at all.
     
     output_dir = get_output_dir_name(self)
     

@@ -183,12 +183,12 @@ class cryo_fit2_class(object):
         write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
-        
+
         if (cc_after_small_MD > best_cc_so_far):
-          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, run longer MD.\n\n"
+          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, cryo_fit2 will run longer MD.\n\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
-        
+
           best_cc_so_far = cc_after_small_MD
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
