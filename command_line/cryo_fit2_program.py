@@ -182,70 +182,6 @@ print ("modified_master_phil_str:",modified_master_phil_str)
 
 class Program(ProgramTemplate):
 
-  description = '''
-Program for running cryo_fit2.\n
-
-Minimum required inputs:
-  Model file (.pdb or .cif)
-  Map file   (MRC/ccp4 format)
-  Map resolution
-
-Example running command:
-  phenix.cryo_fit2 model.pdb map.ccp4 resolution=5
-
-Options:
-  resolution                   cryo-EM map resolution in angstrom that needs to be entered by a user
-  
-  map_weight                   cryo-EM map weight.
-                               A user is recommended NOT to specify this, so that it will be automatically optimized.
-                               If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
-  
-  start_temperature            If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 1000
-  
-  final_temperature            (default: 0)
-  
-  MD_in_each_epoch             An epoch here is different from the one in deep learning.
-                               Here, the epoch is each iteration of MD from start_temperature to final_temperature.
-                               If not specified, cryo_fit2 will use the optimized value after automatic exploration.
-  
-  number_of_steps              The number of MD steps in each phenix.dynamics
-                               If not specified, cryo_fit2 will use the optimized value after automatic exploration.
-  
-  total_steps                  (default: None)
-                               If specified, run up to this number of step no matter what.
-  
-  secondary_structure.enabled  (default: True)
-                               Most MD simulations tend to break secondary structure. 
-                               Therefore, turning on this option is recommended. 
-                               If HELIX/SHEET records are present in supplied .pdb file, 
-                               automatic search of the existing secondary structures in the given 
-                               input pdb file will not be executed.
-  
-  secondary_structure.protein.remove_outliers
-                               (default: True)
-                               False may be useful for very poor low-resolution structures by
-                               ignoring some hydrogen "bond" if it exceed certain distance threshold
-  
-  output_dir                   (default: output)
-                               output folder name prefix 
-  
-  keep_origin                  (default: True)
-                               If True, write out model with origin in original location.
-                               If False, shift origin to (0,0,0). 
-  
-  progress_on_screen           (default: False)
-                               If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
-                               If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
-  
-  record_states                (default: False)
-                               If True, cryo_fit2 records all states and save it to all_states.pdb.
-                               However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory.
-                               If False, cryo_fit2 doesn't record states of molecular dynamics.
-  
-  short                        (default: False)
-                               If True, run quickly only to check sanity
-'''
-
   #secondary_structure.nucleic_acid.base_pair.restrain_planarity  (default: True)
   #secondary_structure.nucleic_acid.base_pair.restrain_hbonds  (default: True)
   
@@ -555,6 +491,8 @@ e 53, in __call__
         self.params.weight_multiply = user_weight_multiply
     ####################### <end> explore the optimal combination of parameters
       
+    
+    ###############  <begin> core cryo_fit2
     ### Assign default values if not specified till now
     if (self.params.MD_in_each_epoch == None):
       self.params.MD_in_each_epoch = 4
@@ -565,9 +503,7 @@ e 53, in __call__
       self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
       self.params.weight_multiply = 1
-
       
-    ###############  (begin) core cryo_fit2    
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_epoch      :", str(self.params.MD_in_each_epoch))
@@ -575,14 +511,12 @@ e 53, in __call__
     print ("sigma_for_custom_geom :", str(self.params.sigma_for_custom_geom))
     print ("start_temperature     :", str(self.params.start_temperature))
 
-    # override self.params.* with user entered values
+    # Override self.params.* with user entered values
     if (user_cool_rate != None):
         self.params.cool_rate = user_cool_rate
     else:
       self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
     print ("cool_rate             :", str(round(self.params.cool_rate,1)), "\n")
-    
-    
     
     output_dir = get_output_dir_name(self)
     
