@@ -582,16 +582,12 @@ def line_prepender(filename, line):
 #################### end of line_prepender()
 
 
-def make_argstuples(self, args, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
-    print ("args: in make_argstuples fn",args)
-    # sometimes this is fine "['input/tRNA_initial_box.pdb', 'input/tRNA_final_box_6_regions2.mrc', 'resolution=4', 'total_steps=100']"
-    # sometimes this is empty "[]", maybe because of unstable easy_mp re-running?
-    
+def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
     total_combi_num = 0
     argstuples = []
     ## final_temperature is fixed as 0
     
-    ############# <KEEP THIS NOTE> I think that I figured out the reason of this problem finally.
+    ############# <KEEP THIS NOTE> I think that I figured out the reason of the problem finally.
     ############# Writing "Date" multiple times is nothing but spurious error. Number of "Date" writing is somehow random
     ############# The most probable cause of this error is when cryo_fit2 fails to run ("nan")
     

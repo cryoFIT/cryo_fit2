@@ -259,7 +259,7 @@ Options:
      Please run this program with the --show-defaults option to see what parameters are available.
      PHIL parameters in files should be fully specified (e.g. "output.overwrite" instead of just "overwrite")
   '''
-
+  
   # ---------------------------------------------------------------------------
   def validate(self): # this validate function runs as well (1/26/2019)
     print('Validating inputs', file=self.logger)
@@ -270,7 +270,7 @@ Options:
     if not (self.params.resolution):
       raise Sorry("Map resolution is required. A user can get the resolution either by EMDB reported value or by running phenix.mtriage. Type \"phenix.cryo_fit2\" to know minimally required options")
   # ---------------------------------------------------------------------------
-  
+
   def run(self):
     time_total_start = time.time()
     args = sys.argv[1:]
@@ -296,11 +296,6 @@ Options:
     print('A user input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
-    print('A user input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
-    map_inp = self.data_manager.get_real_map()
-    
-    map_inp_data = map_inp.map_data()
-    
     old_style_RNA, removed_R_prefix_in_RNA_pdb_file_name = remove_R_prefix_in_RNA(self.data_manager.get_default_model_name())
     if (old_style_RNA == True):
       write_this ='''Archaic style of nucleic acids (e.g. RA, RU, RT, RG, RC) were detected in user's pdb file.
@@ -321,3 +316,4 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       sys.argv.append(generated_eff_file_name)
     
     logfile.close()
+    

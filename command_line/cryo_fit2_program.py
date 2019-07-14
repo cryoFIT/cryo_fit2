@@ -276,7 +276,6 @@ Options:
     args = sys.argv[1:]
     
     print ("args after possible making .eff file:",args) # sometimes [], sometimes correct arguments
-    #STOP()
     
     log = multi_out()
     out=sys.stdout
@@ -294,6 +293,7 @@ Options:
     user_sigma_for_custom_geom = None
     user_start_temperature = None
     user_weight_multiply = None
+    
     
     # Save a user entered params.* now
     if (self.params.cool_rate != None):
@@ -462,7 +462,7 @@ Options:
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
       
-      total_combi_num, argstuples = make_argstuples(self, args, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage
+      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage
       
       cores_to_use = ''
       if (self.params.cores_from_user != None):
