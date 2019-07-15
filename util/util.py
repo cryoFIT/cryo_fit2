@@ -72,13 +72,12 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
       self.logfile.write(str(write_this))
 ############ def calculate_RMSD(self):
 
-    
 
 def check_whether_args_has_eff(args, logfile):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
         user_eff_file_name = str(args[i])
-        write_this = "A user provided an .eff file (e.g. " + user_eff_file_name + "), cryo_fit2 will use it."
+        write_this = "Either a user provided an .eff file or cryo_fit2 automatically made it (e.g. " + user_eff_file_name + "). Therefore, cryo_fit2 will use it."
         print (write_this)
         logfile.write(write_this)
         return True, user_eff_file_name
@@ -112,7 +111,6 @@ def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfil
     
     splited_fitted_file_name_w_path = fitted_file_name_w_path.split("/")
     fitted_file_name_wo_path = splited_fitted_file_name_w_path[len(splited_fitted_file_name_w_path)-1]
-    
     
     command_string = "phenix.secondary_structure_restraints " + fitted_file_name_wo_path
     try:
@@ -160,23 +158,8 @@ def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfil
     os.chdir(starting_dir)
     
     return number_of_bp_in_fitted_pdb, number_of_H_in_fitted_pdb, number_of_E_in_fitted_pdb
-######################## end of def count_bp_H_E_in_fitted_file(fitted_file_name_w_path):
+######################## end of count_bp_H_E_in_fitted_file(fitted_file_name_w_path):
 
-
-def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
-  pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
-  f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
-  fft_map = f_calc.fft_map(resolution_factor=0.25)
-  fft_map.apply_sigma_scaling()
-  map_data = fft_map.real_map_unpadded()
-  self.params.map_weight = weight.run(
-    map_data                    = map_data,
-    xray_structure              = pi.xrs,
-    pdb_hierarchy               = pi.ph,
-    geometry_restraints_manager = pi.grm).weight
-
-  return self.params.map_weight 
-######################### end of determine_optimal_weight_by_template
 
 
 '''
@@ -200,6 +183,21 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 ######################## end of determine_optimal_weight_as_macro_cycle_RSR()
 '''
 
+
+def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
+  pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
+  f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
+  fft_map = f_calc.fft_map(resolution_factor=0.25)
+  fft_map.apply_sigma_scaling()
+  map_data = fft_map.real_map_unpadded()
+  self.params.map_weight = weight.run(
+    map_data                    = map_data,
+    xray_structure              = pi.xrs,
+    pdb_hierarchy               = pi.ph,
+    geometry_restraints_manager = pi.grm).weight
+
+  return self.params.map_weight 
+######################### end of determine_optimal_weight_by_template
 
 
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \

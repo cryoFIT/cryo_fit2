@@ -376,18 +376,18 @@ class Program(ProgramTemplate):
       ########  Based on preliminary benchmarks (~500 combinations with L1 stalk and tRNA), Doonam believes that finding an
       ######## optimum combination of different parameters is a better approach than individually finding each "optimal" parameter
       bp_cutoff = bp_in_a_user_pdb_file * 0.98
-      write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) 
+      write_this = "bp_cutoff from a user input pdb file: " + str(round(bp_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
       
       # Stricter cutoff for H/E than bp
       H_cutoff = H_in_a_user_pdb_file * 0.99
-      write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1))
+      write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
       
       E_cutoff = E_in_a_user_pdb_file * 0.99
-      write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1))
+      write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
         
