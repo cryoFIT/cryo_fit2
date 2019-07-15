@@ -228,7 +228,7 @@ class Program(ProgramTemplate):
     user_start_temperature = None
     user_weight_multiply = None
     
-    # Save a user entered params.* now
+    # Save user entered params.* now
     if (self.params.cool_rate != None):
       user_cool_rate = self.params.cool_rate
     if (self.params.MD_in_each_epoch != None):
@@ -333,7 +333,8 @@ class Program(ProgramTemplate):
       self.params.number_of_steps = 1
       self.params.total_steps = 50
 
-    elif (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"): 
+    elif (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"):
+      self.params.explore = False
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.MD_in_each_epoch = 5
@@ -394,8 +395,9 @@ class Program(ProgramTemplate):
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
       
-      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage
-      
+      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage      
+      #print ("argstuples:",argstuples) #[[<cryo_fit2_program.Program object at 0x118a7e590>, <libtbx.phil.scope_extract object at 0x118a7e550>, <open file 'cryo_fit2.log', mode 'w' at 0x11894f5d0>, '', 0.98, 0.0, 0.0, 2, 1, 0.021, 300.0, 1], [<cryo_fit2_program.Program object at 0x118a7e590>, <libtbx.phil.scope_extract object at 0x118a7e550>, <open file 'cryo_fit2.log', mode 'w' at 0x11894f5d0>, '', 0.98, 0.0, 0.0, 2, 1, 0.12100000000000001, 300.0, 1]]
+
       cores_to_use = ''
       if (self.params.cores_from_user != None):
         cores_to_use = self.params.cores_from_user
@@ -426,7 +428,7 @@ class Program(ProgramTemplate):
             print (write_this) # 1, 0, 0
             logfile.write(write_this)
           
-          write_this = 'error string: %s ' %(errstr) + '\n'
+          write_this = ', error string: %s ' %(errstr) + '\n'
           
           # -> this errstr will be either "None" or
           '''/Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: expone\
@@ -465,11 +467,10 @@ e 53, in __call__
       print (write_this)
       logfile.write(write_this)
 
-      optimum_MD_in_each_epoch, optimum_sigma_for_custom_geom, optimum_start_temperature, optimum_steps,  \
+      optimum_MD_in_each_epoch, optimum_start_temperature, optimum_steps,  \
       optimum_weight_multiply = extract_the_best_cc_parameters(logfile)
       
       self.params.MD_in_each_epoch      = int(optimum_MD_in_each_epoch)
-      self.params.sigma_for_custom_geom = float(optimum_sigma_for_custom_geom)
       self.params.start_temperature     = float(optimum_start_temperature) # make it as float to format it consistent as in parameter exploration and user input
       self.params.number_of_steps       = int(optimum_steps)
       self.params.weight_multiply       = float(optimum_weight_multiply)
@@ -499,7 +500,7 @@ e 53, in __call__
       self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
       self.params.weight_multiply = 1
-      
+
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_epoch      :", str(self.params.MD_in_each_epoch))
