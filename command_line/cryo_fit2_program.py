@@ -209,9 +209,7 @@ class Program(ProgramTemplate):
   
   def run(self):
     time_total_start = time.time()
-    args = sys.argv[1:]
-    
-    print ("args after possible making .eff file:",args) # sometimes [], sometimes correct arguments
+    args = sys.argv[1:] # sometimes [], sometimes correct arguments
     
     log = multi_out()
     out=sys.stdout
@@ -229,7 +227,6 @@ class Program(ProgramTemplate):
     user_sigma_for_custom_geom = None
     user_start_temperature = None
     user_weight_multiply = None
-    
     
     # Save a user entered params.* now
     if (self.params.cool_rate != None):
@@ -325,7 +322,6 @@ class Program(ProgramTemplate):
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled)
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
-    
     
     splited = self.data_manager.get_default_model_name().split("/")
     input_model_file_name_wo_path = splited [len(splited)-1]
@@ -532,8 +528,8 @@ e 53, in __call__
                             + " number_of_steps=" + str(self.params.number_of_steps) \
                             + " weight_multiply=" + str(round(self.params.weight_multiply,1)) \
                             + " record_states=" + str(self.params.record_states) \
-                            + " reoptimize_map_weight_after_each_epoch=" + str(self.params.reoptimize_map_weight_after_each_epoch) \
-                            + " explore=False"
+                            + " explore=False" \
+                            + " reoptimize_map_weight_after_each_epoch=" + str(self.params.reoptimize_map_weight_after_each_epoch)
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \

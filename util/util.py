@@ -602,7 +602,7 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
         # original combi for 810 cases
         for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 100): # 5 (e.g. 1, 101, 201, 301, 401)
-                for sigma_for_custom_geom in np.arange (0.021, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001)
+                for sigma_for_custom_geom in np.arange (0.021, 0.3, 0.1): # 3 (e.g. 0.001, 0.1001, 0.2001) # 1k sigma killed 2 out of 3 trials
                     for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
                         #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
                         for weight_multiply in range (1, 62, 20): # 4 (e.g. 1,21,41,61) 
