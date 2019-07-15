@@ -77,7 +77,7 @@ def check_whether_args_has_eff(args, logfile):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
         user_eff_file_name = str(args[i])
-        write_this = "Either a user provided an .eff file or cryo_fit2 automatically made it (e.g. " + user_eff_file_name + "). Therefore, cryo_fit2 will use it."
+        write_this = "Either a user provided or cryo_fit2 automatically made (" + user_eff_file_name + "). Therefore, cryo_fit2 will use it."
         print (write_this)
         logfile.write(write_this)
         return True, user_eff_file_name
@@ -599,6 +599,7 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         # original combi for 486 cases
+        # (record) For L1_stalk, weight_multiply >= 21 breaks all bp w/o any sigma specification #"error string: /home/builder/slave/phenix-nightly-intel-linux-2_6-x86_64-centos6/modules/cctbx_project/cctbx/xray/sampling_base.h: exponent_table: excessive range"
         for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 #for sigma_for_custom_geom in np.arange (0.021, 0.08, 0.02): # 3 (e.g. 0.001, 0.1001, 0.2001) # 1k sigma killed 2 out of 3 trials
