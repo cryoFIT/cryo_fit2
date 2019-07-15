@@ -4,7 +4,7 @@ from cctbx import xray
 
 import cryo_fit2_run
 
-import glob, os, platform, subprocess
+import decimal, glob, os, platform, subprocess
 
 import iotbx.phil, libtbx
 from iotbx import map_and_model
@@ -202,7 +202,7 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 
 
 
-def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
+def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
                                      MD_in_each_epoch, number_of_steps, sigma_for_custom_geom, start_temperature, \
                                      weight_multiply):
     print ("\nMD parameres that will be explored.")
@@ -214,10 +214,6 @@ def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weigh
     
     print ("params.final_temperature:", str(params.final_temperature))
     print ("params.map_weight:       ", str(round(params.map_weight,2)))
-    
-    #eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
-    #                                      sigma_for_custom_geom)
-    #args.append(eff_file_name)
         
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         params.total_steps = params.total_steps_for_exploration # as of now 5k, this multi core run is to explore options (10k tends to make nan errors (~25%))
@@ -269,8 +265,6 @@ def explore_parameters_by_multi_core(self, args, params, logfile, user_map_weigh
     '''
     
     output_dir_final = task_obj.run()
-    
-    #args.remove(str(eff_file_name))
     
     splited = output_dir_final.split("_bp_")
     if (len(splited)) == 1:
@@ -360,6 +354,19 @@ Otherwise, run cryo_fit2 with explore_parameters=False\n
             return optimum_MD_in_each_epoch, optimum_sigma_for_custom_geom, optimum_start_temperature, \
                    optimum_step, optimum_weight_multiply
 ############ end of def extract_the_best_cc_parameters():
+
+
+def float_to_str(f):  # 0.00001 resulted in scientific notation which seems to not function properly, so avoid it
+  ctx = decimal.Context() # create a new context for this task
+
+  ctx.prec = 20 # 20 digits should be enough for everyone :D
+  """
+  Convert the given float to a string,
+  without resorting to scientific notation
+  """
+  d1 = ctx.create_decimal(repr(f))
+  return format(d1, 'f')
+########## end of def float_to_str(f)
 
 
 def get_output_dir_name(self):
@@ -600,7 +607,7 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
                         #for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101) # for 810 combi
                         for weight_multiply in range (1, 62, 20): # 4 (e.g. 1,21,41,61) 
                             total_combi_num = total_combi_num + 1
-                            argstuples.append([self, args, self.params, logfile, user_map_weight, \
+                            argstuples.append([self, self.params, logfile, user_map_weight, \
                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
                                             number_of_steps, sigma_for_custom_geom, start_temperature, \
                                             weight_multiply])
@@ -613,7 +620,7 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
                     for start_temperature in np.arange (300.0, 301.0, 300.0):
                         for weight_multiply in range (1, 3, 10):
                             total_combi_num = total_combi_num + 1
-                            argstuples.append([self, args, self.params, logfile, user_map_weight, \
+                            argstuples.append([self, self.params, logfile, user_map_weight, \
                                                bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
                                                number_of_steps, sigma_for_custom_geom, start_temperature, \
                                                weight_multiply])
@@ -957,9 +964,8 @@ geometry_restraints {
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
       
-      write_this = "      sigma = " + str(sigma_for_custom_geom) + "\n"
+      write_this = "      sigma = " + float_to_str(sigma_for_custom_geom) + "\n" 
       f_out.write(write_this) 
-      
       
       # /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
       # left bp from 26 to 20, I may need to lower the sigma even to 0.002
@@ -1047,15 +1053,13 @@ geometry_restraints {
             f_out.write("      angle_ideal = 117.3\n") # derived from Oleg slide and tRNA
         '''
         
-        write_this = "      sigma = " + str(sigma_for_custom_geom) + "\n"
+        write_this = "      sigma = " + float_to_str(sigma_for_custom_geom) + "\n" 
         f_out.write(write_this)
         
         write_this = "    }\n"
         f_out.write(write_this)
         ############# end of if (dist_angle_candidate == "angle"):
      
-        
-        
   f_out.write('''  }
 }
 ''')
