@@ -275,7 +275,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
         return None, None, None
     '''
-    
+    splited = output_dir_final.split("_bp_")
     splited2 = splited[1].split("_H_")
     bp = splited2[0]
     
