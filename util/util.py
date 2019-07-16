@@ -249,29 +249,32 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     
     task_obj.validate()
     
-    ''' 
+    output_dir_final = ''
     # This try/except will not report number of parameter exploration combinations that ran successfully.
     # However, I expected that this may help incomplete running issue.
-    # However it turned out that this try/except loop didn't help incomplete running issue.
-    output_dir_final = ''
+    # However, it turned out that this try/except loop didn't help incomplete running issue.
+    # However, this try/except loop helps at least correct foldering "bp_H_E_not_calculated"
     try:
-        output_dir_final = task_obj.run()    
+        output_dir_final = task_obj.run()
     except:
         write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition"
         print (write_this)
         logfile.write(str(write_this))
-        return 0 # return early
-    '''
+        if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
+            os.mkdir("parameters_exploration/bp_H_E_not_calculated")
+        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
+        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+        return None, None, None
     
-    output_dir_final = task_obj.run()
-    
+    ''' # grammar looks correct, but once the error occurred (totally broken structure), it seems not reach to here
     splited = output_dir_final.split("_bp_")
     if (len(splited)) == 1:
         if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
             os.mkdir("parameters_exploration/bp_H_E_not_calculated")
         command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
         libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-        return None, None, None 
+        return None, None, None
+    '''
     
     splited2 = splited[1].split("_H_")
     bp = splited2[0]
@@ -308,8 +311,7 @@ def extract_the_best_cc_parameters(logfile):
 user base pairs and helices in this user given model file.\n\
 Maybe this input pdb has no base_pairs and helices in the first place?\n\
 Otherwise, expand explore combination.\n\
-Otherwise, run cryo_fit2 with explore_parameters=False\n
-        '''
+Otherwise, run cryo_fit2 with explore=False\n'''
         logfile.write(write_this)
         print (write_this)
         exit(1)
