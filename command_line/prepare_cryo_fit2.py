@@ -305,7 +305,7 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     if (self.params.sigma_for_custom_geom != None):
       user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
     else:
-      self.params.sigma_for_custom_geom = 0.021
+      self.params.sigma_for_custom_geom = 0.05
       
     user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
     if ((user_eff_file_provided == False) and (self.params.strong_ss == True)):

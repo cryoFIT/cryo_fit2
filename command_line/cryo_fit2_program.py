@@ -416,7 +416,7 @@ class Program(ProgramTemplate):
       logfile.write(write_this)
       
       success_exploration_count = 0
-      for arguments_for_explore, res, errstr in easy_mp.multi_core_run( explore_parameters_by_multi_core, argstuples, \
+      for arguments_for_explore, res, errstr in easy_mp.multi_core_run(explore_parameters_by_multi_core, argstuples, \
                                                        cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
           
@@ -462,14 +462,17 @@ e 53, in __call__
             success_exploration_count = success_exploration_count + 1
       
       write_this = "\ncryo_fit2 explored " + str(success_exploration_count) + " combination(s) of MD parameters " + \
-                   "out of " + str(total_combi_num) + " total combinations.\nIt will run fully with optimized parameters.\n"
-      
+                   "out of " + str(total_combi_num) + " total combinations\n"
       print (write_this)
       logfile.write(write_this)
 
-      optimum_MD_in_each_epoch, optimum_start_temperature, optimum_steps,  \
-      optimum_weight_multiply = extract_the_best_cc_parameters(logfile)
-      
+      optimum_MD_in_each_epoch, optimum_start_temperature, optimum_steps, optimum_weight_multiply = \
+        extract_the_best_cc_parameters(logfile)
+
+      write_this = "cryo_fit2 will run fully with optimized parameters.\n"
+      print (write_this)
+      logfile.write(write_this)
+
       self.params.MD_in_each_epoch      = int(optimum_MD_in_each_epoch)
       self.params.start_temperature     = float(optimum_start_temperature) # make it as float to format it consistent as in parameter exploration and user input
       self.params.number_of_steps       = int(optimum_steps)

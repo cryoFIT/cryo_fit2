@@ -201,7 +201,6 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
 
 
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
-                                     #MD_in_each_epoch, number_of_steps, sigma_for_custom_geom, start_temperature, \
                                      MD_in_each_epoch, number_of_steps, start_temperature, \
                                      weight_multiply):
     print ("\nMD parameres that will be explored.")
@@ -226,7 +225,6 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     # Re-assign params for below cryo_fit2 run
     params.MD_in_each_epoch         = MD_in_each_epoch
     params.number_of_steps          = number_of_steps
-    #params.sigma_for_custom_geom    = sigma_for_custom_geom
     params.start_temperature        = start_temperature
     params.weight_multiply          = weight_multiply
     
@@ -308,8 +306,8 @@ def extract_the_best_cc_parameters(logfile):
         os.chdir("parameters_exploration/bp_H_E_kept")
     else:
         write_this = '''MD parameter exploration didn't find parameter combination that kept \
-user base pairs and helices in this user given model file.\n\
-Maybe this input pdb has no base_pairs and helices in the first place?\n\
+user base pairs, helices and sheets in this user given model file.\n\
+Maybe this input pdb has no base_pairs, helices and sheets in the first place?\n\
 Otherwise, expand explore combination.\n\
 Otherwise, run cryo_fit2 with explore=False\n'''
         logfile.write(write_this)
@@ -324,7 +322,6 @@ Otherwise, run cryo_fit2 with explore=False\n'''
         cc = splited2[len(splited2)-2]
         if (float(cc) > float(best_cc_so_far)):
             best_cc_so_far = cc
-    
     
     for check_this_dir in glob.glob("output*"):
         splited = check_this_dir.split("_cc_")
@@ -600,36 +597,31 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     ############# The most probable cause of this error is when cryo_fit2 fails to run ("nan")
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        # original combi for 486 cases
+        # original combi for 432 cases
         # (record) For L1_stalk, weight_multiply >= 21 breaks all bp w/o any sigma specification #"error string: /home/builder/slave/phenix-nightly-intel-linux-2_6-x86_64-centos6/modules/cctbx_project/cctbx/xray/sampling_base.h: exponent_table: excessive range"
         for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
-                #for sigma_for_custom_geom in np.arange (0.021, 0.08, 0.02): # 3 (e.g. 0.001, 0.1001, 0.2001) # 1k sigma killed 2 out of 3 trials
-                    for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
-                        for weight_multiply in range (1, 102, 20): # 6 (e.g. 1,21,41,61,81,101)
-                            total_combi_num = total_combi_num + 1 
-                            argstuples.append([self, self.params, logfile, user_map_weight, \
-                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
-                                      #       number_of_steps, sigma_for_custom_geom, start_temperature, \
-                                             number_of_steps, start_temperature, \
-                                             weight_multiply])
-                            
+                for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
+                    for weight_multiply in range (1, 302, 20): # 6 (e.g. 1,21,41,61,81,101)
+                        total_combi_num = total_combi_num + 1 
+                        argstuples.append([self, self.params, logfile, user_map_weight, \
+                                         bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
+                                         number_of_steps, start_temperature, \
+                                         weight_multiply])
                             
     else: # just explore 2 combinations to save regression time
         for MD_in_each_epoch in range (2, 14, 10): # 2
             for number_of_steps in range (1, 51, 100):
-                #for sigma_for_custom_geom in np.arange (0.021, 0.2, 0.1): #2
-                    for start_temperature in np.arange (300.0, 301.0, 300.0):
-                        for weight_multiply in range (1, 3, 10):
-                            total_combi_num = total_combi_num + 1
-                            argstuples.append([self, self.params, logfile, user_map_weight, \
-                                               bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
-                            #                   number_of_steps, sigma_for_custom_geom, start_temperature, \
-                                               number_of_steps, start_temperature, \
-                                               weight_multiply])
+                for start_temperature in np.arange (300.0, 301.0, 300.0):
+                    for weight_multiply in range (1, 3, 10):
+                        total_combi_num = total_combi_num + 1
+                        argstuples.append([self, self.params, logfile, user_map_weight, \
+                                           bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
+                                           number_of_steps, start_temperature, \
+                                           weight_multiply])
 
     print ("total_combi_num:",total_combi_num)
-    
+    STOP()
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
 
