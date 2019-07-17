@@ -621,7 +621,6 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
                                            weight_multiply])
 
     print ("total_combi_num:",total_combi_num)
-    STOP()
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
 
