@@ -206,7 +206,6 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     print ("\nMD parameres that will be explored.")
     print ("MD_in_each_epoch:        ", str(MD_in_each_epoch))
     print ("number_of_steps:         ", str(number_of_steps))
-    #print ("sigma_for_custom_geom:   ", str(sigma_for_custom_geom))
     print ("start_temperature:       ", str(start_temperature))
     print ("weight_multiply:         ", str(weight_multiply), "\n\n")
     
@@ -251,17 +250,24 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     # This try/except will not report number of parameter exploration combinations that ran successfully.
     # However, I expected that this may help incomplete running issue.
     # However, it turned out that this try/except loop didn't help incomplete running issue.
-    # However, this try/except loop helps at least correct foldering "bp_H_E_not_calculated"
     try:
         output_dir_final = task_obj.run()
     except:
-        write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition"
+        write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+                     " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
+                     " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
+                     " number_of_steps (" + str(number_of_steps)        + ")" + \
+                     " start_temperature (" + str(start_temperature)    + ")" + \
+                     " weight_multiply (" + str(weight_multiply)        + ")" + \
+                     " final_temperature (" + str(final_temperature)    + ")" + \
+                     " map_weight (" + str(round(params.map_weight,2))  + ")" + \
+                     " total_steps (" + str(params.total_steps)  + ")" 
         print (write_this)
         logfile.write(str(write_this))
-        if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
-            os.mkdir("parameters_exploration/bp_H_E_not_calculated")
-        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
-        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+        # if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
+        #     os.mkdir("parameters_exploration/bp_H_E_not_calculated")
+        # command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
+        # libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
         return None, None, None
     
     ''' # grammar looks correct, but once the error occurred (totally broken structure), it seems not reach to here
@@ -602,7 +608,7 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
         for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
-                    for weight_multiply in range (1, 302, 20): # 6 (e.g. 1,21,41,61,81,101)
+                    for weight_multiply in range (1, 302, 20): 
                         total_combi_num = total_combi_num + 1 
                         argstuples.append([self, self.params, logfile, user_map_weight, \
                                          bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
@@ -791,7 +797,6 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 ########################### end of remove_R_prefix_in_RNA function
 
 
-#def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, output_dir):
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
       write_this = "\nA user didn't specify a map_weight. Therefore, cryo_fit2 will automatically optimize map_weight for additional MD run\n"
