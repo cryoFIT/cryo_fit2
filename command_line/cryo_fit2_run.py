@@ -72,7 +72,7 @@ class cryo_fit2_class(object):
     states = mmtbx.utils.states(
      pdb_hierarchy  = self.model.get_hierarchy(),
      xray_structure = self.model.get_xray_structure())
-    
+
     states.add(sites_cart = self.model.get_xray_structure().sites_cart())
   
     params = sa.master_params().extract()    # because of params = sa.master_params().extract() above, core parameters need to be redefined
@@ -80,11 +80,11 @@ class cryo_fit2_class(object):
     params.final_temperature       = self.params.final_temperature
     params.cool_rate               = self.params.cool_rate
     params.number_of_steps         = self.params.number_of_steps
-    
+
     total_steps = ''
     if (self.params.total_steps != None):
       total_steps   = self.params.total_steps
-    
+
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
     #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
@@ -162,7 +162,6 @@ class cryo_fit2_class(object):
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       
       write_this = "CC after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
-      #print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
       if (total_steps != ''):
@@ -276,8 +275,7 @@ class cryo_fit2_class(object):
   All kinds of mrc files (e.g. "Regular", emdb downloaded, went through phenix.map_box, gaussian filtered by UCSF Chimera and went through relion_image_handler) work fine.
 #############################################################
 #print (print_this,"\n")
-    '''
-    
+    '''    
     
     returned = know_how_much_map_origin_moved(str(self.map_name))
     if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
@@ -285,22 +283,36 @@ class cryo_fit2_class(object):
         print (write_this)
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file_name_w_path, returned[0], returned[1], returned[2], returned[3])
-    
+
     # To save a regression test time
     #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False): #"AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
     if (("tst_cryo_fit2" in fitted_file_name_w_path) == False): 
       calculate_RMSD(self, fitted_file_name_w_path)
 
-    bp_num_in_fitted_file, H_num_in_fitted_file, E_num_in_fitted_file = \
-      count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
-      
+    try:
+      bp_num_in_fitted_file, H_num_in_fitted_file, E_num_in_fitted_file = \
+        count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
+    except:
+        write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+                     " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
+                     " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
+                     " number_of_steps (" + str(number_of_steps)        + ")" + \
+                     " start_temperature (" + str(start_temperature)    + ")" + \
+                     " weight_multiply (" + str(weight_multiply)        + ")" + \
+                     " final_temperature (" + str(final_temperature)    + ")" + \
+                     " map_weight (" + str(round(params.map_weight,2))  + ")" + \
+                     " total_steps (" + str(params.total_steps)  + ")" 
+        print (write_this)
+        self.logfile.write(str(write_this))
+        return output_dir_w_CC
+        
     output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file) \
                       + "_H_" + str(H_num_in_fitted_file) + "_E_" + str(E_num_in_fitted_file)
     if os.path.exists(output_dir_final):
       shutil.rmtree(output_dir_final)
-    
+
     mv_command_string = "mv " + output_dir_w_CC + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
-    
+
     return output_dir_final
 ############# end of run function

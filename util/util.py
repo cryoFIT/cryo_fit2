@@ -250,46 +250,27 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     # This try/except will not report number of parameter exploration combinations that ran successfully.
     # However, I expected that this may help incomplete running issue.
     # However, it turned out that this try/except loop didn't help incomplete running issue.
-    try:
-        output_dir_final = task_obj.run()
-    except:
-        write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
-                     " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
-                     " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
-                     " number_of_steps (" + str(number_of_steps)        + ")" + \
-                     " start_temperature (" + str(start_temperature)    + ")" + \
-                     " weight_multiply (" + str(weight_multiply)        + ")" + \
-                     " final_temperature (" + str(final_temperature)    + ")" + \
-                     " map_weight (" + str(round(params.map_weight,2))  + ")" + \
-                     " total_steps (" + str(params.total_steps)  + ")" 
-        print (write_this)
-        logfile.write(str(write_this))
-        # if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
-        #     os.mkdir("parameters_exploration/bp_H_E_not_calculated")
-        # command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
-        # libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-        return None, None, None
     
-    ''' # grammar looks correct, but once the error occurred (totally broken structure), it seems not reach to here
-    splited = output_dir_final.split("_bp_")
-    if (len(splited)) == 1:
+    output_dir_final = task_obj.run()
+    
+    if (output_dir_final.find('_bp_') == -1):
         if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
             os.mkdir("parameters_exploration/bp_H_E_not_calculated")
         command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
         libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
         return None, None, None
-    '''
+
     splited = output_dir_final.split("_bp_")
     splited2 = splited[1].split("_H_")
     bp = splited2[0]
-    
+
     splited = output_dir_final.split("_H_")
     splited2 = splited[1].split("_E_")
     H = splited2[0]
-    
+
     splited = output_dir_final.split("_E_")
     E = splited[len(splited)-1]
-    
+
     if ( (float(bp) >= float(bp_cutoff)) and (float(H) >= float(H_cutoff)) and (float(E) >= float(E_cutoff))):
         if (os.path.isdir("parameters_exploration/bp_H_E_kept") == False):
             os.mkdir("parameters_exploration/bp_H_E_kept")
