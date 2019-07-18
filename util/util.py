@@ -249,7 +249,25 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     # Wrapping below task_obj.run() with try/except will not report number of parameter exploration combinations that ran successfully.
     # However, I expected that this may help incomplete running issue.
     # However, it turned out that this try/except loop didn't help incomplete running issue.
-    output_dir_final = task_obj.run()
+    
+    # ((((( during explore_parameters_by_multi_core)))))
+    # even wrapping try-except around map-weighted phenix.dynamics itself didn't help that the output folder didn't move to parameters_exploration folder
+    output_dir_final = ''
+    try:
+        output_dir_final = task_obj.run()
+    except:
+        write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+                     " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
+                     " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
+                     " number_of_steps (" + str(number_of_steps)        + ")" + \
+                     " start_temperature (" + str(start_temperature)    + ")" + \
+                     " weight_multiply (" + str(weight_multiply)        + ")" + \
+                     " final_temperature (" + str(final_temperature)    + ")" + \
+                     " map_weight (" + str(round(params.map_weight,2))  + ")" + \
+                     " total_steps (" + str(params.total_steps)  + ")" 
+        print (write_this)
+        self.logfile.write(str(write_this))
+        
     
     if (output_dir_final.find('_bp_') == -1):
         if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):

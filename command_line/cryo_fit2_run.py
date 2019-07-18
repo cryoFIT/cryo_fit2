@@ -259,9 +259,9 @@ class cryo_fit2_class(object):
     if (self.params.record_states == True): 
       all_state_file = os.path.join(output_dir_w_CC, "all_states.pdb")
       states.write(file_name = all_state_file)
-    
+
     self.model.set_xray_structure(result.xray_structure)
-    
+
     fitted_file_name = model_file_name_only + "_cryo_fit2_fitted.pdb"
     fitted_file_name_w_path = os.path.join(output_dir_w_CC, fitted_file_name)
     
@@ -282,13 +282,6 @@ class cryo_fit2_class(object):
 #############################################################
 #print (print_this,"\n")
     '''    
-    
-    returned = know_how_much_map_origin_moved(str(self.map_name))
-    if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
-        write_this = "Restoring original xyz position for a cryo_fit2 fitted atomistic model\n\n"
-        print (write_this)
-        self.logfile.write(str(write_this))
-        return_to_origin_of_pdb_file(fitted_file_name_w_path, returned[0], returned[1], returned[2], returned[3])
 
     try:
       bp_num_in_fitted_file, H_num_in_fitted_file, E_num_in_fitted_file = \
@@ -307,6 +300,13 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         return output_dir_w_CC
     
+    returned = know_how_much_map_origin_moved(str(self.map_name))
+    if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
+        write_this = "Restoring original xyz position for a cryo_fit2 fitted atomistic model\n\n"
+        print (write_this)
+        self.logfile.write(str(write_this))
+        return_to_origin_of_pdb_file(fitted_file_name_w_path, returned[0], returned[1], returned[2], returned[3])
+        
     # To save a regression test time
     #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False): #"AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
     if (("tst_cryo_fit2" in fitted_file_name_w_path) == False): 
