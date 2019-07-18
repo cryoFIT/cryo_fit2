@@ -1,15 +1,3 @@
-note for speed: Although PHENIX group prefers to make cryo_fit2 works on laptop only as well, MD simulation itself takes a lot of computational time as in https://www.olcf.ornl.gov/2019/05/20/summit-charts-a-course-to-uncover-the-origins-of-genetic-diseases. 
-
-Additionally, http://milou.science.uu.nl/services/HADDOCK2.2/haddock.php says that its docking may take 1~2 days. 
-
-https://cluspro.bu.edu even needs 10 days with restraints.
-
-
-Cryo_fit2 will be avilable on laptop only, but as of now, it may require 1~2 days on laptop if we model big biomolecules.
-
-
-future    : Automatically support Rob's multi-threading for search ideal parameters
-
 future    : Allow distance or pair restraints
 
 future    : Automatically calculate all 4 phenix cc
@@ -27,31 +15,13 @@ future    : Automatically support Nigel's phenix.eLBOW
 	    Currently, with unknown ligand (e.g. DDB), automatic map_weight optimization doesn't work.
 	    With map_weight=x, cryo_fit2 runs but with "Number of atoms with unknown nonbonded energy type symbols:"
 
-07/13/2019: When eff file is provided as an argument, sigma works. If the file was generated and then appended during cryo_fit2, sigma not works.
-
-07/04/2019: both kaguya and sparky stopped working after making 1,107 parameter exploration folders
+07/13/2019: Now eff file works correctly when provided as an argument (If the file was generated and then appended during cryo_fit2, sigma not works)
 
 06/27/2019: Cryo_fit2 uses available number of cores automatically using from libtbx.introspection import number_of_processors
 	     
 06/26/2019: Cryo_fit2 uses Rob's multi threading to automatically explore different MD parameters.
 
 06/26/2019: As I checked with several extreme cases, different parameters combination exploration does have decent reproducibility.
-
-06/25/2019:
-Here, I confirmed that distance, angle, bonds moves from phenix.dynamics are independent from each temperature step (rather than cumulative)
-...
-  temp= 1000.0 dist_moved=  0.20 angles=  2.63 bonds= 0.021
-  temp=  900.0 dist_moved=  0.20 angles=  2.46 bonds= 0.020
-  temp=  800.0 dist_moved=  0.22 angles=  2.38 bonds= 0.019
-  temp=  700.0 dist_moved=  0.23 angles=  2.31 bonds= 0.019
-  temp=  600.0 dist_moved=  0.24 angles=  2.23 bonds= 0.018
-  temp=  500.0 dist_moved=  0.24 angles=  2.14 bonds= 0.017
-  temp=  400.0 dist_moved=  0.25 angles=  2.09 bonds= 0.016
-  temp=  300.0 dist_moved=  0.25 angles=  2.03 bonds= 0.016
-  temp=  200.0 dist_moved=  0.24 angles=  1.93 bonds= 0.015
-  temp=  100.0 dist_moved=  0.22 angles=  1.85 bonds= 0.014
-  temp=    0.0 dist_moved=  0.22 angles=  1.85 bonds= 0.014
-...
 
 05/17/2019: Updated tst2 regression to test short auto-rerun of MD
 

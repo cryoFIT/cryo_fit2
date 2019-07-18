@@ -158,7 +158,7 @@ class cryo_fit2_class(object):
             states_collector   = states,
             log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
       except:
-        write_this = "Failed during core phenix.dynamics run."
+        write_this = "Failed during core map weighted phenix.dynamics run."
         print (write_this)
         self.logfile.write(str(write_this))
         return self.output_dir

@@ -246,11 +246,9 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     
     task_obj.validate()
     
-    output_dir_final = ''
-    # This try/except will not report number of parameter exploration combinations that ran successfully.
+    # Wrapping below task_obj.run() with try/except will not report number of parameter exploration combinations that ran successfully.
     # However, I expected that this may help incomplete running issue.
     # However, it turned out that this try/except loop didn't help incomplete running issue.
-    
     output_dir_final = task_obj.run()
     
     if (output_dir_final.find('_bp_') == -1):
@@ -284,7 +282,6 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     
     return bp, H, E    
 ############ end of explore_parameters_by_multi_core()
-
 
 
 def extract_the_best_cc_parameters(logfile):
