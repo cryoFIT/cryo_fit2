@@ -428,7 +428,7 @@ class Program(ProgramTemplate):
             print (write_this) # 1, 0, 0
             logfile.write(write_this)
           
-          write_this = 'error string: %s ' %(errstr) + '\n'
+          write_this = ', error string: %s ' %(errstr) + '\n'
           
           # -> this errstr will be either "None" or
           '''/Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: expone\
