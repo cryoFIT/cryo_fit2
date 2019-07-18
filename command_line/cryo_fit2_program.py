@@ -406,22 +406,22 @@ class Program(ProgramTemplate):
         # kaguya resulted in 32
         # sparky resulted in 40 (I expected to see 34 since I was running 6 cores at that time. \
         #It seems that number_of_processors returned just all # of processors)
-        
+
         cores_to_use = math.ceil(returned_nproc/4) # will use at least 1 core, since math.ceil rounds up to the next greater integer
         # just to avoid crash, it seems like sparky linux machine can't handle more than 40 cores (even 20 cores)
         # when I used 13 cores, the load average reached 20!
-      
+
       write_this = "Cryo_fit2 will use " + str(int(cores_to_use)) + " core(s) to explore up to " + str(total_combi_num) + " MD parameters.\n"
       print(write_this)
       logfile.write(write_this)
-      
+
       success_exploration_count = 0
       for arguments_for_explore, res, errstr in easy_mp.multi_core_run(explore_parameters_by_multi_core, argstuples, \
                                                        cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
           
-          #print ('arguments_for_explore: %s ' %(arguments_for_explore)) # "arguments_for_explore:   [<cryo_fit2_program.Program object at 0x11b54ffd0>, <libtbx.phil.scope_extract object at 0x11b54fd50>, <open file 'cryo_fit2.log', mode 'w' at 0x11b45b9c0>, '', 0.0, 0.99, 0.0, 2, 1, 0.001, 300, 1]"
-          #print ('arguments_for_explore: ', str(arguments_for_explore)) # "arguments_for_explore:  (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
+          #print ('arguments_for_explore: %s ' %(arguments_for_explore)) # "arguments_for_explore: [<cryo_fit2_program.Program object at 0x11b54ffd0>, <libtbx.phil.scope_extract object at 0x11b54fd50>, <open file 'cryo_fit2.log', mode 'w' at 0x11b45b9c0>, '', 0.0, 0.99, 0.0, 2, 1, 0.001, 300, 1]"
+          #print ('arguments_for_explore: ', str(arguments_for_explore)) # "arguments_for_explore: (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           
           if (res != None):
             write_this = 'bp:' + str(res[0]) + ', H:' + str(res[1]) + ', E:' + str(res[2])
@@ -575,6 +575,26 @@ e 53, in __call__
     task_obj.validate()
     
     output_dir_final = task_obj.run()
+    if (output_dir_final.find('_bp_') == -1):
+      if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
+        os.mkdir("parameters_exploration/bp_H_E_not_calculated")
+      command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
+      libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+      
+      write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+                   " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
+                   " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
+                   " number_of_steps (" + str(number_of_steps)        + ")" + \
+                   " start_temperature (" + str(start_temperature)    + ")" + \
+                   " weight_multiply (" + str(weight_multiply)        + ")" + \
+                   " final_temperature (" + str(final_temperature)    + ")" + \
+                   " map_weight (" + str(round(params.map_weight,2))  + ")" + \
+                   " total_steps (" + str(params.total_steps)  + ")" 
+      print (write_this)
+      self.logfile.write(str(write_this))
+      logfile.close()
+      return 0
+        
     ############### (end) core cryo_fit2
     
     write_geo(self, model_inp, "used_geometry_restraints.geo")

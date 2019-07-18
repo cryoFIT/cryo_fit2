@@ -127,7 +127,7 @@ class cryo_fit2_class(object):
     
   ########################### <begin> iterate until cryo_fit2 derived cc saturates
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
-    
+    result = ''
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
       self.params.map_weight = self.params.map_weight * weight_multiply
@@ -135,35 +135,41 @@ class cryo_fit2_class(object):
       # 1x~10x of weight_multiply were not enough for L1 stalk fitting
       # up to 20x of weight_multiply, nucleic acid geometry was ok, 30x broke it
       
-      if (self.params.progress_on_screen == True): # default choice
-        result = sa.run(
-          params = params,
-          xray_structure     = self.model.get_xray_structure(),
-          restraints_manager = self.model.get_restraints_manager(),
-          target_map         = map_data,
-          real_space         = True,
-          wx                 = self.params.map_weight, 
-          wc                 = 1, # weight for geometry conformation
-          states_collector   = states) 
-      else: # (self.params.progress_on_screen = False):
-        result = sa.run(
-          params = params,
-          xray_structure     = self.model.get_xray_structure(),
-          restraints_manager = self.model.get_restraints_manager(),
-          target_map         = map_data,
-          real_space         = True,
-          wx                 = self.params.map_weight, 
-          wc                 = 1, # weight for geometry conformation
-          states_collector   = states,
-          log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
-      
+      try:
+        if (self.params.progress_on_screen == True): # default choice
+          result = sa.run(
+            params = params,
+            xray_structure     = self.model.get_xray_structure(),
+            restraints_manager = self.model.get_restraints_manager(),
+            target_map         = map_data,
+            real_space         = True,
+            wx                 = self.params.map_weight, 
+            wc                 = 1, # weight for geometry conformation
+            states_collector   = states) 
+        else: # (self.params.progress_on_screen = False):
+          result = sa.run(
+            params = params,
+            xray_structure     = self.model.get_xray_structure(),
+            restraints_manager = self.model.get_restraints_manager(),
+            target_map         = map_data,
+            real_space         = True,
+            wx                 = self.params.map_weight, 
+            wc                 = 1, # weight for geometry conformation
+            states_collector   = states,
+            log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
+      except:
+        write_this = "Failed during core phenix.dynamics run."
+        print (write_this)
+        self.logfile.write(str(write_this))
+        return self.output_dir
+        
       multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
       total_steps_so_far = total_steps_so_far + int(params.number_of_steps*multiply_this)
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
-      
+
       write_this = "CC after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       self.logfile.write(str(write_this))
-      
+
       if (total_steps != ''):
         if (total_steps_so_far >= total_steps):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
@@ -259,7 +265,7 @@ class cryo_fit2_class(object):
     fitted_file_name = model_file_name_only + "_cryo_fit2_fitted.pdb"
     fitted_file_name_w_path = os.path.join(output_dir_w_CC, fitted_file_name)
     
-    ##### this is essential to spit cyro_fitted2 file
+    ##### this is essential to spit cryo_fitted2 file
     with open(fitted_file_name_w_path, "w") as f:
       f.write(self.model.model_as_pdb())
     f.close()
@@ -284,11 +290,6 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file_name_w_path, returned[0], returned[1], returned[2], returned[3])
 
-    # To save a regression test time
-    #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False): #"AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
-    if (("tst_cryo_fit2" in fitted_file_name_w_path) == False): 
-      calculate_RMSD(self, fitted_file_name_w_path)
-
     try:
       bp_num_in_fitted_file, H_num_in_fitted_file, E_num_in_fitted_file = \
         count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
@@ -305,7 +306,12 @@ class cryo_fit2_class(object):
         print (write_this)
         self.logfile.write(str(write_this))
         return output_dir_w_CC
-        
+    
+    # To save a regression test time
+    #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False): #"AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
+    if (("tst_cryo_fit2" in fitted_file_name_w_path) == False): 
+      calculate_RMSD(self, fitted_file_name_w_path)
+      
     output_dir_final = output_dir_w_CC + "_bp_" + str(bp_num_in_fitted_file) \
                       + "_H_" + str(H_num_in_fitted_file) + "_E_" + str(E_num_in_fitted_file)
     if os.path.exists(output_dir_final):
