@@ -203,15 +203,15 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
                                      MD_in_each_epoch, number_of_steps, start_temperature, \
                                      weight_multiply):
-    print ("\nMD parameres that will be explored.")
+    print ("\nMD parameters that will be explored.")
     print ("MD_in_each_epoch:        ", str(MD_in_each_epoch))
     print ("number_of_steps:         ", str(number_of_steps))
     print ("start_temperature:       ", str(start_temperature))
     print ("weight_multiply:         ", str(weight_multiply), "\n\n")
-    
+
     print ("params.final_temperature:                       ", str(params.final_temperature))
     print ("params.map_weight:                              ", str(round(params.map_weight,2)))
-        
+
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         params.total_steps = params.total_steps_for_exploration # as of now 5k, this multi core run is to explore options (10k tends to make nan errors (~25%))
     else:
@@ -251,11 +251,15 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     # However, it turned out that this try/except loop didn't help incomplete running issue.
     
     # ((((( during explore_parameters_by_multi_core)))))
-    # even wrapping try-except around map-weighted phenix.dynamics itself didn't help that the output folder didn't move to parameters_exploration folder
+    # even wrapping try-except around map-weighted phenix.dynamics itself didn't help that the output folder didn't move to "parameters_exploration" folder
     output_dir_final = ''
     try:
         output_dir_final = task_obj.run()
-    except:
+    except Exception as ex:
+        write_this = "exception message:" +  str(ex)
+        print (write_this)
+        self.logfile.write(str(write_this))
+
         write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
                      " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
                      " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
@@ -266,8 +270,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
                      " map_weight (" + str(round(params.map_weight,2))  + ")" + \
                      " total_steps (" + str(params.total_steps)  + ")" 
         print (write_this)
-        self.logfile.write(str(write_this))
-        
+        self.logfile.write(str(write_this))        
     
     if (output_dir_final.find('_bp_') == -1):
         if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):

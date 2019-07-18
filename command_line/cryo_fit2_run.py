@@ -157,7 +157,11 @@ class cryo_fit2_class(object):
             wc                 = 1, # weight for geometry conformation
             states_collector   = states,
             log                = self.logfile) # if this is commented, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log
-      except:
+      except Exception as ex:
+        write_this = "exception message:" +  str(ex)
+        print (write_this)
+        self.logfile.write(str(write_this))
+        
         write_this = "Failed during core map weighted phenix.dynamics run."
         print (write_this)
         self.logfile.write(str(write_this))
@@ -286,19 +290,23 @@ class cryo_fit2_class(object):
     try:
       bp_num_in_fitted_file, H_num_in_fitted_file, E_num_in_fitted_file = \
         count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, self.logfile)
-    except:
-        write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
-                     " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
-                     " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
-                     " number_of_steps (" + str(number_of_steps)        + ")" + \
-                     " start_temperature (" + str(start_temperature)    + ")" + \
-                     " weight_multiply (" + str(weight_multiply)        + ")" + \
-                     " final_temperature (" + str(final_temperature)    + ")" + \
-                     " map_weight (" + str(round(params.map_weight,2))  + ")" + \
-                     " total_steps (" + str(params.total_steps)  + ")" 
-        print (write_this)
-        self.logfile.write(str(write_this))
-        return output_dir_w_CC
+    except Exception as ex:
+      write_this = "exception message:" +  str(ex)
+      print (write_this)
+      self.logfile.write(str(write_this))
+      #raw_input()
+      write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+                    " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
+                    " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
+                    " number_of_steps (" + str(number_of_steps)        + ")" + \
+                    " start_temperature (" + str(start_temperature)    + ")" + \
+                    " weight_multiply (" + str(weight_multiply)        + ")" + \
+                    " final_temperature (" + str(final_temperature)    + ")" + \
+                    " map_weight (" + str(round(params.map_weight,2))  + ")" + \
+                    " total_steps (" + str(params.total_steps)  + ")" 
+      print (write_this)
+      self.logfile.write(str(write_this))
+      return output_dir_w_CC
     
     returned = know_how_much_map_origin_moved(str(self.map_name))
     if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
