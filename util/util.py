@@ -274,7 +274,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
                      " number_of_steps (" + str(number_of_steps)        + ")" + \
                      " start_temperature (" + str(start_temperature)    + ")" + \
                      " weight_multiply (" + str(weight_multiply)        + ")" + \
-                     " final_temperature (" + str(final_temperature)    + ")" + \
+                     " final_temperature (" + str(params.final_temperature)    + ")" + \
                      " map_weight (" + str(round(params.map_weight,2))  + ")" + \
                      " total_steps (" + str(params.total_steps)  + ")" 
         print (write_this)
