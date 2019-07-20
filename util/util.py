@@ -1,3 +1,7 @@
+# LIBTBX_PRE_DISPATCHER_INCLUDE_SH export BOOST_ADAPTBX_FPE_DEFAULT=1
+# LIBTBX_PRE_DISPATCHER_INCLUDE_SH export BOOST_ADAPTBX_SIGNALS_DEFAULT=1
+#### (source) http://cci.lbl.gov/cctbx_sources/crys3d/command_line/hklview.py
+
 from __future__ import division, print_function
 from cctbx.uctbx import unit_cell
 from cctbx import xray
@@ -20,6 +24,9 @@ from mmtbx.refinement.real_space import weight
 from mmtbx.superpose import *
 import numpy as np
 import shutil
+
+os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
+os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
 def calculate_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
@@ -77,7 +84,7 @@ def check_whether_args_has_eff(args, logfile):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
         user_eff_file_name = str(args[i])
-        write_this = "Either a user provided or cryo_fit2 automatically made (" + user_eff_file_name + "). Therefore, cryo_fit2 will use it."
+        write_this = "Either a user provided or cryo_fit2 automatically made " + user_eff_file_name + ". Therefore, cryo_fit2 will use it."
         print (write_this)
         logfile.write(write_this)
         return True, user_eff_file_name

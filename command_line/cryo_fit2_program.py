@@ -1,3 +1,7 @@
+# LIBTBX_PRE_DISPATCHER_INCLUDE_SH export BOOST_ADAPTBX_FPE_DEFAULT=1
+# LIBTBX_PRE_DISPATCHER_INCLUDE_SH export BOOST_ADAPTBX_SIGNALS_DEFAULT=1
+#### (source) http://cci.lbl.gov/cctbx_sources/crys3d/command_line/hklview.py
+
 ######to do list
 # To run cryo_fit2 at windows as well, replace all unix command like libtbx.easy_run.fully_buffered
 from __future__ import division, print_function
@@ -28,6 +32,8 @@ try:
 except ImportError:
   from libtbx.program_template import ProgramTemplate
 
+os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
+os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
 ########## <begin> import util py files
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])

@@ -1,3 +1,7 @@
+# LIBTBX_PRE_DISPATCHER_INCLUDE_SH export BOOST_ADAPTBX_FPE_DEFAULT=1
+# LIBTBX_PRE_DISPATCHER_INCLUDE_SH export BOOST_ADAPTBX_SIGNALS_DEFAULT=1
+#### (source) http://cci.lbl.gov/cctbx_sources/crys3d/command_line/hklview.py
+
 from __future__ import division, print_function
 from cctbx.geometry_restraints.base_geometry import Base_geometry
 import iotbx.phil, libtbx
@@ -12,6 +16,8 @@ import numpy as np
 import shutil
 import scitbx.math, scitbx.math.superpose, subprocess
 
+os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
+os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
 ######## <begin> needed to import util.py
 path = subprocess.check_output(["which", "phenix.cryo_fit2"])
