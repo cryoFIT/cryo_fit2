@@ -265,7 +265,8 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     except Exception as ex:
         write_this = "exception message:" +  str(ex)
         print (write_this)
-        self.logfile.write(str(write_this))
+        #self.logfile.write(str(write_this)) "error string: 'Program' object has no attribute 'logfile'"
+        logfile.write(str(write_this)) # "error string: 'Program' object has no attribute 'logfile'"
 
         write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
                      " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
@@ -277,7 +278,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
                      " map_weight (" + str(round(params.map_weight,2))  + ")" + \
                      " total_steps (" + str(params.total_steps)  + ")" 
         print (write_this)
-        self.logfile.write(str(write_this))        
+        logfile.write(str(write_this))        
     
     if (output_dir_final.find('_bp_') == -1):
         if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
