@@ -130,9 +130,9 @@ total_steps      = None
   .type          = int
   .short_caption = The total number of steps in phenix.dynamics.\
                    If specified, run up to this number of steps no matter what.
-total_steps_for_exploration  = 5000
+total_steps_for_exploration  = 4000
   .type                      = int
-  .short_caption             = The total number of steps for MD parameter exploration
+  .short_caption             = The total number of steps for MD parameter exploration. 5k often resulted in "temp=  300.0 dist_moved=   nan angles=  0.00 bonds=   nan' for full tRNA
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -434,7 +434,7 @@ class Program(ProgramTemplate):
             print (write_this) # 1, 0, 0
             logfile.write(write_this)
           
-          write_this = ', error string: %s ' %(errstr) + '\n'
+          write_this = 'error string: %s ' %(errstr) + '\n'
           
           # -> this errstr will be either "None" or
           '''/Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: expone\
@@ -565,7 +565,7 @@ e 53, in __call__
     
     logfile.write("\nAn input command for final cryo_fit2 MD run:\n")
     logfile.write(str(cryo_fit2_input_command))
-    
+
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
       model_name        = self.data_manager.get_default_model_name(),
@@ -579,23 +579,18 @@ e 53, in __call__
       weight_multiply   = self.params.weight_multiply)
 
     task_obj.validate()
-    
+
     output_dir_final = task_obj.run()
     if (output_dir_final.find('_bp_') == -1):
-      if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
-        os.mkdir("parameters_exploration/bp_H_E_not_calculated")
-      command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
-      libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-      
       write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
-                   " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
-                   " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
-                   " number_of_steps (" + str(number_of_steps)        + ")" + \
-                   " start_temperature (" + str(start_temperature)    + ")" + \
-                   " weight_multiply (" + str(weight_multiply)        + ")" + \
-                   " final_temperature (" + str(final_temperature)    + ")" + \
-                   " map_weight (" + str(round(params.map_weight,2))  + ")" + \
-                   " total_steps (" + str(params.total_steps)  + ")" 
+                   " cool_rate (" + str(round(self.params.cool_rate, 1))          + ")\n" + \
+                   " MD_in_each_epoch (" + str(self.params.MD_in_each_epoch)      + ")\n" + \
+                   " number_of_steps (" + str(self.params.number_of_steps)        + ")\n" + \
+                   " start_temperature (" + str(self.params.start_temperature)    + ")\n" + \
+                   " weight_multiply (" + str(self.params.weight_multiply)        + ")\n" + \
+                   " final_temperature (" + str(self.params.final_temperature)    + ")\n" + \
+                   " map_weight (" + str(round(self.params.map_weight,2))         + ")\n" + \
+                   " total_steps (" + str(self.params.total_steps)  + ")" 
       print (write_this)
       self.logfile.write(str(write_this))
       logfile.close()

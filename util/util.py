@@ -210,6 +210,8 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
                                      MD_in_each_epoch, number_of_steps, start_temperature, \
                                      weight_multiply):
+    #print ("logfile:", str(logfile)) # logfile: <open file 'cryo_fit2.log', mode 'w' at 0x11ac73300>
+    
     print ("\nMD parameters that will be explored.")
     print ("MD_in_each_epoch:        ", str(MD_in_each_epoch))
     print ("number_of_steps:         ", str(number_of_steps))
@@ -262,18 +264,20 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     output_dir_final = ''
     try:
         output_dir_final = task_obj.run()
-    except Exception as ex:
-        write_this = "exception message:" +  str(ex)
-        print (write_this)
-        #self.logfile.write(str(write_this)) "error string: 'Program' object has no attribute 'logfile'"
-        logfile.write(str(write_this)) # "error string: 'Program' object has no attribute 'logfile'"
+    except:
+        
+    ########## below is not working so commented
+    #except Exception as ex:
+    #    write_this = "exception message:" +  str(ex)
+    #    print (write_this)
+    #    logfile.write(str(write_this))
 
-        write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+        write_this = "An exception occurred in explore_parameters_by_multi_core. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
                      " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
-                     " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
-                     " number_of_steps (" + str(number_of_steps)        + ")" + \
-                     " start_temperature (" + str(start_temperature)    + ")" + \
-                     " weight_multiply (" + str(weight_multiply)        + ")" + \
+                     " MD_in_each_epoch (" + str(params.MD_in_each_epoch)      + ")" + \
+                     " number_of_steps (" + str(params.number_of_steps)        + ")" + \
+                     " start_temperature (" + str(params.start_temperature)    + ")" + \
+                     " weight_multiply (" + str(self.params.weight_multiply)        + ")" + \
                      " final_temperature (" + str(params.final_temperature)    + ")" + \
                      " map_weight (" + str(round(params.map_weight,2))  + ")" + \
                      " total_steps (" + str(params.total_steps)  + ")" 
@@ -281,10 +285,12 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         logfile.write(str(write_this))        
     
     if (output_dir_final.find('_bp_') == -1):
-        if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
-            os.mkdir("parameters_exploration/bp_H_E_not_calculated")
-        command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
-        libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+        
+        ######### output_dir_final is '' anyway
+        # if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
+        #     os.mkdir("parameters_exploration/bp_H_E_not_calculated")
+        # command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
+        # libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
         return None, None, None
 
     splited = output_dir_final.split("_bp_")

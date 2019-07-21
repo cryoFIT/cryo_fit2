@@ -81,10 +81,11 @@ class cryo_fit2_class(object):
 
     states.add(sites_cart = self.model.get_xray_structure().sites_cart())
   
-    params = sa.master_params().extract()    # because of params = sa.master_params().extract() above, core parameters need to be redefined
+    params                         = sa.master_params().extract()    # because of params = sa.master_params().extract() above, core parameters need to be redefined
     params.start_temperature       = self.params.start_temperature
     params.final_temperature       = self.params.final_temperature
     params.cool_rate               = self.params.cool_rate
+    #params.MD_in_each_epoch        = self.params.MD_in_each_epoch
     params.number_of_steps         = self.params.number_of_steps
 
     total_steps = ''
@@ -301,15 +302,14 @@ class cryo_fit2_class(object):
       print (write_this)
       self.logfile.write(str(write_this))
       #raw_input()
-      write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
-                    " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
-                    " MD_in_each_epoch (" + str(MD_in_each_epoch)      + ")" + \
-                    " number_of_steps (" + str(number_of_steps)        + ")" + \
-                    " start_temperature (" + str(start_temperature)    + ")" + \
-                    " weight_multiply (" + str(weight_multiply)        + ")" + \
-                    " final_temperature (" + str(final_temperature)    + ")" + \
-                    " map_weight (" + str(round(params.map_weight,2))  + ")" + \
-                    " total_steps (" + str(params.total_steps)  + ")" 
+      write_this = "An exception occurred in cryo_fit2_run. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+                    " cool_rate (" + str(round(params.cool_rate, 1))          + ")\n" + \
+                    " number_of_steps (" + str(params.number_of_steps)        + ")\n" + \
+                    " start_temperature (" + str(params.start_temperature)    + ")\n" + \
+                    " weight_multiply (" + str(weight_multiply)               + ")\n" + \
+                    " final_temperature (" + str(params.final_temperature)    + ")\n" + \
+                    " map_weight (" + str(round(self.params.map_weight,2))    + ")\n" + \
+                    " total_steps (" + str(total_steps)  + ")"  # total_steps alone is ok without params, self.params
       print (write_this)
       self.logfile.write(str(write_this))
       return output_dir_w_CC
