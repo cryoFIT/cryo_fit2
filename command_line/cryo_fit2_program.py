@@ -132,7 +132,7 @@ total_steps      = None
                    If specified, run up to this number of steps no matter what.
 total_steps_for_exploration  = 4000
   .type                      = int
-  .short_caption             = The total number of steps for MD parameter exploration. 5k often resulted in "temp=  300.0 dist_moved=   nan angles=  0.00 bonds=   nan' for full tRNA
+  .short_caption             = The total number of steps for MD parameter exploration. 5k often resulted in dist_moved = nan bonds = nan for full tRNA
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
