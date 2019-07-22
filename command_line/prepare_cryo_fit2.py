@@ -212,8 +212,7 @@ Options:
   
   final_temperature            (default: 0)
   
-  MD_in_each_cycle             An cycle here is different from the one in deep learning.
-                               Here, the cycle is each iteration of MD from start_temperature to final_temperature.
+  MD_in_each_cycle             Cycle is each iteration of MD from start_temperature to final_temperature.
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
   
   number_of_steps              The number of MD steps in each phenix.dynamics

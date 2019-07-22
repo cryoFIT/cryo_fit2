@@ -86,8 +86,7 @@ map_weight       = None
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
 MD_in_each_cycle = None
   .type          = int
-  .short_caption = An cycle here is different from the one in deep learning. \
-                   Here, the cycle is each iteration of MD from start_temperature to final_temperature. \
+  .short_caption = Cycle is each iteration of MD from start_temperature to final_temperature. \
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
 number_of_steps  = None
   .type          = int
