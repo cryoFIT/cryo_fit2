@@ -85,10 +85,10 @@ map_weight       = None
   .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
-MD_in_each_epoch = None
+MD_in_each_cycle = None
   .type          = int
-  .short_caption = An epoch here is different from the one in deep learning. \
-                   Here, the epoch is each iteration of MD from start_temperature to final_temperature. \
+  .short_caption = An cycle here is different from the one in deep learning. \
+                   Here, the cycle is each iteration of MD from start_temperature to final_temperature. \
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
 number_of_steps  = None
   .type          = int
@@ -106,9 +106,9 @@ record_states    = False
   .help          = If True, cryo_fit2 records all states and save it to all_states.pdb. \
                    However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                    If False, cryo_fit2 doesn't record each state of molecular dynamics.
-reoptimize_map_weight_after_each_epoch = False
+reoptimize_map_weight_after_each_cycle = False
   .type                                = bool
-  .help                                = If True, cryo_fit2 will reoptimize map_weight after each epoch.
+  .help                                = If True, cryo_fit2 will reoptimize map_weight after each cycle.
 resolution       = None
   .type          = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
@@ -212,8 +212,8 @@ Options:
   
   final_temperature            (default: 0)
   
-  MD_in_each_epoch             An epoch here is different from the one in deep learning.
-                               Here, the epoch is each iteration of MD from start_temperature to final_temperature.
+  MD_in_each_cycle             An cycle here is different from the one in deep learning.
+                               Here, the cycle is each iteration of MD from start_temperature to final_temperature.
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
   
   number_of_steps              The number of MD steps in each phenix.dynamics

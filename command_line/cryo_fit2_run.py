@@ -85,7 +85,7 @@ class cryo_fit2_class(object):
     params.start_temperature       = self.params.start_temperature
     params.final_temperature       = self.params.final_temperature
     params.cool_rate               = self.params.cool_rate
-    #params.MD_in_each_epoch        = self.params.MD_in_each_epoch
+    #params.MD_in_each_cycle        = self.params.MD_in_each_cycle
     params.number_of_steps         = self.params.number_of_steps
 
     total_steps = ''
@@ -178,7 +178,7 @@ class cryo_fit2_class(object):
       total_steps_so_far = total_steps_so_far + int(params.number_of_steps*multiply_this)
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
 
-      write_this = "CC after this epoch (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
+      write_this = "CC after this cycle (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       self.logfile.write(str(write_this))
 
       if (total_steps != ''):
@@ -210,13 +210,13 @@ class cryo_fit2_class(object):
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
 
-          if (self.params.reoptimize_map_weight_after_each_epoch == True):
+          if (self.params.reoptimize_map_weight_after_each_cycle == True):
             ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
             ### new comment: commenting this out didn't help incomplete problem
             #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, str(self.output_dir))
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
-            # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
-            # I confirmed that reoptimizing map_weight_after_each_epoch did change result (cc, SS stat) significantly
+            # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
+            # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
           continue 
 
         write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"
@@ -232,12 +232,12 @@ class cryo_fit2_class(object):
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
           
-          if (self.params.reoptimize_map_weight_after_each_epoch == True):
+          if (self.params.reoptimize_map_weight_after_each_cycle == True):
             ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
             ### new comment: commenting this out didn't help incomplete problem
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
-            # although preliminary (just 1 benchmark), reoptimizing map_weight after each epoch prolongs running time ~5x
-            # I confirmed that reoptimizing map_weight_after_each_epoch did change result (cc, SS stat) significantly
+            # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
+            # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
         else:
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
           print('%s' %(write_this))

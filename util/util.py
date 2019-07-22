@@ -208,12 +208,12 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
 
 
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
-                                     MD_in_each_epoch, number_of_steps, start_temperature, \
+                                     MD_in_each_cycle, number_of_steps, start_temperature, \
                                      weight_multiply):
     #print ("logfile:", str(logfile)) # logfile: <open file 'cryo_fit2.log', mode 'w' at 0x11ac73300>
     
     print ("\nMD parameters that will be explored.")
-    print ("MD_in_each_epoch:        ", str(MD_in_each_epoch))
+    print ("MD_in_each_cycle:        ", str(MD_in_each_cycle))
     print ("number_of_steps:         ", str(number_of_steps))
     print ("start_temperature:       ", str(start_temperature))
     print ("weight_multiply:         ", str(weight_multiply), "\n\n")
@@ -231,12 +231,12 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     map_inp   = self.data_manager.get_real_map()
 
     # Re-assign params for below cryo_fit2 run
-    params.MD_in_each_epoch         = MD_in_each_epoch
+    params.MD_in_each_cycle         = MD_in_each_cycle
     params.number_of_steps          = number_of_steps
     params.start_temperature        = start_temperature
     params.weight_multiply          = weight_multiply
     
-    params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_epoch)-1))
+    params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_cycle)-1))
     print ("params.cool_rate:                               ", str(round(params.cool_rate, 1)))
     
     init_output_dir = get_output_dir_name(self)
@@ -274,7 +274,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
 
         write_this = "An exception occurred in explore_parameters_by_multi_core. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
                      " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
-                     " MD_in_each_epoch (" + str(params.MD_in_each_epoch)      + ")" + \
+                     " MD_in_each_cycle (" + str(params.MD_in_each_cycle)      + ")" + \
                      " number_of_steps (" + str(params.number_of_steps)        + ")" + \
                      " start_temperature (" + str(params.start_temperature)    + ")" + \
                      " weight_multiply (" + str(self.params.weight_multiply)        + ")" + \
@@ -347,9 +347,9 @@ Otherwise, run cryo_fit2 with explore=False\n'''
         splited2 = splited[1].split("_bp_")
         cc = splited2[len(splited2)-2]
         if (float(cc) == float(best_cc_so_far)):
-            splited = check_this_dir.split("_MD_in_each_epoch_")
+            splited = check_this_dir.split("_MD_in_each_cycle_")
             splited2 = splited[1].split("_step_")
-            optimum_MD_in_each_epoch = splited2[0]
+            optimum_MD_in_each_cycle = splited2[0]
             
             # splited = check_this_dir.split("_sigma_for_custom_geom_")
             # splited2 = splited[1].split("_cc_")
@@ -368,8 +368,8 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             optimum_weight_multiply = splited2[0]
             
             os.chdir(starting_dir)
-            #return optimum_MD_in_each_epoch, optimum_sigma_for_custom_geom, optimum_start_temperature, \
-            return optimum_MD_in_each_epoch, optimum_start_temperature, \
+            #return optimum_MD_in_each_cycle, optimum_sigma_for_custom_geom, optimum_start_temperature, \
+            return optimum_MD_in_each_cycle, optimum_start_temperature, \
                    optimum_step, optimum_weight_multiply
 ############ end of def extract_the_best_cc_parameters():
 
@@ -393,7 +393,7 @@ def get_output_dir_name(self):
                  "_resolution_" + str(self.params.resolution) + \
                  "_start_" + str(self.params.start_temperature) + \
                  "_final_" + str(self.params.final_temperature) + \
-                 "_MD_in_each_epoch_" + str(self.params.MD_in_each_epoch) + \
+                 "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_strong_ss_" + str(self.params.strong_ss) + \
                  "_weight_multiply_" + str(round(self.params.weight_multiply,1)) + \
@@ -618,24 +618,24 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         # original combi for 432 cases
         # (record) For L1_stalk, weight_multiply >= 21 breaks all bp w/o any sigma specification #"error string: /home/builder/slave/phenix-nightly-intel-linux-2_6-x86_64-centos6/modules/cctbx_project/cctbx/xray/sampling_base.h: exponent_table: excessive range"
-        for MD_in_each_epoch in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
+        for MD_in_each_cycle in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
                     for weight_multiply in range (1, 302, 20): 
                         total_combi_num = total_combi_num + 1 
                         argstuples.append([self, self.params, logfile, user_map_weight, \
-                                         bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
+                                         bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                          number_of_steps, start_temperature, \
                                          weight_multiply])
                             
     else: # just explore 2 combinations to save regression time
-        for MD_in_each_epoch in range (2, 14, 10): # 2
+        for MD_in_each_cycle in range (2, 14, 10): # 2
             for number_of_steps in range (1, 51, 100):
                 for start_temperature in np.arange (300.0, 301.0, 300.0):
                     for weight_multiply in range (1, 3, 10):
                         total_combi_num = total_combi_num + 1
                         argstuples.append([self, self.params, logfile, user_map_weight, \
-                                           bp_cutoff, H_cutoff, E_cutoff, MD_in_each_epoch, \
+                                           bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                            number_of_steps, start_temperature, \
                                            weight_multiply])
 

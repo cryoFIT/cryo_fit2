@@ -84,10 +84,10 @@ map_weight       = None
   .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
-MD_in_each_epoch = None
+MD_in_each_cycle = None
   .type          = int
-  .short_caption = An epoch here is different from the one in deep learning. \
-                   Here, the epoch is each iteration of MD from start_temperature to final_temperature. \
+  .short_caption = An cycle here is different from the one in deep learning. \
+                   Here, the cycle is each iteration of MD from start_temperature to final_temperature. \
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
 number_of_steps  = None
   .type          = int
@@ -105,9 +105,9 @@ record_states    = False
   .help          = If True, cryo_fit2 records all states and save it to all_states.pdb. \
                    However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                    If False, cryo_fit2 doesn't record each state of molecular dynamics.
-reoptimize_map_weight_after_each_epoch = False
+reoptimize_map_weight_after_each_cycle = False
   .type                                = bool
-  .help                                = If True, cryo_fit2 will reoptimize map_weight after each epoch.
+  .help                                = If True, cryo_fit2 will reoptimize map_weight after each cycle.
 resolution       = None
   .type          = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
@@ -228,7 +228,7 @@ class Program(ProgramTemplate):
 
     # Importantly declared initial global variables
     user_cool_rate = None
-    user_MD_in_each_epoch = None 
+    user_MD_in_each_cycle = None 
     user_number_of_steps = None 
     user_sigma_for_custom_geom = None
     user_start_temperature = None
@@ -237,8 +237,8 @@ class Program(ProgramTemplate):
     # Save user entered params.* now
     if (self.params.cool_rate != None):
       user_cool_rate = self.params.cool_rate
-    if (self.params.MD_in_each_epoch != None):
-      user_MD_in_each_epoch = self.params.MD_in_each_epoch
+    if (self.params.MD_in_each_cycle != None):
+      user_MD_in_each_cycle = self.params.MD_in_each_cycle
     if (self.params.number_of_steps != None):
       user_number_of_steps = self.params.number_of_steps
     if (self.params.sigma_for_custom_geom != None):
@@ -335,7 +335,7 @@ class Program(ProgramTemplate):
     if (self.params.short == True) :
       self.params.start_temperature = 300
       self.params.final_temperature = 280
-      self.params.MD_in_each_epoch = 2
+      self.params.MD_in_each_cycle = 2
       self.params.number_of_steps = 1
       self.params.total_steps = 50
 
@@ -343,7 +343,7 @@ class Program(ProgramTemplate):
       self.params.explore = False
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
-      self.params.MD_in_each_epoch = 5
+      self.params.MD_in_each_cycle = 5
       self.params.number_of_steps = 1000
       self.params.total_steps = 2000
 
@@ -472,21 +472,21 @@ e 53, in __call__
       print (write_this)
       logfile.write(write_this)
 
-      optimum_MD_in_each_epoch, optimum_start_temperature, optimum_steps, optimum_weight_multiply = \
+      optimum_MD_in_each_cycle, optimum_start_temperature, optimum_steps, optimum_weight_multiply = \
         extract_the_best_cc_parameters(logfile)
 
       write_this = "cryo_fit2 will run fully with optimized parameters.\n"
       print (write_this)
       logfile.write(write_this)
 
-      self.params.MD_in_each_epoch      = int(optimum_MD_in_each_epoch)
+      self.params.MD_in_each_cycle      = int(optimum_MD_in_each_cycle)
       self.params.start_temperature     = float(optimum_start_temperature) # make it as float to format it consistent as in parameter exploration and user input
       self.params.number_of_steps       = int(optimum_steps)
       self.params.weight_multiply       = float(optimum_weight_multiply)
 
       # Override self.params.* with user entered values
-      if (user_MD_in_each_epoch != None):
-        self.params.MD_in_each_epoch = user_MD_in_each_epoch
+      if (user_MD_in_each_cycle != None):
+        self.params.MD_in_each_cycle = user_MD_in_each_cycle
       if (user_number_of_steps != None):
         self.params.number_of_steps = user_number_of_steps
       if (user_sigma_for_custom_geom != None):
@@ -500,8 +500,8 @@ e 53, in __call__
     
     ###############  <begin> core cryo_fit2
     ### Assign default values if not specified till now
-    if (self.params.MD_in_each_epoch == None):
-      self.params.MD_in_each_epoch = 4
+    if (self.params.MD_in_each_cycle == None):
+      self.params.MD_in_each_cycle = 4
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
     
@@ -512,7 +512,7 @@ e 53, in __call__
 
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))
-    print ("MD_in_each_epoch      :", str(self.params.MD_in_each_epoch))
+    print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
     print ("sigma_for_custom_geom :", str(self.params.sigma_for_custom_geom))
     print ("start_temperature     :", str(self.params.start_temperature))
@@ -521,7 +521,7 @@ e 53, in __call__
     if (user_cool_rate != None):
         self.params.cool_rate = user_cool_rate
     else:
-      self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_epoch-1)
+      self.params.cool_rate = (self.params.start_temperature-self.params.final_temperature)/(self.params.MD_in_each_cycle-1)
     print ("cool_rate             :", str(round(self.params.cool_rate,1)), "\n")
     
     output_dir = get_output_dir_name(self)
@@ -533,13 +533,13 @@ e 53, in __call__
                             + " strong_ss=" + str(self.params.strong_ss) \
                             + " start_temperature=" + str(self.params.start_temperature)  \
                             + " final_temperature=" + str(self.params.final_temperature) \
-                            + " MD_in_each_epoch=" + str(self.params.MD_in_each_epoch) \
+                            + " MD_in_each_cycle=" + str(self.params.MD_in_each_cycle) \
                             + " cool_rate=" + str(round(self.params.cool_rate,1)) \
                             + " number_of_steps=" + str(self.params.number_of_steps) \
                             + " weight_multiply=" + str(round(self.params.weight_multiply,1)) \
                             + " record_states=" + str(self.params.record_states) \
                             + " explore=False" \
-                            + " reoptimize_map_weight_after_each_epoch=" + str(self.params.reoptimize_map_weight_after_each_epoch)
+                            + " reoptimize_map_weight_after_each_cycle=" + str(self.params.reoptimize_map_weight_after_each_cycle)
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
@@ -584,7 +584,7 @@ e 53, in __call__
     if (output_dir_final.find('_bp_') == -1):
       write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
                    " cool_rate (" + str(round(self.params.cool_rate, 1))          + ")\n" + \
-                   " MD_in_each_epoch (" + str(self.params.MD_in_each_epoch)      + ")\n" + \
+                   " MD_in_each_cycle (" + str(self.params.MD_in_each_cycle)      + ")\n" + \
                    " number_of_steps (" + str(self.params.number_of_steps)        + ")\n" + \
                    " start_temperature (" + str(self.params.start_temperature)    + ")\n" + \
                    " weight_multiply (" + str(self.params.weight_multiply)        + ")\n" + \
