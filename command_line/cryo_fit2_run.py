@@ -100,7 +100,7 @@ class cryo_fit2_class(object):
     weight_multiply                = self.weight_multiply
     
     cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
-    write_this = "\ncc before cryo_fit2: " + str(cc_before_cryo_fit2) + "\n\n"
+    write_this = "\ncc before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
 

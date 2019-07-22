@@ -430,7 +430,7 @@ class Program(ProgramTemplate):
           #print ('arguments_for_explore: ', str(arguments_for_explore)) # "arguments_for_explore: (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
           
           if (res != None):
-            write_this = 'bp:' + str(res[0]) + ', H:' + str(res[1]) + ', E:' + str(res[2])
+            write_this = 'bp:' + str(res[0]) + ', H:' + str(res[1]) + ', E:' + str(res[2]) + '\n'
             print (write_this) # 1, 0, 0
             logfile.write(write_this)
           
