@@ -45,18 +45,18 @@ class cryo_fit2_class(object):
     self.desc              = os.path.basename(model_name)
     self.user_map_weight   = user_map_weight
     self.weight_multiply   = weight_multiply
-  
+
   def __execute(self):
     self.caller(self.write_geo_file,       "Write GEO file")
-    
+
   def validate(self): # this functions runs
     assert not None in [self.model, self.params, self.out]
-
+    
     # Sanity check for crystal symmetry
     if (self.map_inp is not None):
       self.cs_consensus = mmtbx.utils.check_and_set_crystal_symmetry(
         models = [self.model], map_inps=[self.map_inp])
-  
+
   def run(self):
     
     hierarchy = self.model.get_hierarchy()
@@ -122,16 +122,16 @@ class cryo_fit2_class(object):
     # L1 stalk  : 3,289
     # Mg channel: 14,940
     
-    # number_of_atoms_in_input_pdb seems irrelevant to cc_check_after_every_this_cycle assignment.
+    # number_of_atoms_in_input_pdb seems irrelevant to check_cc_after_these_cycles assignment.
     # but Mg channel with 10k check took 10 days!
     
-    cc_check_after_every_this_cycle = ''
+    check_cc_after_these_cycles = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
-      cc_check_after_every_this_cycle = 5
+      check_cc_after_these_cycles = 5
     else:
-      cc_check_after_every_this_cycle = 500
+      check_cc_after_these_cycles = 150 # 500, I think that after 171 cycles, tRNA-full crashes
   
-    
+
   ########################### <begin> iterate until cryo_fit2 derived cc saturates
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
     result = ''
@@ -188,14 +188,14 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-      elif (cycle_so_far < cc_check_after_every_this_cycle/2):
+      elif (cycle_so_far < check_cc_after_these_cycles/2):
         cycle_so_far = cycle_so_far + 1
         cc_1st_array.append(cc_after_small_MD)
       else:
         cycle_so_far = cycle_so_far + 1
         cc_2nd_array.append(cc_after_small_MD)
       
-      if (cycle_so_far >= cc_check_after_every_this_cycle):
+      if (cycle_so_far >= check_cc_after_these_cycles):
         write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
@@ -211,9 +211,6 @@ class cryo_fit2_class(object):
           cc_2nd_array = [] # reset
 
           if (self.params.reoptimize_map_weight_after_each_cycle == True):
-            ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
-            ### new comment: commenting this out didn't help incomplete problem
-            #self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp, str(self.output_dir))
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
             # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
             # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
@@ -233,8 +230,6 @@ class cryo_fit2_class(object):
           cc_2nd_array = [] # reset
           
           if (self.params.reoptimize_map_weight_after_each_cycle == True):
-            ### old comment: (let me comment this out since reoptimizing map_weight takes time and may cause conflict during exploration)
-            ### new comment: commenting this out didn't help incomplete problem
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
             # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
             # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly

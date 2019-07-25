@@ -256,8 +256,8 @@ class Program(ProgramTemplate):
     
     print('A user input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
-    
-    
+
+
     ################# <begin> Doonam's playground ################
     ####### works
     #print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
