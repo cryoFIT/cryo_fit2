@@ -492,11 +492,13 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
           if (errstr == None):
             success_exploration_count = success_exploration_count + 1
       
+      ''' # not works properly (when cryo_fit2 generated 300 folders from 432 total combinations, below misreported that it explored all 432 combi)
       write_this = "\ncryo_fit2 explored " + str(success_exploration_count) + " combination(s) of MD parameters " + \
                    "out of " + str(total_combi_num) + " total combinations\n"
       print (write_this)
       logfile.write(write_this)
-
+      '''
+      
       optimum_MD_in_each_cycle, optimum_start_temperature, optimum_steps, optimum_weight_multiply = \
         extract_the_best_cc_parameters(logfile)
 

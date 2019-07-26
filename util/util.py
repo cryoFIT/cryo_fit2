@@ -272,6 +272,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     #    print (write_this)
     #    logfile.write(str(write_this))
 
+        # this write_this reported appropriately
         write_this = "An exception occurred in explore_parameters_by_multi_core. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
                      " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
                      " MD_in_each_cycle (" + str(params.MD_in_each_cycle)      + ")" + \
@@ -284,9 +285,17 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         print (write_this)
         logfile.write(str(write_this))        
     
-    if (output_dir_final.find('_bp_') == -1): # then output_dir_final is ''
+    if (output_dir_final.find != ''):
+        if (output_dir_final.find('_bp_') == -1): # then output_dir_final is ''
+            if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
+                os.mkdir("parameters_exploration/bp_H_E_not_calculated")
+            command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
+            libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+            return None, None, None
+    else:
         return None, None, None
 
+    #### Regular finish
     splited = output_dir_final.split("_bp_")
     splited2 = splited[1].split("_H_")
     bp = splited2[0]
