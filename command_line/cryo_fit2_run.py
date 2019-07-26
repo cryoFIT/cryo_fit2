@@ -87,7 +87,7 @@ class cryo_fit2_class(object):
     params.cool_rate               = self.params.cool_rate
     #params.MD_in_each_cycle        = self.params.MD_in_each_cycle
     params.number_of_steps         = self.params.number_of_steps
-
+    
     total_steps = ''
     if (self.params.total_steps != None):
       total_steps   = self.params.total_steps
@@ -131,7 +131,9 @@ class cryo_fit2_class(object):
     else:
       check_cc_after_these_cycles = 150 # 500, after 171 cycles, tRNA-full crashes
   
-
+    if (("tst_cryo_fit2_" in self.model_name) == True): 
+      self.params.total_steps_for_exploration = 300
+    
   ########################### <begin> iterate until cryo_fit2 derived cc saturates
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
     result = ''
