@@ -4,11 +4,10 @@ Additionally, http://milou.science.uu.nl/services/HADDOCK2.2/haddock.php says th
 
 https://cluspro.bu.edu even needs 10 days with restraints.
 
-
 Cryo_fit2 will be avilable on laptop only, but as of now, it may require 1~2 days on laptop if we model big biomolecules.
 
 
-07/04/2019: both kaguya and sparky stopped working after making 1,107 parameter exploration folders
+07/26/2019: Doo Nam confirmed that reoptimize_map_weight_after_each_cycle_during_final_MD_during_final_MD is effective to prevent nan error during core cryo-EM map based core dynamics run for full-tRNA.
 
 06/25/2019:
 Here, I confirmed that distance, angle, bonds moves from phenix.dynamics are independent from each temperature step (rather than cumulative)

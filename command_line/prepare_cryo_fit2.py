@@ -106,11 +106,12 @@ record_states    = False
   .help          = If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed).\
                    However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                    If False, cryo_fit2 doesn't record each state of molecular dynamics.
-reoptimize_map_weight_after_each_cycle = True
+reoptimize_map_weight_after_each_cycle_during_final_MD = True
   .type                                = bool
   .help                                = If True, cryo_fit2 will reoptimize map_weight after each cycle. \
                                          It will lengthens cryo_fit2 running time significantly longer.\
-                                         However, it seems more effective to prevent nan error during core cryo-EM map based core dynamics run
+                                         However, Doo Nam confirmed that it is more effective to prevent \
+                                         nan error during core cryo-EM map based core dynamics run for full-tRNA.
 resolution       = None
   .type          = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user

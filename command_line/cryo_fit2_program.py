@@ -104,11 +104,12 @@ record_states    = False
   .help          = If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)\
                    However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                    If False, cryo_fit2 doesn't record each state of molecular dynamics.
-reoptimize_map_weight_after_each_cycle = True
+reoptimize_map_weight_after_each_cycle_during_final_MD = True
   .type                                = bool
   .help                                = If True, cryo_fit2 will reoptimize map_weight after each cycle. \
                                          It will lengthens cryo_fit2 running time significantly longer.\
-                                         However, it seems more effective to prevent nan error during core cryo-EM map based core dynamics run
+                                         However, Doo Nam confirmed that it is effective to prevent \
+                                         nan error during core cryo-EM map based core dynamics run for full-tRNA.
 resolution       = None
   .type          = float
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
@@ -461,6 +462,29 @@ e 53, in __call__
  line 38, in __init__
     tolerance_positive_definite=manager.tolerance_positive_definite())""
     '''
+    
+    # The error message in screen will be something like this
+          '''
+      temp=  900.0 dist_moved=   nan angles=  0.00 bonds=   nan
+      temp=    0.0 dist_moved=   nan angles=  0.00 bonds=   nan
+Traceback (most recent call last):
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/build/../modules/cryo_fit2/command_line/cryo_fit2_command.py", line 18, in <module>
+    run_program(program_class=cryo_fit2_program.Program)
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/iotbx/cli_parser.py", line 71, in run_program
+    task.run()
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/command_line/cryo_fit2_program.py", line 582, in run
+    output_dir_final = task_obj.run()
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/command_line/cryo_fit2_run.py", line 179, in run
+    cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/util/util.py", line 33, in calculate_cc
+    fc = xrs.structure_factors(d_min = resolution).f_calc()
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure.py", line 1573, in structure_factors
+    algorithm=algorithm)
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure_factors/from_scatterers.py", line 53, in __call__
+    algorithm=algorithm) # passing algorithm allows f to decide on CPU/GPU implementation
+  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure_factors/from_scatterers_fft.py", line 38, in __init__
+    tolerance_positive_definite=manager.tolerance_positive_definite())
+RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: exponent_table: excessive range.'''
 
           print (write_this)
           logfile.write(write_this)
@@ -511,6 +535,8 @@ e 53, in __call__
     if (self.params.weight_multiply == None):
       self.params.weight_multiply = 1
 
+    self.params.explore = False # now exploration is completed
+    
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
@@ -540,7 +566,7 @@ e 53, in __call__
                             + " weight_multiply=" + str(round(self.params.weight_multiply,1)) \
                             + " record_states=" + str(self.params.record_states) \
                             + " explore=False" \
-                            + " reoptimize_map_weight_after_each_cycle=" + str(self.params.reoptimize_map_weight_after_each_cycle)
+                            + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD)
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
