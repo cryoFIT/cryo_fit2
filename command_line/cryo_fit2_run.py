@@ -129,7 +129,7 @@ class cryo_fit2_class(object):
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       check_cc_after_these_cycles = 5
     else:
-      check_cc_after_these_cycles = 150 # 500, I think that after 171 cycles, tRNA-full crashes
+      check_cc_after_these_cycles = 150 # 500, after 171 cycles, tRNA-full crashes
   
 
   ########################### <begin> iterate until cryo_fit2 derived cc saturates
@@ -142,6 +142,7 @@ class cryo_fit2_class(object):
       # 1x~10x of weight_multiply were not enough for L1 stalk fitting
       # up to 20x of weight_multiply, nucleic acid geometry was ok, 30x broke it
       
+      # this try-except doesn't work, once sa.run fails w/ nan error it just crashes
       try:
         if (self.params.progress_on_screen == True): # default choice
           result = sa.run(

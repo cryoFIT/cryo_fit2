@@ -103,7 +103,7 @@ progress_on_screen = True
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
 record_states    = False
   .type          = bool
-  .help          = If True, cryo_fit2 records all states and save it to all_states.pdb. \
+  .help          = If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed).\
                    However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
                    If False, cryo_fit2 doesn't record each state of molecular dynamics.
 reoptimize_map_weight_after_each_cycle = False
@@ -245,7 +245,7 @@ Options:
                                If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
   
   record_states                (default: False)
-                               If True, cryo_fit2 records all states and save it to all_states.pdb.
+                               If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)
                                However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory.
                                If False, cryo_fit2 doesn't record states of molecular dynamics.
   
