@@ -126,7 +126,7 @@ start_temperature = None
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 strong_ss = True
   .type   = bool
-  .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom (e.g. 0.021) for secondary structure restraints. \
+  .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom (e.g. 0.03) for secondary structure restraints. \
             If False, it will use the original sigma_for_custom_geom (e.g. 1)
 total_steps      = None
   .type          = int
@@ -246,7 +246,7 @@ class Program(ProgramTemplate):
     if (self.params.sigma_for_custom_geom != None):
       user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
     else:
-      self.params.sigma_for_custom_geom = 0.021
+      self.params.sigma_for_custom_geom = 0.03 # best bp keeping for L1 stalk
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
     if (self.params.weight_multiply != None):

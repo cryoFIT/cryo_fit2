@@ -285,11 +285,12 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         print (write_this)
         logfile.write(str(write_this))        
     
-    if (output_dir_final.find != ''):
+    if (output_dir_final != ''):
         if (output_dir_final.find('_bp_') == -1): # then output_dir_final is ''
             if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
                 os.mkdir("parameters_exploration/bp_H_E_not_calculated")
             command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
+            logfile.write(str(command_string))
             libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
             return None, None, None
     else:
