@@ -349,7 +349,6 @@ class Program(ProgramTemplate):
       self.params.number_of_steps = 1000
       self.params.total_steps = 2000
 
-
     ########## <begin> Automatic map weight determination
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
@@ -367,7 +366,7 @@ class Program(ProgramTemplate):
       know_bp_H_E_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
     
     if ((bp_in_a_user_pdb_file == 0) and (H_in_a_user_pdb_file == 0) and (E_in_a_user_pdb_file == 0)):
-        write_this = "A user input file has no base pair or Helix/Sheet.\nMaybe this is an intrinsic molecule. Therefore, cryo_fit2 will not explore MD parameters\n"
+        write_this = "A user input file has no base pair or Helix/Sheet.\nMaybe this is an intrinsically disordered molecule. Therefore, cryo_fit2 will not explore MD parameters\n"
         print(write_this)
         logfile.write(write_this)
         self.params.explore == False
@@ -375,9 +374,8 @@ class Program(ProgramTemplate):
     if (self.params.strong_ss == True):
       write_this = "A user turned strong_ss=True\n"
       print (write_this)
-      logfile.write(write_this)    
-    
-    
+      logfile.write(write_this)
+
     ####################### <begin> Explore the optimal combination of parameters
     if ((self.params.short == False) and (self.params.explore == True)):
 

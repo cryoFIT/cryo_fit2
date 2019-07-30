@@ -131,6 +131,13 @@ class cryo_fit2_class(object):
     else:
       check_cc_after_these_cycles = 150 # 500, after 171 cycles, tRNA-full crashes
   
+    reoptimize_map_weight_after_these_cycles = ''
+    if (("tst_cryo_fit2" in model_file_name_only) == True):
+      reoptimize_map_weight_after_these_cycles = 5
+    else:
+      reoptimize_map_weight_after_these_cycles = 100 # after 123~171 cycles, full tRNA crashes
+      
+      
     if (("tst_cryo_fit2_" in self.model_name) == True): 
       self.params.total_steps_for_exploration = 300
     
@@ -198,6 +205,13 @@ class cryo_fit2_class(object):
         cycle_so_far = cycle_so_far + 1
         cc_2nd_array.append(cc_after_small_MD)
       
+      if (self.params.explore == False):
+        if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+          if (cycle_so_far >= reoptimize_map_weight_after_these_cycles):
+            self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
+            # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
+            # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
+        
       if (cycle_so_far >= check_cc_after_these_cycles):
         write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
         print('%s' %(write_this))
@@ -213,11 +227,11 @@ class cryo_fit2_class(object):
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
             
-          if (self.params.explore == False):
-            if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-              self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
-              # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
-              # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
+          # if (self.params.explore == False):
+          #   if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+          #     self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
+          #     # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
+          #     # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
           continue 
 
         write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"

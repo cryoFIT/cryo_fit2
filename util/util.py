@@ -286,7 +286,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         logfile.write(str(write_this))        
     
     if (output_dir_final != ''):
-        if (output_dir_final.find('_bp_') == -1): # then output_dir_final is ''
+        if (output_dir_final.find('_bp_') == -1): # here output_dir_final could be ''
             if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
                 os.mkdir("parameters_exploration/bp_H_E_not_calculated")
             command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_calculated"
@@ -815,7 +815,7 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
-      write_this = "\nA user didn't specify a map_weight. Therefore, cryo_fit2 will automatically optimize map_weight for additional MD run\n"
+      write_this = "\nA user didn't specify a map_weight. Therefore, cryo_fit2 will optimize map_weight for additional MD run\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
 
