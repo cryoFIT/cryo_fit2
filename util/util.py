@@ -270,14 +270,14 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         output_dir_final = task_obj.run()
     except:
         
-    ########## below is not working so commented
+    ########## below is not working so commented out
     #except Exception as ex:
     #    write_this = "exception message:" +  str(ex)
     #    print (write_this)
     #    logfile.write(str(write_this))
 
-        # this write_this reported appropriately
-        write_this = "An exception occurred in explore_parameters_by_multi_core. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+        # this write_this reported appropriately -> really??????
+        write_this = "(after task_obj loop) An exception occurred in explore_parameters_by_multi_core. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
                      " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
                      " MD_in_each_cycle (" + str(params.MD_in_each_cycle)      + ")" + \
                      " number_of_steps (" + str(params.number_of_steps)        + ")" + \

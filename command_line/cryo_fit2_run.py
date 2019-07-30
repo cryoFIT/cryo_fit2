@@ -317,6 +317,13 @@ class cryo_fit2_class(object):
                     " total_steps (" + str(total_steps)  + ")"  # total_steps alone is ok without params, self.params
       print (write_this)
       self.logfile.write(str(write_this))
+      
+      if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
+        os.mkdir("parameters_exploration/bp_H_E_not_calculated")
+      command_string = "mv " + str(output_dir_w_CC) + " parameters_exploration/bp_H_E_not_calculated"
+      logfile.write(str(command_string))
+      libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+            
       return output_dir_w_CC
     
     returned = know_how_much_map_origin_moved(str(self.map_name))
