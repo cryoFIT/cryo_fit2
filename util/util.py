@@ -624,7 +624,7 @@ def make_argstuples(self, logfile, the_pdb_file_has_amino_acid, user_map_weight,
     ############# The most probable cause of this error is when cryo_fit2 fails to run ("nan")
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        # original combi for 432 cases
+        # original combi for 432 cases for RNA only
         # (record) For L1_stalk, weight_multiply >= 21 breaks all bp w/o any sigma specification #"error string: /home/builder/slave/phenix-nightly-intel-linux-2_6-x86_64-centos6/modules/cctbx_project/cctbx/xray/sampling_base.h: exponent_table: excessive range"
         # (record) tRNA's best combination -> start_temperature=900.0 final_temperature=0.0 MD_in_each_cycle=2 cool_rate=900.0 number_of_steps=401 weight_multiply=61.0  sigma=0.05
         # (record) L1 stalk's best combination -> start_temperature=900.0 final_temperature=0.0 MD_in_each_cycle=22 cool_rate=42.9 number_of_steps=401 weight_multiply=301.0 sigma=0.05
@@ -632,14 +632,14 @@ def make_argstuples(self, logfile, the_pdb_file_has_amino_acid, user_map_weight,
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
                     if (the_pdb_file_has_amino_acid == False):
-                        for weight_multiply in range (1, 302, 20): # >= 21, Mg Channel broke
+                        for weight_multiply in range (1, 302, 20): 
                             total_combi_num = total_combi_num + 1 
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                              bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                              number_of_steps, start_temperature, \
                                              weight_multiply])
                     else: # protein like Mg Channel
-                        for weight_multiply in range (1, 20, 4): # >= 21, Mg Channel broke
+                        for weight_multiply in range (1, 13, 3): # >= 13, Mg Channel broke
                             total_combi_num = total_combi_num + 1 
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                              bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
