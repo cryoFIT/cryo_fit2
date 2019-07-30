@@ -210,6 +210,7 @@ class cryo_fit2_class(object):
           if (cycle_so_far >= reoptimize_map_weight_after_these_cycles):
             self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
             # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
+            # however, it reduces crash (nan) errors
             # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
         
       if (cycle_so_far >= check_cc_after_these_cycles):
@@ -226,17 +227,12 @@ class cryo_fit2_class(object):
           cycle_so_far = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
-            
-          # if (self.params.explore == False):
-          #   if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-          #     self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
-          #     # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
-          #     # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
           continue 
 
-        write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"
-        print('%s' %(write_this))
-        self.logfile.write(str(write_this))
+        else:
+          write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
 
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
@@ -247,11 +243,7 @@ class cryo_fit2_class(object):
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
           
-          if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-            self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
-            # although preliminary (just 1 benchmark), reoptimizing map_weight after each cycle prolongs running time ~5x
-            # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
-        else:
+        else: #(np.mean(cc_2nd_array) <= np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
