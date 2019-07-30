@@ -92,18 +92,22 @@ def check_whether_args_has_eff(args, logfile):
 ######## end of check_whether_args_has_eff(args)
 
 
-def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
-    fo = open(pdb_file, "r")
-    lines = fo.readlines()
+def check_whether_the_pdb_file_has_amino_acid(pdb_file):
+    file_opened = open(pdb_file, "r")
+    lines = file_opened.readlines()
     for line in lines:
         #print ("line:",line)
         residue = line[17:20].strip()
-        if (residue == "A") or (residue == "U") or (residue == "G") or (residue == "C") or (residue == "T"):
-            fo.close()
+        if (residue == "ALA") or (residue == "CYS") or (residue == "ASP") or (residue == "GLU") \
+        or (residue == "PHE") or (residue == "GLY") or (residue == "HIS") or (residue == "ILE") \
+        or (residue == "LYS") or (residue == "LEU") or (residue == "MET") or (residue == "ASN") \
+        or (residue == "PRO") or (residue == "GLN") or (residue == "ARG") or (residue == "SER") \
+        or (residue == "THR") or (residue == "VAL") or (residue == "TRP") or (residue == "TYR"):
+            file_opened.close()
             return True
-    fo.close()
+    file_opened.close()
     return False
-####################### end of check_whether_the_pdb_file_has_nucleic_acid()
+####################### end of check_whether_the_pdb_file_has_amino_acid()
 
 
 def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
@@ -610,7 +614,7 @@ def line_prepender(filename, line):
 #################### end of line_prepender()
 
 
-def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
+def make_argstuples(self, logfile, the_pdb_file_has_amino_acid, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
     total_combi_num = 0
     argstuples = []
     ## final_temperature is fixed as 0
@@ -622,15 +626,25 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         # original combi for 432 cases
         # (record) For L1_stalk, weight_multiply >= 21 breaks all bp w/o any sigma specification #"error string: /home/builder/slave/phenix-nightly-intel-linux-2_6-x86_64-centos6/modules/cctbx_project/cctbx/xray/sampling_base.h: exponent_table: excessive range"
+        # (record) tRNA's best combination -> start_temperature=900.0 final_temperature=0.0 MD_in_each_cycle=2 cool_rate=900.0 number_of_steps=401 weight_multiply=61.0  sigma=0.05
+        # (record) L1 stalk's best combination -> start_temperature=900.0 final_temperature=0.0 MD_in_each_cycle=22 cool_rate=42.9 number_of_steps=401 weight_multiply=301.0 sigma=0.05
         for MD_in_each_cycle in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
-                    for weight_multiply in range (1, 302, 20): 
-                        total_combi_num = total_combi_num + 1 
-                        argstuples.append([self, self.params, logfile, user_map_weight, \
-                                         bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
-                                         number_of_steps, start_temperature, \
-                                         weight_multiply])
+                    if (the_pdb_file_has_amino_acid == False):
+                        for weight_multiply in range (1, 302, 20): # >= 21, Mg Channel broke
+                            total_combi_num = total_combi_num + 1 
+                            argstuples.append([self, self.params, logfile, user_map_weight, \
+                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
+                                             number_of_steps, start_temperature, \
+                                             weight_multiply])
+                    else: # protein like Mg Channel
+                        for weight_multiply in range (1, 20, 4): # >= 21, Mg Channel broke
+                            total_combi_num = total_combi_num + 1 
+                            argstuples.append([self, self.params, logfile, user_map_weight, \
+                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
+                                             number_of_steps, start_temperature, \
+                                             weight_multiply])
                             
     else: # just explore 2 combinations to save regression time
         for MD_in_each_cycle in range (2, 14, 10): # 2

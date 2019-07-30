@@ -388,12 +388,12 @@ class Program(ProgramTemplate):
       
       # Stricter cutoff for H/E than bp
       H_cutoff = H_in_a_user_pdb_file * 0.99
-      write_this = "H_cutoff from a user input pdb file: " + str(round(H_cutoff,1)) + "\n"
+      write_this = "H_cutoff from a user input pdb file : " + str(round(H_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
       
       E_cutoff = E_in_a_user_pdb_file * 0.99
-      write_this = "E_cutoff from a user input pdb file: " + str(round(E_cutoff,1)) + "\n"
+      write_this = "E_cutoff from a user input pdb file : " + str(round(E_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
         
@@ -401,7 +401,9 @@ class Program(ProgramTemplate):
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
       
-      total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage      
+      the_pdb_file_has_amino_acid = check_whether_the_pdb_file_has_amino_acid(self.data_manager.get_default_model_name())
+      
+      total_combi_num, argstuples = make_argstuples(self, logfile, the_pdb_file_has_amino_acid, user_map_weight, bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage      
       #print ("argstuples:",argstuples) #[[<cryo_fit2_program.Program object at 0x118a7e590>, <libtbx.phil.scope_extract object at 0x118a7e550>, <open file 'cryo_fit2.log', mode 'w' at 0x11894f5d0>, '', 0.98, 0.0, 0.0, 2, 1, 0.021, 300.0, 1], [<cryo_fit2_program.Program object at 0x118a7e590>, <libtbx.phil.scope_extract object at 0x118a7e550>, <open file 'cryo_fit2.log', mode 'w' at 0x11894f5d0>, '', 0.98, 0.0, 0.0, 2, 1, 0.12100000000000001, 300.0, 1]]
 
       cores_to_use = ''
