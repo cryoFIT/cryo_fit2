@@ -391,7 +391,7 @@ class Program(ProgramTemplate):
       write_this = "H_cutoff from a user input pdb file : " + str(round(H_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
-      
+      a=b
       E_cutoff = E_in_a_user_pdb_file * 0.99
       write_this = "E_cutoff from a user input pdb file : " + str(round(E_cutoff,1)) + "\n"
       print(write_this)

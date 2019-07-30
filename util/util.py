@@ -270,7 +270,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         output_dir_final = task_obj.run()
     except:
         
-    ########## below is not working so commented out
+    # (below is not working, so commented out)
     #except Exception as ex:
     #    write_this = "exception message:" +  str(ex)
     #    print (write_this)
