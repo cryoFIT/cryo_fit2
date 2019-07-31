@@ -149,7 +149,7 @@ class cryo_fit2_class(object):
       # This is the only place where weight_multiply is applied (other than reoptimize_map_weight_if_not_specified for final MD)
       # 1x~10x of weight_multiply were not enough for L1 stalk fitting
       # up to 20x of weight_multiply, nucleic acid geometry was ok, 30x broke it
-    a=b
+    
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       #self.params.map_weight = self.params.map_weight * weight_multiply
           ####### ! I AM SURE THAT I keep multiplying this like Mg_channel's map_weight (1.94777389696e+284) during exploration
