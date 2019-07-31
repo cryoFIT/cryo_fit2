@@ -276,7 +276,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     #    print (write_this)
     #    logfile.write(str(write_this))
 
-        # this write_this reported appropriately -> really??????
+        # this write_this reported appropriately -> really ? -> yes really
         write_this = "(after task_obj loop) An exception occurred in explore_parameters_by_multi_core. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
                      " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
                      " MD_in_each_cycle (" + str(params.MD_in_each_cycle)      + ")" + \

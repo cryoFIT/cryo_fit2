@@ -311,7 +311,6 @@ class Program(ProgramTemplate):
     '''
     ################# <end> Doonam's playground ################
     
-    a=b
     if (self.params.loose_ss_def == True):
       self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
       # default is 3.4, the longer this value, the loose the restraint

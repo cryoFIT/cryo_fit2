@@ -12,8 +12,8 @@ import shutil
 
 cryo_fit2_repository_dir = libtbx.env.dist_path("cryo_fit2") # Locate phenix.cryo_fit.run_tests executable
 
-if (__name__ == "__main__") :
 
+def test_fn ():
     assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory' # added by Nigel so that this test runs in a clear path
 
 #    print "This phenix.cryo_fit2.run_tests executable comes from ", cryo_fit2_repository_dir
@@ -30,8 +30,8 @@ if (__name__ == "__main__") :
 
     command_string = "python tst1_cryo_fit2_test_total_steps.py" % locals()
     print "command_string:", command_string
-    rc = libtbx.easy_run.call(command=command_string)
-    assert rc==0 # make sure there is no error with this test
+    rc1 = libtbx.easy_run.call(command=command_string)
+    assert rc1==0 # make sure there is no error with this test
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -47,8 +47,8 @@ if (__name__ == "__main__") :
 
     command_string = "python tst2_cryo_fit2_test_auto-rerun.py" % locals()
     print "command_string:", command_string
-    rc = libtbx.easy_run.call(command=command_string)
-    assert rc==0 # make sure there is no error with this test
+    rc2 = libtbx.easy_run.call(command=command_string)
+    assert rc2==0 # make sure there is no error with this test
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -63,8 +63,8 @@ if (__name__ == "__main__") :
 
     command_string = "python tst3_cryo_fit2_test_strong_ss.py" % locals()
     print "command_string:", command_string
-    rc = libtbx.easy_run.call(command=command_string)
-    assert rc==0 # make sure there is no error with this test
+    rc3 = libtbx.easy_run.call(command=command_string)
+    assert rc3==0 # make sure there is no error with this test
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -79,8 +79,8 @@ if (__name__ == "__main__") :
 
     command_string = "python tst4_cryo_fit2_test_parameters_exploration_RNA.py" % locals()
     print "command_string:", command_string
-    rc = libtbx.easy_run.call(command=command_string)
-    assert rc==0 # make sure there is no error with this test
+    rc4 = libtbx.easy_run.call(command=command_string)
+    assert rc4==0 # make sure there is no error with this test
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
@@ -95,10 +95,20 @@ if (__name__ == "__main__") :
 
     command_string = "python tst5_cryo_fit2_test_parameters_exploration_protein.py" % locals()
     print "command_string:", command_string
-    rc = libtbx.easy_run.call(command=command_string)
-    assert rc==0 # make sure there is no error with this test
+    rc5 = libtbx.easy_run.call(command=command_string)
+    assert rc5==0 # make sure there is no error with this test
     
     # remove a no longer needed folder and an input command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
     libtbx.easy_run.fully_buffered(rm_command_string)
+    
+    if ((rc1 == 0) and (rc2 == 0) and (rc3 == 0) and (rc4 == 0) and (rc5 == 0)):
+      return 0 # success
+    else:
+      return 1 # fail
+###### end of test_fn
+
+  
+if (__name__ == "__main__") :
+    test_fn()
     

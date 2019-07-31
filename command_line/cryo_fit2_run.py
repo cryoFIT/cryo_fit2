@@ -144,9 +144,14 @@ class cryo_fit2_class(object):
   ########################### <begin> iterate until cryo_fit2 derived cc saturates
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
     result = ''
+    
+    self.params.map_weight = self.params.map_weight * weight_multiply
+    
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
-      self.params.map_weight = self.params.map_weight * weight_multiply
+      #self.params.map_weight = self.params.map_weight * weight_multiply
+      ############# I AM SURE THAT I keep multiplying this forever like Mg_channel's map_weight (1.94777389696e+284)
+      
       # This is the only place where weight_multiply is applied
       # 1x~10x of weight_multiply were not enough for L1 stalk fitting
       # up to 20x of weight_multiply, nucleic acid geometry was ok, 30x broke it
@@ -306,15 +311,14 @@ class cryo_fit2_class(object):
       write_this = "exception message:" +  str(ex)
       print (write_this)
       self.logfile.write(str(write_this))
-      #raw_input()
-      write_this = "An exception occurred in cryo_fit2_run. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
-                    " cool_rate (" + str(round(params.cool_rate, 1))          + ")\n" + \
-                    " number_of_steps (" + str(params.number_of_steps)        + ")\n" + \
-                    " start_temperature (" + str(params.start_temperature)    + ")\n" + \
-                    " weight_multiply (" + str(weight_multiply)               + ")\n" + \
-                    " final_temperature (" + str(params.final_temperature)    + ")\n" + \
-                    " map_weight (" + str(round(self.params.map_weight,2))    + ")\n" + \
-                    " total_steps (" + str(total_steps)  + ")"  # total_steps alone is ok without params, self.params
+      write_this = "(in task_obj loop) An exception occurred in cryo_fit2_run. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+                   " cool_rate (" + str(round(params.cool_rate, 1))          + ")\n" + \
+                   " number_of_steps (" + str(params.number_of_steps)        + ")\n" + \
+                   " start_temperature (" + str(params.start_temperature)    + ")\n" + \
+                   " weight_multiply (" + str(weight_multiply)               + ")\n" + \
+                   " final_temperature (" + str(params.final_temperature)    + ")\n" + \
+                   " map_weight (" + str(round(self.params.map_weight,2))    + ")\n" + \
+                   " total_steps (" + str(total_steps)  + ")"  # total_steps alone is ok without params, self.params
       print (write_this)
       self.logfile.write(str(write_this))
       
