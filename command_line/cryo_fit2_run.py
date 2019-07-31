@@ -153,7 +153,7 @@ class cryo_fit2_class(object):
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       write_this = "self.params.map_weight for " + str(i) + "th iteration: " + str(self.params.map_weight) + "\n"
       print (write_this)
-      self.logfile(str(write_this))
+      self.logfile.write(str(write_this))
       
       #self.params.map_weight = self.params.map_weight * weight_multiply
           ####### ! I AM SURE THAT I keep multiplying this like Mg_channel's map_weight (1.94777389696e+284) during exploration
