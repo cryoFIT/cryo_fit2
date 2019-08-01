@@ -226,7 +226,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     print ("params.map_weight:                              ", str(round(params.map_weight,2)))
 
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        params.total_steps = params.total_steps_for_exploration # as of now 5k, this multi core run is to explore options (10k tends to make nan errors (~25%))
+        params.total_steps = params.total_steps_for_exploration
     else:
         params.total_steps = 30 # temporary for development
     print ("params.total_steps for MD parameter exploration:", str(params.total_steps))

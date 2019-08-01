@@ -132,7 +132,7 @@ total_steps      = None
   .type          = int
   .short_caption = The total number of steps in phenix.dynamics.\
                    If specified, run up to this number of steps no matter what.
-total_steps_for_exploration  = 4000
+total_steps_for_exploration  = 10000
   .type                      = int
   .short_caption             = The total number of steps for MD parameter exploration. 5k often resulted in dist_moved = nan bonds = nan for full tRNA
 weight_multiply  = None
