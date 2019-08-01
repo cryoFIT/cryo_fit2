@@ -614,7 +614,8 @@ def line_prepender(filename, line):
 #################### end of line_prepender()
 
 
-def make_argstuples(self, logfile, the_pdb_file_has_amino_acid, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
+#def make_argstuples(self, logfile, the_pdb_file_has_amino_acid, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
+def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
     total_combi_num = 0
     argstuples = []
     ## final_temperature is fixed as 0
@@ -624,28 +625,17 @@ def make_argstuples(self, logfile, the_pdb_file_has_amino_acid, user_map_weight,
     ############# The most probable cause of this error is when cryo_fit2 fails to run ("nan")
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        # original combi for 432 cases for RNA only
-        # (record) For L1_stalk, weight_multiply >= 21 breaks all bp w/o any sigma specification #"error string: /home/builder/slave/phenix-nightly-intel-linux-2_6-x86_64-centos6/modules/cctbx_project/cctbx/xray/sampling_base.h: exponent_table: excessive range"
-        # (record) tRNA's best combination -> start_temperature=900.0 final_temperature=0.0 MD_in_each_cycle=2 cool_rate=900.0 number_of_steps=401 weight_multiply=61.0  sigma=0.05
-        # (record) L1 stalk's best combination -> start_temperature=900.0 final_temperature=0.0 MD_in_each_cycle=22 cool_rate=42.9 number_of_steps=401 weight_multiply=301.0 sigma=0.05
         for MD_in_each_cycle in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
-                    if (the_pdb_file_has_amino_acid == False):
-                        for weight_multiply in range (1, 302, 20): 
-                            total_combi_num = total_combi_num + 1 
-                            argstuples.append([self, self.params, logfile, user_map_weight, \
-                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
-                                             number_of_steps, start_temperature, \
-                                             weight_multiply])
-                    else: # protein like Mg Channel
-                        for weight_multiply in range (1, 13, 3): # >= 13, Mg Channel broke
-                            total_combi_num = total_combi_num + 1 
-                            argstuples.append([self, self.params, logfile, user_map_weight, \
-                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
-                                             number_of_steps, start_temperature, \
-                                             weight_multiply])
-                            
+                    for weight_multiply in range (1, 602, 40):
+                    #for weight_multiply in range (1, 302, 20): 
+                        total_combi_num = total_combi_num + 1 
+                        argstuples.append([self, self.params, logfile, user_map_weight, \
+                                        bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
+                                        number_of_steps, start_temperature, \
+                                        weight_multiply])
+                    
     else: # just explore 2 combinations to save regression time
         for MD_in_each_cycle in range (2, 14, 10): # 2
             for number_of_steps in range (1, 51, 100):
@@ -827,27 +817,17 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 ########################### end of remove_R_prefix_in_RNA function
 
 
+# this fn runs only during final_MD
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
       write_this = "\nA user didn't specify a map_weight. Therefore, cryo_fit2 will optimize map_weight for additional MD run\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
 
-      
-      # old comment: this file is written at a starting folder, this may cause conflict during MPI run
-      # new comment: this has nothing to do with MPI run error
       current_fitted_file_name = "current_fitted_file.pdb"
       with open(current_fitted_file_name, "w") as f:
         f.write(self.model.model_as_pdb())
       f.close()
-      
-      
-      '''
-      current_fitted_file_name = output_dir + "/current_fitted_file.pdb"
-      with open(current_fitted_file_name, "w") as f:
-        f.write(self.model.model_as_pdb())
-      f.close()
-      '''
       
       self.params.map_weight = determine_optimal_weight_by_template(self, self.logfile, map_inp, current_fitted_file_name)
       
