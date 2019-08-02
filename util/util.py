@@ -628,8 +628,8 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
         for MD_in_each_cycle in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
-                    for weight_multiply in range (1, 602, 40):
-                    #for weight_multiply in range (1, 302, 20): 
+                    for weight_multiply in range (1, 802, 50): # 601 was the best for Mg_Channel, 561 was the best for tRNA
+                    #for weight_multiply in range (1, 602, 40):
                         total_combi_num = total_combi_num + 1 
                         argstuples.append([self, self.params, logfile, user_map_weight, \
                                         bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
