@@ -110,6 +110,21 @@ def check_whether_the_pdb_file_has_amino_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_amino_acid()
 
 
+def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
+    file_opened = open(pdb_file, "r")
+    lines = file_opened.readlines()
+    for line in lines:
+        #print ("line:",line)
+        residue = line[17:20].strip()
+        if (residue == "A") or (residue == "U") or (residue == "G") or (residue == "C") \
+        or (residue == "T"):
+            file_opened.close()
+            return True
+    file_opened.close()
+    return False
+####################### end of check_whether_the_pdb_file_has_nucleic_acid()
+
+
 def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     
     if (os.path.isfile(fitted_file_name_w_path) == False):
@@ -170,7 +185,6 @@ def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfil
     
     return number_of_bp_in_fitted_pdb, number_of_H_in_fitted_pdb, number_of_E_in_fitted_pdb
 ######################## end of count_bp_H_E_in_fitted_file(fitted_file_name_w_path):
-
 
 
 '''
@@ -529,7 +543,6 @@ def know_bp_H_E_in_a_user_pdb_file(user_pdb_file, logfile):
 ######################## end of def know_bp_H_in_a_user_pdb_file(user_pdb_file)
 
 
-
 def know_how_much_map_origin_moved(map_file_name):
     #print ("#### Know how much a map origin moved ####")
     
@@ -614,15 +627,10 @@ def line_prepender(filename, line):
 #################### end of line_prepender()
 
 
-#def make_argstuples(self, logfile, the_pdb_file_has_amino_acid, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
 def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff):
     total_combi_num = 0
     argstuples = []
     ## final_temperature is fixed as 0
-    
-    ############# <KEEP THIS NOTE> I think that I figured out the reason of the problem finally.
-    ############# Writing "Date" multiple times is nothing but spurious error. Number of "Date" writing is somehow random
-    ############# The most probable cause of this error is when cryo_fit2 fails to run ("nan")
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         for MD_in_each_cycle in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
