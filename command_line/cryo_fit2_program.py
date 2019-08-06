@@ -397,7 +397,7 @@ class Program(ProgramTemplate):
       write_this = "E_cutoff from a user input pdb file : " + str(round(E_cutoff,1)) + "\n"
       print(write_this)
       logfile.write(write_this)
-        
+
       if (os.path.isdir("parameters_exploration") == True):
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
