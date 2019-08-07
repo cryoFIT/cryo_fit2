@@ -149,7 +149,7 @@ class cryo_fit2_class(object):
     #### This is the only place where weight_multiply is applied (other than reoptimize_map_weight_if_not_specified for final MD)
       
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
-      write_this = "self.params.map_weight for " + str(i) + "th iteration: " + str(self.params.map_weight) + "\n"
+      write_this = "\n " + str(i) + "th iteration with " + str(self.params.map_weight) + " self.params.map_weight\n"
       print (write_this)
       self.logfile.write(str(write_this))
       
@@ -193,6 +193,15 @@ class cryo_fit2_class(object):
       write_this = "CC after this cycle (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       self.logfile.write(str(write_this))
       
+      write_this = "self.params.explore:" + str(self.params.explore)
+      print (write_this)
+      self.logfile.write(str(write_this))
+      
+      write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
+      "), a specified total_steps (" + str(total_steps) + ")\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+          
       if (self.params.explore == True):
         if (total_steps_so_far < self.params.total_steps_for_exploration):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
