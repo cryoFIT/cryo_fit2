@@ -111,6 +111,8 @@ class cryo_fit2_class(object):
       states = None
     
     cycle_so_far = 0
+    if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+      cycle_so_far_for_map_weight_reoptimization = 0
     cc_1st_array = []
     cc_2nd_array = []
     
@@ -132,12 +134,12 @@ class cryo_fit2_class(object):
       check_cc_after_these_cycles = 150 # 500, after 171 cycles, tRNA-full crashes
   
     reoptimize_map_weight_after_these_cycles = ''
-    if (("tst_cryo_fit2" in model_file_name_only) == True):
-      reoptimize_map_weight_after_these_cycles = 5
-    else:
-      reoptimize_map_weight_after_these_cycles = 100 # after 123~171 cycles, full tRNA crashes
-      
-      
+    if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+      if (("tst_cryo_fit2" in model_file_name_only) == True):
+        reoptimize_map_weight_after_these_cycles = 5
+      else:
+        reoptimize_map_weight_after_these_cycles = 100 # after 123~171 cycles, full tRNA crashes (when map_weight is multiplied too crazy back then,,,)
+        
     if (("tst_cryo_fit2_" in self.model_name) == True): 
       self.params.total_steps_for_exploration = 100
     
@@ -196,7 +198,7 @@ class cryo_fit2_class(object):
       write_this = "self.params.explore:" + str(self.params.explore)
       print (write_this)
       self.logfile.write(str(write_this))
-          
+      
       if (self.params.explore == True):
         if (total_steps_so_far < self.params.total_steps_for_exploration):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
@@ -217,27 +219,34 @@ class cryo_fit2_class(object):
           
       ############# all below is for final MD
       if (total_steps != ''):
-          write_this = "A specified total_steps (" + str(total_steps) + ")\n"
+        write_this = "A specified total_steps (" + str(total_steps) + ")\n"
+        print('%s' %(write_this))
+        self.logfile.write(str(write_this))
+    
+        if (total_steps_so_far >= total_steps):
+          write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
+                     ") >= A specified total_steps (" + str(total_steps) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
-      
-          if (total_steps_so_far >= total_steps):
-            write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
-                       ") >= A specified total_steps (" + str(total_steps) + ")\n"
-            print('%s' %(write_this))
-            self.logfile.write(str(write_this))
-            break
+          break
+        if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+          cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
       elif (cycle_so_far < check_cc_after_these_cycles/2):
         cycle_so_far = cycle_so_far + 1
+        if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+          cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         cc_1st_array.append(cc_after_small_MD)
       else:
         cycle_so_far = cycle_so_far + 1
+        if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+          cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         cc_2nd_array.append(cc_after_small_MD)
       
       if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-        if (cycle_so_far >= reoptimize_map_weight_after_these_cycles):
+        if (cycle_so_far_for_map_weight_reoptimization >= reoptimize_map_weight_after_these_cycles):
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
           self.params.map_weight = self.params.map_weight * weight_multiply
+          cycle_so_far_for_map_weight_reoptimization = 0 # reinitialization
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
         
       if (cycle_so_far >= check_cc_after_these_cycles):
