@@ -149,7 +149,7 @@ class cryo_fit2_class(object):
     #### This is the only place where weight_multiply is applied (other than reoptimize_map_weight_if_not_specified for final MD)
       
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
-      write_this = "\n " + str(i) + "th iteration with " + str(self.params.map_weight) + " self.params.map_weight\n"
+      write_this = "\n" + str(i) + "th iteration with " + str(self.params.map_weight) + " self.params.map_weight\n"
       print (write_this)
       self.logfile.write(str(write_this))
       
@@ -196,11 +196,6 @@ class cryo_fit2_class(object):
       write_this = "self.params.explore:" + str(self.params.explore)
       print (write_this)
       self.logfile.write(str(write_this))
-      
-      write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
-      "), a specified total_steps (" + str(total_steps) + ")\n"
-      print('%s' %(write_this))
-      self.logfile.write(str(write_this))
           
       if (self.params.explore == True):
         if (total_steps_so_far < self.params.total_steps_for_exploration):
@@ -216,14 +211,22 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
           break
       
+      write_this = "total_steps_so_far (" + str(total_steps_so_far) + ")\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+          
       ############# all below is for final MD
       if (total_steps != ''):
-        if (total_steps_so_far >= total_steps):
-          write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
-                       ") >= A specified total_steps (" + str(total_steps) + ")\n"
+          write_this = "A specified total_steps (" + str(total_steps) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
-          break
+      
+          if (total_steps_so_far >= total_steps):
+            write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
+                       ") >= A specified total_steps (" + str(total_steps) + ")\n"
+            print('%s' %(write_this))
+            self.logfile.write(str(write_this))
+            break
       elif (cycle_so_far < check_cc_after_these_cycles/2):
         cycle_so_far = cycle_so_far + 1
         cc_1st_array.append(cc_after_small_MD)
