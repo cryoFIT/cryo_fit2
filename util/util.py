@@ -790,7 +790,35 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
     f_out = open(output_pdb_file_name, 'wt')
     cleaned = False
     for line in f_in:
-      if (line[0:6] == "HEADER"):
+        if ((line[0:4] != "ATOM") and (line[0:6] != "HETATM")):
+            f_out.write(line)
+        else:
+            residue = line[17:20]
+            trimmed_residue = residue.replace(" ", "")
+            if (trimmed_residue == "RA"):
+                cleaned = True
+                new_line = line[:17] + " A " + line[20:]
+                f_out.write(new_line)
+            elif (trimmed_residue == "RT"): 
+                cleaned = True
+                new_line = line[:17] + " T " + line[20:]
+                f_out.write(new_line)
+            elif (trimmed_residue == "RG"): 
+                cleaned = True
+                new_line = line[:17] + " G " + line[20:]
+                f_out.write(new_line)
+            elif (trimmed_residue == "RC"): 
+                cleaned = True
+                new_line = line[:17] + " C " + line[20:]
+                f_out.write(new_line)
+            elif (trimmed_residue == "RU"): 
+                cleaned = True
+                new_line = line[:17] + " U " + line[20:]
+                f_out.write(new_line)
+            else:
+                f_out.write(line)
+        '''
+      if ((line[0:6] == "HEADER") or (line[0:5] == "HELIX") or (line[0:5] == "SHEET")):
         f_out.write(line)
       else:
         residue = line[17:20]
@@ -817,6 +845,7 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
             f_out.write(new_line)
         else:
             f_out.write(line)
+       '''
     f_in.close()
     f_out.close()
     
