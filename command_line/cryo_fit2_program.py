@@ -60,9 +60,6 @@ include scope libtbx.phil.interface.tracking_params
 cool_rate        = None
   .type          = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
-cores_from_user  = None
-  .type          = int
-  .short_caption = Number of cores to use for MD parameter exploration.
 explore          = True
   .type          = bool
   .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.\
@@ -88,6 +85,9 @@ MD_in_each_cycle = None
   .type          = int
   .short_caption = Cycle is each iteration of MD from start_temperature to final_temperature. \
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
+nproc            = None
+  .type          = int
+  .short_caption = Number of cores to use for MD parameter exploration.
 number_of_steps  = None
   .type          = int
   .short_caption = The number of MD steps in each phenix.dynamics \
@@ -413,8 +413,8 @@ class Program(ProgramTemplate):
       #print ("argstuples:",argstuples) #[[<cryo_fit2_program.Program object at 0x118a7e590>, <libtbx.phil.scope_extract object at 0x118a7e550>, <open file 'cryo_fit2.log', mode 'w' at 0x11894f5d0>, '', 0.98, 0.0, 0.0, 2, 1, 0.021, 300.0, 1], [<cryo_fit2_program.Program object at 0x118a7e590>, <libtbx.phil.scope_extract object at 0x118a7e550>, <open file 'cryo_fit2.log', mode 'w' at 0x11894f5d0>, '', 0.98, 0.0, 0.0, 2, 1, 0.12100000000000001, 300.0, 1]]
 
       cores_to_use = ''
-      if (self.params.cores_from_user != None):
-        cores_to_use = self.params.cores_from_user
+      if (self.params.nproc != None):
+        cores_to_use = self.params.nproc
       else:
         returned_nproc = number_of_processors(return_value_if_unknown=-1)
         # kaguya resulted in 32

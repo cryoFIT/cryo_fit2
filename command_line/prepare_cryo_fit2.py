@@ -61,9 +61,6 @@ include scope libtbx.phil.interface.tracking_params
 cool_rate        = None
   .type          = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
-cores_from_user  = None
-  .type          = int
-  .short_caption = Number of cores to use for MD parameter exploration.
 explore          = True
   .type          = bool
   .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.\
@@ -90,6 +87,9 @@ MD_in_each_cycle = None
   .short_caption = An cycle here is different from the one in deep learning. \
                    Here, the cycle is each iteration of MD from start_temperature to final_temperature. \
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
+nproc            = None
+  .type          = int
+  .short_caption = Number of cores to use for MD parameter exploration.
 number_of_steps  = None
   .type          = int
   .short_caption = The number of MD steps in each phenix.dynamics \
