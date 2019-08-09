@@ -319,7 +319,7 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     else:
       self.params.sigma_for_custom_geom = 0.05
       
-    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
+    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile, "prepare_cryo_fit2", "NA")
     if ((user_eff_file_provided == False) and (self.params.strong_ss == True)):
       write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
       print (write_this)

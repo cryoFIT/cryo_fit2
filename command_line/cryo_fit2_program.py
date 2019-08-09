@@ -583,7 +583,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
                             #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
-    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile)
+    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile, "cryo_fit2_program", self.params.sigma_for_custom_geom)
     if (user_eff_file_provided == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name
     else:
@@ -600,7 +600,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     input_command_file.write(str(cryo_fit2_input_command))
     input_command_file.close()
     
-    logfile.write("\nAn input command for final cryo_fit2 MD run:\n")
+    logfile.write("\n\nAn input command for final cryo_fit2 MD run:\n")
     logfile.write(str(cryo_fit2_input_command))
 
     task_obj = cryo_fit2_run.cryo_fit2_class(

@@ -80,11 +80,16 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
 ############ def calculate_RMSD(self):
 
 
-def check_whether_args_has_eff(args, logfile):
+def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma_for_custom_geom):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
         user_eff_file_name = str(args[i])
-        write_this = "Either a user provided or cryo_fit2 automatically made " + user_eff_file_name + ". Therefore, cryo_fit2 will use it."
+        write_this = ''
+        if (location_of_this_code == "prepare_cryo_fit2"):
+            write_this = "A user provided " + user_eff_file_name
+        else:
+            write_this = "cryo_fit2 automatically made " + user_eff_file_name + " with " + str(known_sigma_for_custom_geom) + " sigma_for_custom_geom"
+        write_this = write_this + ". Therefore, cryo_fit2 will use it."
         print (write_this)
         logfile.write(write_this)
         return True, user_eff_file_name
