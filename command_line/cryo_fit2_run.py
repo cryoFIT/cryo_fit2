@@ -195,10 +195,6 @@ class cryo_fit2_class(object):
       write_this = "CC after this cycle (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       self.logfile.write(str(write_this))
       
-      write_this = "self.params.explore:" + str(self.params.explore)
-      print (write_this)
-      self.logfile.write(str(write_this))
-      
       if (self.params.explore == True):
         if (total_steps_so_far < self.params.total_steps_for_exploration):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
@@ -213,10 +209,6 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
           break
       
-      write_this = "total_steps_so_far (" + str(total_steps_so_far) + ")\n"
-      print('%s' %(write_this))
-      self.logfile.write(str(write_this))
-          
       ############# all below is for final MD
       if (total_steps != ''):
         write_this = "A specified total_steps (" + str(total_steps) + ")\n"
