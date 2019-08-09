@@ -636,15 +636,24 @@ def make_argstuples(self, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutof
         for MD_in_each_cycle in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
-                    for weight_multiply in range (1, 6402, 400): # (w 0.5 sigma) 2801 generated many bp keeping full_tRNA
-                    #for weight_multiply in range (1, 3202, 200): # (w 0.5 sigma) 2801 generated many bp keeping full_tRNA
-                    #for weight_multiply in range (1, 1602, 100): # (w 0.5 sigma) 1601 generated many bp keeping full_tRNA
-                    #for weight_multiply in range (1, 802, 50): # (w 0.5 sigma) 751 was the best for Mg_Channel, 801 was the best for tRNA 
-                        total_combi_num = total_combi_num + 1 
-                        argstuples.append([self, self.params, logfile, user_map_weight, \
-                                        bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
-                                        number_of_steps, start_temperature, \
-                                        weight_multiply])
+                    if (("L1_stalk" in self.data_manager.get_default_model_name()) == False):
+                        for weight_multiply in range (1, 6402, 400): # (w 0.5 sigma) 2801 generated many bp keeping full_tRNA
+                        #for weight_multiply in range (1, 3202, 200): # (w 0.5 sigma) 2801 generated many bp keeping full_tRNA
+                        #for weight_multiply in range (1, 1602, 100): # (w 0.5 sigma) 1601 generated many bp keeping full_tRNA
+                        #for weight_multiply in range (1, 802, 50): # (w 0.5 sigma) 751 was the best for Mg_Channel, 801 was the best for tRNA 
+                            total_combi_num = total_combi_num + 1 
+                            argstuples.append([self, self.params, logfile, user_map_weight, \
+                                            bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
+                                            number_of_steps, start_temperature, \
+                                            weight_multiply])
+                    else: 
+                        for weight_multiply in range (1, 402, 25): # L1 stalk with sparse map density nearby fails to keep bp with weight_multiply >= 400
+                            total_combi_num = total_combi_num + 1 
+                            argstuples.append([self, self.params, logfile, user_map_weight, \
+                                            bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
+                                            number_of_steps, start_temperature, \
+                                            weight_multiply])
+                        
                     
     else: # just explore 2 combinations to save regression time
         for MD_in_each_cycle in range (2, 14, 10): # 2

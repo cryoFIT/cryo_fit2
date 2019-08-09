@@ -240,7 +240,15 @@ class cryo_fit2_class(object):
           self.params.map_weight = self.params.map_weight * weight_multiply
           cycle_so_far_for_map_weight_reoptimization = 0 # reinitialization
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
-        
+      
+      write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+      
+      write_this = "check_cc_after_these_cycles:" + str(check_cc_after_these_cycles) + "\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+      
       if (cycle_so_far >= check_cc_after_these_cycles):
         write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
         print('%s' %(write_this))
