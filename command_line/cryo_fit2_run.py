@@ -293,9 +293,11 @@ class cryo_fit2_class(object):
     
     
     cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
-    write_this = "\nCC after final MD of cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
-    print('%s' %(write_this))
-    self.logfile.write(str(write_this))
+    
+    if (self.params.explore == False): # no need to calculate cc after explore
+      write_this = "\nCC after final MD of cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
     
     output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(cc_after_cryo_fit2, 3))
     if os.path.exists(output_dir_w_CC):
