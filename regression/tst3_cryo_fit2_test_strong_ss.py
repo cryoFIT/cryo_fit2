@@ -32,11 +32,11 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   resolution = "resolution=10"
   strong_ss = "strong_ss=True"
   explore = "explore=False"
-  total_steps = "total_steps=100"
+  total_steps = "total_steps=50"
   start_temperature = "start_temperature=300"
   final_temperature = "final_temperature=280"
   MD_in_each_cycle = "MD_in_each_cycle=2"
-  number_of_steps = "number_of_steps=50"
+  number_of_steps = "number_of_steps=10"
   assert (not None in [pdb_file, map_file])
   cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, \
                                   args=[pdb_file, map_file, resolution, start_temperature, final_temperature, \

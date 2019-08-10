@@ -32,8 +32,8 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   resolution = "resolution=11"
   strong_ss = "strong_ss=True"
   explore = "explore=True"
-  total_steps = "total_steps=20"
-  total_steps_for_exploration = "total_steps_for_exploration=300"
+  total_steps = "total_steps=10"
+  total_steps_for_exploration = "total_steps_for_exploration=50"
   assert (not None in [pdb_file, map_file])
   cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, \
                                   args=[pdb_file, map_file, resolution, strong_ss, explore,\
