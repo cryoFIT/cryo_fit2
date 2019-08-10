@@ -355,10 +355,10 @@ class Program(ProgramTemplate):
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
-      logfile.write("\nAn automatically optimized map_weight (before any multiplication): ")
+      logfile.write("\n\nAn automatically optimized map_weight (before any multiplication): ")
     else:
       user_map_weight = self.params.map_weight # this user_map_weight will be used later
-      logfile.write("\nA user specified map_weight: ")
+      logfile.write("\n\nA user specified map_weight: ")
     
     logfile.write(str(round(self.params.map_weight,1)))
     logfile.write("\n")
@@ -583,11 +583,9 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
                             #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
-    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile, "cryo_fit2_program", self.params.sigma_for_custom_geom)
-    if (user_eff_file_provided == True):
+    eff_file_exists, user_eff_file_name = check_whether_args_has_eff(args, logfile, "cryo_fit2_program", self.params.sigma_for_custom_geom)
+    if (eff_file_exists == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name
-    else:
-      cryo_fit2_input_command = cryo_fit2_input_command + " sigma_for_custom_geom=" + str(self.params.sigma_for_custom_geom)
     
     if (self.params.total_steps != None):
       cryo_fit2_input_command = cryo_fit2_input_command + " total_steps=" + str(self.params.total_steps)
@@ -620,19 +618,18 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     output_dir_final = task_obj.run()
     if (output_dir_final.find('_bp_') == -1):
       write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+                   " map_weight (" + str(round(self.params.map_weight,2))         + ")\n" + \
+                   " weight_multiply (" + str(self.params.weight_multiply)        + ")\n" + \
                    " cool_rate (" + str(round(self.params.cool_rate, 1))          + ")\n" + \
                    " MD_in_each_cycle (" + str(self.params.MD_in_each_cycle)      + ")\n" + \
                    " number_of_steps (" + str(self.params.number_of_steps)        + ")\n" + \
                    " start_temperature (" + str(self.params.start_temperature)    + ")\n" + \
-                   " weight_multiply (" + str(self.params.weight_multiply)        + ")\n" + \
                    " final_temperature (" + str(self.params.final_temperature)    + ")\n" + \
-                   " map_weight (" + str(round(self.params.map_weight,2))         + ")\n" + \
                    " total_steps (" + str(self.params.total_steps)  + ")" 
       print (write_this)
       self.logfile.write(str(write_this))
       logfile.close()
       return 0
-        
     ############### (end) core cryo_fit2
     
     write_geo(self, model_inp, "used_geometry_restraints.geo")

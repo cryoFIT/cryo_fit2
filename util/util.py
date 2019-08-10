@@ -85,11 +85,11 @@ def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
         user_eff_file_name = str(args[i])
         write_this = ''
-        if (location_of_this_code == "prepare_cryo_fit2"):
+        if (str(location_of_this_code) == str("prepare_cryo_fit2")):
             write_this = "A user provided " + user_eff_file_name
         else:
-            write_this = "cryo_fit2 automatically made " + user_eff_file_name + " with " + str(known_sigma_for_custom_geom) + " sigma_for_custom_geom"
-        write_this = write_this + ". Therefore, cryo_fit2 will use it."
+            write_this = "cryo_fit2 automatically generated " + user_eff_file_name + " with " + str(known_sigma_for_custom_geom) + " sigma_for_custom_geom"
+        write_this = write_this + " so that cryo_fit2 can use."
         print (write_this)
         logfile.write(write_this)
         return True, user_eff_file_name
@@ -867,7 +867,7 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
       cmd = "rm " + current_fitted_file_name
       libtbx.easy_run.fully_buffered(cmd)
       
-      write_this = "An automatically optimized map weight: " + str(round(self.params.map_weight,2)) + "\n"
+      write_this = "\nAn automatically optimized map weight (during final MD): " + str(round(self.params.map_weight,2)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(write_this)
   else:
