@@ -662,7 +662,8 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
                                             weight_multiply])
                     else:
                         if (the_pdb_file_has_nucleic_acid == True):
-                            for weight_multiply in range (1, 6402, 400): # (w 0.5 sigma) 2801 generated many bp keeping full_tRNA
+                            for weight_multiply in range (1, 12802, 800): # (w 0.1 sigma) 6001 generated many bp keeping full_tRNA
+                            #for weight_multiply in range (1, 6402, 400): # (w 0.1 sigma) 6001 generated many bp keeping full_tRNA
                             #for weight_multiply in range (1, 3202, 200): # (w 0.5 sigma) 2801 generated many bp keeping full_tRNA
                             #for weight_multiply in range (1, 1602, 100): # (w 0.5 sigma) 1601 generated many bp keeping full_tRNA
                             #for weight_multiply in range (1, 802, 50): # (w 0.5 sigma) 751 was the best for Mg_Channel, 801 was the best for tRNA 

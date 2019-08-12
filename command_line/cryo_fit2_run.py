@@ -110,11 +110,11 @@ class cryo_fit2_class(object):
     if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None
     
-    cycle_so_far = 0
+    #cycle_so_far = 0
+    
     if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
       cycle_so_far_for_map_weight_reoptimization = 0
-    cc_1st_array = []
-    cc_2nd_array = []
+    
     
     splited_model_name = self.model_name[:-4].split("/")
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
@@ -127,11 +127,20 @@ class cryo_fit2_class(object):
     # number_of_atoms_in_input_pdb seems irrelevant to check_cc_after_these_cycles assignment.
     # but Mg channel with 10k check took 10 days!
     
+    '''
     check_cc_after_these_cycles = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       check_cc_after_these_cycles = 5
     else:
-      check_cc_after_these_cycles = 150 # 500, after 171 cycles, tRNA-full crashes
+      check_cc_after_these_cycles = 500
+    '''
+    
+    ########################### <begin> prepare/initialize for iteration
+    check_cc_after_these_steps = ''
+    if (("tst_cryo_fit2" in model_file_name_only) == True):
+      check_cc_after_these_steps = 5
+    else:
+      check_cc_after_these_steps = 100000
   
     reoptimize_map_weight_after_these_cycles = ''
     if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
@@ -143,13 +152,18 @@ class cryo_fit2_class(object):
     if (("tst_cryo_fit2_" in self.model_name) == True): 
       self.params.total_steps_for_exploration = 100
     
-  ########################### <begin> iterate until cryo_fit2 derived cc saturates
-    best_cc_so_far = -999 # tRNA has a negative value of initial cc
-    result = ''
-    
     self.params.map_weight = self.params.map_weight * weight_multiply
     #### This is the only place where weight_multiply is applied (other than reoptimize_map_weight_if_not_specified for final MD)
-      
+    
+    best_cc_so_far = -999 # tRNA has a negative value of initial cc
+    cc_1st_array = []
+    cc_2nd_array = []
+    result = ''
+    total_steps_so_far_for_cc_check = 0 # init
+    ########################### <end> prepare/initialize for iteration
+    
+    
+    ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       write_this = "\n" + str(i) + "th iteration with " + str(round(self.params.map_weight,1)) + " self.params.map_weight\n"
       print (write_this)
@@ -191,6 +205,7 @@ class cryo_fit2_class(object):
       multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
       total_steps_so_far = total_steps_so_far + int(params.number_of_steps*multiply_this)
       
+      
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       write_this = "CC after this cycle (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       self.logfile.write(str(write_this))
@@ -209,7 +224,9 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
           break
       
+      
       ############# all below is for final MD
+      total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
       if (total_steps != ''):
         # write_this = "A specified total_steps (" + str(total_steps) + ")\n"
         # print('%s' %(write_this))
@@ -223,13 +240,14 @@ class cryo_fit2_class(object):
           break
         if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
           cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
-      elif (cycle_so_far < check_cc_after_these_cycles/2):
-        cycle_so_far = cycle_so_far + 1
+      #elif (cycle_so_far < check_cc_after_these_cycles/2):
+      elif (total_steps_so_far_for_cc_check < check_cc_after_these_steps/2):
+        #cycle_so_far = cycle_so_far + 1
         if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
           cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         cc_1st_array.append(cc_after_small_MD)
       else:
-        cycle_so_far = cycle_so_far + 1
+        #cycle_so_far = cycle_so_far + 1
         if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
           cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         cc_2nd_array.append(cc_after_small_MD)
@@ -241,16 +259,14 @@ class cryo_fit2_class(object):
           cycle_so_far_for_map_weight_reoptimization = 0 # reinitialization
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
       
-      write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
-      print('%s' %(write_this))
-      self.logfile.write(str(write_this))
+      # write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
+      # print('%s' %(write_this))
+      # self.logfile.write(str(write_this))
       
-      write_this = "check_cc_after_these_cycles:" + str(check_cc_after_these_cycles) + "\n"
-      print('%s' %(write_this))
-      self.logfile.write(str(write_this))
-      
-      if (cycle_so_far >= check_cc_after_these_cycles):
-        write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
+      #if (cycle_so_far >= check_cc_after_these_cycles):
+      if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
+        total_steps_so_far_for_cc_check = 0 # reset
+        write_this = "total_steps_so_far_for_cc_check:" + str(total_steps_so_far_for_cc_check) + "\n"
         print('%s' %(write_this))
         self.logfile.write(str(write_this))
 
@@ -260,10 +276,10 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
 
           best_cc_so_far = cc_after_small_MD
-          cycle_so_far = 0 # reset
+          #cycle_so_far = 0 # reset
+          
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
-          
           continue 
 
         else:
@@ -276,7 +292,8 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
-          cycle_so_far = 0 # reset
+          #cycle_so_far = 0 # reset
+          #total_steps_so_far_for_cc_check = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
 
