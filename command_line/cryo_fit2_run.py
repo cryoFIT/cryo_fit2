@@ -85,7 +85,6 @@ class cryo_fit2_class(object):
     params.start_temperature       = self.params.start_temperature
     params.final_temperature       = self.params.final_temperature
     params.cool_rate               = self.params.cool_rate
-    #params.MD_in_each_cycle        = self.params.MD_in_each_cycle
     params.number_of_steps         = self.params.number_of_steps
     
     total_steps = ''
@@ -110,11 +109,8 @@ class cryo_fit2_class(object):
     if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None
     
-    #cycle_so_far = 0
-    
     if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
       cycle_so_far_for_map_weight_reoptimization = 0
-    
     
     splited_model_name = self.model_name[:-4].split("/")
     model_file_name_only = splited_model_name[len(splited_model_name)-1]
@@ -127,13 +123,6 @@ class cryo_fit2_class(object):
     # number_of_atoms_in_input_pdb seems irrelevant to check_cc_after_these_cycles assignment.
     # but Mg channel with 10k check took 10 days!
     
-    '''
-    check_cc_after_these_cycles = ''
-    if (("tst_cryo_fit2" in model_file_name_only) == True):
-      check_cc_after_these_cycles = 5
-    else:
-      check_cc_after_these_cycles = 500
-    '''
     
     ########################### <begin> prepare/initialize for iteration
     check_cc_after_these_steps = ''
@@ -228,9 +217,6 @@ class cryo_fit2_class(object):
       ############# all below is for final MD
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
       if (total_steps != ''):
-        # write_this = "A specified total_steps (" + str(total_steps) + ")\n"
-        # print('%s' %(write_this))
-        # self.logfile.write(str(write_this))
     
         if (total_steps_so_far >= total_steps):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
@@ -240,14 +226,11 @@ class cryo_fit2_class(object):
           break
         if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
           cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
-      #elif (cycle_so_far < check_cc_after_these_cycles/2):
       elif (total_steps_so_far_for_cc_check < check_cc_after_these_steps/2):
-        #cycle_so_far = cycle_so_far + 1
         if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
           cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         cc_1st_array.append(cc_after_small_MD)
       else:
-        #cycle_so_far = cycle_so_far + 1
         if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
           cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         cc_2nd_array.append(cc_after_small_MD)
@@ -259,11 +242,6 @@ class cryo_fit2_class(object):
           cycle_so_far_for_map_weight_reoptimization = 0 # reinitialization
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
       
-      # write_this = "cycle_so_far:" + str(cycle_so_far) + "\n"
-      # print('%s' %(write_this))
-      # self.logfile.write(str(write_this))
-      
-      #if (cycle_so_far >= check_cc_after_these_cycles):
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         total_steps_so_far_for_cc_check = 0 # reset
         write_this = "total_steps_so_far_for_cc_check:" + str(total_steps_so_far_for_cc_check) + "\n"
@@ -276,7 +254,6 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
 
           best_cc_so_far = cc_after_small_MD
-          #cycle_so_far = 0 # reset
           
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
@@ -292,8 +269,6 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
-          #cycle_so_far = 0 # reset
-          #total_steps_so_far_for_cc_check = 0 # reset
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
 
