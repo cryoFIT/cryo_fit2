@@ -308,6 +308,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         print (write_this)
         logfile.write(str(write_this))        
     
+            
     if (output_dir_final != ''):
         if (output_dir_final.find('_bp_') == -1): # here output_dir_final could be ''
             if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
@@ -378,10 +379,6 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             splited2 = splited[1].split("_step_")
             optimum_MD_in_each_cycle = splited2[0]
             
-            # splited = check_this_dir.split("_sigma_for_custom_geom_")
-            # splited2 = splited[1].split("_cc_")
-            # optimum_sigma_for_custom_geom = splited2[0]
-            
             splited = check_this_dir.split("_start_")
             splited2 = splited[1].split("_final_")
             optimum_start_temperature = splited2[0]
@@ -395,7 +392,7 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             optimum_weight_multiply = splited2[0]
             
             os.chdir(starting_dir)
-            #return optimum_MD_in_each_cycle, optimum_sigma_for_custom_geom, optimum_start_temperature, \
+            
             return optimum_MD_in_each_cycle, optimum_start_temperature, \
                    optimum_step, optimum_weight_multiply
 ############ end of def extract_the_best_cc_parameters():
@@ -640,10 +637,10 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
     
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
         # just explore 2 combinations to save regression time
-        for MD_in_each_cycle in range (2, 14, 10): # 2
+        for MD_in_each_cycle in range (2, 14, 100): 
             for number_of_steps in range (1, 51, 100):
                 for start_temperature in np.arange (300.0, 301.0, 300.0):
-                    for weight_multiply in range (1, 3, 10):
+                    for weight_multiply in range (1, 10, 6): # 2
                         total_combi_num = total_combi_num + 1
                         argstuples.append([self, self.params, logfile, user_map_weight, \
                                            bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \

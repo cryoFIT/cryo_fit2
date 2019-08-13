@@ -141,6 +141,7 @@ class cryo_fit2_class(object):
     if (("tst_cryo_fit2_" in self.model_name) == True): 
       self.params.total_steps_for_exploration = 100
     
+    map_weight_before_multiplication = self.params.map_weight
     self.params.map_weight = self.params.map_weight * weight_multiply
     #### This is the only place where weight_multiply is applied (other than reoptimize_map_weight_if_not_specified for final MD)
     
@@ -154,11 +155,10 @@ class cryo_fit2_class(object):
     
     ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
-      write_this = "\n" + str(i) + "th iteration with " + str(round(self.params.map_weight,1)) + " self.params.map_weight\n"
+      write_this = "\n" + str(i) + "th iteration with " + str(round(self.params.map_weight,1)) + " self.params.map_weight (after multiplication)\n"
       print (write_this)
       self.logfile.write(str(write_this))
       
-      # this try-except doesn't work, once sa.run fails w/ nan error it just crashes
       try:
         if (self.params.progress_on_screen == True): # default choice
           result = sa.run(
@@ -216,6 +216,8 @@ class cryo_fit2_class(object):
       
       ############# all below is for final MD
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
+      # print ("check_cc_after_these_steps:",check_cc_after_these_steps)
+      # print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
       if (total_steps != ''):
     
         if (total_steps_so_far >= total_steps):
@@ -244,10 +246,7 @@ class cryo_fit2_class(object):
       
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         total_steps_so_far_for_cc_check = 0 # reset
-        write_this = "total_steps_so_far_for_cc_check:" + str(total_steps_so_far_for_cc_check) + "\n"
-        print('%s' %(write_this))
-        self.logfile.write(str(write_this))
-
+        
         if (cc_after_small_MD > best_cc_so_far):
           write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, cryo_fit2 will run longer MD.\n\n"
           print('%s' %(write_this))
@@ -264,6 +263,9 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
+        if ((len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)):
+          continue
+          
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
           print('%s' %(write_this))
@@ -356,8 +358,6 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file_name_w_path, returned[0], returned[1], returned[2], returned[3])
         
-    # To save a regression test time
-    #if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False): #"AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
     if (("tst_cryo_fit2" in fitted_file_name_w_path) == False): 
       calculate_RMSD(self, fitted_file_name_w_path)
       
@@ -368,6 +368,18 @@ class cryo_fit2_class(object):
 
     mv_command_string = "mv " + output_dir_w_CC + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
+    
+    
+    ############################
+    current_dir = os.getcwd()
+    os.chdir(output_dir_final)
+
+    command_string = "echo " + str(map_weight_before_multiplication) + " >> used_map_weight_before_multiplication.txt"
+    libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+
+    os.chdir(current_dir)    
+    ############################
+
 
     return output_dir_final
 ############# end of run function
