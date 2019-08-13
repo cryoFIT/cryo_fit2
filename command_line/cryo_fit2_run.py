@@ -127,9 +127,9 @@ class cryo_fit2_class(object):
     ########################### <begin> prepare/initialize for iteration
     check_cc_after_these_steps = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
-      check_cc_after_these_steps = 5
+      check_cc_after_these_steps = 1000 # if too small like 100, it may run forever
     else:
-      check_cc_after_these_steps = 100000
+      check_cc_after_these_steps = 10000 #100000
   
     reoptimize_map_weight_after_these_cycles = ''
     if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
@@ -155,9 +155,13 @@ class cryo_fit2_class(object):
     
     ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
+      
       write_this = "\n" + str(i) + "th iteration with " + str(round(self.params.map_weight,1)) + " self.params.map_weight (after multiplication)\n"
       print (write_this)
       self.logfile.write(str(write_this))
+      
+      print ("(new iteration) check_cc_after_these_steps:",check_cc_after_these_steps)
+      print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
       
       try:
         if (self.params.progress_on_screen == True): # default choice
@@ -216,8 +220,8 @@ class cryo_fit2_class(object):
       
       ############# all below is for final MD
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
-      # print ("check_cc_after_these_steps:",check_cc_after_these_steps)
-      # print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
+
+      
       if (total_steps != ''):
     
         if (total_steps_so_far >= total_steps):
@@ -245,7 +249,7 @@ class cryo_fit2_class(object):
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
       
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
-        total_steps_so_far_for_cc_check = 0 # reset
+        
         
         if (cc_after_small_MD > best_cc_so_far):
           write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, cryo_fit2 will run longer MD.\n\n"
@@ -256,6 +260,7 @@ class cryo_fit2_class(object):
           
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
+          total_steps_so_far_for_cc_check = 0 # reset
           continue 
 
         else:
@@ -264,6 +269,7 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
 
         if ((len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)):
+          print ("(len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)")
           continue
           
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
@@ -273,6 +279,7 @@ class cryo_fit2_class(object):
 
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
+          total_steps_so_far_for_cc_check = 0 # reset
 
         else: #(np.mean(cc_2nd_array) <= np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"

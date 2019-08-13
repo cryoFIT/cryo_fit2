@@ -213,7 +213,7 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 ######################## end of determine_optimal_weight_as_macro_cycle_RSR()
 '''
 
-
+# this fn runs only once in entire cryo_fit2 running (final MD may run once more, but I'm disabling it)
 def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
   pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
   f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
@@ -638,7 +638,7 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
         # just explore 2 combinations to save regression time
         for MD_in_each_cycle in range (2, 14, 100): 
-            for number_of_steps in range (1, 51, 100):
+            for number_of_steps in range (100, 151, 100):
                 for start_temperature in np.arange (300.0, 301.0, 300.0):
                     for weight_multiply in range (1, 10, 6): # 2
                         total_combi_num = total_combi_num + 1
