@@ -545,8 +545,6 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     if (self.params.weight_multiply == None):
       self.params.weight_multiply = 1
 
-    self.params.explore = False # now exploration is completed
-    
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
@@ -557,21 +555,24 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     
     current_dir = os.getcwd()
     
-    dir_w_best_parameters = "output_resolution_" + str(self.params.resolution) \
-                          + "_start_" + str(self.params.start_temperature) \
-                          + "_final_" + str(self.params.final_temperature) \
-                          + "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) \
-                          + "_step_" + str(self.params.number_of_steps) \
-                          + "_strong_ss_" + str(self.params.strong_ss) \
-                          + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
-                          + "_sigma_for_custom_geom_" + str(self.params.sigma_for_custom_geom)
-                          
-    command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
-    found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
-        
-    used_map_weight_before_multiplication_file_w_dir = str(found_dir_w_best_parameters[len(found_dir_w_best_parameters)-1]) + "/used_map_weight_before_multiplication.txt"
-    used_map_weight_before_multiplication = get_used_map_weight(used_map_weight_before_multiplication_file_w_dir)
-    self.params.map_weight = float(used_map_weight_before_multiplication)
+    if (self.params.explore == True):
+      dir_w_best_parameters = "output_resolution_" + str(self.params.resolution) \
+                            + "_start_" + str(self.params.start_temperature) \
+                            + "_final_" + str(self.params.final_temperature) \
+                            + "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) \
+                            + "_step_" + str(self.params.number_of_steps) \
+                            + "_strong_ss_" + str(self.params.strong_ss) \
+                            + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
+                            + "_sigma_for_custom_geom_" + str(self.params.sigma_for_custom_geom)
+                            
+      command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
+      found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+          
+      used_map_weight_before_multiplication_file_w_dir = str(found_dir_w_best_parameters[len(found_dir_w_best_parameters)-1]) + "/used_map_weight_before_multiplication.txt"
+      used_map_weight_before_multiplication = get_used_map_weight(used_map_weight_before_multiplication_file_w_dir)
+      self.params.map_weight = float(used_map_weight_before_multiplication)
+    
+    self.params.explore = False # now exploration is completed
     
     # Override self.params.* with user entered values
     if (user_cool_rate != None):
