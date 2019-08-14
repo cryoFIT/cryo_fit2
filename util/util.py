@@ -680,8 +680,11 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
                                                 bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                                 number_of_steps, start_temperature, \
                                                 weight_multiply])
-                        else:
-                            for weight_multiply in range (1, 12802, 800): # (w 0.5 sigma) new_small & old_irina kept all ss even w/ 6402
+                        else: # for protein
+                            #for weight_multiply in range (1, 12802, 800):
+                            for weight_multiply in range (1, 25602, 1600):
+                                # (w 0.5 sigma) old_irina kept all ss even w/ 6402
+                                # (w 0.5 sigma) new_small kept all ss even w/ 12801
                                 total_combi_num = total_combi_num + 1 
                                 argstuples.append([self, self.params, logfile, user_map_weight, \
                                                 bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
