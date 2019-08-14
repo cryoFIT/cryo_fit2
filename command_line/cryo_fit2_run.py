@@ -250,17 +250,16 @@ class cryo_fit2_class(object):
       
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         
-        
         if (cc_after_small_MD > best_cc_so_far):
           write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, cryo_fit2 will run longer MD.\n\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
           best_cc_so_far = cc_after_small_MD
-          
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
           total_steps_so_far_for_cc_check = 0 # reset
+          
           continue 
 
         else:

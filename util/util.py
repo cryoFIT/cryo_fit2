@@ -308,7 +308,6 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         print (write_this)
         logfile.write(str(write_this))        
     
-            
     if (output_dir_final != ''):
         if (output_dir_final.find('_bp_') == -1): # here output_dir_final could be ''
             if (os.path.isdir("parameters_exploration/bp_H_E_not_calculated") == False):
@@ -343,7 +342,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
         command_string = "mv " + str(output_dir_final) + " parameters_exploration/bp_H_E_not_kept"
         libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     
-    return bp, H, E    
+    return bp, H, E
 ############ end of explore_parameters_by_multi_core()
 
 
@@ -511,6 +510,18 @@ map_weight can't be optimized automatically.
           grm = restraints_manager,
           xrs = xrs)
 ######################## end of get_pdb_inputs_by_pdb_file_name function
+
+
+def get_used_map_weight(file):
+    f_in = open(file)
+    for line in f_in:
+        used_map_weight = line
+        f_in.close()
+        print ("used_map_weight:",used_map_weight)
+        return used_map_weight
+      #splited = line.split(" ")
+      #cc = splited[4]
+################ end of get_users_cc(cc_record)
 
 
 def hasNumbers(inputString):
