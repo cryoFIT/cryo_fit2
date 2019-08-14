@@ -247,8 +247,8 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
         params.total_steps = params.total_steps_for_exploration
     else:
-        params.total_steps = 30 # temporary for development
-    print ("params.total_steps for MD parameter exploration:", str(params.total_steps))
+        params.total_steps_for_final_MD = 30 # temporary for development
+    print ("params.total_steps_for_final_MD:", str(params.total_steps_for_final_MD))
     
     model_inp = self.data_manager.get_model()
     map_inp   = self.data_manager.get_real_map()
@@ -980,7 +980,20 @@ geometry_restraints {
       write_this = "    bond {\n"
       f_out.write(write_this)
       
+      #cctbx_project/mmtbx/monomer_library/pdb_interpretation.py
       write_this = "      action = *add\n"
+      
+      # for protein and implicit and explicit 0.05, reflected in used_geom
+      
+      # for protein and explicit 0.03 and 6, not reflected in used_geom
+      # because "Bond-like restraints:" overrides my custom geom
+      # these "Bond-like restraints:" are reflected in used_geom even when strong_ss=False
+      
+      # for RNA (0.01~6), reflected in used_geom
+      
+      #write_this = "      action = add\n" # ??
+      #write_this = "      action = change\n"  #exception message:geometry_restraints.edits.bond.action = change not implemented
+      #write_this = "      action = delete\n"  #exception message:geometry_restraints.edits.bond.action = delete not implemented
       f_out.write(write_this)
       
       chain_candidate = splited[2]
@@ -1016,17 +1029,17 @@ geometry_restraints {
         '''
       else:
         # default H-bond length for nucleic acid base pairs and helix and sheet
-          f_out.write("      distance_ideal = 2.91\n")
+          f_out.write("      distance_ideal = 2.91\n") # Doonam observed 2.8, 3.2 in a helix
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
       
+      # print (type(sigma_for_custom_geom))
+      # # protein's 6 -> float
+      # # RNA's 6 -> float
+      # STOP()
+      
       write_this = "      sigma = " + float_to_str(sigma_for_custom_geom) + "\n" 
       f_out.write(write_this) 
-      
-      # /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
-      # left bp from 26 to 20, I may need to lower the sigma even to 0.002
-      # However, /Users/doonam/research/cryo_fit2/tRNA/ori_map/eff_used/output_resolution_4.0_start_300_final_0_cool_10_step_3000_eff_used_CC_0.001
-      # used too large steps (3k;;;) and small cool_rate (10)
       
       write_this = "    }\n"
       f_out.write(write_this)
@@ -1052,6 +1065,9 @@ geometry_restraints {
         f_out.write(write_this)
         
         write_this = "      action = *add\n"
+        # for protein (0.03, 0.05, 6), reflected in used_geom
+        # for RNA (0.01~6), reflected in used_geom
+        
         f_out.write(write_this)
             
         chain_candidate = splited[3]

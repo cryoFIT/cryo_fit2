@@ -87,9 +87,9 @@ class cryo_fit2_class(object):
     params.cool_rate               = self.params.cool_rate
     params.number_of_steps         = self.params.number_of_steps
     
-    total_steps = ''
-    if (self.params.total_steps != None):
-      total_steps   = self.params.total_steps
+    total_steps_for_final_MD = ''
+    if (self.params.total_steps_for_final_MD != None):
+      total_steps_for_final_MD   = self.params.total_steps_for_final_MD
 
     params.update_grads_shift      = 0.
     params.interleave_minimization = False #Pavel will fix the error that occur when params.interleave_minimization=True
@@ -127,7 +127,9 @@ class cryo_fit2_class(object):
     ########################### <begin> prepare/initialize for iteration
     check_cc_after_these_steps = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
-      check_cc_after_these_steps = 500 # if too small like 100, it may run forever
+      check_cc_after_these_steps = 500
+      # if too small like 100, it may run forever
+      # I confirmed that 500 is definitely too small to explore properly (a helix), but this is just for test
     else:
       check_cc_after_these_steps = 100000
   
@@ -140,6 +142,7 @@ class cryo_fit2_class(object):
         
     if (("tst_cryo_fit2_" in self.model_name) == True): 
       self.params.total_steps_for_exploration = 100
+      total_steps_for_final_MD = 10000
     
     map_weight_before_multiplication = self.params.map_weight
     self.params.map_weight = self.params.map_weight * weight_multiply
@@ -150,17 +153,19 @@ class cryo_fit2_class(object):
     cc_2nd_array = []
     result = ''
     total_steps_so_far_for_cc_check = 0 # initialization
+    
+    
     ########################### <end> prepare/initialize for iteration
     
     
     ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
-      write_this = "\n" + str(i) + "th iteration with " + str(round(self.params.map_weight,1)) + " self.params.map_weight (after multiplication)\n"
+      write_this = "\n" + str(i) + "th iteration with " + str(round(self.params.map_weight,1)) + " self.params.map_weight (after multiplication)"
       print (write_this)
       self.logfile.write(str(write_this))
       
-      print ("(new iteration) check_cc_after_these_steps:",check_cc_after_these_steps)
+      print ("check_cc_after_these_steps:",check_cc_after_these_steps)
       print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
       
       try:
@@ -222,11 +227,11 @@ class cryo_fit2_class(object):
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
 
       
-      if (total_steps != ''):
+      if (total_steps_for_final_MD != ''):
     
-        if (total_steps_so_far >= total_steps):
+        if (total_steps_so_far >= total_steps_for_final_MD):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
-                     ") >= A specified total_steps (" + str(total_steps) + ")\n"
+                     ") >= A specified total_steps_for_final_MD (" + str(total_steps_for_final_MD) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
@@ -345,7 +350,8 @@ class cryo_fit2_class(object):
                    " weight_multiply (" + str(weight_multiply)               + ")\n" + \
                    " final_temperature (" + str(params.final_temperature)    + ")\n" + \
                    " map_weight (" + str(round(self.params.map_weight,2))    + ")\n" + \
-                   " total_steps (" + str(total_steps)  + ")"  # total_steps alone is ok without params, self.params
+                   " total_steps_for_final_MD (" + str(total_steps_for_final_MD)  + ")"
+                   # total_steps alone is ok without params, self.params
       print (write_this)
       self.logfile.write(str(write_this))
       

@@ -127,17 +127,17 @@ start_temperature = None
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 strong_ss = True
   .type   = bool
-  .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom (e.g. 0.05) for secondary structure restraints. \
+  .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom for secondary structure restraints. \
             If False, it will not use custom geometry
-total_steps      = None
-  .type          = int
-  .short_caption = The total number of steps in phenix.dynamics.\
-                   If specified, run up to this number of steps no matter what.
 total_steps_for_exploration  = 10000
   .type                      = int
   .short_caption             = The total number of steps for MD parameter exploration. \
                                10k is enough to discern Mg Channel \
                                15k is not enough for tRNA
+total_steps_for_final_MD  = None
+  .type                   = int
+  .short_caption          = The total number of steps in phenix.dynamics.\
+                            If specified, run up to this number of steps no matter what.
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -341,15 +341,15 @@ class Program(ProgramTemplate):
       self.params.final_temperature = 280
       self.params.MD_in_each_cycle = 2
       self.params.number_of_steps = 1
-      self.params.total_steps = 50
-
+      self.params.total_steps_for_final_MD = 50
+  
     elif (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"):
       self.params.explore = False
       self.params.start_temperature = 1000
       self.params.final_temperature = 0
       self.params.MD_in_each_cycle = 5
       self.params.number_of_steps = 1000
-      self.params.total_steps = 2000
+      self.params.total_steps_for_final_MD = 2000
 
     ########## <begin> Automatic map weight determination
     user_map_weight = ''
@@ -403,11 +403,9 @@ class Program(ProgramTemplate):
         shutil.rmtree("parameters_exploration")
       os.mkdir("parameters_exploration")
       
-      #the_pdb_file_has_amino_acid = check_whether_the_pdb_file_has_amino_acid(self.data_manager.get_default_model_name())
       the_pdb_file_has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
       
       if (the_pdb_file_has_nucleic_acid == True):
-        #self.params.total_steps_for_exploration = 20000 # for tRNA, 15k was barely enough
         self.params.total_steps_for_exploration = 25000 # for tRNA, 15k was barely enough
         
       total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_acid, \
@@ -607,8 +605,8 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     if (eff_file_exists == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name
     
-    if (self.params.total_steps != None):
-      cryo_fit2_input_command = cryo_fit2_input_command + " total_steps=" + str(self.params.total_steps)
+    if (self.params.total_steps_for_final_MD != None):
+      cryo_fit2_input_command = cryo_fit2_input_command + " total_steps_for_final_MD=" + str(self.params.total_steps_for_final_MD)
     
     cryo_fit2_input_command = cryo_fit2_input_command + "\n"
     
@@ -645,7 +643,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                    " number_of_steps (" + str(self.params.number_of_steps)        + ")\n" + \
                    " start_temperature (" + str(self.params.start_temperature)    + ")\n" + \
                    " final_temperature (" + str(self.params.final_temperature)    + ")\n" + \
-                   " total_steps (" + str(self.params.total_steps)  + ")" 
+                   " total_steps_for_final_MD (" + str(self.params.total_steps_for_final_MD)  + ")" 
       print (write_this)
       self.logfile.write(str(write_this))
       logfile.close()
