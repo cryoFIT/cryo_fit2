@@ -127,9 +127,9 @@ class cryo_fit2_class(object):
     ########################### <begin> prepare/initialize for iteration
     check_cc_after_these_steps = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
-      check_cc_after_these_steps = 1000 # if too small like 100, it may run forever
+      check_cc_after_these_steps = 500 # if too small like 100, it may run forever
     else:
-      check_cc_after_these_steps = 10000 #100000
+      check_cc_after_these_steps = 100000
   
     reoptimize_map_weight_after_these_cycles = ''
     if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
@@ -149,7 +149,7 @@ class cryo_fit2_class(object):
     cc_1st_array = []
     cc_2nd_array = []
     result = ''
-    total_steps_so_far_for_cc_check = 0 # init
+    total_steps_so_far_for_cc_check = 0 # initialization
     ########################### <end> prepare/initialize for iteration
     
     

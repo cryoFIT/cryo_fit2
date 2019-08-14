@@ -1047,17 +1047,13 @@ geometry_restraints {
 #    }
 
     elif (dist_angle_candidate == "angle"):
-
-        atom1 = splited[9]
-        if (hasNumbers(atom1) == False): #this_line_is_protein
-          continue
         
         write_this = "    angle {\n"
         f_out.write(write_this)
         
         write_this = "      action = *add\n"
         f_out.write(write_this)
-      
+            
         chain_candidate = splited[3]
         splited_chain_candidate = chain_candidate.split("\"")
         resi1 = splited[6].strip()
@@ -1079,36 +1075,29 @@ geometry_restraints {
         write_this = "      atom_selection_3 = chain \'" + splited_chain_candidate[1] + "\' and resid " + resi3 + " and name " + atom3 + "\n"
         f_out.write(write_this)
         
-        if (atom1 == "C4" and atom2 ==  "N4" and atom3 ==  "O6"): 
-            f_out.write("      angle_ideal = 117.3\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-        elif (atom1 == "C6" and atom2 ==  "O6" and atom3 ==  "N4"):
-            f_out.write("      angle_ideal = 122.8\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-        elif (atom1 == "C2" and atom2 ==  "N3" and atom3 ==  "N1"): 
-            f_out.write("      angle_ideal = 119.1\n") # either 119.1 or 116.3 # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-        elif (atom1 == "C2" and atom2 ==  "N1" and atom3 ==  "N3"):
-            f_out.write("      angle_ideal = 116.3\n") # either 119.1 or 116.3 # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-        elif (atom1 == "C2" and atom2 ==  "O2" and atom3 ==  "N2"):
-            f_out.write("      angle_ideal = 120.7\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-        elif (atom1 == "C2" and atom2 ==  "N2" and atom3 ==  "O2"):
-            f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-        else: 
-            f_out.write("      angle_ideal = 120.0\n") # just my guess
-            
-        '''
-        if (atom1 == "C4" and atom2 ==  "N4" and atom3 ==  "O6"): 
-            f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and tRNA
-        elif (atom1 == "C6" and atom2 ==  "O6" and atom3 ==  "N4"):
-            f_out.write("      angle_ideal = 120.7\n") # derived from Oleg slide and tRNA
-        #elif (atom1 == "C2" and atom2 ==  "N3" and atom3 ==  "N1"): 
-        #    f_out.write("      angle_ideal = 115.3\n") # not defined in Oleg slide but checked w/ tRNA example
-        #elif (atom1 == "C2" and atom2 ==  "N1" and atom3 ==  "N3"): # not sure
-        #    f_out.write("      angle_ideal = 121.1\n") # not defined in Oleg slide but checked w/ tRNA example
-        elif (atom1 == "C2" and atom2 ==  "O2" and atom3 ==  "N2"):
-            f_out.write("      angle_ideal = 122.8\n") # derived from Oleg slide and tRNA
-        elif (atom1 == "C2" and atom2 ==  "N2" and atom3 ==  "O2"):
-            f_out.write("      angle_ideal = 117.3\n") # derived from Oleg slide and tRNA
-        '''
-        
+        atom1 = splited[9]
+        if (hasNumbers(atom1) == False): #this_line_is_protein
+            if (atom1 == "C" and atom2 ==  "O" and atom3 ==  "N"): 
+                f_out.write("      angle_ideal = 146.0\n") # observed from DN helix: 145, 148.8
+            elif (atom1 == "CA" and atom2 ==  "N" and atom3 ==  "O"): 
+                f_out.write("      angle_ideal = 111.0\n") # observed from DN helix: 110.6, 111.3
+            else: # should be (atom1 == "C" and atom2 ==  "N" and atom3 ==  "O"): 
+                f_out.write("      angle_ideal = 120.0\n") # observed from DN helix: 117.8, 122.9
+        else: # this is for nucleic acid
+            if (atom1 == "C4" and atom2 ==  "N4" and atom3 ==  "O6"): 
+                f_out.write("      angle_ideal = 117.3\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+            elif (atom1 == "C6" and atom2 ==  "O6" and atom3 ==  "N4"):
+                f_out.write("      angle_ideal = 122.8\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+            elif (atom1 == "C2" and atom2 ==  "N3" and atom3 ==  "N1"): 
+                f_out.write("      angle_ideal = 119.1\n") # either 119.1 or 116.3 # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+            elif (atom1 == "C2" and atom2 ==  "N1" and atom3 ==  "N3"):
+                f_out.write("      angle_ideal = 116.3\n") # either 119.1 or 116.3 # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+            elif (atom1 == "C2" and atom2 ==  "O2" and atom3 ==  "N2"):
+                f_out.write("      angle_ideal = 120.7\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+            elif (atom1 == "C2" and atom2 ==  "N2" and atom3 ==  "O2"):
+                f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+            else: 
+                f_out.write("      angle_ideal = 120.0\n") # just my guess
         write_this = "      sigma = " + float_to_str(sigma_for_custom_geom) + "\n" 
         f_out.write(write_this)
         
