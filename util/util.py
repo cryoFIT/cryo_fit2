@@ -670,11 +670,11 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
                                             weight_multiply])
                     else:
                         if (the_pdb_file_has_nucleic_acid == True):
-                            for weight_multiply in range (1, 12802, 800): # (w 0.1 sigma) 6001 generated many bp keeping full_tRNA
-                            #for weight_multiply in range (1, 6402, 400): # (w 0.1 sigma) 6001 generated many bp keeping full_tRNA
-                            #for weight_multiply in range (1, 3202, 200): # (w 0.5 sigma) 2801 generated many bp keeping full_tRNA
-                            #for weight_multiply in range (1, 1602, 100): # (w 0.5 sigma) 1601 generated many bp keeping full_tRNA
-                            #for weight_multiply in range (1, 802, 50): # (w 0.5 sigma) 751 was the best for Mg_Channel, 801 was the best for tRNA 
+                            for weight_multiply in range (1, 12802, 800): # (with 0.1 sigma) 6001 generated many bp keeping full_tRNA
+                            #for weight_multiply in range (1, 6402, 400): # (with 0.1 sigma) 6001 generated many bp keeping full_tRNA
+                            #for weight_multiply in range (1, 3202, 200): # (with 0.5 sigma) 2801 generated many bp keeping full_tRNA
+                            #for weight_multiply in range (1, 1602, 100): # (with 0.5 sigma) 1601 generated many bp keeping full_tRNA
+                            #for weight_multiply in range (1, 802, 50):   # (with 0.5 sigma) 751 was the best for Mg_Channel, 801 was the best for tRNA 
                                 total_combi_num = total_combi_num + 1 
                                 argstuples.append([self, self.params, logfile, user_map_weight, \
                                                 bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
@@ -683,8 +683,10 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
                         else: # for protein
                             #for weight_multiply in range (1, 12802, 800):
                             for weight_multiply in range (1, 25602, 1600):
-                                # (w 0.5 sigma) old_irina kept all ss even w/ 6402
-                                # (w 0.5 sigma) new_small kept all ss even w/ 12801
+                                # (with 0.5 sigma) old_irina kept all ss even with 6402
+                                
+                                # (with 0.5 sigma) new_small kept all ss even with 12801
+                                #                            increased cc up to 0.40 with 801
                                 total_combi_num = total_combi_num + 1 
                                 argstuples.append([self, self.params, logfile, user_map_weight, \
                                                 bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
@@ -1029,7 +1031,7 @@ geometry_restraints {
         '''
       else:
         # default H-bond length for nucleic acid base pairs and helix and sheet
-          f_out.write("      distance_ideal = 2.91\n") # Doonam observed 2.8, 3.2 in a helix
+          f_out.write("      distance_ideal = 2.911\n") # Doonam observed 2.8, 3.2 in a helix
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
       
@@ -1067,7 +1069,6 @@ geometry_restraints {
         write_this = "      action = *add\n"
         # for protein (0.03, 0.05, 6), reflected in used_geom
         # for RNA (0.01~6), reflected in used_geom
-        
         f_out.write(write_this)
             
         chain_candidate = splited[3]

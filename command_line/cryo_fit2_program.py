@@ -249,7 +249,8 @@ class Program(ProgramTemplate):
     if (self.params.sigma_for_custom_geom != None):
       user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
     else:
-      self.params.sigma_for_custom_geom = 0.05 # best bp keeping for L1 stalk
+      #self.params.sigma_for_custom_geom = 0.05 # best bp keeping for L1 stalk
+      self.params.sigma_for_custom_geom = 0.04
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
     if (self.params.weight_multiply != None):

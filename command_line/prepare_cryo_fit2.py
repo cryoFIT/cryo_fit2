@@ -129,7 +129,7 @@ start_temperature = None
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 strong_ss = True
   .type   = bool
-  .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom (e.g. 0.05) for secondary structure restraints. \
+  .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom for secondary structure restraints. \
             If False, it will not use custom geometry
 total_steps      = None
   .type          = int
@@ -314,18 +314,24 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.close()
       exit(1)
     
-    if (self.params.sigma_for_custom_geom != None):
-      user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
-    else:
-      #self.params.sigma_for_custom_geom = 0.05
-      self.params.sigma_for_custom_geom = 0.06
+    # if (self.params.sigma_for_custom_geom != None):
+    #   user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
+    # else:
+    #   self.params.sigma_for_custom_geom = 0.04
       
     user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile, "prepare_cryo_fit2", "NA")
     if ((user_eff_file_provided == False) and (self.params.strong_ss == True)):
+      
+      if (self.params.sigma_for_custom_geom != None):
+        user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
+      else:
+        self.params.sigma_for_custom_geom = 0.04
+      
       write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
       print (write_this)
       logfile.write(write_this)
-      generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), self.params.sigma_for_custom_geom)
+      generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
+                                                      self.params.sigma_for_custom_geom)
       sys.argv.append(generated_eff_file_name)
     
     logfile.close()

@@ -127,18 +127,18 @@ class cryo_fit2_class(object):
     ########################### <begin> prepare/initialize for iteration
     check_cc_after_these_steps = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
-      check_cc_after_these_steps = 500
+      check_cc_after_these_steps = 1000
       # if too small like 100, it may run forever
       # I confirmed that 500 is definitely too small to explore properly (a helix), but this is just for test
     else:
       check_cc_after_these_steps = 100000
   
-    reoptimize_map_weight_after_these_cycles = ''
-    if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-      if (("tst_cryo_fit2" in model_file_name_only) == True):
-        reoptimize_map_weight_after_these_cycles = 5
-      else:
-        reoptimize_map_weight_after_these_cycles = 100 # after 123~171 cycles, full tRNA crashes (when map_weight is multiplied too crazy back then,,,)
+    # reoptimize_map_weight_after_these_cycles = ''
+    # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+    #   if (("tst_cryo_fit2" in model_file_name_only) == True):
+    #     reoptimize_map_weight_after_these_cycles = 5
+    #   else:
+    #     reoptimize_map_weight_after_these_cycles = 100 # after 123~171 cycles, full tRNA crashes (when map_weight is multiplied too crazy back then,,,)
         
     if (("tst_cryo_fit2_" in self.model_name) == True): 
       self.params.total_steps_for_exploration = 100
@@ -164,9 +164,6 @@ class cryo_fit2_class(object):
       write_this = "\n" + str(i) + "th iteration with " + str(round(self.params.map_weight,1)) + " self.params.map_weight (after multiplication)"
       print (write_this)
       self.logfile.write(str(write_this))
-      
-      print ("check_cc_after_these_steps:",check_cc_after_these_steps)
-      print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
       
       try:
         if (self.params.progress_on_screen == True): # default choice
@@ -226,32 +223,34 @@ class cryo_fit2_class(object):
       ############# all below is for final MD
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
 
-      
       if (total_steps_for_final_MD != ''):
-    
         if (total_steps_so_far >= total_steps_for_final_MD):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
                      ") >= A specified total_steps_for_final_MD (" + str(total_steps_for_final_MD) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-        if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-          cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
-      elif (total_steps_so_far_for_cc_check < check_cc_after_these_steps/2):
-        if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-          cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
+        # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+        #   cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
+        
+      if (float(total_steps_so_far_for_cc_check) < float(check_cc_after_these_steps/2)):
         cc_1st_array.append(cc_after_small_MD)
+        # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+        #   cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
+        
       else:
-        if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-          cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         cc_2nd_array.append(cc_after_small_MD)
+        # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
+        #   cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
       
+      '''
       if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
         if (cycle_so_far_for_map_weight_reoptimization >= reoptimize_map_weight_after_these_cycles):
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
           self.params.map_weight = self.params.map_weight * weight_multiply
           cycle_so_far_for_map_weight_reoptimization = 0 # reinitialization
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
+      '''
       
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         
@@ -273,7 +272,11 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
 
         if ((len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)):
+          total_steps_so_far_for_cc_check = 0 # reset
           print ("(len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)")
+          print ("cc_1st_array:",cc_1st_array)
+          print ("cc_2nd_array:",cc_2nd_array)
+          STOP()
           continue
           
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
