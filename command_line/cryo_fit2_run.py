@@ -19,14 +19,10 @@ import scitbx.math, scitbx.math.superpose, subprocess
 os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
 os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
+
 ######## <begin> needed to import util.py
-path = subprocess.check_output(["which", "phenix.cryo_fit2"])
-splited_path = path.split("/")
-command_path = ''
-for i in range(len(splited_path)-3):
-  command_path = command_path + splited_path[i] + "/"
-command_path = command_path + "modules/cryo_fit2/"
-util_path = command_path + "util/"
+cryo_fit2_repository_dir = libtbx.env.dist_path("cryo_fit2") # Locate phenix.cryo_fit.run_tests executable
+util_path = cryo_fit2_repository_dir + "/util/"
 sys.path.insert(0, util_path)
 from util import *
 ######## <end> needed to import util.py
@@ -124,7 +120,7 @@ class cryo_fit2_class(object):
     # but Mg channel with 10k check took 10 days!
     
     
-    ########################### <begin> prepare/initialize for iteration
+#### <begin> prepare/initialize for iteration
     check_cc_after_these_steps = ''
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       check_cc_after_these_steps = 1000
@@ -153,9 +149,7 @@ class cryo_fit2_class(object):
     cc_2nd_array = []
     result = ''
     total_steps_so_far_for_cc_check = 0 # initialization
-    
-    
-    ########################### <end> prepare/initialize for iteration
+#### <end> prepare/initialize for iteration
     
     
     ########################### <begin> iterate until cryo_fit2 derived cc saturates

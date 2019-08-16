@@ -10,10 +10,18 @@ from subprocess import check_output
 import libtbx.load_env
 import shutil
 
+########## <begin> import util py files
 cryo_fit2_repository_dir = libtbx.env.dist_path("cryo_fit2") # Locate phenix.cryo_fit.run_tests executable
+util_path = cryo_fit2_repository_dir + "/util/"
+print (util_path)
+sys.path.insert(0, util_path)
+from util import *
+########## <end> import util py files
 
 
 def test_fn ():
+    time_total_start = time.time()
+    
     assert len(os.listdir(os.getcwd()))==0, 'run in an empty directory' # added by Nigel so that this test runs in a clear path
 
 #    print "This phenix.cryo_fit2.run_tests executable comes from ", cryo_fit2_repository_dir
@@ -101,6 +109,10 @@ def test_fn ():
     # remove a no longer needed folder and an input command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
     libtbx.easy_run.fully_buffered(rm_command_string)
+    
+    time_total_end = time.time()
+    time_took = show_time("All regression tests", time_total_start, time_total_end)
+    print (time_took)
     
     if ((rc1 == 0) and (rc2 == 0) and (rc3 == 0) and (rc4 == 0) and (rc5 == 0)):
       return 0 # success

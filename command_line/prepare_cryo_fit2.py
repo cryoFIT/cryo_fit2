@@ -37,13 +37,8 @@ os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
 
 ########## <begin> import util py files
-path = subprocess.check_output(["which", "phenix.cryo_fit2"])
-splited_path = path.split("/")
-command_path = ''
-for i in range(len(splited_path)-3):
-  command_path = command_path + splited_path[i] + "/"
-command_path = command_path + "modules/cryo_fit2/"
-util_path = command_path + "util/"
+cryo_fit2_repository_dir = libtbx.env.dist_path("cryo_fit2") # Locate phenix.cryo_fit.run_tests executable
+util_path = cryo_fit2_repository_dir + "/util/"
 sys.path.insert(0, util_path)
 from util import *
 ########## <end> import util py files
