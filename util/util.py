@@ -244,11 +244,8 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     print ("params.final_temperature:                       ", str(params.final_temperature))
     print ("params.map_weight:                              ", str(round(params.map_weight,2)))
 
-    if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == False):
-        params.total_steps = params.total_steps_for_exploration
-    else:
-        params.total_steps_for_final_MD = 30 # temporary for development
-    print ("params.total_steps_for_final_MD:", str(params.total_steps_for_final_MD))
+    if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
+        params.total_steps_for_exploration = 30 # temporary for development
     
     model_inp = self.data_manager.get_model()
     map_inp   = self.data_manager.get_real_map()
@@ -304,7 +301,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
                      " weight_multiply (" + str(self.params.weight_multiply)        + ")" + \
                      " final_temperature (" + str(params.final_temperature)    + ")" + \
                      " map_weight (" + str(round(params.map_weight,2))  + ")" + \
-                     " total_steps (" + str(params.total_steps)  + ")" 
+                     " total_steps_for_exploration (" + str(params.total_steps_for_exploration)  + ")" 
         print (write_this)
         logfile.write(str(write_this))        
     
