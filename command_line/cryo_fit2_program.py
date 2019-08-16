@@ -359,7 +359,6 @@ class Program(ProgramTemplate):
     
     write_this = str(round(self.params.map_weight,1)) + "\n"
     logfile.write(write_this)
-    #logfile.write("\n")
     ########## <end> Automatic map weight determination
     
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
@@ -616,7 +615,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     input_command_file.write(str(cryo_fit2_input_command))
     input_command_file.close()
     
-    logfile.write("\n\nAn input command for final cryo_fit2 MD run:\n")
+    logfile.write("\nAn input command for final cryo_fit2 MD run:\n")
     logfile.write(str(cryo_fit2_input_command))
 
     task_obj = cryo_fit2_run.cryo_fit2_class(
