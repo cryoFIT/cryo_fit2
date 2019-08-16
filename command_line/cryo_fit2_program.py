@@ -352,13 +352,14 @@ class Program(ProgramTemplate):
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
-      logfile.write("\n\nAn automatically optimized map_weight (before any multiplication): ")
+      logfile.write("An automatically optimized map_weight (before any multiplication): ")
     else:
       user_map_weight = self.params.map_weight # this user_map_weight will be used later
-      logfile.write("\n\nA user specified map_weight: ")
+      logfile.write("A user specified map_weight: ")
     
-    logfile.write(str(round(self.params.map_weight,1)))
-    logfile.write("\n")
+    write_this = str(round(self.params.map_weight,1)) + "\n"
+    logfile.write(write_this)
+    #logfile.write("\n")
     ########## <end> Automatic map weight determination
     
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \

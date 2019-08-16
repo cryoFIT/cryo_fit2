@@ -95,7 +95,7 @@ class cryo_fit2_class(object):
     weight_multiply                = self.weight_multiply
     
     cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
-    write_this = "\nCC before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n\n"
+    write_this = "\nCC before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
 
@@ -155,7 +155,7 @@ class cryo_fit2_class(object):
     ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
-      write_this = "\n" + str(i) + "th iteration"
+      write_this = "\n" + str(i) + "th iteration\n"
       print (write_this)
       self.logfile.write(str(write_this))
       
@@ -243,7 +243,7 @@ class cryo_fit2_class(object):
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         
         if (cc_after_small_MD > best_cc_so_far):
-          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, cryo_fit2 will run longer MD.\n\n"
+          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, cryo_fit2 will run longer MD.\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
@@ -292,7 +292,7 @@ class cryo_fit2_class(object):
     cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
     
     if (self.params.explore == False): # no need to calculate cc after explore
-      write_this = "\nCC after final MD of cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n\n"
+      write_this = "\nCC after final MD of cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
     
@@ -356,7 +356,7 @@ class cryo_fit2_class(object):
     
     returned = know_how_much_map_origin_moved(str(self.map_name))
     if (returned != "origin_is_all_zero" and self.params.keep_origin == True):
-        write_this = "Restoring original xyz position for a cryo_fit2 fitted atomistic model\n\n"
+        write_this = "Restoring original xyz position for a cryo_fit2 fitted atomistic model\n"
         print (write_this)
         self.logfile.write(str(write_this))
         return_to_origin_of_pdb_file(fitted_file_name_w_path, returned[0], returned[1], returned[2], returned[3])
