@@ -422,7 +422,8 @@ class Program(ProgramTemplate):
         # sparky resulted in 40 (I expected to see 34 since I was running 6 cores at that time. \
         #It seems that number_of_processors returned just all # of processors)
 
-        cores_to_use = math.ceil(returned_nproc/4) # will use at least 1 core, since math.ceil rounds up to the next greater integer
+        cores_to_use = math.ceil(returned_nproc/3)
+        # will use at least 1 core, since math.ceil rounds up to the next greater integer
         # just to avoid crash, it seems like sparky linux machine can't handle more than 40 cores (even 20 cores)
         # when I used 13 cores, the load average reached 20!
 
