@@ -129,12 +129,12 @@ class cryo_fit2_class(object):
     else:
       check_cc_after_these_steps = 100000
   
-    # reoptimize_map_weight_after_these_cycles = ''
+    # reoptimize_map_weight_after_these_steps = ''
     # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
     #   if (("tst_cryo_fit2" in model_file_name_only) == True):
-    #     reoptimize_map_weight_after_these_cycles = 5
+    #     reoptimize_map_weight_after_these_steps = 5
     #   else:
-    #     reoptimize_map_weight_after_these_cycles = 100 # after 123~171 cycles, full tRNA crashes (when map_weight is multiplied too crazy back then,,,)
+    #     reoptimize_map_weight_after_these_steps = 100 # after 123~171 cycles, full tRNA crashes (when map_weight is multiplied too crazy back then,,,)
         
     if (("tst_cryo_fit2_" in self.model_name) == True): 
       self.params.total_steps_for_exploration = 100
@@ -239,7 +239,7 @@ class cryo_fit2_class(object):
       
       '''
       if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-        if (cycle_so_far_for_map_weight_reoptimization >= reoptimize_map_weight_after_these_cycles):
+        if (cycle_so_far_for_map_weight_reoptimization >= reoptimize_map_weight_after_these_steps):
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
           self.params.map_weight = self.params.map_weight * weight_multiply
           cycle_so_far_for_map_weight_reoptimization = 0 # reinitialization
