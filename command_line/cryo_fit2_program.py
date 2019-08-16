@@ -77,6 +77,10 @@ map_weight       = None
   .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
+max_steps_for_final_MD    = None
+  .type                   = int
+  .short_caption          = The maximum number of steps in final running of phenix.dynamics.\
+                            If specified, run up to this number of steps no matter what.
 MD_in_each_cycle = None
   .type          = int
   .short_caption = Cycle is each iteration of MD from start_temperature to final_temperature. \
@@ -130,10 +134,6 @@ total_steps_for_exploration  = 10000
   .short_caption             = The total number of steps for MD parameter exploration. \
                                10k is enough to discern Mg Channel \
                                15k is not enough for tRNA
-max_steps_for_final_MD  = None
-  .type                   = int
-  .short_caption          = The total number of steps in phenix.dynamics.\
-                            If specified, run up to this number of steps no matter what.
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -592,13 +592,14 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             + " weight_multiply=" + str(round(self.params.weight_multiply,1)) \
                             + " record_states=" + str(self.params.record_states) \
                             + " explore=False" \
-                            + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD)
+                            + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
+                            + " map_weight=" + str(round(self.params.map_weight,1)) + " "
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
-                            #+ "map_weight=" + str(round(self.params.map_weight,1)) + " " \
+                            
     eff_file_exists, user_eff_file_name = check_whether_args_has_eff(args, logfile, "cryo_fit2_program", self.params.sigma_for_custom_geom)
     if (eff_file_exists == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name

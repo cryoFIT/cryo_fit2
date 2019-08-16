@@ -77,6 +77,10 @@ map_weight       = None
   .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
+max_steps_for_final_MD    = None
+  .type                   = int
+  .short_caption          = The maximum number of steps in final running of phenix.dynamics.\
+                            If specified, run up to this number of steps no matter what.
 MD_in_each_cycle = None
   .type          = int
   .short_caption = An cycle here is different from the one in deep learning. \
@@ -126,10 +130,6 @@ strong_ss = True
   .type   = bool
   .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom for secondary structure restraints. \
             If False, it will not use custom geometry
-total_steps      = None
-  .type          = int
-  .short_caption = The total number of steps in phenix.dynamics.\
-                   If specified, run up to this number of steps no matter what.
 total_steps_for_exploration  = 10000
   .type                      = int
   .short_caption             = The total number of steps for MD parameter exploration. \

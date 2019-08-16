@@ -224,18 +224,12 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-        # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-        #   cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         
       if (float(total_steps_so_far_for_cc_check) < float(check_cc_after_these_steps/2)):
         cc_1st_array.append(cc_after_small_MD)
-        # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-        #   cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
         
       else:
         cc_2nd_array.append(cc_after_small_MD)
-        # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
-        #   cycle_so_far_for_map_weight_reoptimization = cycle_so_far_for_map_weight_reoptimization + 1
       
       '''
       if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
@@ -349,7 +343,6 @@ class cryo_fit2_class(object):
                    " final_temperature (" + str(params.final_temperature)    + ")\n" + \
                    " map_weight (" + str(round(self.params.map_weight,2))    + ")\n" + \
                    " max_steps_for_final_MD (" + str(max_steps_for_final_MD)  + ")"
-                   # total_steps alone is ok without params, self.params
       print (write_this)
       self.logfile.write(str(write_this))
       
