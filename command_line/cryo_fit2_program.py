@@ -134,7 +134,7 @@ total_steps_for_exploration  = 10000
   .short_caption             = The total number of steps for MD parameter exploration. \
                                10k is enough to discern Mg Channel \
                                15k is not enough for tRNA
-total_steps_for_final_MD  = None
+max_steps_for_final_MD  = None
   .type                   = int
   .short_caption          = The total number of steps in phenix.dynamics.\
                             If specified, run up to this number of steps no matter what.
@@ -342,7 +342,7 @@ class Program(ProgramTemplate):
       self.params.final_temperature = 280
       self.params.MD_in_each_cycle = 2
       self.params.number_of_steps = 1
-      self.params.total_steps_for_final_MD = 50
+      self.params.max_steps_for_final_MD = 50
   
     elif (input_model_file_name_wo_path == "tutorial_cryo_fit2_model.pdb"):
       self.params.explore = False
@@ -350,7 +350,7 @@ class Program(ProgramTemplate):
       self.params.final_temperature = 0
       self.params.MD_in_each_cycle = 5
       self.params.number_of_steps = 1000
-      self.params.total_steps_for_final_MD = 2000
+      self.params.max_steps_for_final_MD = 2000
 
     ########## <begin> Automatic map weight determination
     user_map_weight = ''
@@ -607,8 +607,8 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     if (eff_file_exists == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name
     
-    if (self.params.total_steps_for_final_MD != None):
-      cryo_fit2_input_command = cryo_fit2_input_command + " total_steps_for_final_MD=" + str(self.params.total_steps_for_final_MD)
+    if (self.params.max_steps_for_final_MD != None):
+      cryo_fit2_input_command = cryo_fit2_input_command + " max_steps_for_final_MD=" + str(self.params.max_steps_for_final_MD)
     
     cryo_fit2_input_command = cryo_fit2_input_command + "\n"
     
@@ -645,7 +645,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                    " number_of_steps (" + str(self.params.number_of_steps)        + ")\n" + \
                    " start_temperature (" + str(self.params.start_temperature)    + ")\n" + \
                    " final_temperature (" + str(self.params.final_temperature)    + ")\n" + \
-                   " total_steps_for_final_MD (" + str(self.params.total_steps_for_final_MD)  + ")" 
+                   " max_steps_for_final_MD (" + str(self.params.max_steps_for_final_MD)  + ")" 
       print (write_this)
       self.logfile.write(str(write_this))
       logfile.close()
