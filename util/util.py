@@ -657,7 +657,8 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
     else: # regular running                
         for MD_in_each_cycle in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
-                for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
+                #for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
+                for start_temperature in np.arange (300.0, 601.0, 300.0): # 900 seems break James' new_small
                     if (("L1_stalk" in self.data_manager.get_default_model_name()) == True):
                         for weight_multiply in range (1, 402, 25): # L1 stalk with sparse map density nearby fails to keep bp with weight_multiply >= 400
                             total_combi_num = total_combi_num + 1 

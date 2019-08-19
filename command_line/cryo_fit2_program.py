@@ -130,7 +130,7 @@ sigma_for_custom_geom = None
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
-                   If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
+                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 600.
 strong_ss = True
   .type   = bool
   .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom for secondary structure restraints. \
@@ -531,7 +531,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
       
     
     ###############  <begin> core cryo_fit2
-    ### Assign default values if not specified till now
+    ### Assign default values if not specified till now (as a 0.998 cc full helix)
     if (self.params.MD_in_each_cycle == None):
       self.params.MD_in_each_cycle = 4
     if (self.params.number_of_steps == None):
