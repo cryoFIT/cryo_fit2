@@ -145,7 +145,7 @@ class cryo_fit2_class(object):
     cc_1st_array = []
     cc_2nd_array = []
     result = ''
-    total_steps_so_far = 0
+    total_steps_so_far_for_exploration_and_final_MD = 0
     total_steps_so_far_for_cc_check = 0 # initialization
 #### <end> prepare/initialize for iteration
     
@@ -190,7 +190,7 @@ class cryo_fit2_class(object):
         return self.output_dir
         
       multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
-      total_steps_so_far = total_steps_so_far + int(params.number_of_steps*multiply_this)
+      total_steps_so_far_for_exploration_and_final_MD = total_steps_so_far_for_exploration_and_final_MD + int(params.number_of_steps*multiply_this)
       
       
       cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
@@ -198,14 +198,14 @@ class cryo_fit2_class(object):
       self.logfile.write(str(write_this))
       
       if (self.params.explore == True):
-        if (total_steps_so_far < self.params.max_steps_for_exploration):
-          write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
+        if (total_steps_so_far_for_exploration_and_final_MD < self.params.max_steps_for_exploration):
+          write_this = "\ntotal_steps_so_far_for_exploration_and_final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
                        ") < max_steps_for_exploration (" + str(self.params.max_steps_for_exploration) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           continue
         else:
-          write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
+          write_this = "\ntotal_steps_so_far_for_exploration_and_final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
                        ") >= max_steps_for_exploration (" + str(self.params.max_steps_for_exploration) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
@@ -216,8 +216,8 @@ class cryo_fit2_class(object):
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
 
       if (max_steps_for_final_MD != ''):
-        if (total_steps_so_far >= max_steps_for_final_MD):
-          write_this = "\ttotal_steps_so_far (" + str(total_steps_so_far) + \
+        if (total_steps_so_far_for_exploration_and_final_MD >= max_steps_for_final_MD):
+          write_this = "\ttotal_steps_so_far_for_exploration_and_final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
                      ") >= A specified max_steps_for_final_MD (" + str(max_steps_for_final_MD) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
@@ -280,7 +280,7 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
-          write_this = "cc values are saturated\ntotal_steps_so_far: " + str(total_steps_so_far) + "\n"
+          write_this = "cc values are saturated\ntotal_steps_so_far_for_exploration_and_final_MD: " + str(total_steps_so_far_for_exploration_and_final_MD) + "\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break

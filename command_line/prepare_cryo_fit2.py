@@ -93,7 +93,8 @@ MD_in_each_cycle = None
                    If not specified, cryo_fit2 will use the optimized value by automatic exploration.
 nproc            = None
   .type          = int
-  .short_caption = Number of cores to use for MD parameter exploration.
+  .short_caption = Number of cores to use for MD parameter exploration.\
+                   If not specified, cryo_fit2 will use available number of cores/3
 number_of_steps  = None
   .type          = int
   .short_caption = The number of MD steps in each phenix.dynamics \
@@ -214,6 +215,9 @@ Options:
   
   MD_in_each_cycle             Cycle is each iteration of MD from start_temperature to final_temperature.
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
+  
+  nproc                        Number of cores to use for MD parameter exploration.
+                               If not specified, cryo_fit2 will use available number of cores/3
   
   number_of_steps              The number of MD steps in each phenix.dynamics
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
