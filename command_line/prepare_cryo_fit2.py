@@ -77,6 +77,11 @@ map_weight       = None
   .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
+max_steps_for_exploration    = 10000
+  .type                      = int
+  .short_caption             = The total number of steps for MD parameter exploration. \
+                               10k is enough to discern Mg Channel \
+                               15k is not enough for tRNA
 max_steps_for_final_MD    = None
   .type                   = int
   .short_caption          = The maximum number of steps in final running of phenix.dynamics.\
@@ -130,11 +135,6 @@ strong_ss = True
   .type   = bool
   .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom for secondary structure restraints. \
             If False, it will not use custom geometry
-max_steps_for_exploration  = 10000
-  .type                      = int
-  .short_caption             = The total number of steps for MD parameter exploration. \
-                               10k is enough to discern Mg Channel \
-                               15k is not enough for tRNA
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
