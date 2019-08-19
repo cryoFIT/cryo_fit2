@@ -56,7 +56,7 @@ include scope libtbx.phil.interface.tracking_params
 cool_rate        = None
   .type          = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
-explore          = True
+explore          = False
   .type          = bool
   .short_caption = If True, cryo_fit2 will use maximum number of multiple cores to explore the most optimal MD parameters.\
                    However, this exploration requires a lot of computing power (e.g. > 128 GB memory, > 20 cores).\

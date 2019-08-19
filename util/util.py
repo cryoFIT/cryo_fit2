@@ -668,7 +668,7 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
                                             weight_multiply])
                     else:
                         if (the_pdb_file_has_nucleic_acid == True):
-                            for weight_multiply in range (1, 12802, 800): # (with 0.1 sigma) 6001 generated many bp keeping full_tRNA
+                            for weight_multiply in range (1, 12802, 800): 
                             #for weight_multiply in range (1, 6402, 400): # (with 0.1 sigma) 6001 generated many bp keeping full_tRNA
                             #for weight_multiply in range (1, 3202, 200): # (with 0.5 sigma) 2801 generated many bp keeping full_tRNA
                             #for weight_multiply in range (1, 1602, 100): # (with 0.5 sigma) 1601 generated many bp keeping full_tRNA
@@ -679,12 +679,15 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
                                                 number_of_steps, start_temperature, \
                                                 weight_multiply])
                         else: # for protein
-                            #for weight_multiply in range (1, 12802, 800):
-                            for weight_multiply in range (1, 25602, 1600):
+                            for weight_multiply in range (1, 802, 50):
+                            #for weight_multiply in range (1, 25602, 1600):
                                 # (with 0.5 sigma) old_irina kept all ss even with 6402
                                 
-                                # (with 0.5 sigma) new_small kept all ss even with 12801
-                                #                            increased cc up to 0.40 with 801
+                                # (with 0.5 sigma) new_small
+                                #                            (with 12801) kept all ss
+                                #                            (with 1601) kept all ss during exploration, but broke those during final_MD
+                                #                            (with 801) increased cc up to 0.40 
+                                
                                 total_combi_num = total_combi_num + 1 
                                 argstuples.append([self, self.params, logfile, user_map_weight, \
                                                 bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
