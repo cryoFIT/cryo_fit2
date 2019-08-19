@@ -635,7 +635,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
 
     output_dir_final = task_obj.run()
     if (output_dir_final.find('_bp_') == -1):
-      write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+      write_this = "An exception occurred. Maybe cryo_fit2 failed to run (\"nan\") for this condition:\n" + \
                    " map_weight (" + str(round(self.params.map_weight,2))         + ")\n" + \
                    " weight_multiply (" + str(self.params.weight_multiply)        + ")\n" + \
                    " cool_rate (" + str(round(self.params.cool_rate, 1))          + ")\n" + \
@@ -645,7 +645,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                    " final_temperature (" + str(self.params.final_temperature)    + ")\n" + \
                    " max_steps_for_final_MD (" + str(self.params.max_steps_for_final_MD)  + ")" 
       print (write_this)
-      self.logfile.write(str(write_this))
+      logfile.write(str(write_this))
       logfile.close()
       return 0
     ############### (end) core cryo_fit2
