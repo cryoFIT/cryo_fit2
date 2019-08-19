@@ -129,7 +129,7 @@ strong_ss = True
   .type   = bool
   .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom for secondary structure restraints. \
             If False, it will not use custom geometry
-total_steps_for_exploration  = 10000
+max_steps_for_exploration  = 10000
   .type                      = int
   .short_caption             = The total number of steps for MD parameter exploration. \
                                10k is enough to discern Mg Channel \
@@ -403,7 +403,7 @@ class Program(ProgramTemplate):
       the_pdb_file_has_nucleic_acid = check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name())
       
       if (the_pdb_file_has_nucleic_acid == True):
-        self.params.total_steps_for_exploration = 25000 # for tRNA, 15k was barely enough
+        self.params.max_steps_for_exploration = 25000 # for tRNA, 15k was barely enough
         
       total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_acid, \
                                                     bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage

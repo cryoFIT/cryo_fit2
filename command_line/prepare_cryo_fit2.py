@@ -130,7 +130,7 @@ strong_ss = True
   .type   = bool
   .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom for secondary structure restraints. \
             If False, it will not use custom geometry
-total_steps_for_exploration  = 10000
+max_steps_for_exploration  = 10000
   .type                      = int
   .short_caption             = The total number of steps for MD parameter exploration. \
                                10k is enough to discern Mg Channel \
@@ -218,8 +218,9 @@ Options:
   number_of_steps              The number of MD steps in each phenix.dynamics
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
   
-  total_steps                  (default: None)
-                               If specified, run up to this number of step no matter what.
+  max_steps_for_final_MD       (default: None)
+                               The maximum number of steps in final running of phenix.dynamics.
+                               If specified, run up to this number of steps no matter what.
   
   secondary_structure.enabled  (default: True)
                                Most MD simulations tend to break secondary structure. 

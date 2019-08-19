@@ -99,9 +99,6 @@ class cryo_fit2_class(object):
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
 
-    result = ''
-    total_steps_so_far = 0
-
     if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None
     
@@ -137,7 +134,7 @@ class cryo_fit2_class(object):
     #     reoptimize_map_weight_after_these_steps = 100 # after 123~171 cycles, full tRNA crashes (when map_weight is multiplied too crazy back then,,,)
         
     if (("tst_cryo_fit2_" in self.model_name) == True): 
-      self.params.total_steps_for_exploration = 100
+      self.params.max_steps_for_exploration = 100
       max_steps_for_final_MD = 10000
     
     map_weight_before_multiplication = self.params.map_weight
@@ -148,6 +145,7 @@ class cryo_fit2_class(object):
     cc_1st_array = []
     cc_2nd_array = []
     result = ''
+    total_steps_so_far = 0
     total_steps_so_far_for_cc_check = 0 # initialization
 #### <end> prepare/initialize for iteration
     
@@ -200,15 +198,15 @@ class cryo_fit2_class(object):
       self.logfile.write(str(write_this))
       
       if (self.params.explore == True):
-        if (total_steps_so_far < self.params.total_steps_for_exploration):
+        if (total_steps_so_far < self.params.max_steps_for_exploration):
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
-                       ") < total_steps_for_exploration (" + str(self.params.total_steps_for_exploration) + ")\n"
+                       ") < max_steps_for_exploration (" + str(self.params.max_steps_for_exploration) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           continue
         else:
           write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
-                       ") >= total_steps_for_exploration (" + str(self.params.total_steps_for_exploration) + ")\n"
+                       ") >= max_steps_for_exploration (" + str(self.params.max_steps_for_exploration) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
@@ -219,7 +217,7 @@ class cryo_fit2_class(object):
 
       if (max_steps_for_final_MD != ''):
         if (total_steps_so_far >= max_steps_for_final_MD):
-          write_this = "\ntotal_steps_so_far (" + str(total_steps_so_far) + \
+          write_this = "\ttotal_steps_so_far (" + str(total_steps_so_far) + \
                      ") >= A specified max_steps_for_final_MD (" + str(max_steps_for_final_MD) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
