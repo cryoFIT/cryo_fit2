@@ -77,7 +77,7 @@ map_weight       = None
   .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
-max_steps_for_exploration  = 10000
+max_steps_for_exploration    = 10000
   .type                      = int
   .short_caption             = The total number of steps for MD parameter exploration. \
                                10k is enough to discern Mg Channel \
