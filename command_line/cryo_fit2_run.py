@@ -153,7 +153,7 @@ class cryo_fit2_class(object):
     ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
-      write_this = "\n" + str(i) + "th iteration\n"
+      write_this = "\n" + str(i+1) + "th iteration\n"
       print (write_this)
       self.logfile.write(str(write_this))
       
@@ -217,7 +217,7 @@ class cryo_fit2_class(object):
 
       if (max_steps_for_final_MD != ''):
         if (total_steps_so_far_for_exploration_and_final_MD >= max_steps_for_final_MD):
-          write_this = "\ttotal_steps_so_far_for_exploration_and_final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
+          write_this = "\ntotal_steps_so_far_for_exploration_and_final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
                      ") >= A specified max_steps_for_final_MD (" + str(max_steps_for_final_MD) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
