@@ -153,7 +153,7 @@ class cryo_fit2_class(object):
     ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
-      write_this = "\n" + str(i+1) + "th iteration\n"
+      write_this = "\n" + str(i+1) + "th iteration: \n"
       print (write_this)
       self.logfile.write(str(write_this))
       
@@ -184,7 +184,7 @@ class cryo_fit2_class(object):
         print (write_this)
         self.logfile.write(str(write_this))
         
-        write_this = "Failed during core map weighted phenix.dynamics run."
+        write_this = "Failed during core map weight multiplied phenix.dynamics run."
         print (write_this)
         self.logfile.write(str(write_this))
         return self.output_dir

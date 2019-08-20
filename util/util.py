@@ -9,6 +9,7 @@ from cctbx import xray
 import cryo_fit2_run
 
 import decimal, glob, os, platform, subprocess
+from os import path
 
 import iotbx.phil, libtbx
 from iotbx import map_and_model
@@ -629,6 +630,47 @@ def know_number_of_atoms_in_input_pdb(logfile, starting_pdb):
 ################# end of know_number_of_atoms_in_input_pdb()
 
 
+def leave_one_conformer(logfile, input_pdb_file_name): ######### deal AARG, BARG
+    f_in = open(input_pdb_file_name)
+    output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_cryo_fit2.pdb"
+    f_out = open(output_pdb_file_name, 'wt')
+    cleaned = False
+    
+    for line in f_in:
+        if ((line[0:4] != "ATOM") and (line[0:6] != "HETATM") and (line[0:6] != "ANISOU")):
+            f_out.write(line)
+        else:
+            if (line[16:17] == "A"):
+                cleaned = True
+                new_line = line[:16] + " " + line[17:20] + line[20:]
+                f_out.write(new_line)
+            elif (line[16:17] == "B"):
+                cleaned = True
+                continue
+            else:
+                f_out.write(line)    
+    f_in.close()
+    f_out.close()
+    
+    if (cleaned == False):
+        cmd = "rm " + output_pdb_file_name
+        libtbx.easy_run.call(cmd)
+        return 0
+    else:
+        file_name_w_user_s_original_pdb_info = input_pdb_file_name + "_before_leaving_one_conformer"
+        command = "cp " + str(input_pdb_file_name) + " " + str(file_name_w_user_s_original_pdb_info)
+        libtbx.easy_run.call(command)
+        command = "mv " + str(output_pdb_file_name) + " " + str(input_pdb_file_name)
+        libtbx.easy_run.call(command)
+        
+        write_this = "cryo_fit2 leaves one conformer. Therefore, the original user pdb file is now renamed to " + file_name_w_user_s_original_pdb_info
+        print (write_this)
+        logfile.write(write_this)
+    
+        return 0
+########################### end of leave_one_conformer function
+
+
 def line_prepender(filename, line):
     with open(filename, 'r+') as f:
         content = f.read()
@@ -808,7 +850,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     
     print ("Cryo_fit2 will prepend this CRYST1 information:",write_this_CRYST1, " to a user pdb file")
     
-    file_name_w_user_s_original_pdb_info = self.data_manager.get_default_model_name() + ".original"
+    file_name_w_user_s_original_pdb_info = self.data_manager.get_default_model_name() + "_before_adding_CRYST1"
     command = "cp " + self.data_manager.get_default_model_name() + " " + file_name_w_user_s_original_pdb_info
     libtbx.easy_run.call(command)
     
@@ -820,6 +862,44 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     
     return file_name_w_user_s_original_pdb_info
 ############################ end of prepend_extracted_CRYST1_to_pdb_file
+
+
+def remove_prefix_in_AA_name(input_pdb_file_name): ######### deal AARG, BARG
+    f_in = open(input_pdb_file_name)
+    output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_for_cryo_fit2.pdb"
+    f_out = open(output_pdb_file_name, 'wt')
+    cleaned = False
+    
+    for line in f_in:
+        if ((line[0:4] != "ATOM") and (line[0:6] != "HETATM") and (line[0:6] != "ANISOU")):
+            f_out.write(line)
+        else:
+            if (line[16:17] != ' '):
+                cleaned = True
+                new_line = line[:16] + " " + line[17:20] + line[20:]
+                f_out.write(new_line)
+            else:
+                f_out.write(line)    
+    f_in.close()
+    f_out.close()
+    
+    if (cleaned == False):
+        cmd = "rm " + output_pdb_file_name
+        libtbx.easy_run.call(cmd)
+        return 0
+    else:
+        file_name_w_user_s_original_pdb_info = input_pdb_file_name + "_before_removing_prefix"
+        command = "cp " + str(input_pdb_file_name) + " " + str(file_name_w_user_s_original_pdb_info)
+        libtbx.easy_run.call(command)
+        command = "mv " + str(output_pdb_file_name) + " " + str(input_pdb_file_name)
+        libtbx.easy_run.call(command)
+        
+        write_this = "cryo_fit2 leaves one confomer. Therefore, the original user pdb file is now renamed to " + file_name_w_user_s_original_pdb_info
+        print (write_this)
+        logfile.write(write_this)
+    
+        return 0
+########################### end of remove_prefix_in_AA_name function
 
 
 def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style of RNA file
@@ -979,6 +1059,18 @@ geometry_restraints {
   for line in f_in:
     dist_angle_candidate = line[0:5]
     splited = line.split()
+    if (len(splited) > 12):
+        if (splited[12] == "'B'"): # use A conformer only for angle
+            continue
+    if (len(splited) > 22):
+        if (splited[22] == "'B'"): # use A conformer only for dist
+            continue
+    if (len(splited) > 23):
+        if (splited[23] == "'B',"): # use A conformer only for angle
+            continue
+    if (len(splited) > 34):
+        if (splited[34] == "'B'"): # use A conformer only for angle
+            continue
     if (dist_angle_candidate == "dist "):
       write_this = "    bond {\n"
       f_out.write(write_this)
@@ -1148,7 +1240,7 @@ def show_time(app, time_start, time_end):
 def write_custom_geometry(logfile, input_model_file_name, sigma_for_custom_geom):
 
   ######## produce pymol format secondary structure restraints #########
-  # I heard that running phenix commandline directly is not ideal.
+  # I heard that running phenix commandline directly is not ideal from Nigel.
   # Therefore, I had used code directly rather than executing phenix executables at commandline such as calculating rmsd
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
@@ -1172,6 +1264,21 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_custom_geom)
   input_model_file_name_wo_path = splited_input_model_file_name[len(splited_input_model_file_name)-1]
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
   
+  if (path.isfile(ss_restraints_file_name) == False):
+    write_this = '''phenix.secondary_structure_restraints can't run with a user input file, maybe with an error like
+
+    Sorry: number of groups of duplicate atom labels:  76
+    total number of affected atoms:          152
+    group "ATOM    .*.  CA  GLU F  55 .*.     C  "
+          "ATOM    .*.  CA  GLU F  55 .*.     C  "
+          
+Consider to provide input pdb file after
+phenix.pdbtools <user>.pdb remove_alt_confs=True
+    '''
+    print(write_this)
+    logfile.write(write_this)
+    exit(1)
+    
   ##### rewrite_pymol_ss_to_custom_geometry_ss
   eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_custom_geom)
   

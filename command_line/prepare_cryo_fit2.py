@@ -314,11 +314,14 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.close()
       exit(1)
     
+    #remove_prefix_in_AA_name(self.data_manager.get_default_model_name())
+    leave_one_conformer(logfile, self.data_manager.get_default_model_name())
+    
     # if (self.params.sigma_for_custom_geom != None):
     #   user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
     # else:
     #   self.params.sigma_for_custom_geom = 0.04
-      
+    
     user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile, "prepare_cryo_fit2", "NA")
     if ((user_eff_file_provided == False) and (self.params.strong_ss == True)):
       
@@ -330,8 +333,10 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
       print (write_this)
       logfile.write(write_this)
+      
       generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
                                                       self.params.sigma_for_custom_geom)
+
       sys.argv.append(generated_eff_file_name)
     
     logfile.close()
