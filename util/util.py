@@ -90,7 +90,7 @@ def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma
             write_this = "A user provided " + user_eff_file_name
         else:
             write_this = "cryo_fit2 automatically generated " + user_eff_file_name + " with " + str(known_sigma_for_custom_geom) + " sigma_for_custom_geom"
-        write_this = write_this + " so that cryo_fit2 can use."
+        write_this = write_this + " that cryo_fit2 will use."
         print (write_this)
         logfile.write(write_this)
         return True, user_eff_file_name
@@ -970,8 +970,17 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
 
   return self.params.map_weight
 ############### end of reoptimize_map_weight_if_not_specified function
+       
            
-           
+def return_list_of_eff_from_args(args):
+    list_of_eff = []
+    for i in range(len(args)):
+      if args[i][len(args[i])-4:len(args[i])] == ".eff":
+          list_of_eff.append(str(args[i]))
+    return list_of_eff
+######## end of return_list_of_eff_from_args(args)
+
+
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
     print ("widthx:",widthx)
     move_x_by = move_x_by*widthx
@@ -1051,7 +1060,7 @@ geometry_restraints {
   '''
 
   f_in = open(user_input_pymol_ss)
-  out_file = user_input_pymol_ss[:-4] + '_custom_geom.eff'
+  out_file = user_input_pymol_ss[:-4] + '_cryo_fit2_auto.eff'
   f_out = open(out_file, "w")
   f_out.write('''geometry_restraints {
   edits {
