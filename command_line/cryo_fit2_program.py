@@ -217,7 +217,7 @@ class Program(ProgramTemplate):
   
   def run(self):
     time_total_start = time.time()
-    args = sys.argv[1:] # has model_w_CRYST1.pdb_ss_custom_geom.eff that was made from prepare_cryo_fit2
+    args = sys.argv[1:] # has model_w_CRYST1.pdb_ss_cryo_fit2_auto.eff that was made from prepare_cryo_fit2
     
     log = multi_out()
     out=sys.stdout
@@ -600,13 +600,6 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
-                            
-    
-    ''' # old method
-    eff_file_exists, user_eff_file_name = check_whether_args_has_eff(args, logfile, "cryo_fit2_program", self.params.sigma_for_custom_geom)
-    if (eff_file_exists == True):
-      cryo_fit2_input_command = cryo_fit2_input_command + " " + user_eff_file_name
-    '''
     
     list_of_eff = return_list_of_eff_from_args(args)
     
@@ -665,12 +658,6 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     if (os.path.isfile(pymol_ss) == True):
       mv_command_string = "mv " + pymol_ss + " " + output_dir_final
       libtbx.easy_run.fully_buffered(mv_command_string)
-    
-    ''' # old method
-    if (user_eff_file_name != ""):
-      mv_command_string = "mv " + user_eff_file_name + " " + output_dir_final
-      libtbx.easy_run.fully_buffered(mv_command_string)
-    '''
     
     for i in (range(len(list_of_eff))):
       if (("cryo_fit2_auto.eff" in str(list_of_eff[i])) == True): 

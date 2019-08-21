@@ -1,0 +1,27 @@
+geometry_restraints {
+  edits {
+    bond {
+      action = *add
+      atom_selection_1 = chain 'E' and resid 1 and name CA
+      atom_selection_2 = chain 'E' and resid 3 and name CA
+      distance_ideal = 9
+      sigma = 0.01
+    }
+    angle {
+      action = *add
+      atom_selection_1 = chain 'A' and resid 42 and name C4
+      atom_selection_2 = chain 'A' and resid 42 and name N4
+      atom_selection_3 = chain 'A' and resid 28 and name O6
+      angle_ideal = 117.3
+      sigma = 0.021
+    }
+    angle {
+      action = *add
+      atom_selection_1 = chain 'A' and resid 28 and name C6
+      atom_selection_2 = chain 'A' and resid 28 and name O6
+      atom_selection_3 = chain 'A' and resid 42 and name N4
+      angle_ideal = 122.8
+      sigma = 0.021
+    }
+  }
+}

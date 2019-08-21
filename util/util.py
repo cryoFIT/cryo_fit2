@@ -80,7 +80,7 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
       self.logfile.write(str(write_this))
 ############ def calculate_RMSD(self):
 
-
+'''
 def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma_for_custom_geom):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
@@ -96,7 +96,7 @@ def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma
         return True, user_eff_file_name
   return False, ""
 ######## end of check_whether_args_has_eff(args)
-
+'''
 
 def check_whether_the_pdb_file_has_amino_acid(pdb_file):
     file_opened = open(pdb_file, "r")
