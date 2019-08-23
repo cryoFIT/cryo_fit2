@@ -123,7 +123,7 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity
-sigma_for_custom_geom = None
+sigma_for_auto_geom = None
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg recommended 0.021 which is the sigma value for covalent bond.
@@ -133,7 +133,7 @@ start_temperature = None
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 600.
 strong_ss = True
   .type   = bool
-  .help   = If True, cryo_fit2 will use a stronger sigma_for_custom_geom for secondary structure restraints. \
+  .help   = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
             If False, it will not use custom geometry
 weight_multiply  = None
   .type          = float
@@ -232,7 +232,7 @@ class Program(ProgramTemplate):
     user_cool_rate = None
     user_MD_in_each_cycle = None 
     user_number_of_steps = None 
-    user_sigma_for_custom_geom = None
+    user_sigma_for_auto_geom = None
     user_start_temperature = None
     user_weight_multiply = None
     
@@ -243,11 +243,11 @@ class Program(ProgramTemplate):
       user_MD_in_each_cycle = self.params.MD_in_each_cycle
     if (self.params.number_of_steps != None):
       user_number_of_steps = self.params.number_of_steps
-    if (self.params.sigma_for_custom_geom != None):
-      user_sigma_for_custom_geom = self.params.sigma_for_custom_geom
+    if (self.params.sigma_for_auto_geom != None):
+      user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
     else:
-      #self.params.sigma_for_custom_geom = 0.05 # best bp keeping for L1 stalk
-      self.params.sigma_for_custom_geom = 0.04
+      #self.params.sigma_for_auto_geom = 0.05 # best bp keeping for L1 stalk
+      self.params.sigma_for_auto_geom = 0.04
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
     if (self.params.weight_multiply != None):
@@ -521,8 +521,8 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
         self.params.MD_in_each_cycle = user_MD_in_each_cycle
       if (user_number_of_steps != None):
         self.params.number_of_steps = user_number_of_steps
-      if (user_sigma_for_custom_geom != None):
-        self.params.sigma_for_custom_geom = user_sigma_for_custom_geom
+      if (user_sigma_for_auto_geom != None):
+        self.params.sigma_for_auto_geom = user_sigma_for_auto_geom
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
       if (user_weight_multiply != None):
@@ -546,7 +546,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
-    print ("sigma_for_custom_geom :", str(self.params.sigma_for_custom_geom))
+    print ("sigma_for_auto_geom :", str(self.params.sigma_for_auto_geom))
     print ("start_temperature     :", str(self.params.start_temperature))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     
@@ -560,7 +560,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             + "_step_" + str(self.params.number_of_steps) \
                             + "_strong_ss_" + str(self.params.strong_ss) \
                             + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
-                            + "_sigma_for_custom_geom_" + str(self.params.sigma_for_custom_geom)
+                            + "_sigma_for_auto_geom_" + str(self.params.sigma_for_auto_geom)
                             
       command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
       found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
