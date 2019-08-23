@@ -69,7 +69,7 @@ def test_fn ():
     print "regression_path:", regression_path
     os.chdir(regression_path)
 
-    command_string = "python tst3_cryo_fit2_test_strong_ss.py" % locals()
+    command_string = "python tst3_cryo_fit2_test_make_ss_for_stronger_ss.py" % locals()
     print "command_string:", command_string
     rc3 = libtbx.easy_run.call(command=command_string)
     assert rc3==0 # make sure there is no error with this test

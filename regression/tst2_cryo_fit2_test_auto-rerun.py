@@ -30,7 +30,7 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_helix_1_8_reso_10.ccp4",
     test=os.path.isfile)
   resolution = "resolution=10"
-  strong_ss = "strong_ss=False"
+  make_ss_for_stronger_ss = "make_ss_for_stronger_ss=False"
   map_weight = "map_weight=0.001" # for faster regression test
   explore = "explore=False"
   start_temperature = "start_temperature=300"

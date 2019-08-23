@@ -30,13 +30,13 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_tRNA_1_72_1_reso_11.ccp4",
     test=os.path.isfile)
   resolution = "resolution=11"
-  strong_ss = "strong_ss=True"
+  make_ss_for_stronger_ss = "make_ss_for_stronger_ss=True"
   explore = "explore=True"
   max_steps_for_exploration = "max_steps_for_exploration=50"
   max_steps_for_final_MD = "max_steps_for_final_MD=10"
   assert (not None in [pdb_file, map_file])
   cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, \
-                                  args=[pdb_file, map_file, resolution, strong_ss, explore,\
+                                  args=[pdb_file, map_file, resolution, make_ss_for_stronger_ss, explore,\
                                         max_steps_for_exploration, max_steps_for_final_MD])
 ############## end of exercise_cryo_fit2()
 

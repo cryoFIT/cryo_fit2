@@ -132,7 +132,7 @@ start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
-strong_ss = True
+make_ss_for_stronger_ss = True
   .type   = bool
   .help   = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
             If False, it will not use custom geometry
@@ -323,7 +323,7 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     ''' # old method
     user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile, "prepare_cryo_fit2", "NA")
-    if ((user_eff_file_provided == False) and (self.params.strong_ss == True)):
+    if ((user_eff_file_provided == False) and (self.params.make_ss_for_stronger_ss == True)):
       
       if (self.params.sigma_for_auto_geom != None):
         user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
@@ -340,7 +340,7 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     '''
     
     # new method
-    if (self.params.strong_ss == True):
+    if (self.params.make_ss_for_stronger_ss == True):
       
       if (self.params.sigma_for_auto_geom != None):
         user_sigma_for_auto_geom = self.params.sigma_for_auto_geom

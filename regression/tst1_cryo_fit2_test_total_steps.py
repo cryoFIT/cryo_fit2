@@ -30,7 +30,7 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_helix_1_8_reso_10.ccp4",
     test=os.path.isfile)
   resolution = "resolution=10"
-  strong_ss = "strong_ss=False"
+  make_ss_for_stronger_ss = "make_ss_for_stronger_ss=False"
   explore = "explore=False"
   max_steps_for_exploration = "max_steps_for_exploration=50"
   max_steps_for_final_MD = "max_steps_for_final_MD=50"
@@ -41,7 +41,7 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
   assert (not None in [pdb_file, map_file])
   cryo_fit2_results = run_program(program_class=cryo_fit2_program.Program, \
                                   args=[pdb_file, map_file, resolution, start_temperature, final_temperature, \
-                                        MD_in_each_cycle, number_of_steps, strong_ss, explore, \
+                                        MD_in_each_cycle, number_of_steps, make_ss_for_stronger_ss, explore, \
                                         max_steps_for_final_MD, max_steps_for_exploration])
 ############## end of exercise_cryo_fit2()
 

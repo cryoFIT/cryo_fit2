@@ -21,7 +21,7 @@ Therefore, at coolor temperature, cryo_fit2 refines structure with a original si
 
 [How to add additional restraints]
 
-cryo_fit2 <user>.map <user>.pdb resolution=<x> strong_ss=True
+cryo_fit2 <user>.map <user>.pdb resolution=<x> make_ss_for_stronger_ss=True
 
 
 
