@@ -184,7 +184,7 @@ class cryo_fit2_class(object):
         print (write_this)
         self.logfile.write(str(write_this))
         
-        write_this = "Failed during core map weight multiplied phenix.dynamics run."
+        write_this = "Failed during core map weight multiplied phenix.dynamics run.\n"
         print (write_this)
         self.logfile.write(str(write_this))
         return self.output_dir
