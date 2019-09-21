@@ -171,28 +171,34 @@ new_default = 'pdb_interpretation.secondary_structure.protein.remove_outliers = 
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
+
+
+new_default = 'pdb_interpretation.secondary_structure.protein.helix.top_out = True'
+modified_master_phil_str = change_default_phil_values(
+  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+
+new_default = 'pdb_interpretation.secondary_structure.protein.sheet.top_out = True'
+modified_master_phil_str = change_default_phil_values(
+  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+
 '''
-#print ("modified_master_phil_str:",modified_master_phil_str)
+pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds
+pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hb_angles
+pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_parallelity
+
+are all True by default'''
+
 new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = True'
-modified_master_phil_str = change_default_phil_values(
-  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
-print ("modified_master_phil_str:",modified_master_phil_str)
-#STOP()
-
-new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds = True'
+# it was False by default
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
 print ("modified_master_phil_str:",modified_master_phil_str)
-#STOP()
-'''
+STOP()
 
 
 class Program(ProgramTemplate):
 
-  #secondary_structure.nucleic_acid.base_pair.restrain_planarity  (default: True)
-  #secondary_structure.nucleic_acid.base_pair.restrain_hbonds  (default: True)
-  
   datatypes = ['model', 'real_map', 'phil']
   citations = program_citations
   
@@ -255,7 +261,7 @@ class Program(ProgramTemplate):
 
     print ("A user entered resolution:", str(self.params.resolution))
     
-    print('A user input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
+    print('A user input atomistic model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
     print('A user input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
@@ -349,6 +355,7 @@ class Program(ProgramTemplate):
       self.params.number_of_steps = 1000
       self.params.max_steps_for_final_MD = 2000
 
+
     ########## <begin> Automatic map weight determination
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
@@ -361,6 +368,7 @@ class Program(ProgramTemplate):
     write_this = str(round(self.params.map_weight,1)) + "\n"
     logfile.write(write_this)
     ########## <end> Automatic map weight determination
+    
     
     bp_in_a_user_pdb_file, H_in_a_user_pdb_file, E_in_a_user_pdb_file, ss_file = \
       know_bp_H_E_in_a_user_pdb_file(self.data_manager.get_default_model_name(), logfile)
@@ -546,7 +554,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
-    print ("sigma_for_auto_geom :", str(self.params.sigma_for_auto_geom))
+    print ("sigma_for_auto_geom   :", str(self.params.sigma_for_auto_geom))
     print ("start_temperature     :", str(self.params.start_temperature))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     

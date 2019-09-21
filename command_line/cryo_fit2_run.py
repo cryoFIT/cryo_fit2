@@ -11,6 +11,9 @@ from iotbx import map_and_model
 import mmtbx.utils, os, sys
 from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
 from mmtbx.dynamics import simulated_annealing as sa
+
+from mmtbx.geometry_restraints import reference
+
 from mmtbx.superpose import *
 import numpy as np
 import shutil
@@ -122,9 +125,11 @@ class cryo_fit2_class(object):
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       check_cc_after_these_steps = 1000
       # if too small like 100, it may run forever
-      # I confirmed that 500 is definitely too small to explore properly (a helix), but this is just for test
+      # I confirmed that 500 is definitely too small to explore properly (a helix),
+      #but this is just for test
     else:
-      check_cc_after_these_steps = 100000
+      #check_cc_after_these_steps = 100000
+      check_cc_after_these_steps = 1000
   
     # reoptimize_map_weight_after_these_steps = ''
     # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
@@ -150,6 +155,16 @@ class cryo_fit2_class(object):
 #### <end> prepare/initialize for iteration
     
     
+    grm = self.model.get_restraints_manager()
+    
+    
+    '''
+    grm.geometry.append_reference_coordinate_restraints_in_place(
+        reference.add_coordinate_restraints(
+          sigma = self.params.sigma_for_auto_geom,
+          top_out_potential=True))
+    '''
+    
     ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
@@ -162,7 +177,8 @@ class cryo_fit2_class(object):
           result = sa.run(
             params = params,
             xray_structure     = self.model.get_xray_structure(),
-            restraints_manager = self.model.get_restraints_manager(),
+            #restraints_manager = self.model.get_restraints_manager(),
+            restraints_manager = grm,
             target_map         = map_data,
             real_space         = True,
             wx                 = self.params.map_weight, 
@@ -172,7 +188,8 @@ class cryo_fit2_class(object):
           result = sa.run(
             params = params,
             xray_structure     = self.model.get_xray_structure(),
-            restraints_manager = self.model.get_restraints_manager(),
+            #restraints_manager = self.model.get_restraints_manager(),
+            restraints_manager = grm,
             target_map         = map_data,
             real_space         = True,
             wx                 = self.params.map_weight, 
