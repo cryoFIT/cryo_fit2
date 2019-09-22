@@ -1263,9 +1263,9 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom, s
     write_this = write_this + "(e.g. " + str(sigma_for_auto_geom) + ") "
     
   if (slack_for_auto_geom != None):
-    write_this = write_this + " and slack_for_auto_geom (e.g. " + str(slack_for_auto_geom) + ") "
+    write_this = write_this + "and slack_for_auto_geom (e.g. " + str(slack_for_auto_geom) + ")"
     
-  write_this = write_this + " .\n"
+  write_this = write_this + ".\n"
   print(write_this)
   logfile.write(write_this)
     
@@ -1283,15 +1283,27 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom, s
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
   
   if (path.isfile(ss_restraints_file_name) == False):
-    write_this = '''phenix.secondary_structure_restraints can't run with a user input file, maybe with an error like
+    write_this = '''phenix.secondary_structure_restraints can't run with a user input file.
+    
+Run phenix.secondary_structure_restraints with a user input file.
+
+If the error message is like
 
     Sorry: number of groups of duplicate atom labels:  76
     total number of affected atoms:          152
     group "ATOM    .*.  CA  GLU F  55 .*.     C  "
           "ATOM    .*.  CA  GLU F  55 .*.     C  "
           
-Consider to provide input pdb file after
+provide input pdb file after
 phenix.pdbtools <user>.pdb remove_alt_confs=True
+
+
+If the error message is like
+
+    Sorry: Multiple models not supported.
+
+provide input pdb file after
+leaving one model only.
     '''
     print(write_this)
     logfile.write(write_this)

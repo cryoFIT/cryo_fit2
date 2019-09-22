@@ -129,7 +129,8 @@ sigma_for_auto_geom   = None
                         Oleg recommended 0.021 which is the sigma value for covalent bond.
 slack_for_auto_geom   = 0
   .type               = float
-  .short_caption      = As Doo Nam understands pdb_interpretations.py, default value is 0
+  .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
+                        default value is 0
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
@@ -191,10 +192,12 @@ pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_paralleli
 
 are all True by default'''
 
+#'''
 new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = True'
 # it was False by default
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+#'''
 
 #print ("modified_master_phil_str:",modified_master_phil_str)
 #STOP()
