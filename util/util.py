@@ -1033,7 +1033,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
-#def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_auto_geom):
+
 def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_auto_geom, slack_for_auto_geom):
 ####### reference
 
@@ -1299,7 +1299,6 @@ phenix.pdbtools <user>.pdb remove_alt_confs=True
     exit(1)
     
   ##### rewrite_pymol_ss_to_custom_geometry_ss
-  #eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_auto_geom)
   eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_auto_geom, slack_for_auto_geom)
   
   return eff_file_name
