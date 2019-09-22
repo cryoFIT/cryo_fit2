@@ -1250,7 +1250,6 @@ def show_time(app, time_start, time_end):
 ############### end of show_time function
 
 
-#def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom):
 def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom, slack_for_auto_geom):
 
   ######## produce pymol format secondary structure restraints #########

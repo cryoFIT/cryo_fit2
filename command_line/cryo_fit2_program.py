@@ -576,9 +576,9 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             + "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) \
                             + "_step_" + str(self.params.number_of_steps) \
                             + "_make_ss_for_stronger_ss_" + str(self.params.make_ss_for_stronger_ss) \
-                            + "_weight_multiply_" + str(round(self.params.weight_multiply,1) \
+                            + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
                             + "_sigma_for_auto_geom_" + str(self.params.sigma_for_auto_geom) \
-                            + "_slack_for_auto_geom_" + str(self.params.slack_for_auto_geom))
+                            + "_slack_for_auto_geom_" + str(self.params.slack_for_auto_geom)
                             
       command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
       found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
