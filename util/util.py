@@ -1033,7 +1033,6 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
-
 def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_auto_geom, slack_for_auto_geom):
 ####### reference
 
