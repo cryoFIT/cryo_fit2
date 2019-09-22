@@ -193,8 +193,8 @@ new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.res
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
-print ("modified_master_phil_str:",modified_master_phil_str)
-STOP()
+#print ("modified_master_phil_str:",modified_master_phil_str)
+#STOP()
 
 
 class Program(ProgramTemplate):

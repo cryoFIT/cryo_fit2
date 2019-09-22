@@ -121,7 +121,7 @@ class cryo_fit2_class(object):
     
     
 #### <begin> prepare/initialize for iteration
-    check_cc_after_these_steps = ''
+    check_cc_after_these_steps = '' # use '# of steps' not '# of iterations'
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       check_cc_after_these_steps = 1000
       # if too small like 100, it may run forever
@@ -129,7 +129,7 @@ class cryo_fit2_class(object):
       #but this is just for test
     else:
       #check_cc_after_these_steps = 100000
-      check_cc_after_these_steps = 1000
+      check_cc_after_these_steps = 2000
   
     # reoptimize_map_weight_after_these_steps = ''
     # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
@@ -255,6 +255,8 @@ class cryo_fit2_class(object):
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
       '''
       
+      #print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
+      # total_steps_so_far_for_cc_check is re-initialized in all circumstances
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         
         if (cc_after_small_MD > best_cc_so_far):
