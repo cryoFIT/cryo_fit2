@@ -130,7 +130,8 @@ sigma_for_auto_geom   = None
                         Oleg recommended 0.021 which is the sigma value for covalent bond.
 slack_for_auto_geom   = 0
   .type               = float
-  .short_caption      = As Doo Nam understands pdb_interpretations.py, default value is 0
+  .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
+                        default value is 0
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
