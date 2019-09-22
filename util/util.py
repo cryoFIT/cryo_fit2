@@ -1032,7 +1032,8 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
-def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_auto_geom):
+#def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_auto_geom):
+def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_auto_geom, slack_for_auto_geom):
 ####### reference
 
 #################### DISTANCE
@@ -1137,14 +1138,12 @@ geometry_restraints {
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
       
-      # print (type(sigma_for_auto_geom))
-      # # protein's 6 -> float
-      # # RNA's 6 -> float
-      # STOP()
-      
       write_this = "      sigma = " + float_to_str(sigma_for_auto_geom) + "\n" 
       f_out.write(write_this) 
       
+      write_this = "      slack = " + float_to_str(slack_for_auto_geom) + "\n" 
+      f_out.write(write_this) 
+
       write_this = "    }\n"
       f_out.write(write_this)
       ############# end of if (dist_angle_candidate == "dist"):
@@ -1220,6 +1219,11 @@ geometry_restraints {
         write_this = "      sigma = " + float_to_str(sigma_for_auto_geom) + "\n" 
         f_out.write(write_this)
         
+        # geometry_restraints.edits.angle.slack is not recognized
+        # "Sorry: Some PHIL parameters are not recognized by phenix.cryo_fit2."
+        #  write_this = "      slack = " + float_to_str(slack_for_auto_geom) + "\n" 
+        #  f_out.write(write_this)
+        
         write_this = "    }\n"
         f_out.write(write_this)
         ############# end of if (dist_angle_candidate == "angle"):
@@ -1246,7 +1250,8 @@ def show_time(app, time_start, time_end):
 ############### end of show_time function
 
 
-def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom):
+#def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom):
+def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom, slack_for_auto_geom):
 
   ######## produce pymol format secondary structure restraints #########
   # I heard that running phenix commandline directly is not ideal from Nigel.
@@ -1256,7 +1261,12 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom):
   #to use codes directly instead of running executables at commandline
   write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger sigma_for_auto_geom "
   if (sigma_for_auto_geom != None):
-    write_this = write_this + "(e.g. " + str(sigma_for_auto_geom) + ").\n"
+    write_this = write_this + "(e.g. " + str(sigma_for_auto_geom) + ") "
+    
+  if (slack_for_auto_geom != None):
+    write_this = write_this + " and slack_for_auto_geom (e.g. " + str(slack_for_auto_geom) + ") "
+    
+  write_this = write_this + " .\n"
   print(write_this)
   logfile.write(write_this)
     
@@ -1289,7 +1299,8 @@ phenix.pdbtools <user>.pdb remove_alt_confs=True
     exit(1)
     
   ##### rewrite_pymol_ss_to_custom_geometry_ss
-  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_auto_geom)
+  #eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_auto_geom)
+  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_auto_geom, slack_for_auto_geom)
   
   return eff_file_name
 ########### end of write_custom_geometry(input_model_file_name, sigma_for_auto_geom)

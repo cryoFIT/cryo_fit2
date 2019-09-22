@@ -124,10 +124,13 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity
-sigma_for_auto_geom = None
+sigma_for_auto_geom   = None
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg recommended 0.021 which is the sigma value for covalent bond.
+slack_for_auto_geom   = 0
+  .type               = float
+  .short_caption      = As Doo Nam understands pdb_interpretations.py, default value is 0
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
@@ -316,39 +319,20 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
 
     leave_one_conformer(logfile, self.data_manager.get_default_model_name())
     
-    # if (self.params.sigma_for_auto_geom != None):
-    #   user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
-    # else:
-    #   self.params.sigma_for_auto_geom = 0.04
-    
-    ''' # old method
-    user_eff_file_provided, user_eff_file_name = check_whether_args_has_eff(args, logfile, "prepare_cryo_fit2", "NA")
-    if ((user_eff_file_provided == False) and (self.params.make_ss_for_stronger_ss == True)):
-      
-      if (self.params.sigma_for_auto_geom != None):
-        user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
-      else:
-        self.params.sigma_for_auto_geom = 0.04
-      
-      write_this = "A user didn't provide an .eff file. Therefore, cryo_fit2 will make it automatically to enforce stronger secondary structure restraints.\n"
-      print (write_this)
-      logfile.write(write_this)
-      
-      generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
-                                                      self.params.sigma_for_auto_geom)
-      sys.argv.append(generated_eff_file_name)
-    '''
-    
-    # new method
     if (self.params.make_ss_for_stronger_ss == True):
       
       if (self.params.sigma_for_auto_geom != None):
         user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
       else:
         self.params.sigma_for_auto_geom = 0.04
+        
+      if (self.params.slack_for_auto_geom != None):
+        user_slack_for_auto_geom = self.params.slack_for_auto_geom
+      else:
+        self.params.slack_for_auto_geom = 0
       
       generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
-                                                      self.params.sigma_for_auto_geom)
+                                                      self.params.sigma_for_auto_geom, self.params.slack_for_auto_geom)
       sys.argv.append(generated_eff_file_name)
     
     logfile.close()

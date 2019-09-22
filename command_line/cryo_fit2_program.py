@@ -123,10 +123,13 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity
-sigma_for_auto_geom = None
+sigma_for_auto_geom   = None
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg recommended 0.021 which is the sigma value for covalent bond.
+slack_for_auto_geom   = 0
+  .type               = float
+  .short_caption      = As Doo Nam understands pdb_interpretations.py, default value is 0
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
@@ -235,12 +238,13 @@ class Program(ProgramTemplate):
     logfile.write(str(date_and_time()))
 
     # Importantly declared initial global variables
-    user_cool_rate = None
-    user_MD_in_each_cycle = None 
-    user_number_of_steps = None 
+    user_cool_rate           = None
+    user_MD_in_each_cycle    = None 
+    user_number_of_steps     = None 
     user_sigma_for_auto_geom = None
-    user_start_temperature = None
-    user_weight_multiply = None
+    user_slack_for_auto_geom = None
+    user_start_temperature   = None
+    user_weight_multiply     = None
     
     # Save user entered params.* now
     if (self.params.cool_rate != None):
@@ -254,6 +258,8 @@ class Program(ProgramTemplate):
     else:
       #self.params.sigma_for_auto_geom = 0.05 # best bp keeping for L1 stalk
       self.params.sigma_for_auto_geom = 0.04
+    if (self.params.slack_for_auto_geom != None):
+      user_slack_for_auto_geom = self.params.slack_for_auto_geom
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
     if (self.params.weight_multiply != None):
@@ -531,6 +537,8 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
         self.params.number_of_steps = user_number_of_steps
       if (user_sigma_for_auto_geom != None):
         self.params.sigma_for_auto_geom = user_sigma_for_auto_geom
+      if (user_slack_for_auto_geom != None):
+        self.params.slack_for_auto_geom = user_slack_for_auto_geom
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
       if (user_weight_multiply != None):
@@ -555,6 +563,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
     print ("sigma_for_auto_geom   :", str(self.params.sigma_for_auto_geom))
+    print ("slack_for_auto_geom   :", str(self.params.slack_for_auto_geom))
     print ("start_temperature     :", str(self.params.start_temperature))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     
@@ -567,8 +576,9 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             + "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) \
                             + "_step_" + str(self.params.number_of_steps) \
                             + "_make_ss_for_stronger_ss_" + str(self.params.make_ss_for_stronger_ss) \
-                            + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
-                            + "_sigma_for_auto_geom_" + str(self.params.sigma_for_auto_geom)
+                            + "_weight_multiply_" + str(round(self.params.weight_multiply,1) \
+                            + "_sigma_for_auto_geom_" + str(self.params.sigma_for_auto_geom) \
+                            + "_slack_for_auto_geom_" + str(self.params.slack_for_auto_geom))
                             
       command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
       found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
@@ -602,7 +612,10 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             + " record_states=" + str(self.params.record_states) \
                             + " explore=False" \
                             + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
-                            + " map_weight=" + str(round(self.params.map_weight,1)) + " "
+                            + " map_weight=" + str(round(self.params.map_weight,1)) \
+                            + " sigma_for_auto_geom=" + str(self.params.sigma_for_auto_geom) \
+                            + " slack_for_auto_geom=" + str(self.params.slack_for_auto_geom) \
+                            + " "
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
