@@ -1285,25 +1285,29 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom, s
   if (path.isfile(ss_restraints_file_name) == False):
     write_this = '''phenix.secondary_structure_restraints can't run with a user input file.
     
-Run phenix.secondary_structure_restraints with a user input file.
+To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
 
 If the error message is like
-
-    Sorry: number of groups of duplicate atom labels:  76
+    "Sorry: number of groups of duplicate atom labels:  76
     total number of affected atoms:          152
     group "ATOM    .*.  CA  GLU F  55 .*.     C  "
-          "ATOM    .*.  CA  GLU F  55 .*.     C  "
-          
-provide input pdb file after
-phenix.pdbtools <user>.pdb remove_alt_confs=True
+          "ATOM    .*.  CA  GLU F  55 .*.     C  ""
+then, provide input pdb file after solving duplicity issue.
+
+    Most problems will be solved by running
+        python <user phenix>/modules/cryo_fit2/util/solve_duplicate_atoms_by_adding_a_prefix/add_more_chain_for_no_more_duplicate_atoms.py
+
+    For multi-conformations, run
+        phenix.pdbtools <user>.pdb remove_alt_confs=True
+        (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
 
 
 If the error message is like
+    "Sorry: Multiple models not supported."
+then provide input pdb file after leaving one model only.
 
-    Sorry: Multiple models not supported.
 
-provide input pdb file after
-leaving one model only.
+
     '''
     print(write_this)
     logfile.write(write_this)

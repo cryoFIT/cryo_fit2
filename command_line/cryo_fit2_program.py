@@ -200,6 +200,7 @@ modified_master_phil_str = change_default_phil_values(
 #'''
 
 #print ("modified_master_phil_str:",modified_master_phil_str)
+# unfortunately, does not show pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity
 #STOP()
 
 
