@@ -131,6 +131,44 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
 
 
+
+def clean_unusual_residue(input_pdb_file_name):
+    report_file = "unusual_residue_removed.txt"
+    if (os.path.isfile(report_file) == True):
+      os.remove(report_file)
+    f_report = open(report_file, 'w')
+    
+    f_in = open(input_pdb_file_name)
+    output_pdb_file_name = input_pdb_file_name[:-4] + "_cleaned_unusual.pdb"
+    f_out = open(output_pdb_file_name, 'wt')
+    
+    cleaned_unusual_residue = False
+    
+    for line in f_in:
+        residue = line[17:20]
+        if (line[0:6] == "HETATM"):
+            if (residue == "34G"):
+                write_this = str(residue) + " removed\n"
+                f_report.write(write_this)
+                print (write_this)
+                cleaned_unusual_residue = True
+                continue
+            else:
+                f_out.write(line)
+        else:
+          f_out.write(line)
+    f_in.close()
+    f_out.close()
+    f_report.close()
+    
+    if (cleaned_unusual_residue == False):
+      os.remove(output_pdb_file_name)
+      os.remove(report_file)
+            
+    return output_pdb_file_name, cleaned_unusual_residue
+############ end of clean_unusual_residue function
+
+
 def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     
     if (os.path.isfile(fitted_file_name_w_path) == False):
@@ -393,6 +431,12 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             return optimum_MD_in_each_cycle, optimum_start_temperature, \
                    optimum_step, optimum_weight_multiply
 ############ end of def extract_the_best_cc_parameters():
+
+
+def file_size(fname):
+    statinfo = os.stat(fname)
+    return statinfo.st_size
+######## end of file_size(fname)
 
 
 def float_to_str(f):  # 0.00001 resulted in scientific notation which seems to not function properly, so avoid it

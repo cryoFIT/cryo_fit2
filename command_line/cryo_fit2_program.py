@@ -185,6 +185,8 @@ new_default = 'pdb_interpretation.secondary_structure.protein.sheet.top_out = Tr
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
+
+# according to modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
 '''
 pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds
 pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hb_angles
@@ -340,12 +342,20 @@ class Program(ProgramTemplate):
     # not
     # pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff
     
+    # modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py
+    
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
     print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled)
+    
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled)
+    #"AttributeError: 'scope_extract_list' object has no attribute 'enabled'"
+    
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity)
-    #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
+    # "AttributeError: 'scope_extract_list' object has no attribute 'restrain_planarity'"
+    
+    # print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds)
+    # STOP()
     
     splited = self.data_manager.get_default_model_name().split("/")
     input_model_file_name_wo_path = splited [len(splited)-1]

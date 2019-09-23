@@ -317,6 +317,19 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.write(write_this)
       logfile.close()
       exit(1)
+    
+    
+    #cleaned_pdb_file_name, cleaned_unusual_residue = clean_unusual_residue (self.data_manager.get_default_model_name())
+    #if (cleaned_unusual_residue == True):
+    #  write_this ='''
+      #Unusual residue names like 34G that real_space_refine can't deal were detected in user's pdb file.
+#cryo_fit2 removed these and rewrote into ''' + cleaned_pdb_file_name + '''
+#Please rerun cryo_fit2 with this re-written pdb file\n'''
+#      print (write_this)
+#      logfile.write(write_this)
+#      logfile.close()
+#      exit(1)
+    
 
     leave_one_conformer(logfile, self.data_manager.get_default_model_name())
     
