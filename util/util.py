@@ -16,20 +16,23 @@ from iotbx import map_and_model
 from iotbx.xplor import crystal_symmetry_from_map
 
 from libtbx import group_args
+from libtbx.str_utils import format_value as fv
 from libtbx.utils import Sorry
 from libtbx.utils import null_out
 
-import mmtbx.utils
 from mmtbx.dynamics import simulated_annealing as sa
+import mmtbx.maps.map_model_cc
 from mmtbx.refinement.real_space import weight
 from mmtbx.superpose import *
+import mmtbx.utils
+
 import numpy as np
 import shutil
 
 os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
 os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
-def calculate_cc(map_data, model, resolution):
+def calculate_overall_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
     fc = xrs.structure_factors(d_min = resolution).f_calc()
     f_map = fc.structure_factors_from_map(
@@ -38,7 +41,7 @@ def calculate_cc(map_data, model, resolution):
       anomalous_flag = False,
       use_sg         = False)
     return fc.map_correlation(other = f_map)
-####################### end of calculate_cc function
+####################### end of calculate_overall_cc function
 
 
 def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/mmtbx/superpose.py
@@ -1015,8 +1018,58 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
 
   return self.params.map_weight
 ############### end of reoptimize_map_weight_if_not_specified function
-       
-           
+
+
+def report_map_model_cc(self, map_inp, model, crystal_symmetry, logfile):
+    # reference: modules/phenix/phenix/programs/map_model_cc.py
+    
+    self.params.map_model_cc.resolution = self.params.resolution
+    # without this, self.params.map_model_cc.resolution = None
+    
+    base = map_and_model.input(
+      map_data         = map_inp.map_data(),
+      model            = model,
+      crystal_symmetry = crystal_symmetry,
+      box              = True,
+      #ignore_symmetry_conflicts= 
+      #                   self.params.map_model_cc.ignore_symmetry_conflicts)
+      ignore_symmetry_conflicts = True)
+    
+    task_obj = mmtbx.maps.map_model_cc.map_model_cc(
+      map_data         = base.map_data(),
+      pdb_hierarchy    = base.model().get_hierarchy(),
+      crystal_symmetry = base.model().crystal_symmetry(),
+      params           = self.params.map_model_cc)
+    
+    task_obj.validate()
+    task_obj.run()
+    self.results = task_obj.get_results()
+    self.results.fsc = mmtbx.maps.mtriage.get_fsc(
+      map_data = base.map_data(),
+      model    = base.model(),
+      params   = self.params.map_model_cc)
+    r = self.results
+    #
+    write_this = "CC_mask  : " + str(round(float(r.cc_mask), 4)) + "\n"
+    print (write_this)
+    logfile.write(str(write_this))
+    
+    write_this = "CC_Volume  : " + str(round(float(r.cc_volume), 4)) + "\n"
+    print (write_this)
+    logfile.write(str(write_this))
+    
+    write_this = "CC_peaks  : " + str(round(float(r.cc_peaks), 4)) + "\n"
+    print (write_this)
+    logfile.write(str(write_this))
+    
+    write_this = "CC_box  : " + str(round(float(r.cc_box), 4)) + "\n"
+    print (write_this)
+    logfile.write(str(write_this))
+
+########## end of def report_map_model_cc():
+
+
+
 def return_list_of_eff_from_args(args):
     list_of_eff = []
     for i in range(len(args)):
@@ -1282,6 +1335,164 @@ geometry_restraints {
 ########## end of rewrite_pymol_ss_to_custom_geometry_ss function
 
 
+def secondary_structure_restraints_DN(args, params=None, out=sys.stdout, log=sys.stderr):
+
+  # parse command-line arguments
+  if (params is None):
+    pcl = iotbx.phil.process_command_line_with_files(
+      args=args,
+      master_phil_string=master_phil_str,
+      pdb_file_def="file_name")
+    work_params = pcl.work.extract()
+  # or use parameters defined by GUI
+  else:
+    work_params = params
+  pdb_files = work_params.file_name
+
+  work_params.secondary_structure.enabled=True
+  assert work_params.format in ["phenix", "phenix_refine", "phenix_bonds",
+      "pymol", "refmac", "kinemage", "pdb"]
+  if work_params.quiet :
+    out = cStringIO.StringIO()
+
+  pdb_combined = iotbx.pdb.combine_unique_pdb_files(file_names=pdb_files)
+  pdb_structure = iotbx.pdb.input(source_info=None,
+    lines=flex.std_string(pdb_combined.raw_records))
+  cs = pdb_structure.crystal_symmetry()
+
+  corrupted_cs = False
+  if cs is not None:
+    if [cs.unit_cell(), cs.space_group()].count(None) > 0:
+      corrupted_cs = True
+      cs = None
+    elif cs.unit_cell().volume() < 10:
+      corrupted_cs = True
+      cs = None
+
+  if cs is None:
+    if corrupted_cs:
+      print >> out, "Symmetry information is corrupted, "
+    else:
+      print >> out, "Symmetry information was not found, "
+    print >> out, "putting molecule in P1 box."
+    from cctbx import uctbx
+    atoms = pdb_structure.atoms()
+    box = uctbx.non_crystallographic_unit_cell_with_the_sites_in_its_center(
+      sites_cart=atoms.extract_xyz(),
+      buffer_layer=3)
+    atoms.set_xyz(new_xyz=box.sites_cart)
+    cs = box.crystal_symmetry()
+
+  defpars = mmtbx.model.manager.get_default_pdb_interpretation_params()
+  defpars.pdb_interpretation.automatic_linking.link_carbohydrates=False
+  defpars.pdb_interpretation.c_beta_restraints=False
+  defpars.pdb_interpretation.clash_guard.nonbonded_distance_threshold=None
+  model = mmtbx.model.manager(
+      model_input=pdb_structure,
+      crystal_symmetry=cs,
+      pdb_interpretation_params=defpars,
+      stop_for_unknowns=False)
+  pdb_hierarchy = model.get_hierarchy()
+  geometry = model.get_restraints_manager().geometry
+  if len(pdb_hierarchy.models()) != 1 :
+    raise Sorry("Multiple models not supported.")
+  ss_from_file = None
+  if (hasattr(pdb_structure, "extract_secondary_structure") and
+      not work_params.ignore_annotation_in_file):
+    ss_from_file = pdb_structure.extract_secondary_structure()
+  m = manager(pdb_hierarchy=pdb_hierarchy,
+    geometry_restraints_manager=geometry,
+    sec_str_from_pdb_file=ss_from_file,
+    params=work_params.secondary_structure,
+    verbose=work_params.verbose)
+
+  # bp_p = nucleic_acids.get_basepair_plane_proxies(
+  #     pdb_hierarchy,
+  #     m.params.secondary_structure.nucleic_acid.base_pair,
+  #     geometry)
+  # st_p = nucleic_acids.get_stacking_proxies(
+  #     pdb_hierarchy,
+  #     m.params.secondary_structure.nucleic_acid.stacking_pair,
+  #     geometry)
+  # hb_b, hb_a = nucleic_acids.get_basepair_hbond_proxies(pdb_hierarchy,
+  #     m.params.secondary_structure.nucleic_acid.base_pair)
+  result_out = cStringIO.StringIO()
+  # prefix_scope="refinement.pdb_interpretation"
+  # prefix_scope=""
+  prefix_scope=""
+  if work_params.format == "phenix_refine":
+    prefix_scope = "refinement.pdb_interpretation"
+  elif work_params.format == "phenix":
+    prefix_scope = "pdb_interpretation"
+  ss_phil = None
+  working_phil = m.as_phil_str(master_phil=sec_str_master_phil)
+  phil_diff = sec_str_master_phil.fetch_diff(source=working_phil)
+
+  if work_params.format in ["phenix", "phenix_refine"]:
+    comment = "\n".join([
+      "# These parameters are suitable for use in e.g. phenix.real_space_refine",
+      "# or geometry_minimization. To use them in phenix.refine add ",
+      "# 'refinement.' if front of pdb_interpretation."])
+    if work_params.format == "phenix_refine":
+      comment = "\n".join([
+      "# These parameters are suitable for use in phenix.refine only.",
+      "# To use them in other Phenix tools remove ",
+      "# 'refinement.' if front of pdb_interpretation."])
+    print >> result_out, comment
+    if (prefix_scope != ""):
+      print >> result_out, "%s {" % prefix_scope
+    if work_params.show_all_params :
+      working_phil.show(prefix="  ", out=result_out)
+    else :
+      phil_diff.show(prefix="  ", out=result_out)
+    if (prefix_scope != ""):
+      print >> result_out, "}"
+  elif work_params.format == "pdb":
+    print >> result_out, m.actual_sec_str.as_pdb_str()
+  elif work_params.format == "phenix_bonds" :
+    raise Sorry("Not yet implemented.")
+  elif work_params.format in ["pymol", "refmac", "kinemage"] :
+    m.show_summary(log=out)
+    (hb_proxies, hb_angle_proxies, planarity_proxies,
+        parallelity_proxies) = m.create_all_new_restraints(
+        pdb_hierarchy=pdb_hierarchy,
+        grm=geometry,
+        log=out)
+    if hb_proxies.size() > 0:
+      if work_params.format == "pymol" :
+        file_load_add = "load %s" % work_params.file_name[0]
+        # surprisingly, pymol handles filenames with whitespaces without quotes...
+        print >> result_out, file_load_add
+        bonds_in_format = hb_proxies.as_pymol_dashes(
+            pdb_hierarchy=pdb_hierarchy)
+      elif work_params.format == "kinemage" :
+        bonds_in_format = hb_proxies.as_kinemage(
+            pdb_hierarchy=pdb_hierarchy)
+      else :
+        bonds_in_format = hb_proxies.as_refmac_restraints(
+            pdb_hierarchy=pdb_hierarchy)
+      print >> result_out, bonds_in_format
+    if hb_angle_proxies.size() > 0:
+      if work_params.format == "pymol":
+        angles_in_format = hb_angle_proxies.as_pymol_dashes(
+            pdb_hierarchy=pdb_hierarchy)
+        print >> result_out, angles_in_format
+  result = result_out.getvalue()
+  out_prefix = os.path.basename(work_params.file_name[0])
+  if work_params.output_prefix is not None:
+    out_prefix = work_params.output_prefix
+  filename = "%s_ss.eff" % out_prefix
+  if work_params.format == "pymol":
+    filename = "%s_ss.pml" % out_prefix
+  outf = open(filename, "w")
+  outf.write(result)
+  outf.close()
+  print >> out, result
+
+  return os.path.abspath(filename)
+############ end of secondary_structure_restraints_DN
+
+
 def show_time(app, time_start, time_end):
   time_took = 0 # temporary of course
   if (round((time_end-time_start)/60, 1) < 1):
@@ -1339,7 +1550,7 @@ If the error message is like
 then, provide input pdb file after solving duplicity issue.
 
     Most problems will be solved by running
-        python <user phenix>/modules/cryo_fit2/util/solve_duplicate_atoms_by_adding_a_prefix/add_more_chain_for_no_more_duplicate_atoms.py
+        python <user phenix>/modules/cryo_fit2/util/solve_duplicate_atoms_by_adding_a_prefix/solve_duplicate_atoms_by_adding_a_prefix.py
 
     For multi-conformations, run
         phenix.pdbtools <user>.pdb remove_alt_confs=True
@@ -1349,9 +1560,6 @@ then, provide input pdb file after solving duplicity issue.
 If the error message is like
     "Sorry: Multiple models not supported."
 then provide input pdb file after leaving one model only.
-
-
-
     '''
     print(write_this)
     logfile.write(write_this)
@@ -1367,7 +1575,9 @@ then provide input pdb file after leaving one model only.
 def write_geo(self, model_inp, file_name):
     geo_str = model_inp.restraints_as_geo(
         header="# Geometry restraints, cryo_fit2\n")
+    
     with open(file_name, 'w') as f:
       f.write(geo_str)
+    
     return True
 ###### end of write_geo

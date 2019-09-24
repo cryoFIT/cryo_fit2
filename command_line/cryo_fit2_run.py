@@ -97,10 +97,13 @@ class cryo_fit2_class(object):
     user_map_weight                = self.user_map_weight
     weight_multiply                = self.weight_multiply
     
-    cc_before_cryo_fit2 = round(calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
+    cc_before_cryo_fit2 = round(calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
+    # Pavel thinks that cc_box should be pretty much similar as this cc_before_cryo_fit2
+    
     write_this = "\nCC before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
+    
 
     if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None
@@ -210,7 +213,7 @@ class cryo_fit2_class(object):
       total_steps_so_far_for_exploration_and_final_MD = total_steps_so_far_for_exploration_and_final_MD + int(params.number_of_steps*multiply_this)
       
       
-      cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
+      cc_after_small_MD = calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       write_this = "CC after this cycle (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
       self.logfile.write(str(write_this))
       
@@ -282,7 +285,7 @@ class cryo_fit2_class(object):
           print ("cc_1st_array:",cc_1st_array)
           print ("cc_2nd_array:",cc_2nd_array)
           print ("please email doonam@lanl.gov for this error")
-          STOP()
+          STOP() # happened in 9/23/2019
           continue
           
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
@@ -306,14 +309,25 @@ class cryo_fit2_class(object):
 ######################### <end> iterate until cryo_fit2 derived cc saturates
     
     
-    cc_after_cryo_fit2 = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
+    overall_cc_after_cryo_fit2 = calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
+    
+    crystal_symmetry = self.cs_consensus # "<cctbx.crystal.symmetry object at 0x1131233d0>"
+    
+    write_this = "\nFinal MD of cryo_fit2 is done\n"
+    print('%s' %(write_this))
+    self.logfile.write(str(write_this))
+      
     
     if (self.params.explore == False): # no need to calculate cc after explore
-      write_this = "\nCC after final MD of cryo_fit2: " + str(round(cc_after_cryo_fit2, 4)) + "\n"
+      report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
+      
+      ''' since this differs from CC_box, let's not use this
+      write_this = "CC_overall: " + str(round(overall_cc_after_cryo_fit2, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
-    
-    output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(cc_after_cryo_fit2, 3))
+      '''
+      
+    output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(overall_cc_after_cryo_fit2, 3))
     if os.path.exists(output_dir_w_CC):
       shutil.rmtree(output_dir_w_CC)
     os.mkdir(output_dir_w_CC)

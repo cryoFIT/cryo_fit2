@@ -146,6 +146,7 @@ weight_multiply  = None
                    Usually a small molecule (a helix) requires only 1 (not multiply). \
                    For a helix, 20 keeps geometry, 100 breaks it (w/o special sigma) \
                    However, a large molecule needs a larger value (e.g. 10~50).
+include scope mmtbx.maps.map_model_cc.master_params
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
 selection_fixed  = None
@@ -164,7 +165,9 @@ selection_fixed_preset = * ca backbone all
 selection_moving_preset = * ca backbone all
   .type                 = choice
   .help                 = Selection preset for moving model.
-''' ############## end of base_master_phil_str  
+
+'''
+############## end of base_master_phil_str  
   
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
@@ -204,6 +207,7 @@ modified_master_phil_str = change_default_phil_values(
 #print ("modified_master_phil_str:",modified_master_phil_str)
 # unfortunately, does not show pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity
 #STOP()
+
 
 
 class Program(ProgramTemplate):
@@ -686,8 +690,16 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
       return 0
     ############### (end) core cryo_fit2
     
-    write_geo(self, model_inp, "used_geometry_restraints.geo")
+    #write_geo(self, model_inp, "used_geometry_restraints.geo")
     
+    #model_inp.geometry_statistics().show()
+    
+    '''
+    
+model.geometry_statistics().show
+model.geometry_statistics().show()
+model.geometry_statistics().channel, log,,
+'''
     ###### Clean up used files
     pymol_ss = input_model_file_name_wo_path + "_ss.pml"
     if (os.path.isfile(pymol_ss) == True):
