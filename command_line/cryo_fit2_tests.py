@@ -43,7 +43,7 @@ def test_fn ():
     rc1 = libtbx.easy_run.call(command=command_string)
     assert rc1==0 # make sure there is no error with this test
     time_end = time.time()
-    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),2)   )
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -63,7 +63,7 @@ def test_fn ():
     rc2 = libtbx.easy_run.call(command=command_string)
     assert rc2==0 # make sure there is no error with this test
     time_end = time.time()
-    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),2)   )
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -82,7 +82,7 @@ def test_fn ():
     rc3 = libtbx.easy_run.call(command=command_string)
     assert rc3==0 # make sure there is no error with this test
     time_end = time.time()
-    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),2)   )
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -94,11 +94,14 @@ def test_fn ():
                                      'regression')
     print "regression_path:", regression_path
     os.chdir(regression_path)
-
+    
+    time_start = time.time()
     command_string = "python tst4_cryo_fit2_test_parameters_exploration_RNA.py" % locals()
     print "command_string:", command_string
     rc4 = libtbx.easy_run.call(command=command_string)
     assert rc4==0 # make sure there is no error with this test
+    time_end = time.time()
+    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),2)   )
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
@@ -118,7 +121,7 @@ def test_fn ():
     assert rc5==0 # make sure there is no error with this test
     
     time_end = time.time()
-    print "Minutes took for this test:", ( round(((time_end-time_start)/60),2)   )
+    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),2)   )
     
     # remove a no longer needed folder and an input command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"

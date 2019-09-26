@@ -5,6 +5,7 @@
 #*
 regression/cryo_fit2.input_command.txt
 regression/cryo_fit2.log
+regression/input/*before_adding_CRYST1
 regression/output*
 regression/parameter*
 regression/*.eff

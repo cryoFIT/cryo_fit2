@@ -23,9 +23,17 @@ from iotbx.cli_parser import run_program
 
 
 def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
+  
   pdb_file = libtbx.env.find_in_repositories(
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_helix_1_8.pdb",
     test=os.path.isfile)
+  
+  pdb_file_no_CRYST1 = pdb_file[:-4] + "_no_CRYST1.pdb"
+  
+  command_string = "cp " + pdb_file_no_CRYST1 + " " + pdb_file
+  libtbx.easy_run.call(command=command_string)
+
+  
   map_file = libtbx.env.find_in_repositories(
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_helix_1_8_reso_20.ccp4",
     test=os.path.isfile)
