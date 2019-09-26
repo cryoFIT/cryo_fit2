@@ -1051,19 +1051,19 @@ def report_map_model_cc(self, map_inp, model, crystal_symmetry, logfile):
     r = self.results
     #
     write_this = "CC_mask  : " + str(round(float(r.cc_mask), 4)) + "\n"
-    print (write_this)
+    print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
     
-    write_this = "CC_Volume  : " + str(round(float(r.cc_volume), 4)) + "\n"
-    print (write_this)
+    write_this = "CC_volume: " + str(round(float(r.cc_volume), 4)) + "\n"
+    print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
     
-    write_this = "CC_peaks  : " + str(round(float(r.cc_peaks), 4)) + "\n"
-    print (write_this)
+    write_this = "CC_peaks : " + str(round(float(r.cc_peaks), 4)) + "\n"
+    print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
     
-    write_this = "CC_box  : " + str(round(float(r.cc_box), 4)) + "\n"
-    print (write_this)
+    write_this = "CC_box   : " + str(round(float(r.cc_box), 4)) + "\n"
+    print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
 
 ########## end of def report_map_model_cc():
