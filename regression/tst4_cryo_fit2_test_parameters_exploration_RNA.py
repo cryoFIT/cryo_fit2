@@ -27,9 +27,9 @@ def exercise_cryo_fit2(): #Checks that cryo_fit2 runs well
     relative_path="cryo_fit2/regression/input/tst_cryo_fit2_tRNA_1_72_fit.pdb",
     test=os.path.isfile)
   map_file = libtbx.env.find_in_repositories(
-    relative_path="cryo_fit2/regression/input/tst_cryo_fit2_tRNA_1_72_1_reso_11.ccp4",
+    relative_path="cryo_fit2/regression/input/tst_cryo_fit2_tRNA_1_72_fit_reso_30.ccp4",
     test=os.path.isfile)
-  resolution = "resolution=11"
+  resolution = "resolution=30"
   make_ss_for_stronger_ss = "make_ss_for_stronger_ss=True"
   explore = "explore=True"
   max_steps_for_exploration = "max_steps_for_exploration=50"

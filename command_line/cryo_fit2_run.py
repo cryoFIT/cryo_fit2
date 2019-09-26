@@ -319,14 +319,14 @@ class cryo_fit2_class(object):
       
      
     if (self.params.explore == False): # no need to report cc after explore
-      #report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
-      # Pavel's map_model_cc can't work with phenix-3442, so don't run for now
+      report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
       
-      #''' since this differs from CC_box, let's not use this
+      
+      ''' since this differs from CC_box, let's not use this
       write_this = "CC_overall: " + str(round(overall_cc_after_cryo_fit2, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
-      #'''
+      '''
       
     output_dir_w_CC = str(self.output_dir) + "_cc_" + str(round(overall_cc_after_cryo_fit2, 3))
     if os.path.exists(output_dir_w_CC):
