@@ -317,7 +317,7 @@ class cryo_fit2_class(object):
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
       
-    
+     
     if (self.params.explore == False): # no need to report cc after explore
       report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
       # Pavel's map_model_cc can't work with phenix-3442, so don't run for now
