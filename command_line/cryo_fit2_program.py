@@ -633,8 +633,8 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
                             + " sigma_for_auto_geom=" + str(self.params.sigma_for_auto_geom) \
-                            + " slack_for_auto_geom=" + str(self.params.slack_for_auto_geom) \
-                            + " "
+                            + " slack_for_auto_geom=" + str(self.params.slack_for_auto_geom) #\
+                            #+ " "
                             #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \

@@ -143,7 +143,8 @@ class cryo_fit2_class(object):
         
     if (("tst_cryo_fit2_" in self.model_name) == True): 
       self.params.max_steps_for_exploration = 100
-      max_steps_for_final_MD = 10000
+      #max_steps_for_final_MD = 10000
+      max_steps_for_final_MD = 3000
     
     map_weight_before_multiplication = self.params.map_weight
     self.params.map_weight = self.params.map_weight * weight_multiply

@@ -38,7 +38,7 @@ def test_fn ():
     os.chdir(regression_path)
 
     time_start = time.time()
-    command_string = "python tst1_cryo_fit2_test_total_steps.py" % locals()
+    command_string = "python tst1_cryo_fit2_peptide_total_steps.py" % locals()
     print "command_string:", command_string
     rc1 = libtbx.easy_run.call(command=command_string)
     assert rc1==0 # make sure there is no error with this test
@@ -58,7 +58,7 @@ def test_fn ():
     os.chdir(regression_path)
 
     time_start = time.time()
-    command_string = "python tst2_cryo_fit2_test_auto-rerun.py" % locals()
+    command_string = "python tst2_cryo_fit2_peptide_auto-rerun.py" % locals()
     print "command_string:", command_string
     rc2 = libtbx.easy_run.call(command=command_string)
     assert rc2==0 # make sure there is no error with this test
@@ -77,7 +77,7 @@ def test_fn ():
     os.chdir(regression_path)
 
     time_start = time.time()
-    command_string = "python tst3_cryo_fit2_test_make_ss_for_stronger_ss.py" % locals()
+    command_string = "python tst3_cryo_fit2_peptide_make_ss_for_stronger_ss.py" % locals()
     print "command_string:", command_string
     rc3 = libtbx.easy_run.call(command=command_string)
     assert rc3==0 # make sure there is no error with this test
@@ -96,7 +96,7 @@ def test_fn ():
     os.chdir(regression_path)
     
     time_start = time.time()
-    command_string = "python tst4_cryo_fit2_test_parameters_exploration_RNA.py" % locals()
+    command_string = "python tst4_cryo_fit2_RNA_parameters_exploration.py" % locals()
     print "command_string:", command_string
     rc4 = libtbx.easy_run.call(command=command_string)
     assert rc4==0 # make sure there is no error with this test
@@ -115,7 +115,7 @@ def test_fn ():
     os.chdir(regression_path)
 
     time_start = time.time()
-    command_string = "python tst5_cryo_fit2_test_parameters_exploration_protein.py" % locals()
+    command_string = "python tst5_cryo_fit2_peptide_parameters_exploration.py" % locals()
     print "command_string:", command_string
     rc5 = libtbx.easy_run.call(command=command_string)
     assert rc5==0 # make sure there is no error with this test
@@ -126,6 +126,28 @@ def test_fn ():
     # remove a no longer needed folder and an input command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
     libtbx.easy_run.fully_buffered(rm_command_string)
+    
+    
+    
+    ############# test 6
+    regression_path = os.path.join(cryo_fit2_repository_dir,
+                                     'regression')
+    print "regression_path:", regression_path
+    os.chdir(regression_path)
+
+    time_start = time.time()
+    command_string = "python tst6_cryo_fit2_protein_RNA_full.py" % locals()
+    print "command_string:", command_string
+    rc5 = libtbx.easy_run.call(command=command_string)
+    assert rc5==0 # make sure there is no error with this test
+    
+    time_end = time.time()
+    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),2)   )
+    
+    # remove a no longer needed folder and an input command file
+    rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
+    libtbx.easy_run.fully_buffered(rm_command_string)
+    
     
     time_total_end = time.time()
     time_took = show_time("All regression tests", time_total_start, time_total_end)
