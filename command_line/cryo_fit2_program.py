@@ -179,7 +179,9 @@ modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
 
+# modules/cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
 
+# modules/cctbx_project/mmtbx/command_line/pdb_interpretation.py DOES NOT have this information directly
 new_default = 'pdb_interpretation.secondary_structure.protein.helix.top_out = True'
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
