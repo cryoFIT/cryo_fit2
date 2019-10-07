@@ -3,21 +3,23 @@
 #### (source) http://cci.lbl.gov/cctbx_sources/crys3d/command_line/hklview.py
 
 from __future__ import division, print_function
+
 from cctbx.geometry_restraints.base_geometry import Base_geometry
+from iotbx import map_and_model
 import iotbx.phil, libtbx
 from libtbx import group_args
 from libtbx.utils import Sorry
-from iotbx import map_and_model
 import mmtbx.utils, os, sys
 from mmtbx.command_line import geometry_minimization # maybe for cctbx_project/cctbx/geometry_restraints/base_geometry.py
 from mmtbx.dynamics import simulated_annealing as sa
-
 from mmtbx.geometry_restraints import reference
-
+from mmtbx.secondary_structure import proteins, nucleic_acids
 from mmtbx.superpose import *
+
 import numpy as np
-import shutil
+
 import scitbx.math, scitbx.math.superpose, subprocess
+import shutil
 
 os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
 os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
@@ -44,6 +46,13 @@ class cryo_fit2_class(object):
     self.desc              = os.path.basename(model_name)
     self.user_map_weight   = user_map_weight
     self.weight_multiply   = weight_multiply
+    
+    
+    params_for_ss = mmtbx.secondary_structure.sec_str_master_phil.extract()
+    
+    print (params_for_ss.secondary_structure)  # <libtbx.phil.scope_extract object at 0x112822d90>
+    
+    #STOP()
 
   def __execute(self):
     self.caller(self.write_geo_file,       "Write GEO file")
@@ -167,6 +176,22 @@ class cryo_fit2_class(object):
         reference.add_coordinate_restraints(
           sigma = self.params.sigma_for_auto_geom,
           top_out_potential=True))
+    '''
+    
+    #model_inp = self.data_manager.get_model() # "AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
+    
+    pdb_hierarchy = self.model.get_hierarchy() 
+    '''
+    #get_stacking_proxies() takes exactly 5 arguments
+    stacking_proxies = nucleic_acids.get_stacking_proxies(
+        pdb_hierarchy        = pdb_hierarchy,
+        stacking_phil_params = self.params.secondary_structure.nucleic_acid.stacking_pair,
+        grm=grm) #,
+        #mon_lib_srv=self.mon_lib_srv, # AttributeError: 'cryo_fit2_class' object has no attribute 'mon_lib_sr
+        #plane_cache=plane_cache)
+    
+    print("      %d stacking parallelities" % len(stacking_proxies), file=log)
+    STOP()
     '''
     
     ########################### <begin> iterate until cryo_fit2 derived cc saturates

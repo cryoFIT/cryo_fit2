@@ -8,14 +8,16 @@ from __future__ import division, print_function
 
 import math, os, shutil, subprocess, sys, time
 
+import cryo_fit2_run
+
 from iotbx import file_reader
+import iotbx.pdb
+import iotbx.phil
 from iotbx.xplor import crystal_symmetry_from_map
 
 from libtbx import easy_mp
 from libtbx import easy_pickle
 from libtbx import phil
-import iotbx.pdb
-import iotbx.phil
 from libtbx.introspection import number_of_processors # modules/dials/command_line/batch_analysis.py
 from libtbx.phil import change_default_phil_values
 import libtbx.phil
@@ -23,9 +25,8 @@ import libtbx.phil.command_line
 from libtbx.utils import date_and_time, multi_out, Sorry
 
 import mmtbx
-import cryo_fit2_run
-
 from mmtbx.refinement.real_space import weight
+#from mmtbx.secondary_structure import proteins, nucleic_acids
 
 try:
   from phenix.program_template import ProgramTemplate # at Doonam's laptop, phenix.program_template works
@@ -136,9 +137,9 @@ start_temperature = None
   .short_caption  = Starting temperature of annealing in Kelvin. \
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 600.
 make_ss_for_stronger_ss = True
-  .type   = bool
-  .help   = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
-            If False, it will not use custom geometry
+  .type                 = bool
+  .help                 = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
+                          If False, it will not use custom geometry
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -179,7 +180,11 @@ modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
 
+# modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
+# has top_out info
+
 # modules/cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
+
 
 # modules/cctbx_project/mmtbx/command_line/pdb_interpretation.py DOES NOT have this information directly
 new_default = 'pdb_interpretation.secondary_structure.protein.helix.top_out = True'
@@ -249,6 +254,8 @@ class Program(ProgramTemplate):
     log.register("logfile", logfile)
     logfile.write(str(date_and_time()))
 
+  
+    
     # Importantly declared initial global variables
     user_cool_rate           = None
     user_MD_in_each_cycle    = None 
@@ -285,7 +292,7 @@ class Program(ProgramTemplate):
     print('A user input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
 
-
+    
     ################# <begin> Doonam's playground ################
     ####### works
     #print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
