@@ -8,6 +8,8 @@ from __future__ import division, print_function
 
 import math, os, shutil, subprocess, sys, time
 
+import cryo_fit2_run
+
 from iotbx import file_reader
 from iotbx.xplor import crystal_symmetry_from_map
 
@@ -23,8 +25,6 @@ import libtbx.phil.command_line
 from libtbx.utils import date_and_time, multi_out, Sorry
 
 import mmtbx
-import cryo_fit2_run
-
 from mmtbx.refinement.real_space import weight
 
 try:
@@ -124,14 +124,15 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity
-sigma_for_auto_geom   = None
+sigma_for_auto_geom   = 0.05
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg recommended 0.021 which is the sigma value for covalent bond.
 slack_for_auto_geom   = 0
   .type               = float
   .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
-                        default value is 0
+                        default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                        However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
@@ -147,6 +148,9 @@ weight_multiply  = None
                    Usually a small molecule (a helix) requires only 1 (not multiply). \
                    For a helix, 20 keeps geometry, 100 breaks it (w/o special sigma) \
                    However, a large molecule needs a larger value (e.g. 10~50).
+write_custom_geom_only   = False
+  .type                  = bool
+  .help                  = If True, write custom geometry eff file only (not running cryo_fit2).
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
 selection_fixed  = None
@@ -207,7 +211,7 @@ Example running command:
   phenix.cryo_fit2 model.pdb map.ccp4 resolution=5
 
 Options:
-  resolution                   cryo-EM map resolution in angstrom that needs to be entered by a user
+  resolution                   cryo-EM map resolution in angstrom that needs to be entered by a user.
   
   map_weight                   cryo-EM map weight.
                                A user is recommended NOT to specify this, so that it will be automatically optimized.
@@ -223,12 +227,28 @@ Options:
   nproc                        Number of cores to use for MD parameter exploration.
                                If not specified, cryo_fit2 will use available number of cores/3
   
-  number_of_steps              The number of MD steps in each phenix.dynamics
-                               If not specified, cryo_fit2 will use the optimized value after automatic exploration.
-  
   max_steps_for_final_MD       (default: None)
                                The maximum number of steps in final running of phenix.dynamics.
                                If specified, run up to this number of steps no matter what.
+                               
+  number_of_steps              The number of MD steps in each phenix.dynamics
+                               If not specified, cryo_fit2 will use the optimized value after automatic exploration.
+  
+  output_dir                   (default: output)
+                               output folder name prefix
+                               
+  progress_on_screen           (default: False)
+                               If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
+                               If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
+  
+  record_states                (default: False)
+                               If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)
+                               However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory.
+                               If False, cryo_fit2 doesn't record states of molecular dynamics.
+  
+  keep_origin                  (default: True)
+                               If True, write out model with origin in original location.
+                               If False, shift origin to (0,0,0). 
   
   secondary_structure.enabled  (default: True)
                                Most MD simulations tend to break secondary structure. 
@@ -242,24 +262,22 @@ Options:
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
   
-  output_dir                   (default: output)
-                               output folder name prefix 
   
-  keep_origin                  (default: True)
-                               If True, write out model with origin in original location.
-                               If False, shift origin to (0,0,0). 
+  sigma_for_auto_geom          (default: 0.05)
+                               The lower this value, the stronger the custom made secondary structure restraints will be.
+                               Oleg once recommended 0.021 which is the sigma value for covalent bond.
+                               According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
   
-  progress_on_screen           (default: False)
-                               If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
-                               If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
-  
-  record_states                (default: False)
-                               If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)
-                               However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory.
-                               If False, cryo_fit2 doesn't record states of molecular dynamics.
+  slack_for_auto_geom          (default: 0)
+                               As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, 
+                               its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                               However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
   
   short                        (default: False)
-                               If True, run quickly only to check sanity
+                               If True, run quickly only to check sanity.
+                               
+  write_custom_geom_only       (default: False)
+                               If True, write custom geometry eff file only (not running cryo_fit2).
 '''
 
   #secondary_structure.nucleic_acid.base_pair.restrain_planarity  (default: True)
@@ -338,15 +356,17 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       if (self.params.sigma_for_auto_geom != None):
         user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
       else:
-        self.params.sigma_for_auto_geom = 0.04
+        self.params.sigma_for_auto_geom = 0.05
         
       if (self.params.slack_for_auto_geom != None):
         user_slack_for_auto_geom = self.params.slack_for_auto_geom
       else:
         self.params.slack_for_auto_geom = 0
       
+      
       generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
                                                       self.params.sigma_for_auto_geom, self.params.slack_for_auto_geom)
+      
       sys.argv.append(generated_eff_file_name)
     
     logfile.close()

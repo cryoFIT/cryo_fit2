@@ -123,15 +123,17 @@ resolution       = None
   .short_caption = cryo-EM map resolution (angstrom) that needs to be specified by a user
 short            = False
   .type          = bool
-  .help          = If True, run quickly only to check sanity
-sigma_for_auto_geom   = None
+  .help          = If True, run quickly only to check sanity.
+sigma_for_auto_geom   = 0.05
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                        Oleg recommended 0.021 which is the sigma value for covalent bond.
+                        Oleg once recommended 0.021 which is the sigma value for covalent bond. \
+                        According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
 slack_for_auto_geom   = 0
   .type               = float
   .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
-                        default value is 0
+                        its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                        However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
@@ -147,6 +149,9 @@ weight_multiply  = None
                    Usually a small molecule (a helix) requires only 1 (not multiply). \
                    For a helix, 20 keeps geometry, 100 breaks it (w/o special sigma) \
                    However, a large molecule needs a larger value (e.g. 10~50).
+write_custom_geom_only   = False
+  .type                  = bool
+  .help                  = If True, write custom geometry eff file only (not running cryo_fit2).
 include scope mmtbx.maps.map_model_cc.master_params
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
@@ -242,6 +247,9 @@ class Program(ProgramTemplate):
   # ---------------------------------------------------------------------------
   
   def run(self):
+    
+    
+    
     time_total_start = time.time()
     args = sys.argv[1:] # has model_w_CRYST1.pdb_ss_cryo_fit2_auto.eff that was made from prepare_cryo_fit2
     
@@ -249,11 +257,28 @@ class Program(ProgramTemplate):
     out=sys.stdout
     log.register("stdout", out)
     
+    if (self.params.write_custom_geom_only == True):
+      
+      geom_log_file_name = "geom_writing.log"
+      geom_logfile = open(geom_log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
+      
+      custom_geom_file_name = str(self.data_manager.get_default_model_name()) + "_ss_cryo_fit2_auto.eff"
+      splited_custom_geom_file_name = custom_geom_file_name.split("/")
+      custom_geom_file_name_wo_path = splited_custom_geom_file_name[len(splited_custom_geom_file_name)-1]
+  
+      write_this = custom_geom_file_name_wo_path + " is generated at the same folder. Modify it for user's need, and provide to cryo_fit2\n"
+      print (write_this)
+      geom_logfile.write(write_this)
+      geom_logfile.close()
+      exit(1)
+    
+    
     log_file_name = "cryo_fit2.log"
     logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
     log.register("logfile", logfile)
     logfile.write(str(date_and_time()))
 
+    
   
     
     # Importantly declared initial global variables
@@ -274,9 +299,6 @@ class Program(ProgramTemplate):
       user_number_of_steps = self.params.number_of_steps
     if (self.params.sigma_for_auto_geom != None):
       user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
-    else:
-      #self.params.sigma_for_auto_geom = 0.05 # best bp keeping for L1 stalk
-      self.params.sigma_for_auto_geom = 0.04
     if (self.params.slack_for_auto_geom != None):
       user_slack_for_auto_geom = self.params.slack_for_auto_geom
     if (self.params.start_temperature != None):
@@ -286,10 +308,10 @@ class Program(ProgramTemplate):
 
     print ("A user entered resolution:", str(self.params.resolution))
     
-    print('A user input atomistic model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
+    print('A user input atomistic model file name: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
     
-    print('A user input map: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
+    print('A user input map file name: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
 
     
