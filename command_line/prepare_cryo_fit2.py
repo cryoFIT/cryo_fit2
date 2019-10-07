@@ -127,7 +127,8 @@ short            = False
 sigma_for_auto_geom   = 0.05
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                        Oleg recommended 0.021 which is the sigma value for covalent bond.
+                        Oleg once recommended 0.021 which is the sigma value for covalent bond. \
+                        According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
 slack_for_auto_geom   = 0
   .type               = float
   .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
