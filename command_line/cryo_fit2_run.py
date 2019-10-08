@@ -149,7 +149,7 @@ class cryo_fit2_class(object):
       # same value as MD_in_each_cycle
       
     # Regardless of above assignment, re-assign check_cc_after_these_steps to avoid empty 1st_2nd_array situation
-    check_cc_after_these_steps = check_cc_after_these_steps + params.number_of_steps*number_of_MD_in_each_cycle
+    check_cc_after_these_steps = check_cc_after_these_steps + params.number_of_steps*number_of_MD_in_each_cycle*2
     
     # reoptimize_map_weight_after_these_steps = ''
     # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
