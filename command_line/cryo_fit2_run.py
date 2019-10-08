@@ -93,7 +93,9 @@ class cryo_fit2_class(object):
     params.start_temperature       = self.params.start_temperature
     params.final_temperature       = self.params.final_temperature
     params.cool_rate               = self.params.cool_rate
+    #params.MD_in_each_cycle        = self.params.MD_in_each_cycle # "AttributeError: Assignment to non-existing attribute "MD_in_each_cycle"
     params.number_of_steps         = self.params.number_of_steps
+  
     
     max_steps_for_final_MD = ''
     if (self.params.max_steps_for_final_MD != None):
@@ -141,8 +143,14 @@ class cryo_fit2_class(object):
       #but this is just for test
     else:
       #check_cc_after_these_steps = 100000
-      check_cc_after_these_steps = 2000
+      check_cc_after_these_steps = 2000 #if this value is so small like this, then empty 1st_2nd_array is more possible
   
+    number_of_MD_in_each_cycle = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
+      # same value as MD_in_each_cycle
+      
+    # Regardless of above assignment, re-assign check_cc_after_these_steps to avoid empty 1st_2nd_array situation
+    check_cc_after_these_steps = check_cc_after_these_steps + params.number_of_steps*number_of_MD_in_each_cycle
+    
     # reoptimize_map_weight_after_these_steps = ''
     # if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
     #   if (("tst_cryo_fit2" in model_file_name_only) == True):
@@ -234,8 +242,10 @@ class cryo_fit2_class(object):
         self.logfile.write(str(write_this))
         return self.output_dir
         
-      multiply_this = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
-      total_steps_so_far_for_exploration_and_final_MD = total_steps_so_far_for_exploration_and_final_MD + int(params.number_of_steps*multiply_this)
+      
+      
+      total_steps_so_far_for_exploration_and_final_MD = total_steps_so_far_for_exploration_and_final_MD \
+                                                        + int(params.number_of_steps*number_of_MD_in_each_cycle)
       
       
       cc_after_small_MD = calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
@@ -258,7 +268,7 @@ class cryo_fit2_class(object):
       
       
       ############# all below is for final MD
-      total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
+      total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*number_of_MD_in_each_cycle)
   
       
       cc_improvement_threshold = 0.00001 # 0.0001 worked to improve cc further
@@ -291,7 +301,6 @@ class cryo_fit2_class(object):
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
       '''
       
-      print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
       # total_steps_so_far_for_cc_check is thought to be re-initialized in all circumstances. However, it seems not.
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         
@@ -300,12 +309,12 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
-          write_this = "cc_after_small_MD-best_cc_so_far: " + str(cc_after_small_MD-best_cc_so_far) + "\n"
+          write_this = "cc_after_small_MD - best_cc_so_far: " + str(cc_after_small_MD-best_cc_so_far) #+ "\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
           if (float(cc_after_small_MD-best_cc_so_far) > cc_improvement_threshold): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
-            write_this = "float(cc_after_small_MD-best_cc_so_far) > " + str(cc_improvement_threshold) + ". Iterates longer.\n"
+            write_this = "float(cc_after_small_MD - best_cc_so_far) > " + str(float_to_str(cc_improvement_threshold)) + ". Iterates longer.\n"
             print('%s' %(write_this))
             self.logfile.write(str(write_this))
             
@@ -315,7 +324,7 @@ class cryo_fit2_class(object):
             total_steps_so_far_for_cc_check = 0 # reset
             continue
           else:
-            write_this = "float(cc_after_small_MD-best_cc_so_far) <= 0.001. Goes to mean_array_comparison.\n"
+            write_this = "float(cc_after_small_MD-best_cc_so_far) <= " + str(float_to_str(cc_improvement_threshold)) + ". Goes to mean_array_comparison.\n"
             print('%s' %(write_this))
             self.logfile.write(str(write_this))
           
