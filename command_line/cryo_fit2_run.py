@@ -259,7 +259,10 @@ class cryo_fit2_class(object):
       
       ############# all below is for final MD
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*multiply_this)
-
+  
+      
+      cc_improvement_threshold = 0.00001 # 0.0001 worked to improve cc further
+      
       if (max_steps_for_final_MD != ''):
         if (total_steps_so_far_for_exploration_and_final_MD >= max_steps_for_final_MD):
           write_this = "\ntotal_steps_so_far_for_exploration_and_final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
@@ -267,7 +270,12 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           break
-        
+      
+      write_this = "total_steps_so_far_for_cc_check: " + str(total_steps_so_far_for_cc_check) + \
+            ",  check_cc_after_these_steps/2: " + str(check_cc_after_these_steps/2) 
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+      
       if (float(total_steps_so_far_for_cc_check) < float(check_cc_after_these_steps/2)):
         cc_1st_array.append(cc_after_small_MD)
         
@@ -283,8 +291,8 @@ class cryo_fit2_class(object):
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
       '''
       
-      #print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
-      # total_steps_so_far_for_cc_check is re-initialized in all circumstances
+      print ("total_steps_so_far_for_cc_check:",total_steps_so_far_for_cc_check)
+      # total_steps_so_far_for_cc_check is thought to be re-initialized in all circumstances. However, it seems not.
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         
         if (cc_after_small_MD > best_cc_so_far):
@@ -296,13 +304,21 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
-          if ((cc_after_small_MD-best_cc_so_far) > 0.0001): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
+          if (float(cc_after_small_MD-best_cc_so_far) > cc_improvement_threshold): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
+            write_this = "float(cc_after_small_MD-best_cc_so_far) > " + str(cc_improvement_threshold) + ". Iterates longer.\n"
+            print('%s' %(write_this))
+            self.logfile.write(str(write_this))
+            
             best_cc_so_far = cc_after_small_MD
             cc_1st_array = [] # reset
             cc_2nd_array = [] # reset
             total_steps_so_far_for_cc_check = 0 # reset
-            
-            continue 
+            continue
+          else:
+            write_this = "float(cc_after_small_MD-best_cc_so_far) <= 0.001. Goes to mean_array_comparison.\n"
+            print('%s' %(write_this))
+            self.logfile.write(str(write_this))
+          
 
         else:
           write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"
@@ -333,7 +349,7 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
-          if ((np.mean(cc_2nd_array)-np.mean(cc_1st_array)) > 0.0001): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
+          if ((np.mean(cc_2nd_array)-np.mean(cc_1st_array)) > cc_improvement_threshold): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
             cc_1st_array = [] # reset
             cc_2nd_array = [] # reset
             total_steps_so_far_for_cc_check = 0 # reset
