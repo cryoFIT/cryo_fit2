@@ -282,7 +282,7 @@ class cryo_fit2_class(object):
           break
       
       write_this = "total_steps_so_far_for_cc_check: " + str(total_steps_so_far_for_cc_check) + \
-            ",  check_cc_after_these_steps/2: " + str(check_cc_after_these_steps/2) 
+            ",  check_cc_after_these_steps/2: " + str(check_cc_after_these_steps/2) + "\n" # this "\n" is essential for screen print
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       
@@ -305,11 +305,11 @@ class cryo_fit2_class(object):
       if (total_steps_so_far_for_cc_check >= check_cc_after_these_steps):
         
         if (cc_after_small_MD > best_cc_so_far):
-          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). Therefore, cryo_fit2 will run longer MD.\n"
+          write_this = "current_cc (" + str(cc_after_small_MD) + ") > best_cc_so_far (" + str(best_cc_so_far) + "). \nTherefore, cryo_fit2 will run longer MD.\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
-          write_this = "cc_after_small_MD - best_cc_so_far: " + str(cc_after_small_MD-best_cc_so_far) #+ "\n"
+          write_this = "cc_after_small_MD - best_cc_so_far: " + str(float_to_str(cc_after_small_MD-best_cc_so_far)) + "\n" # this "\n" is essential for screen print
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
@@ -337,7 +337,7 @@ class cryo_fit2_class(object):
         if ((len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)):
           total_steps_so_far_for_cc_check = 0 # reset
           
-          write_this = "len(cc_1st_array):" + str(len(cc_1st_array))
+          write_this = "len(cc_1st_array):" + str(len(cc_1st_array)) + "\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
