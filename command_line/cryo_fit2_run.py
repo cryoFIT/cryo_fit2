@@ -336,26 +336,10 @@ class cryo_fit2_class(object):
             print('%s' %(write_this))
             self.logfile.write(str(write_this))
           
-
         else:
           write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
-
-        if ((len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)):
-          total_steps_so_far_for_cc_check = 0 # reset
-          
-          write_this = "len(cc_1st_array):" + str(len(cc_1st_array)) + "\n"
-          print('%s' %(write_this))
-          self.logfile.write(str(write_this))
-          
-          write_this = "len(cc_2nd_array):" + str(len(cc_2nd_array))
-          print('%s' %(write_this))
-          self.logfile.write(str(write_this))
-          
-          print ("please email doonam@lanl.gov for this error")
-          STOP() # happened in 9/23/2019
-          continue
           
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
