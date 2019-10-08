@@ -296,12 +296,13 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
-          best_cc_so_far = cc_after_small_MD
-          cc_1st_array = [] # reset
-          cc_2nd_array = [] # reset
-          total_steps_so_far_for_cc_check = 0 # reset
-          
-          continue 
+          if ((cc_after_small_MD-best_cc_so_far) > 0.0001): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
+            best_cc_so_far = cc_after_small_MD
+            cc_1st_array = [] # reset
+            cc_2nd_array = [] # reset
+            total_steps_so_far_for_cc_check = 0 # reset
+            
+            continue 
 
         else:
           write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"
@@ -310,7 +311,11 @@ class cryo_fit2_class(object):
 
         if ((len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)):
           total_steps_so_far_for_cc_check = 0 # reset
-          print ("(len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)")
+          
+          write_this = "(len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          
           print ("cc_1st_array:",cc_1st_array)
           print ("cc_2nd_array:",cc_2nd_array)
           print ("please email doonam@lanl.gov for this error")
@@ -326,9 +331,15 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
-          cc_1st_array = [] # reset
-          cc_2nd_array = [] # reset
-          total_steps_so_far_for_cc_check = 0 # reset
+          if ((np.mean(cc_2nd_array)-np.mean(cc_1st_array)) > 0.0001): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
+            cc_1st_array = [] # reset
+            cc_2nd_array = [] # reset
+            total_steps_so_far_for_cc_check = 0 # reset
+          else:
+            write_this = "cc values are saturated\ntotal_steps_so_far_for_exploration_and_final_MD: " + str(total_steps_so_far_for_exploration_and_final_MD) + "\n"
+            print('%s' %(write_this))
+            self.logfile.write(str(write_this))
+            break
 
         else: #(np.mean(cc_2nd_array) <= np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
