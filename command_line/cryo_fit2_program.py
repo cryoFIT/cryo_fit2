@@ -142,6 +142,9 @@ make_ss_for_stronger_ss = True
   .type                 = bool
   .help                 = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
                           If False, it will not use custom geometry
+top_out_for_protein = True
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -175,30 +178,58 @@ selection_moving_preset = * ca backbone all
 '''
 ############## end of base_master_phil_str  
   
+#print (base_master_phil_str) # print nothing
+
+
+# Doo Nam thinks that phenix-1.17rc5-3630 mandates secondary_structure.enabled = True ??
+# because no matter how he tried to assign secondary_structure.enabled = T/F in commandline, modified_master_phil_str shows
+#that secondary_structure.enabled = True
+
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
 modified_master_phil_str = change_default_phil_values(
   base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+
 
 new_default = 'pdb_interpretation.secondary_structure.protein.remove_outliers = True'
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
 
+print (modified_master_phil_str)
+#STOP()
+
+
+'''
+When I supplied secondary_structure.enabled=True in commandline,
+there was no error of "Unrecognized PHIL parameters:"
+'''
+
+
+'''
+new_default = 'pdb_interpretation.secondary_structure.protein.enabled = True'
+modified_master_phil_str = change_default_phil_values(
+  base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+'''
+
+
+'''
+When I supplied secondary_structure.protein.enabled=True in commandline,
+there was no error of "Unrecognized PHIL parameters:"
+
+However, when I supplied secondary_structure.protein.enabled=False in commandline,
+secondary_structure.protein.enabled was True according to screen_saved
+'''
+
+
+#print (modified_master_phil_str) # prints top_out T/F for each condition
+#STOP()
+
+
 # modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
-# has top_out info
+#has top_out info
 
 # modules/cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
-
-
-# modules/cctbx_project/mmtbx/command_line/pdb_interpretation.py DOES NOT have this information directly
-new_default = 'pdb_interpretation.secondary_structure.protein.helix.top_out = True'
-modified_master_phil_str = change_default_phil_values(
-  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
-
-new_default = 'pdb_interpretation.secondary_structure.protein.sheet.top_out = True'
-modified_master_phil_str = change_default_phil_values(
-  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
 
 # according to modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
@@ -209,17 +240,44 @@ pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_paralleli
 
 are all True by default'''
 
-#'''
+
 new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = True'
 # it was False by default
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
-#'''
+
+'''
+when I supplied secondary_structure.nucleic_acid.base_pair.restrain_planarity=True in commandline
+"Unrecognized PHIL parameters:
+-----------------------------
+  secondary_structure.nucleic_acid.base_pair.restrain_planarity=True"
+'''
+
+
 
 #print ("modified_master_phil_str:",modified_master_phil_str)
 # unfortunately, does not show pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity
 #STOP()
 
+
+'''
+# modules/cctbx_project/mmtbx/command_line/pdb_interpretation.py DOES NOT have this information directly
+# I'm not sure whether these top_out assignments work as intended
+new_default = 'pdb_interpretation.secondary_structure.protein.helix.top_out = True'
+modified_master_phil_str = change_default_phil_values(
+  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+
+
+#When I supplied secondary_structure.protein.helix.top_out=True in commandline
+#"Unrecognized PHIL parameters:
+#-----------------------------
+#  secondary_structure.protein.helix.top_out=True"
+
+
+new_default = 'pdb_interpretation.secondary_structure.protein.sheet.top_out = True'
+modified_master_phil_str = change_default_phil_values(
+  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
+'''
 
 
 class Program(ProgramTemplate):
@@ -227,8 +285,7 @@ class Program(ProgramTemplate):
   datatypes = ['model', 'real_map', 'phil']
   citations = program_citations
   
-  master_phil_str = modified_master_phil_str
-  # this is ESSENTIAL to avoid
+  master_phil_str = modified_master_phil_str # this is ESSENTIAL to avoid
   '''
      Sorry: Some PHIL parameters are not recognized by phenix.cryo_fit2.
      Please run this program with the --show-defaults option to see what parameters are available.
@@ -248,14 +305,13 @@ class Program(ProgramTemplate):
   
   def run(self):
     
-    
-    
     time_total_start = time.time()
-    args = sys.argv[1:] # has model_w_CRYST1.pdb_ss_cryo_fit2_auto.eff that was made from prepare_cryo_fit2
+    args = sys.argv[1:] # has model_w_CRYST1.pdb_ss_cryo_fit2_auto.eff that was generated from prepare_cryo_fit2
     
     log = multi_out()
     out=sys.stdout
     log.register("stdout", out)
+    
     
     if (self.params.write_custom_geom_only == True):
       
@@ -272,14 +328,11 @@ class Program(ProgramTemplate):
       geom_logfile.close()
       exit(1)
     
-    
     log_file_name = "cryo_fit2.log"
     logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
     log.register("logfile", logfile)
     logfile.write(str(date_and_time()))
 
-    
-  
     
     # Importantly declared initial global variables
     user_cool_rate           = None
@@ -380,6 +433,8 @@ class Program(ProgramTemplate):
     # modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py
     
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
+    #STOP()
+    
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
     print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled)
     
@@ -664,9 +719,8 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
                             + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
                             + " sigma_for_auto_geom=" + str(self.params.sigma_for_auto_geom) \
-                            + " slack_for_auto_geom=" + str(self.params.slack_for_auto_geom) #\
-                            #+ " "
-                            #+ "secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) + " " \
+                            + " slack_for_auto_geom=" + str(self.params.slack_for_auto_geom) \
+                            + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled)
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
@@ -727,7 +781,6 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     #model_inp.geometry_statistics().show()
     
     '''
-    
 model.geometry_statistics().show
 model.geometry_statistics().show()
 model.geometry_statistics().channel, log,,

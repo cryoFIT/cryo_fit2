@@ -170,7 +170,6 @@ class cryo_fit2_class(object):
     
     grm = self.model.get_restraints_manager()
     
-    
     '''
     grm.geometry.append_reference_coordinate_restraints_in_place(
         reference.add_coordinate_restraints(
@@ -293,6 +292,10 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
+          write_this = "best_cc_so_far-cc_after_small_MD: " + str(best_cc_so_far-cc_after_small_MD) + "\n"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          
           best_cc_so_far = cc_after_small_MD
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
@@ -319,6 +322,10 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
+          write_this = "(mean of cc_2nd_array) - (mean of cc_1st_array): " + str(np.mean(cc_2nd_array)-np.mean(cc_1st_array)) + "\n"
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          
           cc_1st_array = [] # reset
           cc_2nd_array = [] # reset
           total_steps_so_far_for_cc_check = 0 # reset
