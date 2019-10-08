@@ -142,9 +142,6 @@ make_ss_for_stronger_ss = True
   .type                 = bool
   .help                 = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
                           If False, it will not use custom geometry
-top_out_for_protein = True
-  .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -178,6 +175,10 @@ selection_moving_preset = * ca backbone all
 '''
 ############## end of base_master_phil_str  
   
+# top_out_for_protein = True
+#   .type             = bool
+#   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
+#   
 #print (base_master_phil_str) # print nothing
 
 

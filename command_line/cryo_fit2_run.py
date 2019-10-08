@@ -292,7 +292,7 @@ class cryo_fit2_class(object):
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
 
-          write_this = "best_cc_so_far-cc_after_small_MD: " + str(best_cc_so_far-cc_after_small_MD) + "\n"
+          write_this = "cc_after_small_MD-best_cc_so_far: " + str(cc_after_small_MD-best_cc_so_far) + "\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
