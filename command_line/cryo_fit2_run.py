@@ -292,6 +292,14 @@ class cryo_fit2_class(object):
       else:
         cc_2nd_array.append(cc_after_small_MD)
       
+      write_this = "len(cc_1st_array):" + str(len(cc_1st_array)) + "\n"
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+      
+      write_this = "len(cc_2nd_array):" + str(len(cc_2nd_array))
+      print('%s' %(write_this))
+      self.logfile.write(str(write_this))
+      
       '''
       if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
         if (cycle_so_far_for_map_weight_reoptimization >= reoptimize_map_weight_after_these_steps):
