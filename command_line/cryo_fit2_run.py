@@ -312,12 +312,14 @@ class cryo_fit2_class(object):
         if ((len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)):
           total_steps_so_far_for_cc_check = 0 # reset
           
-          write_this = "(len(cc_1st_array) == 0) or (len(cc_2nd_array) == 0)"
+          write_this = "len(cc_1st_array):" + str(len(cc_1st_array))
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
-          print ("cc_1st_array:",cc_1st_array)
-          print ("cc_2nd_array:",cc_2nd_array)
+          write_this = "len(cc_2nd_array):" + str(len(cc_2nd_array))
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          
           print ("please email doonam@lanl.gov for this error")
           STOP() # happened in 9/23/2019
           continue
