@@ -143,10 +143,10 @@ class cryo_fit2_class(object):
       #but this is just for test
     else:
       #check_cc_after_these_steps = 100000
-      check_cc_after_these_steps = 2000 #if this value is so small like this, then empty 1st_2nd_array is more possible
+      check_cc_after_these_steps = 2000 #even if this value is so small like this, empty 1st_2nd_array error is avoided by following fail-proof hook
   
     number_of_MD_in_each_cycle = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
-      # same value as MD_in_each_cycle
+    # same value as MD_in_each_cycle
       
     # Regardless of above assignment, re-assign check_cc_after_these_steps to avoid empty 1st_2nd_array situation
     check_cc_after_these_steps = check_cc_after_these_steps + params.number_of_steps*number_of_MD_in_each_cycle*2
@@ -243,10 +243,8 @@ class cryo_fit2_class(object):
         return self.output_dir
         
       
-      
       total_steps_so_far_for_exploration_and_final_MD = total_steps_so_far_for_exploration_and_final_MD \
                                                         + int(params.number_of_steps*number_of_MD_in_each_cycle)
-      
       
       cc_after_small_MD = calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
       write_this = "CC after this cycle (a small MD iteration): " + str(round(cc_after_small_MD, 7)) + "\n"
@@ -292,13 +290,13 @@ class cryo_fit2_class(object):
       else:
         cc_2nd_array.append(cc_after_small_MD)
       
-      write_this = "len(cc_1st_array):" + str(len(cc_1st_array)) + "\n"
-      print('%s' %(write_this))
-      self.logfile.write(str(write_this))
-      
-      write_this = "len(cc_2nd_array):" + str(len(cc_2nd_array))
-      print('%s' %(write_this))
-      self.logfile.write(str(write_this))
+      # write_this = "len(cc_1st_array):" + str(len(cc_1st_array)) + "\n"
+      # print('%s' %(write_this))
+      # self.logfile.write(str(write_this))
+      # 
+      # write_this = "len(cc_2nd_array):" + str(len(cc_2nd_array))
+      # print('%s' %(write_this))
+      # self.logfile.write(str(write_this))
       
       '''
       if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
