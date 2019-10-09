@@ -657,7 +657,7 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
     if (self.params.MD_in_each_cycle == None):
       self.params.MD_in_each_cycle = 4
     if (self.params.number_of_steps == None):
-      self.params.number_of_steps = 200 # was 100
+      self.params.number_of_steps = 100
     
     if (self.params.start_temperature == None):
       self.params.start_temperature = 300
