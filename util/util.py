@@ -790,11 +790,8 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
 
 def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     unit_cell_parameters_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
-    # It is weird, but this additional str() is needed to  smooth running for both original map and map_box derived map.
-    
-    #unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
 
-    write_this = "unit_cell_parameters_from_map: " + str(unit_cell_parameters_from_map) + "\n"
+    write_this = "Unit cell parameters from map: " + unit_cell_parameters_from_map + "\n"
     print (write_this)
     logfile.write(write_this)
     
