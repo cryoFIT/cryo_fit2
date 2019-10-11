@@ -510,7 +510,7 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
           print (write_this)
           logfile.write(write_this)
           
-          file_name_w_user_s_original_pdb_info = prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp)
+          file_name_w_user_s_original_pdb_info = prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp)
           
           ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
               pdb_file_names=[self.data_manager.get_default_model_name()])[0]
@@ -788,58 +788,117 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
 ##### end of def make_argstuples(logfile):
 
 
-def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
-    unit_cell_parameters_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
-
-    write_this = "Unit cell parameters from map: " + unit_cell_parameters_from_map + "\n"
-    print (write_this)
+def prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
+    
+    # [original map]
+    # map origin: (0, 0, 0)
+    # map grid:   (240, 240, 240)
+    # pixel size: (1.0600, 1.0600, 1.0600)
+    # map grid x pixel size resulted in -> CRYST1 254.4    254.4    254.4
+    
+    # [boxed map]    
+    # map grid:   (34, 29, 33)
+    # pixel size: (1.0600, 1.0600, 1.0600)
+    # map grid x pixel size resulted in -> CRYST1  36.04    30.74    34.98
+    
+    #unit_cell_grid = map_inp.unit_cell_grid  # with a boxed map -> (240, 240, 240)
+    #grid_unit_cell = map_inp.grid_unit_cell() # with a boxed map -> "(1.06, 1.06, 1.06, 90, 90, 90)"
+    
+    pixel_sizes_from_map_1 = map_inp.pixel_sizes()[0] 
+    pixel_sizes_from_map_2 = map_inp.pixel_sizes()[1]
+    pixel_sizes_from_map_3 = map_inp.pixel_sizes()[2]
+    
+    map_grid_1 = map_inp.data.all()[0]
+    map_grid_2 = map_inp.data.all()[1]
+    map_grid_3 = map_inp.data.all()[2]
+    
+    a_of_map = str(round((pixel_sizes_from_map_1*map_grid_1),3))
+    b_of_map = str(round((pixel_sizes_from_map_2*map_grid_2),3))
+    c_of_map = str(round((pixel_sizes_from_map_3*map_grid_3),3))
+    
+    
+    # I've used this a,b,c values to prepend to pdb files. With an original map file, it is ok, but with a boxed map file, it didn't fit well.
+    unit_cell_crystal_symmetry_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
+    write_this = "unit_cell_crystal_symmetry from map: " + unit_cell_crystal_symmetry_from_map + "\n"
+    print (write_this) # with a boxed map -> (254.4, 254.4, 254.4, 90, 90, 90)
     logfile.write(write_this)
-    
-    splited = unit_cell_parameters_from_map.split(",") # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
+    splited_unit_cell_crystal_symmetry_from_map = unit_cell_crystal_symmetry_from_map.split(",") # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
 
-    # worked for part_tRNA, full_tRNA, L1_stalk, a helix and Mg_Channel
-    multi_before_period = ''
-    multi_after_period = ''
+    write_this_CRYST1 = "CRYST1 "
     
-    soon_a = splited[0]
-    splited_soon_a = soon_a.split("(")
-    
-    a = splited_soon_a[1]
-    splited_a = a.split(".")
-    write_this_CRYST1 = "CRYST1"
-    if (len(splited_a) == 1): 
-        multi_before_period = 5-len(splited_a[0])
+    splited_a_of_map = a_of_map.split(".")
+    if (len(splited_a_of_map) == 1): 
+        multi_before_period = 5-len(splited_a_of_map[0])
         multi_after_period  = 3
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + multi_after_period*" "    
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a_of_map[0] + multi_after_period*" "
     else:
-        multi_before_period = 4-len(splited_a[0])
-        multi_after_period = 4-len(splited_a[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + "." + splited_a[1]+multi_after_period*" "    
-    
-    b = splited[1]
-    splited_b = b.split(".")
-    if (len(splited_b) == 1): 
-        multi_before_period = 6-len(splited_b[0])
-        multi_after_period  = 3
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + multi_after_period*" " 
-    else:
-        multi_before_period = 4-len(splited_b[0])
-        multi_after_period = 4-len(splited_b[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + "." + splited_b[1]+multi_after_period*" "
+        multi_before_period = 4-len(splited_a_of_map[0])
+        multi_after_period = 4-len(splited_a_of_map[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a_of_map[0] + "." + splited_a_of_map[1]+multi_after_period*" "
 
-    c = splited[2]
-    splited_c = c.split(".")
-    if (len(splited_c) == 1): # just 336
-        multi_before_period = 6-len(splited_c[0])
-        multi_after_period  = 3
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + multi_after_period*" "
-    else:
-        multi_before_period = 4-len(splited_c[0])
-        multi_after_period = 4-len(splited_c[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c[0] + "." + splited_c[1]+multi_after_period*" "
     
+    splited_b_of_map = b_of_map.split(".")
+    if (len(splited_b_of_map) == 1): 
+        multi_before_period = 5-len(splited_b_of_map[0])
+        multi_after_period  = 3
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b_of_map[0] + multi_after_period*" "
+    else:
+        multi_before_period = 4-len(splited_b_of_map[0])
+        multi_after_period = 4-len(splited_b_of_map[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b_of_map[0] + "." + splited_b_of_map[1]+multi_after_period*" "
+    
+    splited_c_of_map = c_of_map.split(".")
+    if (len(splited_c_of_map) == 1): 
+        multi_before_period = 5-len(splited_c_of_map[0])
+        multi_after_period  = 3
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c_of_map[0] + multi_after_period*" "
+    else:
+        multi_before_period = 4-len(splited_c_of_map[0])
+        multi_after_period = 4-len(splited_c_of_map[1])
+        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_c_of_map[0] + "." + splited_c_of_map[1]+multi_after_period*" "
+        
 
-    alpha = splited[3].strip(' ')
+    alpha = splited_unit_cell_crystal_symmetry_from_map[3]
+    empty_space_before_period = ''
+    if (alpha < 10):
+        empty_space_before_period = 2 # yes, it is different from beta and gamma
+    elif (alpha < 100):
+        empty_space_before_period = 1 # yes, it is different from beta and gamma
+    else:
+        empty_space_before_period = 0 # yes, it is different from beta and gamma
+    
+    write_this_CRYST1 = write_this_CRYST1 + " "*empty_space_before_period + str(alpha) + " "*3
+    
+    
+    beta = splited_unit_cell_crystal_symmetry_from_map[4]
+    empty_space_before_period = ''
+    if (beta < 10):
+        empty_space_before_period = 3
+    elif (beta < 100):
+        empty_space_before_period = 2
+    else:
+        empty_space_before_period = 1
+    
+    write_this_CRYST1 = write_this_CRYST1 + " "*empty_space_before_period + str(beta) + " "*3
+    
+    
+    soon_gamma = splited_unit_cell_crystal_symmetry_from_map[5]
+    soon_gamma_splited = soon_gamma.split(")")
+    gamma = soon_gamma_splited[0]
+    empty_space_before_period = ''
+    if (gamma < 10):
+        empty_space_before_period = 3
+    elif (gamma < 100):
+        empty_space_before_period = 2
+    else:
+        empty_space_before_period = 1
+    
+    write_this_CRYST1 = write_this_CRYST1 + " "*empty_space_before_period + str(gamma) + " "*3
+    
+    
+    
+    '''
+    alpha = splited_unit_cell_crystal_symmetry_from_map[3].strip(' ')
     splited_alpha = alpha.split(".")
     if (len(splited_alpha) == 1): # just 90
         multi_before_period = 4-len(splited_alpha[0])
@@ -885,6 +944,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
             multi_before_period = 5-len(splited_gamma[0])
             multi_after_period = 0-len(splited_gamma[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
+    '''
     
     print ("Examplar correct CRYST1 format                : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
     
@@ -893,10 +953,10 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
       # http://img.chem.ucl.ac.uk/sgp/large/019a.htm
       print (write_this)
       logfile.write(write_this)
-      write_this_CRYST1 =  write_this_CRYST1 + "  P 21 21 21       # added by cryo_fit2 according to the user cryo-EM map"
+      write_this_CRYST1 =  write_this_CRYST1 + " P 21 21 21       # added by cryo_fit2 according to the user cryo-EM map"
       # When I added "# added by cryo_fit2" without enough space at the end, it complained "iotbx.pdb.records.FormatError: Corrupt Z value:"
     else:
-      write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to the user cryo-EM map"
+      write_this_CRYST1 =  write_this_CRYST1 + " P 1              # added by cryo_fit2 according to the user cryo-EM map"
       # When I added "# added by cryo_fit2" without enough space at the end, it complained "iotbx.pdb.records.FormatError: Corrupt Z value:"
     
     write_this = "Cryo_fit2 will prepend this CRYST1 information: " + write_this_CRYST1 + " to a user pdb file.\n"
@@ -914,7 +974,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     logfile.write(write_this)
     
     return file_name_w_user_s_original_pdb_info
-############################ end of prepend_extracted_CRYST1_to_pdb_file
+############################ end of prepend_map_extracted_CRYST1_to_pdb_file
 
 
 def remove_prefix_in_AA_name(input_pdb_file_name): ######### deal AARG, BARG
