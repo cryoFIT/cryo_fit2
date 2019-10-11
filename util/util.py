@@ -532,7 +532,7 @@ map_weight can't be optimized automatically.
                      If a user manually assigns a map_weight like map_weight=x, then cryo_fit2 will run, but with a message of "Number of atoms with unknown nonbonded energy type symbols:"
 
 
-[Possible reason 3]  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html)
+[Possible reason 3]  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html),
                      cryo_fit2 automatically assigns it from map to the first line of user input pdb file.
                      However, when a user provided .cif input model file rather than .pdb input model file, this automatic assign of CRYST1 doesn't work.
                      Additionally, when both user input pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize map_weight.
@@ -783,28 +783,34 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
                                                 bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                                 number_of_steps, start_temperature, \
                                                 weight_multiply])
-                            
     print ("total_combi_num:",total_combi_num)
-    #STOP()
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
 
 
 def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
-    write_this_CRYST1 = "CRYST1"
     unit_cell_parameters_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
+    # It is weird, but this additional str() is needed to  smooth running for both original map and map_box derived map.
+    
+    #unit_cell_parameters_from_map = map_inp.unit_cell_crystal_symmetry().unit_cell()
+
+    write_this = "unit_cell_parameters_from_map: " + str(unit_cell_parameters_from_map) + "\n"
+    print (write_this)
+    logfile.write(write_this)
+    
     splited = unit_cell_parameters_from_map.split(",") # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
 
     # worked for part_tRNA, full_tRNA, L1_stalk, a helix and Mg_Channel
-    soon_a = splited[0]
-    splited_soon_a = soon_a.split("(")
-    a = splited_soon_a[1]
-    
     multi_before_period = ''
     multi_after_period = ''
     
+    soon_a = splited[0]
+    splited_soon_a = soon_a.split("(")
+    
+    a = splited_soon_a[1]
     splited_a = a.split(".")
-    if (len(splited_a) == 1): # just 336 without numbers after .
+    write_this_CRYST1 = "CRYST1"
+    if (len(splited_a) == 1): 
         multi_before_period = 5-len(splited_a[0])
         multi_after_period  = 3
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + multi_after_period*" "    
@@ -813,10 +819,9 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
         multi_after_period = 4-len(splited_a[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_a[0] + "." + splited_a[1]+multi_after_period*" "    
     
-    
     b = splited[1]
     splited_b = b.split(".")
-    if (len(splited_b) == 1): # just 336
+    if (len(splited_b) == 1): 
         multi_before_period = 6-len(splited_b[0])
         multi_after_period  = 3
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + multi_after_period*" " 
@@ -825,7 +830,6 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
         multi_after_period = 4-len(splited_b[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_b[0] + "." + splited_b[1]+multi_after_period*" "
 
-    
     c = splited[2]
     splited_c = c.split(".")
     if (len(splited_c) == 1): # just 336
@@ -867,7 +871,6 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
             multi_before_period = 5-len(splited_beta[0])
             multi_after_period = 0-len(splited_beta[1])
         write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + "." + splited_beta[1]+multi_after_period*" "
-        
     
     soon_gamma = splited[5]
     splited_soon_gamma = soon_gamma.split(")")
@@ -889,14 +892,19 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     print ("Examplar correct CRYST1 format                : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
     
     if (map_inp.space_group_number == 19):
-      write_this = "space_group_number from user input map = 19. Therefore, assign P 21 21 21 to a user input pdb file\n" # http://img.chem.ucl.ac.uk/sgp/large/019a.htm
+      write_this = "space_group_number from user input map = 19. Therefore, assign P 21 21 21 to a user input pdb file.\n"
+      # http://img.chem.ucl.ac.uk/sgp/large/019a.htm
       print (write_this)
       logfile.write(write_this)
-      write_this_CRYST1 =  write_this_CRYST1 + "  P 21 21 21       # added by cryo_fit2 according to the user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
-    else:  
-      write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to the user cryo-EM map\n" # if I added "# added by cryo_fit2" at the end, it complains "iotbx.pdb.records.FormatError: Corrupt Z value:"
+      write_this_CRYST1 =  write_this_CRYST1 + "  P 21 21 21       # added by cryo_fit2 according to the user cryo-EM map"
+      # When I added "# added by cryo_fit2" without enough space at the end, it complained "iotbx.pdb.records.FormatError: Corrupt Z value:"
+    else:
+      write_this_CRYST1 =  write_this_CRYST1 + "  P 1              # added by cryo_fit2 according to the user cryo-EM map"
+      # When I added "# added by cryo_fit2" without enough space at the end, it complained "iotbx.pdb.records.FormatError: Corrupt Z value:"
     
-    print ("Cryo_fit2 will prepend this CRYST1 information:",write_this_CRYST1, " to a user pdb file")
+    write_this = "Cryo_fit2 will prepend this CRYST1 information: " + write_this_CRYST1 + " to a user pdb file.\n"
+    print (write_this)
+    logfile.write(write_this)
     
     file_name_w_user_s_original_pdb_info = self.data_manager.get_default_model_name() + "_before_adding_CRYST1"
     command = "cp " + self.data_manager.get_default_model_name() + " " + file_name_w_user_s_original_pdb_info
@@ -904,7 +912,7 @@ def prepend_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     
     line_prepender(self.data_manager.get_default_model_name(), write_this_CRYST1)
     
-    write_this = "CRYST1 info from map was prepended to user pdb file. Therefore, the original user pdb file is now renamed to " + file_name_w_user_s_original_pdb_info
+    write_this = "CRYST1 info from map was prepended to a user pdb file. \nTherefore, the original user pdb file is now renamed to " + file_name_w_user_s_original_pdb_info + "\n"
     print (write_this)
     logfile.write(write_this)
     
@@ -1050,19 +1058,19 @@ def report_map_model_cc(self, map_inp, model, crystal_symmetry, logfile):
       params   = self.params.map_model_cc)
     r = self.results
     #
-    write_this = "CC_mask  : " + str(round(float(r.cc_mask), 4)) + "\n"
+    write_this = "CC_mask   : " + str(round(float(r.cc_mask), 4)) + "\n"
     print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
     
-    write_this = "CC_volume: " + str(round(float(r.cc_volume), 4)) + "\n"
+    write_this = "CC_volume : " + str(round(float(r.cc_volume), 4)) + "\n"
     print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
     
-    write_this = "CC_peaks : " + str(round(float(r.cc_peaks), 4)) + "\n"
+    write_this = "CC_peaks  : " + str(round(float(r.cc_peaks), 4)) + "\n"
     print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
     
-    write_this = "CC_box   : " + str(round(float(r.cc_box), 4)) + "\n"
+    write_this = "CC_box    : " + str(round(float(r.cc_box), 4)) + "\n"
     print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
 
