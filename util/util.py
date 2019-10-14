@@ -1400,164 +1400,6 @@ geometry_restraints {
 ########## end of rewrite_pymol_ss_to_custom_geometry_ss function
 
 
-def secondary_structure_restraints_DN(args, params=None, out=sys.stdout, log=sys.stderr):
-
-  # parse command-line arguments
-  if (params is None):
-    pcl = iotbx.phil.process_command_line_with_files(
-      args=args,
-      master_phil_string=master_phil_str,
-      pdb_file_def="file_name")
-    work_params = pcl.work.extract()
-  # or use parameters defined by GUI
-  else:
-    work_params = params
-  pdb_files = work_params.file_name
-
-  work_params.secondary_structure.enabled=True
-  assert work_params.format in ["phenix", "phenix_refine", "phenix_bonds",
-      "pymol", "refmac", "kinemage", "pdb"]
-  if work_params.quiet :
-    out = cStringIO.StringIO()
-
-  pdb_combined = iotbx.pdb.combine_unique_pdb_files(file_names=pdb_files)
-  pdb_structure = iotbx.pdb.input(source_info=None,
-    lines=flex.std_string(pdb_combined.raw_records))
-  cs = pdb_structure.crystal_symmetry()
-
-  corrupted_cs = False
-  if cs is not None:
-    if [cs.unit_cell(), cs.space_group()].count(None) > 0:
-      corrupted_cs = True
-      cs = None
-    elif cs.unit_cell().volume() < 10:
-      corrupted_cs = True
-      cs = None
-
-  if cs is None:
-    if corrupted_cs:
-      print >> out, "Symmetry information is corrupted, "
-    else:
-      print >> out, "Symmetry information was not found, "
-    print >> out, "putting molecule in P1 box."
-    from cctbx import uctbx
-    atoms = pdb_structure.atoms()
-    box = uctbx.non_crystallographic_unit_cell_with_the_sites_in_its_center(
-      sites_cart=atoms.extract_xyz(),
-      buffer_layer=3)
-    atoms.set_xyz(new_xyz=box.sites_cart)
-    cs = box.crystal_symmetry()
-
-  defpars = mmtbx.model.manager.get_default_pdb_interpretation_params()
-  defpars.pdb_interpretation.automatic_linking.link_carbohydrates=False
-  defpars.pdb_interpretation.c_beta_restraints=False
-  defpars.pdb_interpretation.clash_guard.nonbonded_distance_threshold=None
-  model = mmtbx.model.manager(
-      model_input=pdb_structure,
-      crystal_symmetry=cs,
-      pdb_interpretation_params=defpars,
-      stop_for_unknowns=False)
-  pdb_hierarchy = model.get_hierarchy()
-  geometry = model.get_restraints_manager().geometry
-  if len(pdb_hierarchy.models()) != 1 :
-    raise Sorry("Multiple models not supported.")
-  ss_from_file = None
-  if (hasattr(pdb_structure, "extract_secondary_structure") and
-      not work_params.ignore_annotation_in_file):
-    ss_from_file = pdb_structure.extract_secondary_structure()
-  m = manager(pdb_hierarchy=pdb_hierarchy,
-    geometry_restraints_manager=geometry,
-    sec_str_from_pdb_file=ss_from_file,
-    params=work_params.secondary_structure,
-    verbose=work_params.verbose)
-
-  # bp_p = nucleic_acids.get_basepair_plane_proxies(
-  #     pdb_hierarchy,
-  #     m.params.secondary_structure.nucleic_acid.base_pair,
-  #     geometry)
-  # st_p = nucleic_acids.get_stacking_proxies(
-  #     pdb_hierarchy,
-  #     m.params.secondary_structure.nucleic_acid.stacking_pair,
-  #     geometry)
-  # hb_b, hb_a = nucleic_acids.get_basepair_hbond_proxies(pdb_hierarchy,
-  #     m.params.secondary_structure.nucleic_acid.base_pair)
-  result_out = cStringIO.StringIO()
-  # prefix_scope="refinement.pdb_interpretation"
-  # prefix_scope=""
-  prefix_scope=""
-  if work_params.format == "phenix_refine":
-    prefix_scope = "refinement.pdb_interpretation"
-  elif work_params.format == "phenix":
-    prefix_scope = "pdb_interpretation"
-  ss_phil = None
-  working_phil = m.as_phil_str(master_phil=sec_str_master_phil)
-  phil_diff = sec_str_master_phil.fetch_diff(source=working_phil)
-
-  if work_params.format in ["phenix", "phenix_refine"]:
-    comment = "\n".join([
-      "# These parameters are suitable for use in e.g. phenix.real_space_refine",
-      "# or geometry_minimization. To use them in phenix.refine add ",
-      "# 'refinement.' if front of pdb_interpretation."])
-    if work_params.format == "phenix_refine":
-      comment = "\n".join([
-      "# These parameters are suitable for use in phenix.refine only.",
-      "# To use them in other Phenix tools remove ",
-      "# 'refinement.' if front of pdb_interpretation."])
-    print >> result_out, comment
-    if (prefix_scope != ""):
-      print >> result_out, "%s {" % prefix_scope
-    if work_params.show_all_params :
-      working_phil.show(prefix="  ", out=result_out)
-    else :
-      phil_diff.show(prefix="  ", out=result_out)
-    if (prefix_scope != ""):
-      print >> result_out, "}"
-  elif work_params.format == "pdb":
-    print >> result_out, m.actual_sec_str.as_pdb_str()
-  elif work_params.format == "phenix_bonds" :
-    raise Sorry("Not yet implemented.")
-  elif work_params.format in ["pymol", "refmac", "kinemage"] :
-    m.show_summary(log=out)
-    (hb_proxies, hb_angle_proxies, planarity_proxies,
-        parallelity_proxies) = m.create_all_new_restraints(
-        pdb_hierarchy=pdb_hierarchy,
-        grm=geometry,
-        log=out)
-    if hb_proxies.size() > 0:
-      if work_params.format == "pymol" :
-        file_load_add = "load %s" % work_params.file_name[0]
-        # surprisingly, pymol handles filenames with whitespaces without quotes...
-        print >> result_out, file_load_add
-        bonds_in_format = hb_proxies.as_pymol_dashes(
-            pdb_hierarchy=pdb_hierarchy)
-      elif work_params.format == "kinemage" :
-        bonds_in_format = hb_proxies.as_kinemage(
-            pdb_hierarchy=pdb_hierarchy)
-      else :
-        bonds_in_format = hb_proxies.as_refmac_restraints(
-            pdb_hierarchy=pdb_hierarchy)
-      print >> result_out, bonds_in_format
-    if hb_angle_proxies.size() > 0:
-      if work_params.format == "pymol":
-        angles_in_format = hb_angle_proxies.as_pymol_dashes(
-            pdb_hierarchy=pdb_hierarchy)
-        print >> result_out, angles_in_format
-  result = result_out.getvalue()
-  out_prefix = os.path.basename(work_params.file_name[0])
-  if work_params.output_prefix is not None:
-    out_prefix = work_params.output_prefix
-  filename = "%s_ss.eff" % out_prefix
-  if work_params.format == "pymol":
-    filename = "%s_ss.pml" % out_prefix
-  outf = open(filename, "w")
-  outf.write(result)
-  outf.close()
-  print >> out, result
-
-  return os.path.abspath(filename)
-############ end of secondary_structure_restraints_DN
-
-
 def show_time(app, time_start, time_end):
   time_took = 0 # temporary of course
   if (round((time_end-time_start)/60, 1) < 1):
@@ -1607,6 +1449,8 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom, s
     
 To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
 
+    For example, phenix.secondary_structure_restraints <user>.pdb format=pymol
+
 If the error message is like
     "Sorry: number of groups of duplicate atom labels:  76
     total number of affected atoms:          152
@@ -1620,6 +1464,8 @@ then, provide input pdb file after solving duplicity issue.
     For multi-conformations, run
         phenix.pdbtools <user>.pdb remove_alt_confs=True
         (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
+        
+        so that only one conformer remains.
 
 
 If the error message is like

@@ -333,7 +333,7 @@ class Program(ProgramTemplate):
     logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
     log.register("logfile", logfile)
     logfile.write(str(date_and_time()))
-
+    
     
     # Importantly declared initial global variables
     user_cool_rate           = None
@@ -527,7 +527,6 @@ class Program(ProgramTemplate):
         
       total_combi_num, argstuples = make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_acid, \
                                                     bp_cutoff, H_cutoff, E_cutoff) # user_map_weight should tag along for a later usage
-      #print ("argstuples:",argstuples) #[[<cryo_fit2_program.Program object at 0x118a7e590>, <libtbx.phil.scope_extract object at 0x118a7e550>, <open file 'cryo_fit2.log', mode 'w' at 0x11894f5d0>, '', 0.98, 0.0, 0.0, 2, 1, 0.021, 300.0, 1], [<cryo_fit2_program.Program object at 0x118a7e590>, <libtbx.phil.scope_extract object at 0x118a7e550>, <open file 'cryo_fit2.log', mode 'w' at 0x11894f5d0>, '', 0.98, 0.0, 0.0, 2, 1, 0.12100000000000001, 300.0, 1]]
 
       cores_to_use = ''
       if (self.params.nproc != None):
@@ -551,78 +550,19 @@ class Program(ProgramTemplate):
       for arguments_for_explore, res, errstr in easy_mp.multi_core_run(explore_parameters_by_multi_core, argstuples, \
                                                        cores_to_use): # the last argument is nproc
           print ("explore_parameters_by_multi_core ran")
-          
-          #print ('arguments_for_explore: %s ' %(arguments_for_explore)) # "arguments_for_explore: [<cryo_fit2_program.Program object at 0x11b54ffd0>, <libtbx.phil.scope_extract object at 0x11b54fd50>, <open file 'cryo_fit2.log', mode 'w' at 0x11b45b9c0>, '', 0.0, 0.99, 0.0, 2, 1, 0.001, 300, 1]"
-          #print ('arguments_for_explore: ', str(arguments_for_explore)) # "arguments_for_explore: (<cryo_fit2_program.Program object at 0x10dc66910>, <libtbx.phil.scope_extract object at 0x10dc66b90>, 900, <open file 'cryo_fit2.log', mode 'w' at 0x10dceba50>, '')"
-          
+        
           if (res != None):
             write_this = 'bp:' + str(res[0]) + ', H:' + str(res[1]) + ', E:' + str(res[2]) + '\n'
             print (write_this) # 1, 0, 0
             logfile.write(write_this)
           
           write_this = 'error string: %s ' %(errstr) + '\n'
-          
-          # -> this errstr will be either "None" or
-          '''/Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: expone\
-nt_table: excessive range.
-Traceback (most recent call last):
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/libtbx/scheduling/job_scheduler.py", line 64, in job_\
-cycle
-    value = target( *args, **kwargs )
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/util/util.py", line 237, in explore_parameters_by_multi_c\
-ore
-    output_dir_final = task_obj.run()
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/command_line/cryo_fit2_run.py", line 170, in run
-    cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/util/util.py", line 26, in calculate_cc
-    fc = xrs.structure_factors(d_min = resolution).f_calc()
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure.py", line 1573, in structure_fac\
-tors
-    algorithm=algorithm)
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure_factors/from_scatterers.py", lin\
-e 53, in __call__
-    algorithm=algorithm) # passing algorithm allows f to decide on CPU/GPU implementation
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure_factors/from_scatterers_fft.py",\
- line 38, in __init__
-    tolerance_positive_definite=manager.tolerance_positive_definite())""
-    '''
-    
-    # The error message in screen will be something like this
-          '''
-      temp=  900.0 dist_moved=   nan angles=  0.00 bonds=   nan
-      temp=    0.0 dist_moved=   nan angles=  0.00 bonds=   nan
-Traceback (most recent call last):
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/build/../modules/cryo_fit2/command_line/cryo_fit2_command.py", line 18, in <module>
-    run_program(program_class=cryo_fit2_program.Program)
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/iotbx/cli_parser.py", line 71, in run_program
-    task.run()
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/command_line/cryo_fit2_program.py", line 582, in run
-    output_dir_final = task_obj.run()
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/command_line/cryo_fit2_run.py", line 179, in run
-    cc_after_small_MD = calculate_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cryo_fit2/util/util.py", line 33, in calculate_cc
-    fc = xrs.structure_factors(d_min = resolution).f_calc()
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure.py", line 1573, in structure_factors
-    algorithm=algorithm)
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure_factors/from_scatterers.py", line 53, in __call__
-    algorithm=algorithm) # passing algorithm allows f to decide on CPU/GPU implementation
-  File "/Users/doonam/bin/phenix-1.15rc3-3442/modules/cctbx_project/cctbx/xray/structure_factors/from_scatterers_fft.py", line 38, in __init__
-    tolerance_positive_definite=manager.tolerance_positive_definite())
-RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/cctbx_project/cctbx/xray/sampling_base.h: exponent_table: excessive range.'''
 
           print (write_this)
           logfile.write(write_this)
           
           if (errstr == None):
             success_exploration_count = success_exploration_count + 1
-      
-      '''
-      # not works properly (when cryo_fit2 generated 300 folders from 432 total combinations, below misreported that it explored all 432 combi)
-      write_this = "\ncryo_fit2 explored " + str(success_exploration_count) + " combination(s) of MD parameters " + \
-                   "out of " + str(total_combi_num) + " total combinations\n"
-      print (write_this)
-      logfile.write(write_this)
-      '''
       
       optimum_MD_in_each_cycle, optimum_start_temperature, optimum_steps, optimum_weight_multiply = \
         extract_the_best_cc_parameters(logfile)
@@ -777,9 +717,8 @@ RuntimeError: /Users/builder/slave/phenix-nightly-mac-intel-osx-x86_64/modules/c
       return 0
     ############### (end) core cryo_fit2
     
-    #write_geo(self, model_inp, "used_geometry_restraints.geo")
-    
-    #model_inp.geometry_statistics().show()
+    write_geo(self, model_inp, "used_geometry_restraints.geo")
+    model_inp.geometry_statistics().show()
     
     '''
 model.geometry_statistics().show

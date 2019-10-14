@@ -47,12 +47,8 @@ class cryo_fit2_class(object):
     self.user_map_weight   = user_map_weight
     self.weight_multiply   = weight_multiply
     
-    
     params_for_ss = mmtbx.secondary_structure.sec_str_master_phil.extract()
-    
-    print (params_for_ss.secondary_structure)  # <libtbx.phil.scope_extract object at 0x112822d90>
-    
-    #STOP()
+    #print (params_for_ss.secondary_structure)  # <libtbx.phil.scope_extract object at 0x112822d90>
 
   def __execute(self):
     self.caller(self.write_geo_file,       "Write GEO file")
