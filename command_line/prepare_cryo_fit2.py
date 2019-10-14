@@ -170,6 +170,9 @@ selection_fixed_preset = * ca backbone all
 selection_moving_preset = * ca backbone all
   .type                 = choice
   .help                 = Selection preset for moving model.
+top_out_for_protein = True
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 ''' ############## end of base_master_phil_str  
   
 
@@ -180,22 +183,6 @@ modified_master_phil_str = change_default_phil_values(
 new_default = 'pdb_interpretation.secondary_structure.protein.remove_outliers = True'
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
-
-'''
-#print ("modified_master_phil_str:",modified_master_phil_str)
-new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity = True'
-modified_master_phil_str = change_default_phil_values(
-  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
-print ("modified_master_phil_str:",modified_master_phil_str)
-#STOP()
-
-new_default = 'pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_hbonds = True'
-modified_master_phil_str = change_default_phil_values(
-  modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
-
-print ("modified_master_phil_str:",modified_master_phil_str)
-#STOP()
-'''
 
 
 class Program(ProgramTemplate):
@@ -262,7 +249,6 @@ Options:
                                (default: True)
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
-  
   
   sigma_for_auto_geom          (default: 0.05)
                                The lower this value, the stronger the custom made secondary structure restraints will be.
@@ -338,18 +324,15 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       exit(1)
     
     
-    #cleaned_pdb_file_name, cleaned_unusual_residue = clean_unusual_residue (self.data_manager.get_default_model_name())
-    #if (cleaned_unusual_residue == True):
-    #  write_this ='''
-      #Unusual residue names like 34G that real_space_refine can't deal were detected in user's pdb file.
-#cryo_fit2 removed these and rewrote into ''' + cleaned_pdb_file_name + '''
-#Please rerun cryo_fit2 with this re-written pdb file\n'''
-#      print (write_this)
-#      logfile.write(write_this)
-#      logfile.close()
-#      exit(1)
+    cleaned_pdb_file_name, cleaned_unusual_residue = clean_unusual_residue (self.data_manager.get_default_model_name())
+    if (cleaned_unusual_residue == True):
+     write_this ='''
+      Unusual residue names like 34G that real_space_refine can't deal were detected in user's pdb file.\nCryo_fit2 removed these and rewrote into ''' + cleaned_pdb_file_name + '''\nPlease rerun cryo_fit2 with this re-written pdb file\n'''
+     print (write_this)
+     logfile.write(write_this)
+     logfile.close()
+     exit(1)
     
-
     leave_one_conformer(logfile, self.data_manager.get_default_model_name())
     
     if (self.params.make_ss_for_stronger_ss == True):
@@ -362,12 +345,16 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       if (self.params.slack_for_auto_geom != None):
         user_slack_for_auto_geom = self.params.slack_for_auto_geom
       else:
-        self.params.slack_for_auto_geom = 0
-      
+        self.params.slack_for_auto_geom = 0  
       
       generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
                                                       self.params.sigma_for_auto_geom, self.params.slack_for_auto_geom)
-      
       sys.argv.append(generated_eff_file_name)
     
+    
+    if (self.params.top_out_for_protein == True):
+      generated_eff_file_name_w_top_out_T = assign_top_out_T_to_protein(logfile, self.data_manager.get_default_model_name())
+      if (generated_eff_file_name_w_top_out_T != False):
+        sys.argv.append(generated_eff_file_name_w_top_out_T)      
+      
     logfile.close()

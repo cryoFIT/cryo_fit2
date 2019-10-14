@@ -3,13 +3,14 @@
 #### (source) http://cci.lbl.gov/cctbx_sources/crys3d/command_line/hklview.py
 
 from __future__ import division, print_function
+
+import decimal, glob, os, platform, subprocess
+from os import path
+
 from cctbx.uctbx import unit_cell
 from cctbx import xray
 
 import cryo_fit2_run
-
-import decimal, glob, os, platform, subprocess
-from os import path
 
 import iotbx.phil, libtbx
 from iotbx import map_and_model
@@ -31,6 +32,36 @@ import shutil
 
 os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
 os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
+
+
+def assign_top_out_T_to_protein(logfile, pdb_file):
+    if (check_whether_the_pdb_file_has_amino_acid(pdb_file) == False):
+        return False # no protein in this pdb file
+
+    splited_pdb_file_w_path = pdb_file.split("/")
+    pdb_file_wo_path = splited_pdb_file_w_path[len(splited_pdb_file_w_path)-1]
+    ss_file_name = pdb_file_wo_path + "_ss.eff"
+
+    if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
+        command_string = "phenix.secondary_structure_restraints " + pdb_file
+        libtbx.easy_run.fully_buffered(command_string)
+
+    f_in = open(ss_file_name, "r")
+    output_file_name = ss_file_name[:-4] + "_top_out_T.eff"
+    f_out = open(output_file_name, 'wt')
+  
+    lines = f_in.readlines()
+    for line in lines:
+        splited_line = line.split()
+        if ((len(splited_line) == 9) and (splited_line[0] == "selection")):
+            f_out.write("        top_out = True\n")
+        f_out.write(line)
+    f_in.close()
+    f_out.close()
+    
+    return output_file_name
+######################## end of def assign_top_out_T_to_protein(logfile, user_pdb_file)
+
 
 def calculate_overall_cc(map_data, model, resolution):
     xrs = model.get_xray_structure()
@@ -101,7 +132,9 @@ def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma
 ######## end of check_whether_args_has_eff(args)
 '''
 
+
 def check_whether_the_pdb_file_has_amino_acid(pdb_file):
+    print (pdb_file)
     file_opened = open(pdb_file, "r")
     lines = file_opened.readlines()
     for line in lines:
@@ -132,7 +165,6 @@ def check_whether_the_pdb_file_has_nucleic_acid(pdb_file):
     file_opened.close()
     return False
 ####################### end of check_whether_the_pdb_file_has_nucleic_acid()
-
 
 
 def clean_unusual_residue(input_pdb_file_name):
@@ -1463,10 +1495,8 @@ then, provide input pdb file after solving duplicity issue.
 
     For multi-conformations, run
         phenix.pdbtools <user>.pdb remove_alt_confs=True
-        (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
-        
+            (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
         so that only one conformer remains.
-
 
 If the error message is like
     "Sorry: Multiple models not supported."

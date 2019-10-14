@@ -171,14 +171,12 @@ selection_fixed_preset = * ca backbone all
 selection_moving_preset = * ca backbone all
   .type                 = choice
   .help                 = Selection preset for moving model.
-
+top_out_for_protein = True
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 '''
 ############## end of base_master_phil_str  
-  
-# top_out_for_protein = True
-#   .type             = bool
-#   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
-#   
+   
 #print (base_master_phil_str) # print nothing
 
 
@@ -191,15 +189,12 @@ new_default = 'pdb_interpretation.secondary_structure.enabled = True'
 modified_master_phil_str = change_default_phil_values(
   base_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
-
 new_default = 'pdb_interpretation.secondary_structure.protein.remove_outliers = True'
 modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
-
 print (modified_master_phil_str)
 #STOP()
-
 
 '''
 When I supplied secondary_structure.enabled=True in commandline,
