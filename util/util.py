@@ -461,7 +461,7 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             optimum_start_temperature = splited2[0]
             
             splited = check_this_dir.split("_step_")
-            splited2 = splited[1].split("_make_ss_for_stronger_ss_")
+            splited2 = splited[1].split("_stronger_ss_")
             optimum_step = splited2[0]
             
             splited = check_this_dir.split("_weight_multiply_")
@@ -502,7 +502,7 @@ def get_output_dir_name(self):
                  "_final_" + str(self.params.final_temperature) + \
                  "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) + \
                  "_step_" + str(self.params.number_of_steps) + \
-                 "_make_ss_for_stronger_ss_" + str(self.params.make_ss_for_stronger_ss) + \
+                 "_stronger_ss_" + str(self.params.stronger_ss) + \
                  "_weight_multiply_" + str(round(self.params.weight_multiply,1)) + \
                  "_sigma_for_auto_geom_" + str(self.params.sigma_for_auto_geom) + \
                  "_slack_for_auto_geom_" + str(self.params.slack_for_auto_geom)
@@ -1293,7 +1293,7 @@ geometry_restraints {
       
       # for protein and explicit 0.03 and 6, not reflected in used_geom
       # because "Bond-like restraints:" overrides my custom geom
-      # these "Bond-like restraints:" are reflected in used_geom even when make_ss_for_stronger_ss=False
+      # these "Bond-like restraints:" are reflected in used_geom even when stronger_ss=False
       
       # for RNA (0.01~6), reflected in used_geom
       
