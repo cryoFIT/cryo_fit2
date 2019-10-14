@@ -137,7 +137,7 @@ slack_for_auto_geom   = 0
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
-                   If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
+                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 stronger_ss = True
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
