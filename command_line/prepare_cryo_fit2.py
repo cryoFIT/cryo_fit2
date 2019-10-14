@@ -323,7 +323,6 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       logfile.close()
       exit(1)
     
-    
     cleaned_pdb_file_name, cleaned_unusual_residue = clean_unusual_residue (self.data_manager.get_default_model_name())
     if (cleaned_unusual_residue == True):
      write_this ='''
