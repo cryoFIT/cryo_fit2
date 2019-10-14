@@ -817,7 +817,7 @@ def prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     c_of_map = str(round((pixel_sizes_from_map_3*map_grid_3),3))
     
     
-    # I've used this a,b,c values to prepend to pdb files. With an original map file, it is ok, but with a boxed map file, it didn't fit well.
+    # I've used a,b,c values from unit_cell_crystal_symmetry to prepend to pdb files. With an original map file, it is ok, but with a boxed map file, it didn't fit well.
     unit_cell_crystal_symmetry_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
     write_this = "unit_cell_crystal_symmetry from map: " + unit_cell_crystal_symmetry_from_map + "\n"
     print (write_this) # with a boxed map -> (254.4, 254.4, 254.4, 90, 90, 90)
@@ -896,7 +896,7 @@ def prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     write_this_CRYST1 = write_this_CRYST1 + " "*empty_space_before_period + str(gamma) + " "*3
     
     
-    
+    # old method # works for original map, not for map_boxed map
     '''
     alpha = splited_unit_cell_crystal_symmetry_from_map[3].strip(' ')
     splited_alpha = alpha.split(".")

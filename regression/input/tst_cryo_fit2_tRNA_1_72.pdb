@@ -1,4 +1,3 @@
-CRYST1  64.0579  58.8333  69.2662  90     90     90    P 1              # added by cryo_fit2 according to the user cryo-EM map
 ATOM      1  P   G   A   1      18.402  28.320  21.536  1.00 77.67           P
 ATOM      2  OP1 G   A   1      19.373  29.312  21.030  1.00 79.03           O
 ATOM      3  OP2 G   A   1      17.446  28.730  22.589  1.00 75.50           O

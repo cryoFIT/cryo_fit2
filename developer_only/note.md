@@ -1,5 +1,6 @@
-08/06/2019: both prepare and program need same sets of base_master_phil_str
+10/11/2019: Both map_boxed map and original map are processed well automatically for prepending CRYST1 from map
 
+08/06/2019: Both prepare and program need same sets of base_master_phil_str
 
 07/30/2019:
 note for speed: Although PHENIX group prefers to make cryo_fit2 works on laptop only as well, MD simulation itself takes a lot of computational time as in https://www.olcf.ornl.gov/2019/05/20/summit-charts-a-course-to-uncover-the-origins-of-genetic-diseases. 
