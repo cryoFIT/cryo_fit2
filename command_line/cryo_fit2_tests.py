@@ -149,6 +149,7 @@ def test_fn ():
     libtbx.easy_run.fully_buffered(rm_command_string)
     
     
+    ############## All tests are done
     time_total_end = time.time()
     time_took = show_time("All regression tests", time_total_start, time_total_end)
     print (time_took)

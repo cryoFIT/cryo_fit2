@@ -302,7 +302,7 @@ class Program(ProgramTemplate):
   def run(self):
     
     time_total_start = time.time()
-    args = sys.argv[1:] # has model_w_CRYST1.pdb_ss_cryo_fit2_auto.eff that was generated from prepare_cryo_fit2
+    args = sys.argv[1:] 
     
     log = multi_out()
     out=sys.stdout
@@ -314,7 +314,7 @@ class Program(ProgramTemplate):
       geom_log_file_name = "geom_writing.log"
       geom_logfile = open(geom_log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
       
-      custom_geom_file_name = str(self.data_manager.get_default_model_name()) + "_ss_cryo_fit2_auto.eff"
+      custom_geom_file_name = str(self.data_manager.get_default_model_name()) + "_ss_strong.eff"
       splited_custom_geom_file_name = custom_geom_file_name.split("/")
       custom_geom_file_name_wo_path = splited_custom_geom_file_name[len(splited_custom_geom_file_name)-1]
   
@@ -727,7 +727,7 @@ model.geometry_statistics().channel, log,,
       libtbx.easy_run.fully_buffered(mv_command_string)
     
     for i in (range(len(list_of_eff))):
-      if (("cryo_fit2_auto.eff" in str(list_of_eff[i])) == True): 
+      if (("_ss_strong.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
       
