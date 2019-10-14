@@ -1,3 +1,4 @@
+CRYST1   80.194   80.791   80.274  90     90     90    P 1              # added by cryo_fit2 according to the user cryo-EM map
 HELIX    1   1 VAL y   88  GLN y   97  1                                  10
 SHEET    1   1 1 ASP y 216  PHE y 218  0
 SHEET    2   2 1 VAL y 226  GLY y 229  0
