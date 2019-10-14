@@ -138,10 +138,10 @@ start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
-make_ss_for_stronger_ss = True
-  .type   = bool
-  .help   = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
-            If False, it will not use custom geometry
+stronger_ss = True
+  .type     = bool
+  .help     = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
+              If False, it will not use custom geometry
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -335,7 +335,7 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     leave_one_conformer(logfile, self.data_manager.get_default_model_name())
     
-    if (self.params.make_ss_for_stronger_ss == True):
+    if (self.params.stronger_ss == True):
       
       if (self.params.sigma_for_auto_geom != None):
         user_sigma_for_auto_geom = self.params.sigma_for_auto_geom

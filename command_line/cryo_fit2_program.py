@@ -138,10 +138,10 @@ start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 600.
-make_ss_for_stronger_ss = True
-  .type                 = bool
-  .help                 = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
-                          If False, it will not use custom geometry
+stronger_ss = True
+  .type     = bool
+  .help     = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
+              If False, it will not use custom geometry
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -485,8 +485,8 @@ class Program(ProgramTemplate):
         logfile.write(write_this)
         self.params.explore == False
 
-    if (self.params.make_ss_for_stronger_ss == True):
-      write_this = "A user turned make_ss_for_stronger_ss=True\n"
+    if (self.params.stronger_ss == True):
+      write_this = "A user turned stronger_ss=True\n"
       print (write_this)
       logfile.write(write_this)
 
@@ -616,7 +616,7 @@ class Program(ProgramTemplate):
                             + "_final_" + str(self.params.final_temperature) \
                             + "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) \
                             + "_step_" + str(self.params.number_of_steps) \
-                            + "_make_ss_for_stronger_ss_" + str(self.params.make_ss_for_stronger_ss) \
+                            + "_stronger_ss_" + str(self.params.stronger_ss) \
                             + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
                             + "_sigma_for_auto_geom_" + str(self.params.sigma_for_auto_geom) \
                             + "_slack_for_auto_geom_" + str(self.params.slack_for_auto_geom)
@@ -643,7 +643,7 @@ class Program(ProgramTemplate):
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() \
                             + " " + self.data_manager.get_default_real_map_name()  \
                             + " resolution=" + str(self.params.resolution)  \
-                            + " make_ss_for_stronger_ss=" + str(self.params.make_ss_for_stronger_ss) \
+                            + " stronger_ss=" + str(self.params.stronger_ss) \
                             + " start_temperature=" + str(self.params.start_temperature)  \
                             + " final_temperature=" + str(self.params.final_temperature) \
                             + " MD_in_each_cycle=" + str(self.params.MD_in_each_cycle) \
