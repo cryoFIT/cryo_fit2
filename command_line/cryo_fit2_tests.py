@@ -138,8 +138,8 @@ def test_fn ():
     time_start = time.time()
     command_string = "python tst6_cryo_fit2_protein_RNA_full.py" % locals()
     print "command_string:", command_string
-    rc5 = libtbx.easy_run.call(command=command_string)
-    assert rc5==0 # make sure there is no error with this test
+    rc6 = libtbx.easy_run.call(command=command_string)
+    assert rc6==0 # make sure there is no error with this test
     
     time_end = time.time()
     print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
@@ -153,7 +153,7 @@ def test_fn ():
     time_took = show_time("All regression tests", time_total_start, time_total_end)
     print (time_took)
     
-    if ((rc1 == 0) and (rc2 == 0) and (rc3 == 0) and (rc4 == 0) and (rc5 == 0)):
+    if ((rc1 == 0) and (rc2 == 0) and (rc3 == 0) and (rc4 == 0) and (rc5 == 0) and (rc6 == 0)):
       return 0 # success
     else:
       return 1 # fail
