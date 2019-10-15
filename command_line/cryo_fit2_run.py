@@ -308,7 +308,7 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
           
           if (float(cc_after_small_MD-best_cc_so_far) > cc_improvement_threshold): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
-            write_this = "cc_after_small_MD - best_cc_so_far > " + str(float_to_str(cc_improvement_threshold)) + ". Iterates longer.\n"
+            write_this = "cc_after_small_MD - best_cc_so_far > cc_improvement_threshold (" + str(float_to_str(cc_improvement_threshold)) + "). Iterates longer.\n"
             #write_this = " > " + str(float_to_str(cc_improvement_threshold)) + ". Iterates longer.\n"
             print('%s' %(write_this))
             self.logfile.write(str(write_this))
@@ -370,7 +370,8 @@ class cryo_fit2_class(object):
       
      
     if (self.params.explore == False): # no need to report cc after explore
-      report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
+      #report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
+      # Once this report_map_model_cc runs, later model_inp becomes "None"
       #tst_1 succeeded, tst_5 failed
       
       #''' since this differs from CC_box, let's not use this

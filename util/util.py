@@ -860,7 +860,7 @@ def prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     # I've used a,b,c values from unit_cell_crystal_symmetry to prepend to pdb files. With an original map file, it is ok, but with a boxed map file, it didn't fit well.
     unit_cell_crystal_symmetry_from_map = str(map_inp.unit_cell_crystal_symmetry().unit_cell())
     write_this = "unit_cell_crystal_symmetry from map: " + unit_cell_crystal_symmetry_from_map + "\n"
-    print (write_this) # with a boxed map -> (254.4, 254.4, 254.4, 90, 90, 90)
+    #print (write_this) # with a boxed map -> (254.4, 254.4, 254.4, 90, 90, 90)
     logfile.write(write_this)
     splited_unit_cell_crystal_symmetry_from_map = unit_cell_crystal_symmetry_from_map.split(",") # ref: https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html
 

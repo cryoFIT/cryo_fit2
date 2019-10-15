@@ -718,6 +718,7 @@ class Program(ProgramTemplate):
     
     write_geo(self, model_inp, "used_geometry_restraints.geo")
     model_inp.geometry_statistics().show()
+    # if report_map_model_cc() ran before, model_inp becomes None
     
     '''
 model.geometry_statistics().show
