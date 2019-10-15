@@ -370,8 +370,8 @@ class cryo_fit2_class(object):
       
      
     if (self.params.explore == False): # no need to report cc after explore
-      #report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
-      #tst_5 fails
+      report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
+      #tst_1 succeeded, tst_5 failed
       
       #''' since this differs from CC_box, let's not use this
       write_this = "CC_overall: " + str(round(overall_cc_after_cryo_fit2, 4)) + "\n"

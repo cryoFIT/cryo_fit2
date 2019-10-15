@@ -656,7 +656,8 @@ class Program(ProgramTemplate):
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
                             + " sigma_for_auto_geom=" + str(self.params.sigma_for_auto_geom) \
                             + " slack_for_auto_geom=" + str(self.params.slack_for_auto_geom) \
-                            + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled)
+                            + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
+                            + " top_out_for_protein=" + str(self.params.top_out_for_protein)
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
@@ -711,6 +712,9 @@ class Program(ProgramTemplate):
       logfile.close()
       return 0
     ############### (end) core cryo_fit2
+    
+    print (model_inp) # "<mmtbx.model.model.manager object at 0x11901fad0>"
+    #STOP()
     
     write_geo(self, model_inp, "used_geometry_restraints.geo")
     model_inp.geometry_statistics().show()
