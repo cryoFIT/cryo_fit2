@@ -122,7 +122,7 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
 ############ def calculate_RMSD(self):
 
 '''
-def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma_for_auto_geom):
+def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma_for_stronger_ss):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
         user_eff_file_name = str(args[i])
@@ -130,7 +130,7 @@ def check_whether_args_has_eff(args, logfile, location_of_this_code, known_sigma
         if (str(location_of_this_code) == str("prepare_cryo_fit2")):
             write_this = "A user provided " + user_eff_file_name
         else:
-            write_this = "cryo_fit2 automatically generated " + user_eff_file_name + " with " + str(known_sigma_for_auto_geom) + " sigma_for_auto_geom"
+            write_this = "cryo_fit2 automatically generated " + user_eff_file_name + " with " + str(known_sigma_for_stronger_ss) + " sigma_for_stronger_ss"
         write_this = write_this + " that cryo_fit2 will use."
         print (write_this)
         logfile.write(write_this)
@@ -465,7 +465,7 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             optimum_step = splited2[0]
             
             splited = check_this_dir.split("_weight_multiply_")
-            splited2 = splited[1].split("_sigma_for_auto_geom_")
+            splited2 = splited[1].split("_sigma_for_stronger_ss_")
             optimum_weight_multiply = splited2[0]
             
             os.chdir(starting_dir)
@@ -504,8 +504,8 @@ def get_output_dir_name(self):
                  "_step_" + str(self.params.number_of_steps) + \
                  "_stronger_ss_" + str(self.params.stronger_ss) + \
                  "_weight_multiply_" + str(round(self.params.weight_multiply,1)) + \
-                 "_sigma_for_auto_geom_" + str(self.params.sigma_for_auto_geom) + \
-                 "_slack_for_auto_geom_" + str(self.params.slack_for_auto_geom) + \
+                 "_sigma_for_stronger_ss_" + str(self.params.sigma_for_stronger_ss) + \
+                 "_slack_for_stronger_ss_" + str(self.params.slack_for_stronger_ss) + \
                  "_top_out_for_protein_" + str(self.params.top_out_for_protein)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
@@ -1235,7 +1235,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
-def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_auto_geom, slack_for_auto_geom):
+def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, sigma_for_stronger_ss, slack_for_stronger_ss):
 ####### reference
 
 #################### DISTANCE
@@ -1340,10 +1340,10 @@ geometry_restraints {
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
       
-      write_this = "      sigma = " + float_to_str(sigma_for_auto_geom) + "\n" 
+      write_this = "      sigma = " + float_to_str(sigma_for_stronger_ss) + "\n" 
       f_out.write(write_this) 
       
-      write_this = "      slack = " + float_to_str(slack_for_auto_geom) + "\n" 
+      write_this = "      slack = " + float_to_str(slack_for_stronger_ss) + "\n" 
       f_out.write(write_this) 
 
       write_this = "    }\n"
@@ -1418,12 +1418,12 @@ geometry_restraints {
                 f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
             else: 
                 f_out.write("      angle_ideal = 120.0\n") # just my guess
-        write_this = "      sigma = " + float_to_str(sigma_for_auto_geom) + "\n" 
+        write_this = "      sigma = " + float_to_str(sigma_for_stronger_ss) + "\n" 
         f_out.write(write_this)
         
         # geometry_restraints.edits.angle.slack is not recognized
         # "Sorry: Some PHIL parameters are not recognized by phenix.cryo_fit2."
-        #  write_this = "      slack = " + float_to_str(slack_for_auto_geom) + "\n" 
+        #  write_this = "      slack = " + float_to_str(slack_for_stronger_ss) + "\n" 
         #  f_out.write(write_this)
         
         write_this = "    }\n"
@@ -1452,7 +1452,7 @@ def show_time(app, time_start, time_end):
 ############### end of show_time function
 
 
-def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom, slack_for_auto_geom):
+def write_custom_geometry(logfile, input_model_file_name, sigma_for_stronger_ss, slack_for_stronger_ss):
 
   ######## produce pymol format secondary structure restraints #########
   # I heard that running phenix commandline directly is not ideal from Nigel.
@@ -1460,19 +1460,19 @@ def write_custom_geometry(logfile, input_model_file_name, sigma_for_auto_geom, s
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger sigma_for_auto_geom "
-  if (sigma_for_auto_geom != None):
-    write_this = write_this + "(e.g. " + str(sigma_for_auto_geom) + ") "
+  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger sigma_for_stronger_ss "
+  if (sigma_for_stronger_ss != None):
+    write_this = write_this + "(e.g. " + str(sigma_for_stronger_ss) + ") "
     
-  if (slack_for_auto_geom != None):
-    write_this = write_this + "and slack_for_auto_geom (e.g. " + str(slack_for_auto_geom) + ")"
+  if (slack_for_stronger_ss != None):
+    write_this = write_this + "and slack_for_stronger_ss (e.g. " + str(slack_for_stronger_ss) + ")"
     
   write_this = write_this + ".\n"
   print(write_this)
   logfile.write(write_this)
     
-  if (sigma_for_auto_geom == None):
-    write_this = "sigma_for_auto_geom = None till now, debug now\n"
+  if (sigma_for_stronger_ss == None):
+    write_this = "sigma_for_stronger_ss = None till now, debug now\n"
     print(write_this)
     logfile.write(write_this)
     exit(1)
@@ -1515,10 +1515,10 @@ then provide input pdb file after leaving one model only.
     exit(1)
     
   ##### rewrite_pymol_ss_to_custom_geometry_ss
-  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_auto_geom, slack_for_auto_geom)
+  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, sigma_for_stronger_ss, slack_for_stronger_ss)
   
   return eff_file_name
-########### end of write_custom_geometry(input_model_file_name, sigma_for_auto_geom)
+########### end of write_custom_geometry(input_model_file_name, sigma_for_stronger_ss)
 
 
 def write_geo(self, model_inp, file_name):

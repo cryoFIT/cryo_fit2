@@ -124,23 +124,23 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity.
-sigma_for_auto_geom   = 0.05
+sigma_for_stronger_ss   = 0.05
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg once recommended 0.021 which is the sigma value for covalent bond. \
                         According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-slack_for_auto_geom   = 0
+slack_for_stronger_ss   = 0
   .type               = float
   .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                         its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                        However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
+                        However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.75 slack to allow more flexible equilibrium.
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 600.
 stronger_ss = True
   .type     = bool
-  .help     = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
+  .help     = If True, cryo_fit2 will use a stronger sigma_for_stronger_ss for secondary structure restraints. \
               If False, it will not use custom geometry
 weight_multiply  = None
   .type          = float
@@ -334,8 +334,8 @@ class Program(ProgramTemplate):
     user_cool_rate           = None
     user_MD_in_each_cycle    = None 
     user_number_of_steps     = None 
-    user_sigma_for_auto_geom = None
-    user_slack_for_auto_geom = None
+    user_sigma_for_stronger_ss = None
+    user_slack_for_stronger_ss = None
     user_start_temperature   = None
     user_weight_multiply     = None
     
@@ -346,10 +346,10 @@ class Program(ProgramTemplate):
       user_MD_in_each_cycle = self.params.MD_in_each_cycle
     if (self.params.number_of_steps != None):
       user_number_of_steps = self.params.number_of_steps
-    if (self.params.sigma_for_auto_geom != None):
-      user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
-    if (self.params.slack_for_auto_geom != None):
-      user_slack_for_auto_geom = self.params.slack_for_auto_geom
+    if (self.params.sigma_for_stronger_ss != None):
+      user_sigma_for_stronger_ss = self.params.sigma_for_stronger_ss
+    if (self.params.slack_for_stronger_ss != None):
+      user_slack_for_stronger_ss = self.params.slack_for_stronger_ss
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
     if (self.params.weight_multiply != None):
@@ -576,10 +576,10 @@ class Program(ProgramTemplate):
         self.params.MD_in_each_cycle = user_MD_in_each_cycle
       if (user_number_of_steps != None):
         self.params.number_of_steps = user_number_of_steps
-      if (user_sigma_for_auto_geom != None):
-        self.params.sigma_for_auto_geom = user_sigma_for_auto_geom
-      if (user_slack_for_auto_geom != None):
-        self.params.slack_for_auto_geom = user_slack_for_auto_geom
+      if (user_sigma_for_stronger_ss != None):
+        self.params.sigma_for_stronger_ss = user_sigma_for_stronger_ss
+      if (user_slack_for_stronger_ss != None):
+        self.params.slack_for_stronger_ss = user_slack_for_stronger_ss
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
       if (user_weight_multiply != None):
@@ -603,8 +603,8 @@ class Program(ProgramTemplate):
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
-    print ("sigma_for_auto_geom   :", str(self.params.sigma_for_auto_geom))
-    print ("slack_for_auto_geom   :", str(self.params.slack_for_auto_geom))
+    print ("sigma_for_stronger_ss   :", str(self.params.sigma_for_stronger_ss))
+    print ("slack_for_stronger_ss   :", str(self.params.slack_for_stronger_ss))
     print ("start_temperature     :", str(self.params.start_temperature))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     
@@ -618,8 +618,8 @@ class Program(ProgramTemplate):
                             + "_step_" + str(self.params.number_of_steps) \
                             + "_stronger_ss_" + str(self.params.stronger_ss) \
                             + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
-                            + "_sigma_for_auto_geom_" + str(self.params.sigma_for_auto_geom) \
-                            + "_slack_for_auto_geom_" + str(self.params.slack_for_auto_geom)
+                            + "_sigma_for_stronger_ss_" + str(self.params.sigma_for_stronger_ss) \
+                            + "_slack_for_stronger_ss_" + str(self.params.slack_for_stronger_ss)
                             
       command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
       found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
@@ -654,8 +654,8 @@ class Program(ProgramTemplate):
                             + " explore=False" \
                             + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
-                            + " sigma_for_auto_geom=" + str(self.params.sigma_for_auto_geom) \
-                            + " slack_for_auto_geom=" + str(self.params.slack_for_auto_geom) \
+                            + " sigma_for_stronger_ss=" + str(self.params.sigma_for_stronger_ss) \
+                            + " slack_for_stronger_ss=" + str(self.params.slack_for_stronger_ss) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
                             + " top_out_for_protein=" + str(self.params.top_out_for_protein)
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \

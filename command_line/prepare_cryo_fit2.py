@@ -124,12 +124,12 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity
-sigma_for_auto_geom   = 0.05
+sigma_for_stronger_ss   = 0.05
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg once recommended 0.021 which is the sigma value for covalent bond. \
                         According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-slack_for_auto_geom   = 0
+slack_for_stronger_ss   = 0
   .type               = float
   .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                         default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
@@ -140,7 +140,7 @@ start_temperature = None
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 stronger_ss = True
   .type     = bool
-  .help     = If True, cryo_fit2 will use a stronger sigma_for_auto_geom for secondary structure restraints. \
+  .help     = If True, cryo_fit2 will use a stronger sigma_for_stronger_ss for secondary structure restraints. \
               If False, it will not use custom geometry
 weight_multiply  = None
   .type          = float
@@ -250,12 +250,12 @@ Options:
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
   
-  sigma_for_auto_geom          (default: 0.05)
+  sigma_for_stronger_ss          (default: 0.05)
                                The lower this value, the stronger the custom made secondary structure restraints will be.
                                Oleg once recommended 0.021 which is the sigma value for covalent bond.
                                According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
   
-  slack_for_auto_geom          (default: 0)
+  slack_for_stronger_ss          (default: 0)
                                As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, 
                                its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                                However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
@@ -336,18 +336,18 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     if (self.params.stronger_ss == True):
       
-      if (self.params.sigma_for_auto_geom != None):
-        user_sigma_for_auto_geom = self.params.sigma_for_auto_geom
+      if (self.params.sigma_for_stronger_ss != None):
+        user_sigma_for_stronger_ss = self.params.sigma_for_stronger_ss
       else:
-        self.params.sigma_for_auto_geom = 0.05
+        self.params.sigma_for_stronger_ss = 0.05
         
-      if (self.params.slack_for_auto_geom != None):
-        user_slack_for_auto_geom = self.params.slack_for_auto_geom
+      if (self.params.slack_for_stronger_ss != None):
+        user_slack_for_stronger_ss = self.params.slack_for_stronger_ss
       else:
-        self.params.slack_for_auto_geom = 0  
+        self.params.slack_for_stronger_ss = 0  
       
       generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
-                                                      self.params.sigma_for_auto_geom, self.params.slack_for_auto_geom)
+                                                      self.params.sigma_for_stronger_ss, self.params.slack_for_stronger_ss)
       sys.argv.append(generated_eff_file_name)
     
     
