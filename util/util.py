@@ -1263,7 +1263,7 @@ geometry_restraints {
   '''
 
   f_in = open(user_input_pymol_ss)
-  out_file = user_input_pymol_ss[:-4] + '_strong.eff'
+  out_file = user_input_pymol_ss[:-4] + '_stronger.eff'
   f_out = open(out_file, "w")
   f_out.write('''geometry_restraints {
   edits {

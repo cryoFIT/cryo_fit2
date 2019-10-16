@@ -124,12 +124,12 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity.
-sigma_for_stronger_ss   = 0.05
+sigma_for_stronger_ss = 0.05
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg once recommended 0.021 which is the sigma value for covalent bond. \
                         According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-slack_for_stronger_ss   = 0
+slack_for_stronger_ss = 0
   .type               = float
   .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                         its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
@@ -358,12 +358,11 @@ class Program(ProgramTemplate):
     print ("A user entered resolution:", str(self.params.resolution))
     
     print('A user input atomistic model file name: %s' % self.data_manager.get_default_model_name(), file=self.logger)
-    model_inp = self.data_manager.get_model()
+    model_inp = self.data_manager.get_model() # "<mmtbx.model.model.manager object at 0x11901fad0>"
     
     print('A user input map file name: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
 
-    
     ################# <begin> Doonam's playground ################
     ####### works
     #print ("dir(map_inp):",dir(map_inp)) # just shows list of what items are available
@@ -603,8 +602,8 @@ class Program(ProgramTemplate):
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
-    print ("sigma_for_stronger_ss   :", str(self.params.sigma_for_stronger_ss))
-    print ("slack_for_stronger_ss   :", str(self.params.slack_for_stronger_ss))
+    print ("sigma_for_stronger_ss :", str(self.params.sigma_for_stronger_ss))
+    print ("slack_for_stronger_ss :", str(self.params.slack_for_stronger_ss))
     print ("start_temperature     :", str(self.params.start_temperature))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     
@@ -713,9 +712,6 @@ class Program(ProgramTemplate):
       return 0
     ############### (end) core cryo_fit2
     
-    print (model_inp) # "<mmtbx.model.model.manager object at 0x11901fad0>"
-    #STOP()
-    
     write_geo(self, model_inp, "used_geometry_restraints.geo")
     model_inp.geometry_statistics().show()
     # if report_map_model_cc() ran before, model_inp becomes None
@@ -733,6 +729,10 @@ model.geometry_statistics().channel, log,,
     
     for i in (range(len(list_of_eff))):
       if (("_ss_stronger.eff" in str(list_of_eff[i])) == True): 
+        mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
+        libtbx.easy_run.fully_buffered(mv_command_string)
+        
+      if (("_ss_top_out_T.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
       
