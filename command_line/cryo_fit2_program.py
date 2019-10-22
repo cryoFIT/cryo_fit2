@@ -171,7 +171,7 @@ selection_fixed_preset = * ca backbone all
 selection_moving_preset = * ca backbone all
   .type                 = choice
   .help                 = Selection preset for moving model.
-top_out_for_protein = True
+top_out_for_protein = False
   .type             = bool
   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 '''

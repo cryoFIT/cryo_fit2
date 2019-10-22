@@ -261,7 +261,7 @@ class cryo_fit2_class(object):
           break
       
       
-      ############# all below is for final MD
+      ############# All below is for final MD
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*number_of_MD_in_each_cycle)
   
       
