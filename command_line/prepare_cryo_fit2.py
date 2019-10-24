@@ -106,7 +106,7 @@ progress_on_screen = True
   .type            = bool
   .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
-record_states    = False
+record_states    = True
   .type          = bool
   .help          = If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)\
                    However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \

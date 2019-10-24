@@ -106,7 +106,7 @@ progress_on_screen = True
   .type            = bool
   .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
-record_states    = False
+record_states    = True
   .type          = bool
   .help          = If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)\
                    However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
@@ -589,16 +589,22 @@ class Program(ProgramTemplate):
       
     
     ###############  <begin> core cryo_fit2
-    ### Assign default values if not specified till now (as a 0.998 cc full helix)
+    ### (begin) Assign default values if not specified till now (as a 0.998 cc full helix)
     if (self.params.MD_in_each_cycle == None):
       self.params.MD_in_each_cycle = 4
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
-    
-    if (self.params.start_temperature == None):
-      self.params.start_temperature = 300
+    #if (self.params.start_temperature == None):
+    #  self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
       self.params.weight_multiply = 1
+    ### (end) Assign default values if not specified till now (as a 0.998 cc full helix)
+    
+    
+    if (self.params.start_temperature == None):
+      self.params.start_temperature = 600
+      
+      
 
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))

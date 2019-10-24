@@ -138,8 +138,8 @@ class cryo_fit2_class(object):
       # I confirmed that 500 is definitely too small to explore properly (a helix),
       #but this is just for test
     else:
-      #check_cc_after_these_steps = 100000
-      check_cc_after_these_steps = 2000 #even if this value is so small like this, empty 1st_2nd_array error is avoided by following fail-proof hook
+      check_cc_after_these_steps = 10000
+      #check_cc_after_these_steps = 2000 #even if this value is so small like this, empty 1st_2nd_array error is avoided by following fail-proof hook
   
     number_of_MD_in_each_cycle = 1 + ((params.start_temperature-params.final_temperature)/params.cool_rate)
     # same value as MD_in_each_cycle
