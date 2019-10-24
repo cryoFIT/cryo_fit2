@@ -197,6 +197,10 @@ class cryo_fit2_class(object):
     STOP()
     '''
     
+    write_this = "self.params.map_weight after multiplication:" + str(round(self.params.map_weight),1) + "\n"
+    print (write_this)
+    self.logfile.write(str(write_this))
+      
     ########################### <begin> iterate until cryo_fit2 derived cc saturates
     for i in range(100000000): # runs well with cryo_fit2.run_tests     #for i in range(1000000000): # fails with cryo_fit2.run_tests with too much memory (bigger than 30 GB)
       
