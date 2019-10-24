@@ -152,6 +152,7 @@ weight_multiply  = None
 write_custom_geom_only   = False
   .type                  = bool
   .help                  = If True, write custom geometry eff file only (not running cryo_fit2).
+include scope mmtbx.maps.map_model_cc.master_params
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
 selection_fixed  = None
