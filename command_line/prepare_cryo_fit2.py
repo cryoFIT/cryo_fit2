@@ -250,12 +250,12 @@ Options:
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
   
-  sigma_for_stronger_ss          (default: 0.05)
+  sigma_for_stronger_ss        (default: 0.04)
                                The lower this value, the stronger the custom made secondary structure restraints will be.
                                Oleg once recommended 0.021 which is the sigma value for covalent bond.
                                According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
   
-  slack_for_stronger_ss          (default: 0)
+  slack_for_stronger_ss        (default: 0)
                                As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, 
                                its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                                However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.

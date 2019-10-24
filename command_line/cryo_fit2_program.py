@@ -124,7 +124,7 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity.
-sigma_for_stronger_ss = 0.05
+sigma_for_stronger_ss = 0.04
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg once recommended 0.021 which is the sigma value for covalent bond. \
@@ -412,6 +412,8 @@ class Program(ProgramTemplate):
     print ("map_inp.unit_cell_parameters().unit_cell():",map_inp.unit_cell_parameters().unit_cell())
     '''
     ################# <end> Doonam's playground ################
+    
+    #secondary_structure.nucleic_acid.scale_bonds_sigma = 0.000000001
     
     if (self.params.loose_ss_def == True):
       self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
