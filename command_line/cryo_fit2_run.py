@@ -197,7 +197,7 @@ class cryo_fit2_class(object):
     STOP()
     '''
     
-    write_this = "self.params.map_weight after multiplication:" + str(round(self.params.map_weight),1) + "\n"
+    write_this = "self.params.map_weight after multiplication:" + str(round(self.params.map_weight,1)) + "\n"
     print (write_this)
     self.logfile.write(str(write_this))
       
