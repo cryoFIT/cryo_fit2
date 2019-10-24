@@ -594,15 +594,15 @@ class Program(ProgramTemplate):
       self.params.MD_in_each_cycle = 4
     if (self.params.number_of_steps == None):
       self.params.number_of_steps = 100
-    #if (self.params.start_temperature == None):
-    #  self.params.start_temperature = 300
+    if (self.params.start_temperature == None):
+     self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
       self.params.weight_multiply = 1
     ### (end) Assign default values if not specified till now (as a 0.998 cc full helix)
     
     
-    if (self.params.start_temperature == None):
-      self.params.start_temperature = 600
+    # if (self.params.start_temperature == None):
+    #   self.params.start_temperature = 600
       
       
 
