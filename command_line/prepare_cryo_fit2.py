@@ -102,7 +102,7 @@ number_of_steps  = None
 output_dir       = output
   .type          = path
   .short_caption = Output folder PREFIX
-progress_on_screen = True
+progress_on_screen = False
   .type            = bool
   .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
