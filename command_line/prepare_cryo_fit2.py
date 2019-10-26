@@ -102,7 +102,7 @@ number_of_steps  = None
 output_dir       = output
   .type          = path
   .short_caption = Output folder PREFIX
-progress_on_screen = False
+progress_on_screen = True
   .type            = bool
   .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
@@ -138,7 +138,7 @@ start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
-stronger_ss = True
+stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger sigma_for_stronger_ss for secondary structure restraints. \
               If False, it will not use custom geometry
