@@ -151,7 +151,7 @@ weight_multiply  = None
                    However, a large molecule needs a larger value (e.g. 10~50).
 write_custom_geom_only   = False
   .type                  = bool
-  .help                  = If True, write custom geometry eff file only (not running cryo_fit2).
+  .help                  = If True, cryo_fit2 will write custom geometry eff file only so that users can modify it for user's need, and provide to cryo_fit2 (cryo_fit2 itself will not run).
 include scope mmtbx.maps.map_model_cc.master_params
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
@@ -308,7 +308,6 @@ class Program(ProgramTemplate):
     out=sys.stdout
     log.register("stdout", out)
     
-    
     if (self.params.write_custom_geom_only == True):
       
       geom_log_file_name = "geom_writing.log"
@@ -318,7 +317,7 @@ class Program(ProgramTemplate):
       splited_custom_geom_file_name = custom_geom_file_name.split("/")
       custom_geom_file_name_wo_path = splited_custom_geom_file_name[len(splited_custom_geom_file_name)-1]
   
-      write_this = custom_geom_file_name_wo_path + " is generated at the same folder. Modify it for user's need, and provide to cryo_fit2\n"
+      write_this = custom_geom_file_name_wo_path + " is generated at the same folder. Modify it for user's need, and provide to cryo_fit2.\n"
       print (write_this)
       geom_logfile.write(write_this)
       geom_logfile.close()
