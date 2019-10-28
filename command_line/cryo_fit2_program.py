@@ -667,8 +667,8 @@ class Program(ProgramTemplate):
                             + " slack_for_stronger_ss=" + str(self.params.slack_for_stronger_ss) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
                             + " top_out_for_protein=" + str(self.params.top_out_for_protein) \
-                            + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) \
-                            + " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
+                            + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) #\
+                            #+ " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
                             # secondary_structure.nucleic_acid.stacking_pair.sigma didn't cause an error at commandline,
                             # but "AttributeError: 'scope_extract_list' object has no attribute 'sigma' for str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)"
     
