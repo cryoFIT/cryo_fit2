@@ -404,7 +404,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
 
     #### Regular finish
     splited = output_dir_final.split("_bp_")
-    splited2 = splited[1].split("_H_")
+    splited2 = splited[1].split("_sp_")
     bp = splited2[0]
 
     splited = output_dir_final.split("_H_")

@@ -429,7 +429,6 @@ class Program(ProgramTemplate):
     # modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py
     
     print ("self.params.pdb_interpretation.secondary_structure.enabled:",self.params.pdb_interpretation.secondary_structure.enabled)
-    #STOP()
     
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
     print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled)
@@ -645,6 +644,10 @@ class Program(ProgramTemplate):
     
     output_dir = get_output_dir_name(self)
     
+    print_this = str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair)
+    print (print_this)
+    #STOP()
+    
     # All parameters are determined (either by a user or automatic optimization)    
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() \
                             + " " + self.data_manager.get_default_real_map_name()  \
@@ -664,8 +667,11 @@ class Program(ProgramTemplate):
                             + " slack_for_stronger_ss=" + str(self.params.slack_for_stronger_ss) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
                             + " top_out_for_protein=" + str(self.params.top_out_for_protein) \
-                            + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) #\
-                            #+ " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
+                            + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) \
+                            + " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
+                            # secondary_structure.nucleic_acid.stacking_pair.sigma didn't cause an error at commandline,
+                            # but "AttributeError: 'scope_extract_list' object has no attribute 'sigma' for str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)"
+    
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
