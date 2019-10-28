@@ -211,7 +211,7 @@ def clean_unusual_residue(input_pdb_file_name):
 ############ end of clean_unusual_residue function
 
 
-def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
+def count_bp_sp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfile):
     
     if (os.path.isfile(fitted_file_name_w_path) == False):
         write_this = str(fitted_file_name_w_path) + " doesn't exist"
@@ -253,9 +253,14 @@ def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfil
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
 
     ## count bp
-    command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
+    command_string = "cat " + ss_file_name + " | grep \"base_pair {\" | wc -l"
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
     number_of_bp_in_fitted_pdb = int(grepped[0])
+    
+    ## count sp
+    command_string = "cat " + ss_file_name + " | grep \"stacking_pair {\" | wc -l"
+    grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
+    number_of_sp_in_fitted_pdb = int(grepped[0])
     
     ## count H
     command_string = "cat " + ss_file_name + " | grep \"helix {\" | wc -l"
@@ -269,8 +274,8 @@ def count_bp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, logfil
     
     os.chdir(starting_dir)
     
-    return number_of_bp_in_fitted_pdb, number_of_H_in_fitted_pdb, number_of_E_in_fitted_pdb
-######################## end of count_bp_H_E_in_fitted_file(fitted_file_name_w_path):
+    return number_of_bp_in_fitted_pdb, number_of_sp_in_fitted_pdb, number_of_H_in_fitted_pdb, number_of_E_in_fitted_pdb
+######################## end of count_bp_sp_H_E_in_fitted_file(fitted_file_name_w_path):
 
 
 '''
