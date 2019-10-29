@@ -78,15 +78,15 @@ map_weight       = None
   .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
-max_steps_for_exploration    = 10000
-  .type                      = int
-  .short_caption             = The total number of steps for MD parameter exploration. \
-                               10k is enough to discern Mg Channel \
-                               15k is not enough for tRNA
-max_steps_for_final_MD    = None
+max_steps_for_exploration = 10000
   .type                   = int
-  .short_caption          = The maximum number of steps in final running of phenix.dynamics.\
-                            If specified, run up to this number of steps no matter what.
+  .short_caption          = The total number of steps for MD parameter exploration. \
+                            10k is enough to discern Mg Channel \
+                            15k is not enough for tRNA
+max_steps_for_final_MD = None
+  .type                = int
+  .short_caption       = The maximum number of steps in final running of phenix.dynamics.\
+                         If specified, run up to this number of steps no matter what.
 MD_in_each_cycle = None
   .type          = int
   .short_caption = Cycle is each iteration of MD from start_temperature to final_temperature. \
@@ -106,11 +106,11 @@ progress_on_screen = True
   .type            = bool
   .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
                      If False, temp=x dist_moved=x angles=x bonds=x is NOT shown on screen, but saved into cryo_fit2.log
-record_states    = True
-  .type          = bool
-  .help          = If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)\
-                   However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
-                   If False, cryo_fit2 doesn't record each state of molecular dynamics.
+record_states = True
+  .type       = bool
+  .help       = If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)\
+                However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory. \
+                If False, cryo_fit2 doesn't record each state of molecular dynamics.
 reoptimize_map_weight_after_each_cycle_during_final_MD = False
   .type                                = bool
   .help                                = If True, cryo_fit2 will reoptimize map_weight after 5~100 cycles. \
@@ -124,24 +124,24 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity.
-sigma_for_stronger_ss = 0.04
-  .type               = float
-  .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                        Oleg once recommended 0.021 which is the sigma value for covalent bond. \
-                        According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-slack_for_stronger_ss = 0
-  .type               = float
-  .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
-                        its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                        However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.75 slack to allow more flexible equilibrium.
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 600.
 stronger_ss = False
   .type     = bool
-  .help     = If True, cryo_fit2 will use a stronger sigma_for_stronger_ss for secondary structure restraints. \
+  .help     = If True, cryo_fit2 will use a stronger stronger_ss_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
+stronger_ss_sigma = 0.04
+  .type               = float
+  .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
+                        Oleg once recommended 0.021 which is the sigma value for covalent bond. \
+                        According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
+stronger_ss_slack = 0
+  .type               = float
+  .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
+                        its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                        However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.75 slack to allow more flexible equilibrium.
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -336,8 +336,8 @@ class Program(ProgramTemplate):
     user_cool_rate           = None
     user_MD_in_each_cycle    = None 
     user_number_of_steps     = None 
-    user_sigma_for_stronger_ss = None
-    user_slack_for_stronger_ss = None
+    user_stronger_ss_sigma = None
+    user_stronger_ss_slack = None
     user_start_temperature   = None
     user_weight_multiply     = None
     
@@ -348,10 +348,10 @@ class Program(ProgramTemplate):
       user_MD_in_each_cycle = self.params.MD_in_each_cycle
     if (self.params.number_of_steps != None):
       user_number_of_steps = self.params.number_of_steps
-    if (self.params.sigma_for_stronger_ss != None):
-      user_sigma_for_stronger_ss = self.params.sigma_for_stronger_ss
-    if (self.params.slack_for_stronger_ss != None):
-      user_slack_for_stronger_ss = self.params.slack_for_stronger_ss
+    if (self.params.stronger_ss_sigma != None):
+      user_stronger_ss_sigma = self.params.stronger_ss_sigma
+    if (self.params.stronger_ss_slack != None):
+      user_stronger_ss_slack = self.params.stronger_ss_slack
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
     if (self.params.weight_multiply != None):
@@ -578,10 +578,10 @@ class Program(ProgramTemplate):
         self.params.MD_in_each_cycle = user_MD_in_each_cycle
       if (user_number_of_steps != None):
         self.params.number_of_steps = user_number_of_steps
-      if (user_sigma_for_stronger_ss != None):
-        self.params.sigma_for_stronger_ss = user_sigma_for_stronger_ss
-      if (user_slack_for_stronger_ss != None):
-        self.params.slack_for_stronger_ss = user_slack_for_stronger_ss
+      if (user_stronger_ss_sigma != None):
+        self.params.stronger_ss_sigma = user_stronger_ss_sigma
+      if (user_stronger_ss_slack != None):
+        self.params.stronger_ss_slack = user_stronger_ss_slack
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
       if (user_weight_multiply != None):
@@ -610,8 +610,8 @@ class Program(ProgramTemplate):
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
-    print ("sigma_for_stronger_ss :", str(self.params.sigma_for_stronger_ss))
-    print ("slack_for_stronger_ss :", str(self.params.slack_for_stronger_ss))
+    print ("stronger_ss_sigma :", str(self.params.stronger_ss_sigma))
+    print ("stronger_ss_slack :", str(self.params.stronger_ss_slack))
     print ("start_temperature     :", str(self.params.start_temperature))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     
@@ -625,8 +625,8 @@ class Program(ProgramTemplate):
                             + "_step_" + str(self.params.number_of_steps) \
                             + "_stronger_ss_" + str(self.params.stronger_ss) \
                             + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
-                            + "_sigma_for_stronger_ss_" + str(self.params.sigma_for_stronger_ss) \
-                            + "_slack_for_stronger_ss_" + str(self.params.slack_for_stronger_ss)
+                            + "_stronger_ss_sigma_" + str(self.params.stronger_ss_sigma) \
+                            + "_stronger_ss_slack_" + str(self.params.stronger_ss_slack)
                             
       command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
       found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
@@ -661,8 +661,8 @@ class Program(ProgramTemplate):
                             + " explore=False" \
                             + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
-                            + " sigma_for_stronger_ss=" + str(self.params.sigma_for_stronger_ss) \
-                            + " slack_for_stronger_ss=" + str(self.params.slack_for_stronger_ss) \
+                            + " stronger_ss_sigma=" + str(self.params.stronger_ss_sigma) \
+                            + " stronger_ss_slack=" + str(self.params.stronger_ss_slack) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
                             + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) \
                             + " top_out_for_protein=" + str(self.params.top_out_for_protein)
@@ -749,7 +749,7 @@ model.geometry_statistics().channel, log,,
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
       
-      if (("_ss_stacking_sigma.eff" in str(list_of_eff[i])) == True): 
+      if (("_ss_stacking_pair_sigma.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
         

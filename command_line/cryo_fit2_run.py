@@ -177,7 +177,7 @@ class cryo_fit2_class(object):
     '''
     grm.geometry.append_reference_coordinate_restraints_in_place(
         reference.add_coordinate_restraints(
-          sigma = self.params.sigma_for_stronger_ss,
+          sigma = self.params.stronger_ss_sigma,
           top_out_potential=True))
     '''
     
