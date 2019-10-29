@@ -171,12 +171,12 @@ selection_fixed_preset = * ca backbone all
 selection_moving_preset = * ca backbone all
   .type                 = choice
   .help                 = Selection preset for moving model.
-top_out_for_protein = False
-  .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 stacking_pair_sigma = 0.027
   .type             = float
   .help             = 0.027 is default unless specified by a user
+top_out_for_protein = False
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 ''' ############## end of base_master_phil_str  
   
 
@@ -254,12 +254,12 @@ Options:
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
   
-  stronger_ss_sigma        (default: 0.04)
+  stronger_ss_sigma            (default: 0.04)
                                The lower this value, the stronger the custom made secondary structure restraints will be.
                                Oleg once recommended 0.021 which is the sigma value for covalent bond.
                                According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
   
-  stronger_ss_slack        (default: 0)
+  stronger_ss_slack            (default: 0)
                                As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, 
                                its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                                However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.

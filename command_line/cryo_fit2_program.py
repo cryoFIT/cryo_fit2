@@ -132,12 +132,12 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger stronger_ss_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-stronger_ss_sigma = 0.04
+stronger_ss_sigma     = 0.04
   .type               = float
   .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
                         Oleg once recommended 0.021 which is the sigma value for covalent bond. \
                         According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-stronger_ss_slack = 0
+stronger_ss_slack     = 0
   .type               = float
   .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                         its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
@@ -171,12 +171,12 @@ selection_fixed_preset = * ca backbone all
 selection_moving_preset = * ca backbone all
   .type                 = choice
   .help                 = Selection preset for moving model.
-top_out_for_protein = False
-  .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 stacking_pair_sigma = 0.027
   .type             = float
   .help             = 0.027 is default unless specified by a user
+top_out_for_protein = False
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 '''
 ############## end of base_master_phil_str  
    
@@ -336,8 +336,8 @@ class Program(ProgramTemplate):
     user_cool_rate           = None
     user_MD_in_each_cycle    = None 
     user_number_of_steps     = None 
-    user_stronger_ss_sigma = None
-    user_stronger_ss_slack = None
+    user_stronger_ss_sigma   = None
+    user_stronger_ss_slack   = None
     user_start_temperature   = None
     user_weight_multiply     = None
     
