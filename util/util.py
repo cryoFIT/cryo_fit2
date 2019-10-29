@@ -28,10 +28,47 @@ from mmtbx.superpose import *
 import mmtbx.utils
 
 import numpy as np
+import os
 import shutil
 
 os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
 os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
+
+
+def assign_stacking_pair_sigma_to_nucleic_acids(logfile, pdb_file, stacking_pair_sigma):
+    if (check_whether_the_pdb_file_has_nucleic_acid(pdb_file) == False):
+        return False # no RNA in this pdb file
+
+    pdb_file_wo_path = os.path.basename(pdb_file)
+    ss_file_name = pdb_file_wo_path + "_ss.eff"
+
+    if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
+        command_string = "phenix.secondary_structure_restraints " + pdb_file
+        libtbx.easy_run.fully_buffered(command_string)
+
+    f_in = open(ss_file_name, "r")
+    output_file_name = ss_file_name[:-4] + "_stacking_sigma.eff"
+    f_out = open(output_file_name, 'wt')
+    dealing_stacking_pair = False # initialization
+    
+    lines = f_in.readlines()
+    for line in lines:
+        splited_line = line.split()
+        if ((splited_line[0] == "stacking_pair") and (splited_line[1] == "{")):
+            dealing_stacking_pair = True
+        if ((len(splited_line) == 7) and (splited_line[0] == "base2")):
+            if (dealing_stacking_pair == True):
+                f_out.write(line)
+                write_this = "        sigma = " + str(stacking_pair_sigma) + "\n"
+                f_out.write(write_this)
+            dealing_stacking_pair = False # reinitialization
+        else:
+            f_out.write(line)
+    f_in.close()
+    f_out.close()
+    
+    return output_file_name
+######################## end of def assign_stacking_pair_sigma_to_nucleic_acids(logfile, user_pdb_file, stacking_pair_sigma)
 
 
 def assign_top_out_T_to_protein(logfile, pdb_file):
@@ -510,8 +547,8 @@ def get_output_dir_name(self):
                  "_stronger_ss_" + str(self.params.stronger_ss) + \
                  "_weight_multiply_" + str(round(self.params.weight_multiply,1)) + \
                  "_sigma_for_stronger_ss_" + str(self.params.sigma_for_stronger_ss) + \
-                 "_slack_for_stronger_ss_" + str(self.params.slack_for_stronger_ss) + \
-                 "_top_out_for_protein_" + str(self.params.top_out_for_protein)
+                 "_slack_for_stronger_ss_" + str(self.params.slack_for_stronger_ss) #+ \
+                 #"_top_out_for_protein_" + str(self.params.top_out_for_protein)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
                  #"_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \
@@ -1339,8 +1376,8 @@ geometry_restraints {
         else:
           f_out.write("      distance_ideal = 2.82\n") # between A and T
         '''
-      else:
-        # default H-bond length for nucleic acid base pairs and helix and sheet
+      else: # for protein
+          # 2.911 is the default H-bond length for nucleic acid base pairs and helix and sheet
           f_out.write("      distance_ideal = 2.911\n") # Doonam observed 2.8, 3.2 in a helix
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
@@ -1401,7 +1438,7 @@ geometry_restraints {
         f_out.write(write_this)
         
         atom1 = splited[9]
-        if (hasNumbers(atom1) == False): #this_line_is_protein
+        if (hasNumbers(atom1) == False): #this is for protein
             if (atom1 == "C" and atom2 ==  "O" and atom3 ==  "N"): 
                 f_out.write("      angle_ideal = 146.0\n") # observed from DN helix: 145, 148.8
             elif (atom1 == "CA" and atom2 ==  "N" and atom3 ==  "O"): 

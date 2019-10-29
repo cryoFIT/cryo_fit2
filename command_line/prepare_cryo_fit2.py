@@ -174,6 +174,9 @@ selection_moving_preset = * ca backbone all
 top_out_for_protein = False
   .type             = bool
   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
+stacking_pair_sigma = 0.027
+  .type             = float
+  .help             = 0.027 is default unless specified by a user
 ''' ############## end of base_master_phil_str  
   
 
@@ -340,7 +343,7 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       if (self.params.sigma_for_stronger_ss != None):
         user_sigma_for_stronger_ss = self.params.sigma_for_stronger_ss
       else:
-        self.params.sigma_for_stronger_ss = 0.05
+        self.params.sigma_for_stronger_ss = 0.04 # for base-pairing H-bonds distances and angles in nucleic acids.
         
       if (self.params.slack_for_stronger_ss != None):
         user_slack_for_stronger_ss = self.params.slack_for_stronger_ss
@@ -355,6 +358,12 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     if (self.params.top_out_for_protein == True):
       generated_eff_file_name_w_top_out_T = assign_top_out_T_to_protein(logfile, self.data_manager.get_default_model_name())
       if (generated_eff_file_name_w_top_out_T != False):
-        sys.argv.append(generated_eff_file_name_w_top_out_T)      
-      
+        sys.argv.append(generated_eff_file_name_w_top_out_T)
+    
+    if (self.params.stacking_pair_sigma != 0.027):
+      generated_eff_file_name_w_stacking_pair_sigma = assign_stacking_pair_sigma_to_nucleic_acids(logfile, \
+                                                  self.data_manager.get_default_model_name(), self.params.stacking_pair_sigma)
+      if (generated_eff_file_name_w_stacking_pair_sigma != False):
+        sys.argv.append(generated_eff_file_name_w_stacking_pair_sigma)
+        
     logfile.close()

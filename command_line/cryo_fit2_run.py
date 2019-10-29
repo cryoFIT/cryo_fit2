@@ -198,7 +198,7 @@ class cryo_fit2_class(object):
     '''
     
     write_this = "self.params.map_weight after multiplication (" + str(weight_multiply) + "):" + str(round(self.params.map_weight,1)) + "\n"
-    #print (write_this)
+    print (write_this)
     self.logfile.write(str(write_this))
       
     ########################### <begin> iterate until cryo_fit2 derived cc saturates

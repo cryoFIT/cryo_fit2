@@ -149,9 +149,9 @@ weight_multiply  = None
                    Usually a small molecule (a helix) requires only 1 (not multiply). \
                    For a helix, 20 keeps geometry, 100 breaks it (w/o special sigma) \
                    However, a large molecule needs a larger value (e.g. 10~50).
-write_custom_geom_only   = False
-  .type                  = bool
-  .help                  = If True, cryo_fit2 will write custom geometry eff file only so that users can modify it for user's need, and provide to cryo_fit2 (cryo_fit2 itself will not run).
+write_custom_geom_only = False
+  .type                = bool
+  .help                = If True, cryo_fit2 will write custom geometry eff file only so that users can modify it for user's need, and provide to cryo_fit2 (cryo_fit2 itself will not run).
 include scope mmtbx.maps.map_model_cc.master_params
 include scope mmtbx.monomer_library.pdb_interpretation.grand_master_phil_str # to use secondary_structure.enabled
 include scope mmtbx.monomer_library.pdb_interpretation.geometry_restraints_remove_str # to use nucleic_acid.base_pair.restrain_planarity but not works as expected
@@ -174,6 +174,9 @@ selection_moving_preset = * ca backbone all
 top_out_for_protein = False
   .type             = bool
   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
+stacking_pair_sigma = 0.027
+  .type             = float
+  .help             = 0.027 is default unless specified by a user
 '''
 ############## end of base_master_phil_str  
    
@@ -181,8 +184,8 @@ top_out_for_protein = False
 
 
 # Doo Nam thinks that phenix-1.17rc5-3630 mandates secondary_structure.enabled = True ??
-# because no matter how he tried to assign secondary_structure.enabled = T/F in commandline, modified_master_phil_str shows
-#that secondary_structure.enabled = True
+# because no matter how he tried to assign secondary_structure.enabled = T/F in commandline,
+# modified_master_phil_str shows that secondary_structure.enabled = True
 
 
 new_default = 'pdb_interpretation.secondary_structure.enabled = True'
@@ -602,7 +605,6 @@ class Program(ProgramTemplate):
     # if (self.params.start_temperature == None):
     #   self.params.start_temperature = 600
       
-      
 
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))
@@ -644,10 +646,6 @@ class Program(ProgramTemplate):
     
     output_dir = get_output_dir_name(self)
     
-    print_this = str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair)
-    print (print_this)
-    #STOP()
-    
     # All parameters are determined (either by a user or automatic optimization)    
     cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() \
                             + " " + self.data_manager.get_default_real_map_name()  \
@@ -666,12 +664,12 @@ class Program(ProgramTemplate):
                             + " sigma_for_stronger_ss=" + str(self.params.sigma_for_stronger_ss) \
                             + " slack_for_stronger_ss=" + str(self.params.slack_for_stronger_ss) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
-                            + " top_out_for_protein=" + str(self.params.top_out_for_protein) \
-                            + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) #\
+                            + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) \
+                            + " top_out_for_protein=" + str(self.params.top_out_for_protein)
                             #+ " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
                             # secondary_structure.nucleic_acid.stacking_pair.sigma didn't cause an error at commandline,
                             # but "AttributeError: 'scope_extract_list' object has no attribute 'sigma' for str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)"
-    
+                            
                             #+ "secondary_structure.protein.remove_outliers=" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + " " \
                             #+ "secondary_structure.nucleic_acid.enabled=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + " " \
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
@@ -751,6 +749,10 @@ model.geometry_statistics().channel, log,,
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
       
+      if (("_ss_stacking_sigma.eff" in str(list_of_eff[i])) == True): 
+        mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
+        libtbx.easy_run.fully_buffered(mv_command_string)
+        
     mv_command_string = "mv cryo_fit2.input_command.txt " + ss_file + " used_geometry_restraints.geo " + log_file_name + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
     
