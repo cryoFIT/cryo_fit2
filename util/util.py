@@ -35,13 +35,51 @@ os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
 os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
 
+def assign_base_pair_sigmas(logfile, pdb_file, parallelity_sigma, planarity_sigma):
+    if (check_whether_the_pdb_file_has_nucleic_acid(pdb_file) == False):
+        return False # no RNA in this pdb file
+
+    pdb_file_wo_path = os.path.basename(pdb_file)
+    ss_file_name = pdb_file_wo_path + "_ss.eff"
+    
+    if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
+        command_string = "phenix.secondary_structure_restraints " + pdb_file
+        libtbx.easy_run.fully_buffered(command_string)
+
+    f_in = open(ss_file_name, "r")
+    output_file_name = ss_file_name[:-4] + "_base_pair_sigma.eff"
+    f_out = open(output_file_name, 'wt')
+    dealing_base_pair = False # initialization
+    
+    lines = f_in.readlines()
+    for line in lines:
+        splited_line = line.split()
+        if ((splited_line[0] == "base_pair") and (splited_line[1] == "{")):
+            dealing_base_pair = True
+        if ((len(splited_line) == 7) and (splited_line[0] == "base2")):
+            if (dealing_base_pair == True):
+                f_out.write(line)
+                write_this = "        planarity_sigma = " + str(planarity_sigma) + "\n"
+                f_out.write(write_this)
+                write_this = "        parallelity_sigma = " + str(parallelity_sigma) + "\n"
+                f_out.write(write_this)
+            dealing_base_pair = False # reinitialization
+        else:
+            f_out.write(line)
+    f_in.close()
+    f_out.close()
+    
+    return output_file_name
+######################## end of def assign_base_pair_sigmas(logfile, user_pdb_file, stacking_pair_sigma)
+
+
 def assign_stacking_pair_sigma_to_nucleic_acids(logfile, pdb_file, stacking_pair_sigma):
     if (check_whether_the_pdb_file_has_nucleic_acid(pdb_file) == False):
         return False # no RNA in this pdb file
 
     pdb_file_wo_path = os.path.basename(pdb_file)
     ss_file_name = pdb_file_wo_path + "_ss.eff"
-
+    
     if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
         command_string = "phenix.secondary_structure_restraints " + pdb_file
         libtbx.easy_run.fully_buffered(command_string)

@@ -102,6 +102,12 @@ number_of_steps  = None
 output_dir       = output
   .type          = path
   .short_caption = Output folder PREFIX
+parallelity_sigma = 0.02
+  .type           = float
+  .help           = 0.0335 is default by Oleg
+planarity_sigma   = 0.1
+  .type           = float
+  .help           = 0.176 is default by Oleg
 progress_on_screen = True
   .type            = bool
   .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
@@ -124,6 +130,9 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity.
+stacking_pair_sigma = 0.02
+  .type             = float
+  .help             = 0.027 is default by Oleg
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
@@ -132,16 +141,19 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger stronger_ss_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-stronger_ss_sigma     = 0.04
-  .type               = float
-  .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                        Oleg once recommended 0.021 which is the sigma value for covalent bond. \
-                        According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-stronger_ss_slack     = 0
-  .type               = float
-  .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
-                        its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                        However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.75 slack to allow more flexible equilibrium.
+stronger_ss_sigma   = 0.04
+  .type             = float
+  .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
+                      Oleg once recommended 0.021 which is the sigma value for covalent bond. \
+                      According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
+stronger_ss_slack   = 0
+  .type             = float
+  .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
+                      its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                      However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.75 slack to allow more flexible equilibrium.
+top_out_for_protein = False
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -171,12 +183,6 @@ selection_fixed_preset = * ca backbone all
 selection_moving_preset = * ca backbone all
   .type                 = choice
   .help                 = Selection preset for moving model.
-stacking_pair_sigma = 0.027
-  .type             = float
-  .help             = 0.027 is default unless specified by a user
-top_out_for_protein = False
-  .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 '''
 ############## end of base_master_phil_str  
    
@@ -661,10 +667,11 @@ class Program(ProgramTemplate):
                             + " explore=False" \
                             + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
-                            + " stronger_ss_sigma=" + str(self.params.stronger_ss_sigma) \
-                            + " stronger_ss_slack=" + str(self.params.stronger_ss_slack) \
+                            + " parallelity_sigma=" + str(self.params.parallelity_sigma) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
                             + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) \
+                            + " stronger_ss_sigma=" + str(self.params.stronger_ss_sigma) \
+                            + " stronger_ss_slack=" + str(self.params.stronger_ss_slack) \
                             + " top_out_for_protein=" + str(self.params.top_out_for_protein)
                             #+ " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
                             # secondary_structure.nucleic_acid.stacking_pair.sigma didn't cause an error at commandline,
@@ -741,15 +748,19 @@ model.geometry_statistics().channel, log,,
       libtbx.easy_run.fully_buffered(mv_command_string)
     
     for i in (range(len(list_of_eff))):
-      if (("_ss_stronger.eff" in str(list_of_eff[i])) == True): 
+      if (("_ss_base_pair_sigma.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
         
-      if (("_ss_top_out_T.eff" in str(list_of_eff[i])) == True): 
+      if (("_ss_stacking_pair_sigma.eff" in str(list_of_eff[i])) == True): 
+        mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
+        libtbx.easy_run.fully_buffered(mv_command_string)
+        
+      if (("_ss_stronger.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
       
-      if (("_ss_stacking_pair_sigma.eff" in str(list_of_eff[i])) == True): 
+      if (("_ss_top_out_T.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
         

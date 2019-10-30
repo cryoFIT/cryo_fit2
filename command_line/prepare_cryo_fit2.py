@@ -102,6 +102,12 @@ number_of_steps  = None
 output_dir       = output
   .type          = path
   .short_caption = Output folder PREFIX
+parallelity_sigma = 0.02
+  .type           = float
+  .help           = 0.0335 is default by Oleg
+planarity_sigma   = 0.1
+  .type           = float
+  .help           = 0.176 is default by Oleg
 progress_on_screen = True
   .type            = bool
   .help            = If True,  temp=x dist_moved=x angles=x bonds=x is shown on screen rather than cryo_fit2.log \
@@ -124,6 +130,9 @@ resolution       = None
 short            = False
   .type          = bool
   .help          = If True, run quickly only to check sanity
+stacking_pair_sigma = 0.02
+  .type             = float
+  .help             = 0.027 is default by Oleg
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
@@ -132,16 +141,19 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger stronger_ss_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-stronger_ss_sigma     = 0.04
-  .type               = float
-  .short_caption      = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                        Oleg once recommended 0.021 which is the sigma value for covalent bond. \
-                        According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-stronger_ss_slack     = 0
-  .type               = float
-  .short_caption      = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
-                        default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                        However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
+stronger_ss_sigma   = 0.04
+  .type             = float
+  .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
+                      Oleg once recommended 0.021 which is the sigma value for covalent bond. \
+                      According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
+stronger_ss_slack   = 0
+  .type             = float
+  .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
+                      default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                      However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
+top_out_for_protein = False
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -171,12 +183,6 @@ selection_fixed_preset = * ca backbone all
 selection_moving_preset = * ca backbone all
   .type                 = choice
   .help                 = Selection preset for moving model.
-stacking_pair_sigma = 0.027
-  .type             = float
-  .help             = 0.027 is default unless specified by a user
-top_out_for_protein = False
-  .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 ''' ############## end of base_master_phil_str  
   
 
@@ -338,6 +344,8 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     leave_one_conformer(logfile, self.data_manager.get_default_model_name())
     
+    
+    ############# (begin) deal with Doonam's stronger_ss
     if (self.params.stronger_ss == True):
       
       if (self.params.stronger_ss_sigma != None):
@@ -353,17 +361,33 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
                                                       self.params.stronger_ss_sigma, self.params.stronger_ss_slack)
       sys.argv.append(generated_eff_file_name)
+    ############# (end) deal with Doonam's stronger_ss
     
     
-    if (self.params.top_out_for_protein == True):
-      generated_eff_file_name_w_top_out_T = assign_top_out_T_to_protein(logfile, self.data_manager.get_default_model_name())
-      if (generated_eff_file_name_w_top_out_T != False):
-        sys.argv.append(generated_eff_file_name_w_top_out_T)
+    ############# (begin) deal with base_pair_sigma
+    if ((self.params.parallelity_sigma != 0.0335) or (self.params.planarity_sigma != 0.176)):
+      generated_eff_file_name_w_base_pair_sigmas = assign_base_pair_sigmas(logfile, self.data_manager.get_default_model_name(), \
+                                                                           self.params.parallelity_sigma, self.params.planarity_sigma)
+      if (generated_eff_file_name_w_base_pair_sigmas != False):
+        sys.argv.append(generated_eff_file_name_w_base_pair_sigmas)
+    ############# (end) deal with stacking_pair_sigma_to_nucleic_acids
     
+    
+    ############# (begin) deal with stacking_pair_sigma_to_nucleic_acids
     if (self.params.stacking_pair_sigma != 0.027):
       generated_eff_file_name_w_stacking_pair_sigma = assign_stacking_pair_sigma_to_nucleic_acids(logfile, \
                                                   self.data_manager.get_default_model_name(), self.params.stacking_pair_sigma)
       if (generated_eff_file_name_w_stacking_pair_sigma != False):
         sys.argv.append(generated_eff_file_name_w_stacking_pair_sigma)
-        
+    ############# (end) deal with stacking_pair_sigma_to_nucleic_acids
+    
+    
+    ############# (begin) deal with top_out_for_protein
+    if (self.params.top_out_for_protein == True):
+      generated_eff_file_name_w_top_out_T = assign_top_out_T_to_protein(logfile, self.data_manager.get_default_model_name())
+      if (generated_eff_file_name_w_top_out_T != False):
+        sys.argv.append(generated_eff_file_name_w_top_out_T)
+    ############# (end) deal with top_out_for_protein
+    
+    
     logfile.close()
