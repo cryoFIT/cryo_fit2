@@ -273,7 +273,12 @@ class cryo_fit2_class(object):
       
       if (max_steps_for_final_MD != ''):
         if (total_steps_so_far_for_exploration_and_final_MD >= max_steps_for_final_MD):
-          write_this = "\ntotal_steps_so_far_for_exploration_and_final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
+          write_this = ''
+          if (self.params.explore == True):
+            write_this = "\ntotal_steps_so_far_for_exploration_and_final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
+                     ") >= A specified max_steps_for_final_MD (" + str(max_steps_for_final_MD) + ")\n"
+          else:
+            write_this = "\ntotal steps final_MD (" + str(total_steps_so_far_for_exploration_and_final_MD) + \
                      ") >= A specified max_steps_for_final_MD (" + str(max_steps_for_final_MD) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
@@ -347,19 +352,38 @@ class cryo_fit2_class(object):
             cc_2nd_array = [] # reset
             total_steps_so_far_for_cc_check = 0 # reset
           else:
-            write_this = "cc values are saturated\ntotal_steps_so_far_for_exploration_and_final_MD: " + str(total_steps_so_far_for_exploration_and_final_MD) + "\n"
+            write_this = "cc values are saturated\n"
             print('%s' %(write_this))
             self.logfile.write(str(write_this))
+          
+            if (self.params.explore == True): # no need to report cc after explore
+              write_this = "total_steps_so_far_for_exploration_and_final_MD: " + str(total_steps_so_far_for_exploration_and_final_MD) + "\n"
+            else: # (self.params.explore = False): # no need to report cc after explore
+              write_this = "total_steps for final_MD: " + str(total_steps_so_far_for_exploration_and_final_MD) + "\n"
+            
+            print('%s' %(write_this))
+            self.logfile.write(str(write_this))
+            
             break
+            
 
         else: #(np.mean(cc_2nd_array) <= np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
           
-          write_this = "cc values are saturated\ntotal_steps_so_far_for_exploration_and_final_MD: " + str(total_steps_so_far_for_exploration_and_final_MD) + "\n"
+          write_this = "cc values are saturated\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
+        
+          if (self.params.explore == True): # no need to report cc after explore
+            write_this = "total_steps_so_far_for_exploration_and_final_MD: " + str(total_steps_so_far_for_exploration_and_final_MD) + "\n"
+          else: # (self.params.explore = False): # no need to report cc after explore
+            write_this = "total_steps for final_MD: " + str(total_steps_so_far_for_exploration_and_final_MD) + "\n"
+          
+          print('%s' %(write_this))
+          self.logfile.write(str(write_this))
+          
           break
 ######################### <end> iterate until cryo_fit2 derived cc saturates
     
