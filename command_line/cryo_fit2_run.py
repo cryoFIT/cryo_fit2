@@ -134,7 +134,7 @@ class cryo_fit2_class(object):
     check_cc_after_these_steps = '' # use '# of steps' not '# of iterations'
     if (("tst_cryo_fit2" in model_file_name_only) == True):
       check_cc_after_these_steps = 1000
-      # if too small like 100, it may run forever
+      # if this is too small (like 100), it may run forever
       # I confirmed that 500 is definitely too small to explore properly (a helix),
       #but this is just for test
     else:
@@ -268,8 +268,11 @@ class cryo_fit2_class(object):
       ############# All below is for final MD
       total_steps_so_far_for_cc_check = total_steps_so_far_for_cc_check + int(params.number_of_steps*number_of_MD_in_each_cycle)
   
-      
-      cc_improvement_threshold = 0.00001 # 0.0001 worked to improve cc further
+      cc_improvement_threshold = ''
+      if (("tst_cryo_fit2" in model_file_name_only) == True):
+        cc_improvement_threshold = 0.01 # to finish regression quickly
+      else:
+        cc_improvement_threshold = 0.00001 # even a 0.0001 improved cc further eventually significantly
       
       if (max_steps_for_final_MD != ''):
         if (total_steps_so_far_for_exploration_and_final_MD >= max_steps_for_final_MD):
@@ -284,10 +287,6 @@ class cryo_fit2_class(object):
           self.logfile.write(str(write_this))
           break
       
-      #write_this = "total_steps_so_far_for_cc_check: " + str(total_steps_so_far_for_cc_check) + \
-      #      ",  check_cc_after_these_steps/2: " + str(check_cc_after_these_steps/2) + "\n" # this "\n" is essential for screen print
-      #print('%s' %(write_this))
-      #self.logfile.write(str(write_this))
       
       if (float(total_steps_so_far_for_cc_check) < float(check_cc_after_these_steps/2)):
         cc_1st_array.append(cc_after_small_MD)
@@ -318,7 +317,6 @@ class cryo_fit2_class(object):
           
           if (float(cc_after_small_MD-best_cc_so_far) > cc_improvement_threshold): # without this if clause, later MD cycles that improve just tiny fractions of cc take too long time
             write_this = "cc_after_small_MD - best_cc_so_far > cc_improvement_threshold (" + str(float_to_str(cc_improvement_threshold)) + "). Iterates longer.\n"
-            #write_this = " > " + str(float_to_str(cc_improvement_threshold)) + ". Iterates longer.\n"
             print('%s' %(write_this))
             self.logfile.write(str(write_this))
             
@@ -329,7 +327,6 @@ class cryo_fit2_class(object):
             continue
           else:
             write_this = "cc_after_small_MD - best_cc_so_far <= " + str(float_to_str(cc_improvement_threshold)) + ". Goes to mean_array_comparison.\n"
-            #write_this = " <= " + str(float_to_str(cc_improvement_threshold)) + ". Goes to mean_array_comparison.\n"
             print('%s' %(write_this))
             self.logfile.write(str(write_this))
           
@@ -337,6 +334,8 @@ class cryo_fit2_class(object):
           write_this = "current_cc (" + str(cc_after_small_MD) + ") <= best_cc_so_far (" + str(best_cc_so_far) + ")\n"
           print('%s' %(write_this))
           self.logfile.write(str(write_this))
+          
+        
           
         if (np.mean(cc_2nd_array) > np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") > mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"
@@ -365,7 +364,6 @@ class cryo_fit2_class(object):
             self.logfile.write(str(write_this))
             
             break
-            
 
         else: #(np.mean(cc_2nd_array) <= np.mean(cc_1st_array)):
           write_this = "mean of cc_2nd_array (" + str(np.mean(cc_2nd_array)) + ") <= mean of cc_1st_array (" + str(np.mean(cc_1st_array)) + ")\n"

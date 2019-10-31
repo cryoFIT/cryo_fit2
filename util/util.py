@@ -545,7 +545,7 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             optimum_step = splited2[0]
             
             splited = check_this_dir.split("_weight_multiply_")
-            splited2 = splited[1].split("_stronger_ss_sigma_")
+            splited2 = splited[1].split("_cc_")
             optimum_weight_multiply = splited2[0]
             
             os.chdir(starting_dir)
@@ -583,9 +583,10 @@ def get_output_dir_name(self):
                  "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_stronger_ss_" + str(self.params.stronger_ss) + \
-                 "_weight_multiply_" + str(round(self.params.weight_multiply,1)) + \
                  "_stronger_ss_sigma_" + str(self.params.stronger_ss_sigma) + \
-                 "_stronger_ss_slack_" + str(self.params.stronger_ss_slack) #+ \
+                 "_stronger_ss_slack_" + str(self.params.stronger_ss_slack) + \
+                 "_weight_multiply_" + str(round(self.params.weight_multiply,1))
+                 
                  #"_top_out_for_protein_" + str(self.params.top_out_for_protein)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \

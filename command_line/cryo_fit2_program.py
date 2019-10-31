@@ -421,8 +421,7 @@ class Program(ProgramTemplate):
     '''
     ################# <end> Doonam's playground ################
     
-    #secondary_structure.nucleic_acid.scale_bonds_sigma = 0.000000001
-    
+
     if (self.params.loose_ss_def == True):
       self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff=4
       # default is 3.4, the longer this value, the loose the restraint
@@ -567,7 +566,7 @@ class Program(ProgramTemplate):
           if (errstr == None):
             success_exploration_count = success_exploration_count + 1
       
-      optimum_MD_in_each_cycle, optimum_start_temperature, optimum_steps, optimum_weight_multiply = \
+      optimum_MD_in_each_cycle, optimum_start_temperature, optimum_number_of_steps, optimum_weight_multiply = \
         extract_the_best_cc_parameters(logfile)
 
       write_this = "cryo_fit2 will run fully with optimized parameters.\n"
@@ -576,7 +575,7 @@ class Program(ProgramTemplate):
 
       self.params.MD_in_each_cycle      = int(optimum_MD_in_each_cycle)
       self.params.start_temperature     = float(optimum_start_temperature) # make it as float to format it consistent as in parameter exploration and user input
-      self.params.number_of_steps       = int(optimum_steps)
+      self.params.number_of_steps       = int(optimum_number_of_steps)
       self.params.weight_multiply       = float(optimum_weight_multiply)
 
       # Override self.params.* with user entered values
@@ -630,9 +629,9 @@ class Program(ProgramTemplate):
                             + "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) \
                             + "_step_" + str(self.params.number_of_steps) \
                             + "_stronger_ss_" + str(self.params.stronger_ss) \
-                            + "_weight_multiply_" + str(round(self.params.weight_multiply,1)) \
                             + "_stronger_ss_sigma_" + str(self.params.stronger_ss_sigma) \
-                            + "_stronger_ss_slack_" + str(self.params.stronger_ss_slack)
+                            + "_stronger_ss_slack_" + str(self.params.stronger_ss_slack) \
+                            + "_weight_multiply_" + str(round(self.params.weight_multiply,1))
                             
       command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
       found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
