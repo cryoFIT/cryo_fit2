@@ -615,8 +615,8 @@ class Program(ProgramTemplate):
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
-    print ("stronger_ss_sigma :", str(self.params.stronger_ss_sigma))
-    print ("stronger_ss_slack :", str(self.params.stronger_ss_slack))
+    print ("stronger_ss_sigma     :", str(self.params.stronger_ss_sigma))
+    print ("stronger_ss_slack     :", str(self.params.stronger_ss_slack))
     print ("start_temperature     :", str(self.params.start_temperature))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     
@@ -652,7 +652,8 @@ class Program(ProgramTemplate):
     output_dir = get_output_dir_name(self)
     
     # All parameters for final MD are determined (either by a user or automatic optimization)    
-    cryo_fit2_input_command = "phenix.cryo_fit2 " + self.data_manager.get_default_model_name() \
+    cryo_fit2_input_command = "phenix.cryo_fit2" \
+                            + " " + self.data_manager.get_default_model_name() \
                             + " " + self.data_manager.get_default_real_map_name()  \
                             + " resolution=" + str(self.params.resolution)  \
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
@@ -665,13 +666,11 @@ class Program(ProgramTemplate):
                             + " cool_rate=" + str(round(self.params.cool_rate,1)) \
                             + " number_of_steps=" + str(self.params.number_of_steps) \
                             + " record_states=" + str(self.params.record_states) \
-                            + " parallelity_sigma=" + str(self.params.parallelity_sigma) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
-                            + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma) \
                             + " stronger_ss=" + str(self.params.stronger_ss) \
                             + " stronger_ss_sigma=" + str(self.params.stronger_ss_sigma) \
-                            + " stronger_ss_slack=" + str(self.params.stronger_ss_slack) \
-                            + " top_out_for_protein=" + str(self.params.top_out_for_protein)
+                            + " stronger_ss_slack=" + str(self.params.stronger_ss_slack)
+                            
                             #+ " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
                             # secondary_structure.nucleic_acid.stacking_pair.sigma didn't cause an error at commandline,
                             # but "AttributeError: 'scope_extract_list' object has no attribute 'sigma' for str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)"
@@ -681,6 +680,15 @@ class Program(ProgramTemplate):
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
     
+    if (check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name()) == True):
+      cryo_fit2_input_command = cryo_fit2_input_command + " parallelity_sigma=" + str(self.params.parallelity_sigma)
+      cryo_fit2_input_command = cryo_fit2_input_command + " planarity_sigma=" + str(self.params.planarity_sigma)
+      cryo_fit2_input_command = cryo_fit2_input_command + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma)
+      
+    if (check_whether_the_pdb_file_has_amino_acid(self.data_manager.get_default_model_name()) == True):
+      cryo_fit2_input_command = cryo_fit2_input_command + " top_out_for_protein=" + str(self.params.top_out_for_protein)
+      
+      
     list_of_eff = return_list_of_eff_from_args(args)
     
     for i in (range(len(list_of_eff))):
