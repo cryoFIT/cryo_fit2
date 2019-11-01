@@ -100,19 +100,24 @@ def assign_top_out_T_to_protein(logfile, pdb_file):
     f_in = open(ss_file_name, "r")
     output_file_name = ss_file_name[:-4] + "_top_out_T.eff"
     f_out = open(output_file_name, 'wt')
+    
+    dealing_helix  = False # initialization
     dealing_strand = False # initialization
     
     lines = f_in.readlines()
     for line in lines:
         splited_line = line.split()
+        if ((splited_line[0] == "helix") and (splited_line[1] == "{")):
+            dealing_helix = True
         if ((splited_line[0] == "strand") and (splited_line[1] == "{")):
             dealing_strand = True
         if ((len(splited_line) == 9) and (splited_line[0] == "selection")):
             if (dealing_strand == True):
                 f_out.write("          top_out = True\n")
+                dealing_strand = False # reinitialization
             else:
                 f_out.write("        top_out = True\n")
-            dealing_strand = False # reinitialization
+                dealing_helix = False # reinitialization
         f_out.write(line)
     f_in.close()
     f_out.close()
