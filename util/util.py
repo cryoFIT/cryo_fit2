@@ -480,7 +480,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
 ############ end of explore_parameters_by_multi_core()
 
 
-def extract_the_best_cc_parameters(logfile):
+def extract_the_best_cc_parameters(self, logfile):
     starting_dir = os.getcwd()
     if (os.path.isdir("parameters_exploration/bp_H_E_kept") == True):
         os.chdir("parameters_exploration/bp_H_E_kept")
@@ -520,10 +520,22 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             splited2 = splited[1].split("_stronger_ss_")
             optimum_step = splited2[0]
             
-            splited = check_this_dir.split("_weight_multiply_")
-            splited2 = splited[1].split("_cc_")
-            optimum_weight_multiply = splited2[0]
-            
+            optimum_weight_multiply = ''
+            if (self.params.stronger_ss == False):
+                splited = check_this_dir.split("_weight_multiply_")
+                print ("splited:",splited)
+                splited2 = splited[1].split("_cc_")
+                print ("splited2:",splited2)
+                optimum_weight_multiply = splited2[0]
+                print ("optimum_weight_multiply:", optimum_weight_multiply)
+            else: # self.params.stronger_ss = True
+                splited = check_this_dir.split("_weight_multiply_")
+                print ("splited:",splited)
+                splited2 = splited[1].split("_stronger_ss_sigma_")
+                print ("splited2:",splited2)
+                optimum_weight_multiply = splited2[0]
+                print ("optimum_weight_multiply:", optimum_weight_multiply)
+                
             os.chdir(starting_dir)
             
             return optimum_MD_in_each_cycle, optimum_start_temperature, \

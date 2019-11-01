@@ -567,7 +567,7 @@ class Program(ProgramTemplate):
             success_exploration_count = success_exploration_count + 1
       
       optimum_MD_in_each_cycle, optimum_start_temperature, optimum_number_of_steps, optimum_weight_multiply = \
-        extract_the_best_cc_parameters(logfile)
+        extract_the_best_cc_parameters(self, logfile)
 
       write_this = "cryo_fit2 will run fully with optimized parameters.\n"
       print (write_this)
