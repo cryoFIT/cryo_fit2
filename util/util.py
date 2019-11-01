@@ -1006,56 +1006,6 @@ def prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     write_this_CRYST1 = write_this_CRYST1 + " "*empty_space_before_period + str(gamma) + " "*3
     
     
-    # old method # works for original map, not for map_boxed map
-    '''
-    alpha = splited_unit_cell_crystal_symmetry_from_map[3].strip(' ')
-    splited_alpha = alpha.split(".")
-    if (len(splited_alpha) == 1): # just 90
-        multi_before_period = 4-len(splited_alpha[0])
-        multi_after_period  = 2
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + multi_after_period*" "
-    else:
-        if (len(splited_alpha[0]) <= 5):
-            multi_before_period = 4-len(splited_alpha[0])
-            multi_after_period = 2-len(splited_alpha[1])
-        else:
-            multi_before_period = 5-len(splited_alpha[0])
-            multi_after_period = 0-len(splited_alpha[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_alpha[0] + "." + splited_alpha[1]+multi_after_period*" "
-    
-    beta = splited[4]
-    splited_beta = beta.split(".")
-    if (len(splited_beta) == 1): # just 90
-        multi_before_period = 5-len(splited_beta[0])
-        multi_after_period  = 2
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + multi_after_period*" "
-    else:
-        if (len(splited_beta[0]) <= 5):
-            multi_before_period = 4-len(splited_beta[0])
-            multi_after_period = 2-len(splited_beta[1])
-        else:
-            multi_before_period = 5-len(splited_beta[0])
-            multi_after_period = 0-len(splited_beta[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_beta[0] + "." + splited_beta[1]+multi_after_period*" "
-    
-    soon_gamma = splited[5]
-    splited_soon_gamma = soon_gamma.split(")")
-    gamma = splited_soon_gamma[0]
-    splited_gamma = gamma.split(".")
-    if (len(splited_gamma) == 1): # just 90
-        multi_before_period = 5-len(splited_gamma[0])
-        multi_after_period  = 2
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + multi_after_period*" "
-    else:
-        if (len(splited_gamma[0]) <= 5):
-            multi_before_period = 4-len(splited_gamma[0])
-            multi_after_period = 2-len(splited_gamma[1])
-        else:
-            multi_before_period = 5-len(splited_gamma[0])
-            multi_after_period = 0-len(splited_gamma[1])
-        write_this_CRYST1 = write_this_CRYST1 + multi_before_period*" "+splited_gamma[0] + "." + splited_gamma[1]+multi_after_period*" "
-    '''
-    
     print ("Examplar correct CRYST1 format                : CRYST1   40.000   80.000   72.000  90.00  90.00  90.00 P 1")
     
     if (map_inp.space_group_number == 19):
