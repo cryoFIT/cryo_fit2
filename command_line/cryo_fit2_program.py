@@ -609,7 +609,6 @@ class Program(ProgramTemplate):
     
     # if (self.params.start_temperature == None):
     #   self.params.start_temperature = 600
-      
 
     print ("Final MD parameters after user input/automatic optimization")
     print ("final_temperature     :", str(self.params.final_temperature))
@@ -629,9 +628,12 @@ class Program(ProgramTemplate):
                             + "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) \
                             + "_step_" + str(self.params.number_of_steps) \
                             + "_stronger_ss_" + str(self.params.stronger_ss) \
-                            + "_stronger_ss_sigma_" + str(self.params.stronger_ss_sigma) \
-                            + "_stronger_ss_slack_" + str(self.params.stronger_ss_slack) \
                             + "_weight_multiply_" + str(round(self.params.weight_multiply,1))
+      
+      if (self.params.stronger_ss == True):
+        dir_w_best_parameters = dir_w_best_parameters \
+                            + "_stronger_ss_sigma_" + str(self.params.stronger_ss_sigma) \
+                            + "_stronger_ss_slack_" + str(self.params.stronger_ss_slack)
                             
       command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
       found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
@@ -667,9 +669,7 @@ class Program(ProgramTemplate):
                             + " number_of_steps=" + str(self.params.number_of_steps) \
                             + " record_states=" + str(self.params.record_states) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
-                            + " stronger_ss=" + str(self.params.stronger_ss) \
-                            + " stronger_ss_sigma=" + str(self.params.stronger_ss_sigma) \
-                            + " stronger_ss_slack=" + str(self.params.stronger_ss_slack)
+                            + " stronger_ss=" + str(self.params.stronger_ss) 
                             
                             #+ " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
                             # secondary_structure.nucleic_acid.stacking_pair.sigma didn't cause an error at commandline,
@@ -684,6 +684,10 @@ class Program(ProgramTemplate):
       cryo_fit2_input_command = cryo_fit2_input_command + " parallelity_sigma=" + str(self.params.parallelity_sigma)
       cryo_fit2_input_command = cryo_fit2_input_command + " planarity_sigma=" + str(self.params.planarity_sigma)
       cryo_fit2_input_command = cryo_fit2_input_command + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma)
+    
+    if (self.params.stronger_ss == True):
+      cryo_fit2_input_command = cryo_fit2_input_command + " stronger_ss_sigma=" + str(self.params.stronger_ss_sigma)
+      cryo_fit2_input_command = cryo_fit2_input_command + " stronger_ss_slack=" + str(self.params.stronger_ss_slack)
       
     if (check_whether_the_pdb_file_has_amino_acid(self.data_manager.get_default_model_name()) == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " top_out_for_protein=" + str(self.params.top_out_for_protein)
