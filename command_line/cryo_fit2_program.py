@@ -755,14 +755,11 @@ model.geometry_statistics().channel, log,,
       libtbx.easy_run.fully_buffered(mv_command_string)
     
     for i in (range(len(list_of_eff))):
-      if (("_ss_base_pair_sigma.eff" in str(list_of_eff[i])) == True): 
+      
+      if (("_ss_nucleic_acid_sigma.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
-        
-      if (("_ss_stacking_pair_sigma.eff" in str(list_of_eff[i])) == True): 
-        mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
-        libtbx.easy_run.fully_buffered(mv_command_string)
-        
+      
       if (("_ss_stronger.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)

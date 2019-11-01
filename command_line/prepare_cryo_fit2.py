@@ -364,22 +364,13 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     ############# (end) deal with Doonam's stronger_ss
     
     
-    ############# (begin) deal with base_pair_sigma
-    if ((self.params.parallelity_sigma != 0.0335) or (self.params.planarity_sigma != 0.176)):
-      generated_eff_file_name_w_base_pair_sigmas = assign_base_pair_sigmas(logfile, self.data_manager.get_default_model_name(), \
-                                                                           self.params.parallelity_sigma, self.params.planarity_sigma)
-      if (generated_eff_file_name_w_base_pair_sigmas != False):
-        sys.argv.append(generated_eff_file_name_w_base_pair_sigmas)
-    ############# (end) deal with stacking_pair_sigma_to_nucleic_acids
-    
-    
-    ############# (begin) deal with stacking_pair_sigma_to_nucleic_acids
-    if (self.params.stacking_pair_sigma != 0.027):
-      generated_eff_file_name_w_stacking_pair_sigma = assign_stacking_pair_sigma_to_nucleic_acids(logfile, \
-                                                  self.data_manager.get_default_model_name(), self.params.stacking_pair_sigma)
-      if (generated_eff_file_name_w_stacking_pair_sigma != False):
-        sys.argv.append(generated_eff_file_name_w_stacking_pair_sigma)
-    ############# (end) deal with stacking_pair_sigma_to_nucleic_acids
+    ############# (begin) deal sigmas for nucleic_acids
+    if ((self.params.parallelity_sigma != 0.0335) or (self.params.planarity_sigma != 0.176) or (self.params.stacking_pair_sigma != 0.027)):
+      generated_eff_file_name_w_nucleic_acid_sigmas = assign_nucleic_acid_sigmas(logfile, \
+                                                  self.data_manager.get_default_model_name(), self.params.parallelity_sigma, self.params.planarity_sigma, self.params.stacking_pair_sigma)
+      if (generated_eff_file_name_w_nucleic_acid_sigmas != False):
+        sys.argv.append(generated_eff_file_name_w_nucleic_acid_sigmas)
+    ############# (end) deal sigmas for nucleic_acids
     
     
     ############# (begin) deal with top_out_for_protein
