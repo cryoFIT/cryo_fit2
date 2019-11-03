@@ -85,7 +85,7 @@ def assign_nucleic_acid_sigmas(logfile, pdb_file, parallelity_sigma, planarity_s
 ######################## end of def assign_base_pair_sigmas (logfile, user_pdb_file, stacking_pair_sigma)
 
 
-def assign_sigma_slack_top_out_to_H_E(logfile, input_model_file_name, H_E_sigma, H_E_slack, top_out_for_protein):
+def assign_sigma_slack_top_out_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, top_out_for_protein):
     if (check_whether_the_pdb_file_has_amino_acid(input_model_file_name) == False):
         return False # no protein in this pdb file
 
@@ -113,21 +113,21 @@ def assign_sigma_slack_top_out_to_H_E(logfile, input_model_file_name, H_E_sigma,
             dealing_strand = True
         if ((len(splited_line) == 9) and (splited_line[0] == "selection")):
             if (dealing_strand == True):
-                if (H_E_sigma != 0.05):
-                    write_this = "          sigma = " + str(H_E_sigma) + "\n"
+                if (HE_sigma != 0.05):
+                    write_this = "          sigma = " + str(HE_sigma) + "\n"
                     f_out.write(write_this)
-                if (H_E_slack != 0.0):
-                    write_this = "          slack = " + str(H_E_slack) + "\n"
+                if (HE_slack != 0.0):
+                    write_this = "          slack = " + str(HE_slack) + "\n"
                     f_out.write(write_this)
                 if (top_out_for_protein == True):
                     f_out.write("           top_out = True\n")
                 dealing_strand = False # reinitialization
             else: # dealing_helix
-                if (H_E_sigma != 0.05):
-                    write_this = "       sigma = " + str(H_E_sigma) + "\n"
+                if (HE_sigma != 0.05):
+                    write_this = "       sigma = " + str(HE_sigma) + "\n"
                     f_out.write(write_this)
-                if (H_E_slack != 0.0):
-                    write_this = "       slack = " + str(H_E_slack) + "\n"
+                if (HE_slack != 0.0):
+                    write_this = "       slack = " + str(HE_slack) + "\n"
                     f_out.write(write_this)
                 if (top_out_for_protein == True):
                     f_out.write("        top_out = True\n")
@@ -137,7 +137,7 @@ def assign_sigma_slack_top_out_to_H_E(logfile, input_model_file_name, H_E_sigma,
     f_out.close()
     
     return output_file_name
-########### end of assign_sigma_slack_top_out_to_H_E(logfile, input_model_file_name, H_E_sigma, H_E_slack, self.params.top_out_for_protein)
+########### end of assign_sigma_slack_top_out_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, self.params.top_out_for_protein)
 
 
 def calculate_overall_cc(map_data, model, resolution):
@@ -193,7 +193,7 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
 
 
 '''
-def check_whether_args_has_eff(args, logfile, location_of_this_code, known_H_E_sigma):
+def check_whether_args_has_eff(args, logfile, location_of_this_code, known_HE_sigma):
   for i in range(len(args)):
     if args[i][len(args[i])-4:len(args[i])] == ".eff":
         user_eff_file_name = str(args[i])
@@ -201,7 +201,7 @@ def check_whether_args_has_eff(args, logfile, location_of_this_code, known_H_E_s
         if (str(location_of_this_code) == str("prepare_cryo_fit2")):
             write_this = "A user provided " + user_eff_file_name
         else:
-            write_this = "cryo_fit2 automatically generated " + user_eff_file_name + " with " + str(known_H_E_sigma) + " H_E_sigma"
+            write_this = "cryo_fit2 automatically generated " + user_eff_file_name + " with " + str(known_HE_sigma) + " HE_sigma"
         write_this = write_this + " that cryo_fit2 will use."
         print (write_this)
         logfile.write(write_this)
@@ -552,7 +552,7 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             else: # self.params.stronger_ss = True
                 splited = check_this_dir.split("_weight_multiply_")
                 print ("splited:",splited)
-                splited2 = splited[1].split("_H_E_sigma_")
+                splited2 = splited[1].split("_HE_sigma_")
                 print ("splited2:",splited2)
                 optimum_weight_multiply = splited2[0]
                 print ("optimum_weight_multiply:", optimum_weight_multiply)
@@ -595,8 +595,8 @@ def get_output_dir_name(self):
                  "_weight_multiply_" + str(round(self.params.weight_multiply,1))
     if ((self.params.stronger_ss) == True):
         output_dir = output_dir \
-                    + "_H_E_sigma_" + str(self.params.H_E_sigma) \
-                    + "_H_E_slack_" + str(self.params.H_E_slack)
+                    + "_HE_sigma_" + str(self.params.HE_sigma) \
+                    + "_HE_slack_" + str(self.params.HE_slack)
                  #"_top_out_for_protein_" + str(self.params.top_out_for_protein)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
@@ -1307,7 +1307,7 @@ def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_
 ################################## end of return_to_origin_of_pdb_file ()
 
 
-def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, H_E_sigma, H_E_slack):
+def rewrite_pymol_ss_to_custom_geometry_ss(user_input_pymol_ss, HE_sigma, HE_slack):
 ####### reference
 
 #################### DISTANCE
@@ -1412,10 +1412,10 @@ geometry_restraints {
       ########## [reference] modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
       ########## [reference] https://www.phenix-online.org/documentation/reference/secondary_structure.html#proteins
       
-      write_this = "      sigma = " + float_to_str(H_E_sigma) + "\n" 
+      write_this = "      sigma = " + float_to_str(HE_sigma) + "\n" 
       f_out.write(write_this) 
       
-      write_this = "      slack = " + float_to_str(H_E_slack) + "\n" 
+      write_this = "      slack = " + float_to_str(HE_slack) + "\n" 
       f_out.write(write_this) 
 
       write_this = "    }\n"
@@ -1490,12 +1490,12 @@ geometry_restraints {
                 f_out.write("      angle_ideal = 122.2\n") # derived from Oleg slide and modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
             else: 
                 f_out.write("      angle_ideal = 120.0\n") # just my guess
-        write_this = "      sigma = " + float_to_str(H_E_sigma) + "\n" 
+        write_this = "      sigma = " + float_to_str(HE_sigma) + "\n" 
         f_out.write(write_this)
         
         # geometry_restraints.edits.angle.slack is not recognized
         # "Sorry: Some PHIL parameters are not recognized by phenix.cryo_fit2."
-        #  write_this = "      slack = " + float_to_str(H_E_slack) + "\n" 
+        #  write_this = "      slack = " + float_to_str(HE_slack) + "\n" 
         #  f_out.write(write_this)
         
         write_this = "    }\n"
@@ -1527,7 +1527,7 @@ def show_time(app, time_start, time_end):
 ### seems not right to assign sigma and slack? keep for now..........
 # for base-pairing H-bonds distances and angles in nucleic acids.
 '''
-def write_custom_geometry(logfile, input_model_file_name, H_E_sigma, H_E_slack):
+def write_custom_geometry(logfile, input_model_file_name, HE_sigma, HE_slack):
 
   ######## produce pymol format secondary structure restraints #########
   # I heard that running phenix commandline directly is not ideal from Nigel.
@@ -1535,19 +1535,19 @@ def write_custom_geometry(logfile, input_model_file_name, H_E_sigma, H_E_slack):
   # However, I think that running phenix.secondary_structure_restraints is the best option here.
   # The reason is that I need to copy most of the codes in cctbx_project/mmtbx/command_line/secondary_structure_restraints.py
   #to use codes directly instead of running executables at commandline
-  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger H_E_sigma "
-  if (H_E_sigma != None):
-    write_this = write_this + "(e.g. " + str(H_E_sigma) + ") "
+  write_this = "Cryo_fit2 is generating pymol based secondary structure restraints for the user input model file to enforce a stronger HE_sigma "
+  if (HE_sigma != None):
+    write_this = write_this + "(e.g. " + str(HE_sigma) + ") "
     
-  if (H_E_slack != None):
-    write_this = write_this + "and H_E_slack (e.g. " + str(H_E_slack) + ")"
+  if (HE_slack != None):
+    write_this = write_this + "and HE_slack (e.g. " + str(HE_slack) + ")"
     
   write_this = write_this + ".\n"
   print(write_this)
   logfile.write(write_this)
     
-  if (H_E_sigma == None):
-    write_this = "H_E_sigma = None till now, debug now\n"
+  if (HE_sigma == None):
+    write_this = "HE_sigma = None till now, debug now\n"
     print(write_this)
     logfile.write(write_this)
     exit(1)
@@ -1563,10 +1563,10 @@ def write_custom_geometry(logfile, input_model_file_name, H_E_sigma, H_E_slack):
     phenix_secondary_structure_restraints_cannot_run(logfile)
     
   ##### rewrite_pymol_ss_to_custom_geometry_ss
-  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, H_E_sigma, H_E_slack)
+  eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, HE_sigma, HE_slack)
   
   return eff_file_name
-########### end of write_custom_geometry(input_model_file_name, H_E_sigma)
+########### end of write_custom_geometry(input_model_file_name, HE_sigma)
 '''
 
 def write_geo(self, model_inp, file_name):

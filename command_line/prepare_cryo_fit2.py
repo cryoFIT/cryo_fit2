@@ -64,12 +64,12 @@ explore          = False
 final_temperature = 0
   .type           = float
   .short_caption  = Final temperature of annealing in Kelvin
-H_E_sigma           = 0.05
+HE_sigma           = 0.05
   .type             = float
   .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
                       Oleg once recommended 0.021 which is the sigma value for covalent bond. \
                       According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-H_E_slack           = 0
+HE_slack           = 0
   .type             = float
   .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                       default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
@@ -149,7 +149,7 @@ start_temperature = None
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 stronger_ss = False
   .type     = bool
-  .help     = If True, cryo_fit2 will use a stronger H_E_sigma for secondary structure restraints. \
+  .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
 top_out_for_protein = False
   .type             = bool
@@ -219,12 +219,12 @@ Options:
   
   final_temperature            (default: 0)
   
-  H_E_sigma                    (default: 0.05)
+  HE_sigma                    (default: 0.05)
                                The lower this value, the stronger the custom made secondary structure restraints will be.
                                Oleg once recommended 0.021 which is the sigma value for covalent bond.
                                According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
   
-  H_E_slack                    (default: 0)
+  HE_slack                    (default: 0)
                                As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, 
                                its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                                However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
@@ -346,9 +346,9 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     
     ############# (begin) Assign sigma/slack for H/E
-    if ((self.params.H_E_sigma != 0.05) or (self.params.H_E_slack != 0.0) or (self.params.top_out_for_protein == True)):
+    if ((self.params.HE_sigma != 0.05) or (self.params.HE_slack != 0.0) or (self.params.top_out_for_protein == True)):
       generated_eff_file_name = assign_sigma_slack_top_out_to_H_E(logfile, self.data_manager.get_default_model_name(), \
-                                                      self.params.H_E_sigma, self.params.H_E_slack,\
+                                                      self.params.HE_sigma, self.params.HE_slack,\
                                                       self.params.top_out_for_protein)
       if (generated_eff_file_name != False):
         sys.argv.append(generated_eff_file_name)
