@@ -1525,6 +1525,7 @@ def show_time(app, time_start, time_end):
 
 
 ### seems not right to assign sigma and slack? keep for now..........
+# for base-pairing H-bonds distances and angles in nucleic acids.
 '''
 def write_custom_geometry(logfile, input_model_file_name, stronger_ss_sigma, stronger_ss_slack):
 
