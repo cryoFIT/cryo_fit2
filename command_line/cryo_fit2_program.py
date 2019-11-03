@@ -67,7 +67,8 @@ final_temperature = 0
   .short_caption  = Final temperature of annealing in Kelvin
 HE_angle_sigma_scale = 1
   .type              = float
-  .short_caption     = Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.
+  .short_caption     = Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10. \
+                       As Doo Nam decreased this value, cryo_fit2 takes longer. Therefore, lower value may strengthen restraint.
 HE_sigma            = 0.05
   .type             = float
   .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
@@ -671,11 +672,13 @@ class Program(ProgramTemplate):
                             + " start_temperature=" + str(self.params.start_temperature)  \
                             + " final_temperature=" + str(self.params.final_temperature) \
                             + " MD_in_each_cycle=" + str(self.params.MD_in_each_cycle) \
-                            + " cool_rate=" + str(round(self.params.cool_rate,1)) \
                             + " number_of_steps=" + str(self.params.number_of_steps) \
                             + " record_states=" + str(self.params.record_states) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
                             + " stronger_ss=" + str(self.params.stronger_ss) 
+                            
+                            #+ " cool_rate=" + str(round(self.params.cool_rate,1)) \
+                            # if both cool_rate and MD_in_each_cycle exist in input_command, it may behave unexpectedly.              
                             
                             #+ " secondary_structure.nucleic_acid.stacking_pair.sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.stacking_pair.sigma)
                             # secondary_structure.nucleic_acid.stacking_pair.sigma didn't cause an error at commandline,

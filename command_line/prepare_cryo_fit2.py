@@ -66,7 +66,8 @@ final_temperature = 0
   .short_caption  = Final temperature of annealing in Kelvin
 HE_angle_sigma_scale = 1
   .type              = float
-  .short_caption     = Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.
+  .short_caption     = Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.\
+                       As Doo Nam decreased this value, cryo_fit2 takes longer. Therefore, lower value may strengthen restraint.
 HE_sigma            = 0.05
   .type             = float
   .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
