@@ -680,18 +680,20 @@ class Program(ProgramTemplate):
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
     
+    if (self.params.H_E_sigma != 0.05):
+      cryo_fit2_input_command = cryo_fit2_input_command + " H_E_sigma=" + str(self.params.H_E_sigma)
+    
+    if (self.params.H_E_slack != 0.00):
+      cryo_fit2_input_command = cryo_fit2_input_command + " H_E_slack=" + str(self.params.H_E_slack)
+      
+    if (self.params.top_out_for_protein == True):
+      cryo_fit2_input_command = cryo_fit2_input_command + " top_out_for_protein=" + str(self.params.top_out_for_protein)
+      
     if (check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name()) == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " parallelity_sigma=" + str(self.params.parallelity_sigma)
       cryo_fit2_input_command = cryo_fit2_input_command + " planarity_sigma=" + str(self.params.planarity_sigma)
       cryo_fit2_input_command = cryo_fit2_input_command + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma)
     
-    if (self.params.stronger_ss == True):
-      cryo_fit2_input_command = cryo_fit2_input_command + " H_E_sigma=" + str(self.params.H_E_sigma)
-      cryo_fit2_input_command = cryo_fit2_input_command + " H_E_slack=" + str(self.params.H_E_slack)
-      
-    if (check_whether_the_pdb_file_has_amino_acid(self.data_manager.get_default_model_name()) == True):
-      cryo_fit2_input_command = cryo_fit2_input_command + " top_out_for_protein=" + str(self.params.top_out_for_protein)
-      
       
     list_of_eff = return_list_of_eff_from_args(args)
     
