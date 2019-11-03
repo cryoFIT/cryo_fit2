@@ -141,7 +141,7 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger stronger_ss_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-stronger_ss_sigma   = 0.04
+stronger_ss_sigma   = 0.05
   .type             = float
   .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
                       Oleg once recommended 0.021 which is the sigma value for covalent bond. \
@@ -344,7 +344,8 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     leave_one_conformer(logfile, self.data_manager.get_default_model_name())
     
-    
+    '''
+    # seems wrong to assign sigma and slack ? keep for now
     ############# (begin) deal with Doonam's stronger_ss
     if (self.params.stronger_ss == True):
       
@@ -358,27 +359,32 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
       else:
         self.params.stronger_ss_slack = 0  
       
+      
       generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
                                                       self.params.stronger_ss_sigma, self.params.stronger_ss_slack)
+      
       sys.argv.append(generated_eff_file_name)
     ############# (end) deal with Doonam's stronger_ss
+    '''
     
     
-    ############# (begin) deal sigmas for nucleic_acids
+    ############# (begin) Assign sigma/slack for H/E
+    if ((self.params.stronger_ss_sigma != 0.05) or (self.params.stronger_ss_slack != 0.0) or (self.params.top_out_for_protein == True)):
+      generated_eff_file_name = assign_sigma_slack_top_out_to_H_E(logfile, self.data_manager.get_default_model_name(), \
+                                                      self.params.stronger_ss_sigma, self.params.stronger_ss_slack,\
+                                                      self.params.top_out_for_protein)
+      if (generated_eff_file_name != False):
+        sys.argv.append(generated_eff_file_name)
+    ############# (end) Assign sigma/slack for H/E
+    
+    
+    ############# (begin) Assign sigmas for nucleic_acids
     if ((self.params.parallelity_sigma != 0.0335) or (self.params.planarity_sigma != 0.176) or (self.params.stacking_pair_sigma != 0.027)):
       generated_eff_file_name_w_nucleic_acid_sigmas = assign_nucleic_acid_sigmas(logfile, \
                                                   self.data_manager.get_default_model_name(), self.params.parallelity_sigma, self.params.planarity_sigma, self.params.stacking_pair_sigma)
       if (generated_eff_file_name_w_nucleic_acid_sigmas != False):
         sys.argv.append(generated_eff_file_name_w_nucleic_acid_sigmas)
-    ############# (end) deal sigmas for nucleic_acids
-    
-    
-    ############# (begin) deal with top_out_for_protein
-    if (self.params.top_out_for_protein == True):
-      generated_eff_file_name_w_top_out_T = assign_top_out_T_to_protein(logfile, self.data_manager.get_default_model_name())
-      if (generated_eff_file_name_w_top_out_T != False):
-        sys.argv.append(generated_eff_file_name_w_top_out_T)
-    ############# (end) deal with top_out_for_protein
+    ############# (end) Assign sigmas for nucleic_acids
     
     
     logfile.close()

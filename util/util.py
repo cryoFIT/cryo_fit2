@@ -82,23 +82,23 @@ def assign_nucleic_acid_sigmas(logfile, pdb_file, parallelity_sigma, planarity_s
     f_out.close()
     
     return output_file_name
-######################## end of def assign_base_pair_sigmas(logfile, user_pdb_file, stacking_pair_sigma)
+######################## end of def assign_base_pair_sigmas (logfile, user_pdb_file, stacking_pair_sigma)
 
 
-def assign_top_out_T_to_protein(logfile, pdb_file):
-    if (check_whether_the_pdb_file_has_amino_acid(pdb_file) == False):
+def assign_sigma_slack_top_out_to_H_E(logfile, input_model_file_name, stronger_ss_sigma, stronger_ss_slack, top_out_for_protein):
+    if (check_whether_the_pdb_file_has_amino_acid(input_model_file_name) == False):
         return False # no protein in this pdb file
 
-    splited_pdb_file_w_path = pdb_file.split("/")
+    splited_pdb_file_w_path = input_model_file_name.split("/")
     pdb_file_wo_path = splited_pdb_file_w_path[len(splited_pdb_file_w_path)-1]
     ss_file_name = pdb_file_wo_path + "_ss.eff"
 
     if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
-        command_string = "phenix.secondary_structure_restraints " + pdb_file
+        command_string = "phenix.secondary_structure_restraints " + input_model_file_name
         libtbx.easy_run.fully_buffered(command_string)
 
     f_in = open(ss_file_name, "r")
-    output_file_name = ss_file_name[:-4] + "_top_out_T.eff"
+    output_file_name = ss_file_name[:-4] + "_sigma_slack_top_out.eff"
     f_out = open(output_file_name, 'wt')
     
     dealing_helix  = False # initialization
@@ -113,17 +113,31 @@ def assign_top_out_T_to_protein(logfile, pdb_file):
             dealing_strand = True
         if ((len(splited_line) == 9) and (splited_line[0] == "selection")):
             if (dealing_strand == True):
-                f_out.write("          top_out = True\n")
+                if (stronger_ss_sigma != 0.05):
+                    write_this = "          sigma = " + str(stronger_ss_sigma) + "\n"
+                    f_out.write(write_this)
+                if (stronger_ss_slack != 0.0):
+                    write_this = "          slack = " + str(stronger_ss_slack) + "\n"
+                    f_out.write(write_this)
+                if (top_out_for_protein == True):
+                    f_out.write("           top_out = True\n")
                 dealing_strand = False # reinitialization
-            else:
-                f_out.write("        top_out = True\n")
+            else: # dealing_helix
+                if (stronger_ss_sigma != 0.05):
+                    write_this = "       sigma = " + str(stronger_ss_sigma) + "\n"
+                    f_out.write(write_this)
+                if (stronger_ss_slack != 0.0):
+                    write_this = "       slack = " + str(stronger_ss_slack) + "\n"
+                    f_out.write(write_this)
+                if (top_out_for_protein == True):
+                    f_out.write("        top_out = True\n")
                 dealing_helix = False # reinitialization
         f_out.write(line)
     f_in.close()
     f_out.close()
     
     return output_file_name
-######################## end of def assign_top_out_T_to_protein(logfile, user_pdb_file)
+########### end of assign_sigma_slack_top_out_to_H_E(logfile, input_model_file_name, stronger_ss_sigma, stronger_ss_slack, self.params.top_out_for_protein)
 
 
 def calculate_overall_cc(map_data, model, resolution):
@@ -176,6 +190,7 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
       print (write_this)
       self.logfile.write(str(write_this))
 ############ def calculate_RMSD(self):
+
 
 '''
 def check_whether_args_has_eff(args, logfile, location_of_this_code, known_stronger_ss_sigma):
@@ -355,7 +370,8 @@ def determine_optimal_weight_as_macro_cycle_RSR(self, map_inp, model_inp):
 ######################## end of determine_optimal_weight_as_macro_cycle_RSR()
 '''
 
-# this fn runs only once in entire cryo_fit2 running (final MD may run once more, but I'm disabling it)
+
+# This fn runs only once in entire cryo_fit2 running (final MD may run once more, but I'm disabling it)
 def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_file):
   pi = get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
   f_calc = pi.xrs.structure_factors(d_min = self.params.resolution).f_calc()
@@ -903,6 +919,39 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
 ##### end of def make_argstuples(logfile):
 
 
+def phenix_secondary_structure_restraints_cannot_run(logfile):
+    write_this = '''phenix.secondary_structure_restraints can't run with a user input file.
+    
+To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
+
+    For example, phenix.secondary_structure_restraints <user>.pdb format=pymol
+
+If the error message is like
+    "Sorry: number of groups of duplicate atom labels:  76
+    total number of affected atoms:          152
+    group "ATOM    .*.  CA  GLU F  55 .*.     C  "
+          "ATOM    .*.  CA  GLU F  55 .*.     C  ""
+then, provide input pdb file after solving duplicity issue.
+
+    Most problems will be solved by running
+        python <user phenix>/modules/cryo_fit/files_for_steps/9_after_cryo_fit/solve_duplicate_atoms_issue/add_all_prefix.py
+
+    For multi-conformations, run
+        phenix.pdbtools <user>.pdb remove_alt_confs=True
+            (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
+        so that only one conformer remains.
+
+If the error message is like
+    "Sorry: Multiple models not supported."
+then provide input pdb file after leaving one model only.
+     '''
+
+    print(write_this)
+    logfile.write(write_this)
+    exit(1)
+############## end of def phenix_secondary_structure_restraints_cannot_run(logfile):
+    
+    
 def prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
     
     # [original map]
@@ -1123,7 +1172,7 @@ def remove_R_prefix_in_RNA(input_pdb_file_name): ######### deal very old style o
 ########################### end of remove_R_prefix_in_RNA function
 
 
-# this fn runs only during final_MD
+# This fn runs only during final_MD
 def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   if (user_map_weight == ''):
       write_this = "\nA user didn't specify a map_weight. Therefore, cryo_fit2 will optimize map_weight for additional MD run\n"
@@ -1195,9 +1244,7 @@ def report_map_model_cc(self, map_inp, model, crystal_symmetry, logfile):
     write_this = "CC_box    : " + str(round(float(r.cc_box), 4)) + "\n"
     print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
-
 ########## end of def report_map_model_cc():
-
 
 
 def return_list_of_eff_from_args(args):
@@ -1477,6 +1524,8 @@ def show_time(app, time_start, time_end):
 ############### end of show_time function
 
 
+### seems not right to assign sigma and slack? keep for now..........
+'''
 def write_custom_geometry(logfile, input_model_file_name, stronger_ss_sigma, stronger_ss_slack):
 
   ######## produce pymol format secondary structure restraints #########
@@ -1510,41 +1559,14 @@ def write_custom_geometry(logfile, input_model_file_name, stronger_ss_sigma, str
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
   
   if (path.isfile(ss_restraints_file_name) == False):
-    write_this = '''phenix.secondary_structure_restraints can't run with a user input file.
-    
-To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
-
-    For example, phenix.secondary_structure_restraints <user>.pdb format=pymol
-
-If the error message is like
-    "Sorry: number of groups of duplicate atom labels:  76
-    total number of affected atoms:          152
-    group "ATOM    .*.  CA  GLU F  55 .*.     C  "
-          "ATOM    .*.  CA  GLU F  55 .*.     C  ""
-then, provide input pdb file after solving duplicity issue.
-
-    Most problems will be solved by running
-        python <user phenix>/modules/cryo_fit2/util/solve_duplicate_atoms_by_adding_a_prefix/solve_duplicate_atoms_by_adding_a_prefix.py
-
-    For multi-conformations, run
-        phenix.pdbtools <user>.pdb remove_alt_confs=True
-            (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
-        so that only one conformer remains.
-
-If the error message is like
-    "Sorry: Multiple models not supported."
-then provide input pdb file after leaving one model only.
-    '''
-    print(write_this)
-    logfile.write(write_this)
-    exit(1)
+    phenix_secondary_structure_restraints_cannot_run(logfile)
     
   ##### rewrite_pymol_ss_to_custom_geometry_ss
   eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, stronger_ss_sigma, stronger_ss_slack)
   
   return eff_file_name
 ########### end of write_custom_geometry(input_model_file_name, stronger_ss_sigma)
-
+'''
 
 def write_geo(self, model_inp, file_name):
     geo_str = model_inp.restraints_as_geo(

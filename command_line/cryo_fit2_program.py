@@ -141,7 +141,7 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger stronger_ss_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-stronger_ss_sigma   = 0.04
+stronger_ss_sigma   = 0.05
   .type             = float
   .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
                       Oleg once recommended 0.021 which is the sigma value for covalent bond. \
@@ -763,14 +763,15 @@ model.geometry_statistics().channel, log,,
       if (("_ss_nucleic_acid_sigma.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
-      
-      if (("_ss_stronger.eff" in str(list_of_eff[i])) == True): 
+        
+      if (("_ss_sigma_slack_top_out.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
       
-      if (("_ss_top_out_T.eff" in str(list_of_eff[i])) == True): 
-        mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
-        libtbx.easy_run.fully_buffered(mv_command_string)
+      # if (("_ss_stronger.eff" in str(list_of_eff[i])) == True): 
+      #   mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
+      #   libtbx.easy_run.fully_buffered(mv_command_string)
+      # 
         
     mv_command_string = "mv cryo_fit2.input_command.txt " + ss_file + " used_geometry_restraints.geo " + log_file_name + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
