@@ -64,6 +64,16 @@ explore          = False
 final_temperature = 0
   .type           = float
   .short_caption  = Final temperature of annealing in Kelvin
+H_E_sigma           = 0.05
+  .type             = float
+  .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
+                      Oleg once recommended 0.021 which is the sigma value for covalent bond. \
+                      According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
+H_E_slack           = 0
+  .type             = float
+  .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
+                      default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                      However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
 keep_origin      = True
   .type          = bool
   .help          = If True, write out model with origin in original location.  \
@@ -139,18 +149,8 @@ start_temperature = None
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
 stronger_ss = False
   .type     = bool
-  .help     = If True, cryo_fit2 will use a stronger stronger_ss_sigma for secondary structure restraints. \
+  .help     = If True, cryo_fit2 will use a stronger H_E_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-stronger_ss_sigma   = 0.05
-  .type             = float
-  .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                      Oleg once recommended 0.021 which is the sigma value for covalent bond. \
-                      According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-stronger_ss_slack   = 0
-  .type             = float
-  .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
-                      default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                      However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
 top_out_for_protein = False
   .type             = bool
   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
@@ -219,15 +219,25 @@ Options:
   
   final_temperature            (default: 0)
   
+  H_E_sigma                    (default: 0.05)
+                               The lower this value, the stronger the custom made secondary structure restraints will be.
+                               Oleg once recommended 0.021 which is the sigma value for covalent bond.
+                               According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
+  
+  H_E_slack                    (default: 0)
+                               As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, 
+                               its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                               However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
+                               
+  max_steps_for_final_MD       (default: None)
+                               The maximum number of steps in final running of phenix.dynamics.
+                               If specified, run up to this number of steps no matter what.
+                
   MD_in_each_cycle             Cycle is each iteration of MD from start_temperature to final_temperature.
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
   
   nproc                        Number of cores to use for MD parameter exploration.
                                If not specified, cryo_fit2 will use available number of cores/3
-  
-  max_steps_for_final_MD       (default: None)
-                               The maximum number of steps in final running of phenix.dynamics.
-                               If specified, run up to this number of steps no matter what.
                                
   number_of_steps              The number of MD steps in each phenix.dynamics
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
@@ -259,16 +269,6 @@ Options:
                                (default: True)
                                False may be useful for very poor low-resolution structures by
                                ignoring some hydrogen "bond" if it exceed certain distance threshold
-  
-  stronger_ss_sigma            (default: 0.05)
-                               The lower this value, the stronger the custom made secondary structure restraints will be.
-                               Oleg once recommended 0.021 which is the sigma value for covalent bond.
-                               According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
-  
-  stronger_ss_slack            (default: 0)
-                               As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, 
-                               its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                               However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
   
   short                        (default: False)
                                If True, run quickly only to check sanity.
@@ -346,9 +346,9 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     
     ############# (begin) Assign sigma/slack for H/E
-    if ((self.params.stronger_ss_sigma != 0.05) or (self.params.stronger_ss_slack != 0.0) or (self.params.top_out_for_protein == True)):
+    if ((self.params.H_E_sigma != 0.05) or (self.params.H_E_slack != 0.0) or (self.params.top_out_for_protein == True)):
       generated_eff_file_name = assign_sigma_slack_top_out_to_H_E(logfile, self.data_manager.get_default_model_name(), \
-                                                      self.params.stronger_ss_sigma, self.params.stronger_ss_slack,\
+                                                      self.params.H_E_sigma, self.params.H_E_slack,\
                                                       self.params.top_out_for_protein)
       if (generated_eff_file_name != False):
         sys.argv.append(generated_eff_file_name)
@@ -364,6 +364,12 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     ############# (end) Assign sigmas for nucleic_acids
     
     
+    if (self.params.write_custom_geom_only == True):
+      generated_eff_file_name = write_custom_geometry(logfile, self.data_manager.get_default_model_name(), \
+                                                      self.params.stronger_ss_sigma, self.params.stronger_ss_slack)
+      exit(1)
+      
+      
     '''
     # seems wrong to assign sigma and slack ? keep for now
     ############# (begin) deal with Doonam's stronger_ss

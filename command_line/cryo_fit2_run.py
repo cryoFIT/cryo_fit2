@@ -171,17 +171,8 @@ class cryo_fit2_class(object):
     total_steps_so_far_for_cc_check = 0 # initialization
 #### <end> prepare/initialize for iteration
     
-    
+  
     grm = self.model.get_restraints_manager()
-    
-    '''
-    grm.geometry.append_reference_coordinate_restraints_in_place(
-        reference.add_coordinate_restraints(
-          sigma = self.params.stronger_ss_sigma,
-          top_out_potential=True))
-    '''
-    
-    #model_inp = self.data_manager.get_model() # "AttributeError: 'cryo_fit2_class' object has no attribute 'data_manager'"
     
     pdb_hierarchy = self.model.get_hierarchy() 
     '''

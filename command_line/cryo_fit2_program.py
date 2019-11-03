@@ -65,6 +65,16 @@ explore          = False
 final_temperature = 0
   .type           = float
   .short_caption  = Final temperature of annealing in Kelvin
+H_E_sigma           = 0.05
+  .type             = float
+  .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
+                      Oleg once recommended 0.021 which is the sigma value for covalent bond. \
+                      According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
+H_E_slack           = 0
+  .type             = float
+  .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
+                      default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
+                      However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
 keep_origin      = True
   .type          = bool
   .help          = If True, write out model with origin in original location.  \
@@ -139,18 +149,8 @@ start_temperature = None
                     If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 600.
 stronger_ss = False
   .type     = bool
-  .help     = If True, cryo_fit2 will use a stronger stronger_ss_sigma for secondary structure restraints. \
+  .help     = If True, cryo_fit2 will use a stronger H_E_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-stronger_ss_sigma   = 0.05
-  .type             = float
-  .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
-                      Oleg once recommended 0.021 which is the sigma value for covalent bond. \
-                      According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-stronger_ss_slack   = 0
-  .type             = float
-  .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
-                      its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                      However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.75 slack to allow more flexible equilibrium.
 top_out_for_protein = False
   .type             = bool
   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
@@ -342,8 +342,8 @@ class Program(ProgramTemplate):
     user_cool_rate           = None
     user_MD_in_each_cycle    = None 
     user_number_of_steps     = None 
-    user_stronger_ss_sigma   = None
-    user_stronger_ss_slack   = None
+    user_H_E_sigma           = None
+    user_H_E_slack           = None
     user_start_temperature   = None
     user_weight_multiply     = None
     
@@ -354,15 +354,15 @@ class Program(ProgramTemplate):
       user_MD_in_each_cycle = self.params.MD_in_each_cycle
     if (self.params.number_of_steps != None):
       user_number_of_steps = self.params.number_of_steps
-    if (self.params.stronger_ss_sigma != None):
-      user_stronger_ss_sigma = self.params.stronger_ss_sigma
-    if (self.params.stronger_ss_slack != None):
-      user_stronger_ss_slack = self.params.stronger_ss_slack
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
     if (self.params.weight_multiply != None):
       user_weight_multiply = self.params.weight_multiply
-
+    if (self.params.H_E_sigma != None):
+      user_H_E_sigma = self.params.H_E_sigma
+    if (self.params.H_E_slack != None):
+      user_H_E_slack = self.params.H_E_slack
+      
     print ("A user entered resolution:", str(self.params.resolution))
     
     print('A user input atomistic model file name: %s' % self.data_manager.get_default_model_name(), file=self.logger)
@@ -583,10 +583,10 @@ class Program(ProgramTemplate):
         self.params.MD_in_each_cycle = user_MD_in_each_cycle
       if (user_number_of_steps != None):
         self.params.number_of_steps = user_number_of_steps
-      if (user_stronger_ss_sigma != None):
-        self.params.stronger_ss_sigma = user_stronger_ss_sigma
-      if (user_stronger_ss_slack != None):
-        self.params.stronger_ss_slack = user_stronger_ss_slack
+      if (user_H_E_sigma != None):
+        self.params.H_E_sigma = user_H_E_sigma
+      if (user_H_E_slack != None):
+        self.params.H_E_slack = user_H_E_slack
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
       if (user_weight_multiply != None):
@@ -611,12 +611,12 @@ class Program(ProgramTemplate):
     #   self.params.start_temperature = 600
 
     print ("Final MD parameters after user input/automatic optimization")
+    print ("start_temperature     :", str(self.params.start_temperature))
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
-    print ("stronger_ss_sigma     :", str(self.params.stronger_ss_sigma))
-    print ("stronger_ss_slack     :", str(self.params.stronger_ss_slack))
-    print ("start_temperature     :", str(self.params.start_temperature))
+    print ("H_E_sigma             :", str(self.params.H_E_sigma))
+    print ("H_E_slack             :", str(self.params.H_E_slack))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     
     current_dir = os.getcwd()
@@ -632,8 +632,8 @@ class Program(ProgramTemplate):
       
       if (self.params.stronger_ss == True):
         dir_w_best_parameters = dir_w_best_parameters \
-                            + "_stronger_ss_sigma_" + str(self.params.stronger_ss_sigma) \
-                            + "_stronger_ss_slack_" + str(self.params.stronger_ss_slack)
+                            + "_H_E_sigma_" + str(self.params.H_E_sigma) \
+                            + "_H_E_slack_" + str(self.params.H_E_slack)
                             
       command_string = "find . -name '*" + str(dir_w_best_parameters) + "*' -type d"
       found_dir_w_best_parameters = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
@@ -686,8 +686,8 @@ class Program(ProgramTemplate):
       cryo_fit2_input_command = cryo_fit2_input_command + " secondary_structure.nucleic_acid.scale_bonds_sigma=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.scale_bonds_sigma)
     
     if (self.params.stronger_ss == True):
-      cryo_fit2_input_command = cryo_fit2_input_command + " stronger_ss_sigma=" + str(self.params.stronger_ss_sigma)
-      cryo_fit2_input_command = cryo_fit2_input_command + " stronger_ss_slack=" + str(self.params.stronger_ss_slack)
+      cryo_fit2_input_command = cryo_fit2_input_command + " H_E_sigma=" + str(self.params.H_E_sigma)
+      cryo_fit2_input_command = cryo_fit2_input_command + " H_E_slack=" + str(self.params.H_E_slack)
       
     if (check_whether_the_pdb_file_has_amino_acid(self.data_manager.get_default_model_name()) == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " top_out_for_protein=" + str(self.params.top_out_for_protein)
