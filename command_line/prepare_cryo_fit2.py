@@ -64,12 +64,15 @@ explore          = False
 final_temperature = 0
   .type           = float
   .short_caption  = Final temperature of annealing in Kelvin
-HE_sigma           = 0.05
+HE_angle_sigma_scale = 1
+  .type              = float
+  .short_caption     = Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.
+HE_sigma            = 0.05
   .type             = float
   .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
                       Oleg once recommended 0.021 which is the sigma value for covalent bond. \
                       According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-HE_slack           = 0
+HE_slack            = 0
   .type             = float
   .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                       default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
@@ -78,7 +81,7 @@ keep_origin      = True
   .type          = bool
   .help          = If True, write out model with origin in original location.  \
                    If False, shift map origin to (0,0,0).
-  .short_caption = Keep origin of a resulted atomic model
+  .short_caption = Keep origin of a resulted atomistic model
 loose_ss_def = False
   .type      = bool
   .help      = If True, secondary structure definition for nucleic acid is loose. Use this with great caution.  \
@@ -219,16 +222,19 @@ Options:
   
   final_temperature            (default: 0)
   
-  HE_sigma                    (default: 0.05)
+  HE_sigma                     (default: 0.05)
                                The lower this value, the stronger the custom made secondary structure restraints will be.
                                Oleg once recommended 0.021 which is the sigma value for covalent bond.
                                According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves number of base-pairs.
   
-  HE_slack                    (default: 0)
+  HE_slack                     (default: 0)
                                As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, 
                                its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                                However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
-                               
+  
+  HE_angle_sigma_scale         (default: 1)
+                               Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.
+
   max_steps_for_final_MD       (default: None)
                                The maximum number of steps in final running of phenix.dynamics.
                                If specified, run up to this number of steps no matter what.
@@ -335,20 +341,20 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     cleaned_pdb_file_name, cleaned_unusual_residue = clean_unusual_residue (self.data_manager.get_default_model_name())
     if (cleaned_unusual_residue == True):
-     write_this ='''
-      Unusual residue names like 34G that real_space_refine can't deal were detected in user's pdb file.\nCryo_fit2 removed these and rewrote into ''' + cleaned_pdb_file_name + '''\nPlease rerun cryo_fit2 with this re-written pdb file\n'''
-     print (write_this)
-     logfile.write(write_this)
-     logfile.close()
-     exit(1)
+      write_this ='''
+       Unusual residue names like 34G that real_space_refine can't deal were detected in user's pdb file.\nCryo_fit2 removed these and rewrote into ''' + cleaned_pdb_file_name + '''\nPlease rerun cryo_fit2 with this re-written pdb file\n'''
+      print (write_this)
+      logfile.write(write_this)
+      logfile.close()
+      exit(1)
     
     leave_one_conformer(logfile, self.data_manager.get_default_model_name())
     
     
     ############# (begin) Assign sigma/slack for H/E
     if ((self.params.HE_sigma != 0.05) or (self.params.HE_slack != 0.0) or (self.params.top_out_for_protein == True)):
-      generated_eff_file_name = assign_sigma_slack_top_out_to_H_E(logfile, self.data_manager.get_default_model_name(), \
-                                                      self.params.HE_sigma, self.params.HE_slack,\
+      generated_eff_file_name = assign_ss_params_to_H_E(logfile, self.data_manager.get_default_model_name(), \
+                                                      self.params.HE_sigma, self.params.HE_slack, self.params.HE_angle_sigma_scale,\
                                                       self.params.top_out_for_protein)
       if (generated_eff_file_name != False):
         sys.argv.append(generated_eff_file_name)

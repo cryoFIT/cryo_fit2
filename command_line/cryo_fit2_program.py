@@ -65,12 +65,15 @@ explore          = False
 final_temperature = 0
   .type           = float
   .short_caption  = Final temperature of annealing in Kelvin
-HE_sigma           = 0.05
+HE_angle_sigma_scale = 1
+  .type              = float
+  .short_caption     = Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.
+HE_sigma            = 0.05
   .type             = float
   .short_caption    = The lower this value, the stronger the custom made secondary structure restraints will be. \
                       Oleg once recommended 0.021 which is the sigma value for covalent bond. \
                       According to a small benchmark with a RNA molecule (e.g. L1 stalk), 0.05 best preserves the number of base-pairs.
-HE_slack           = 0
+HE_slack            = 0
   .type             = float
   .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                       default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
@@ -363,12 +366,12 @@ class Program(ProgramTemplate):
     if (self.params.HE_slack != None):
       user_HE_slack = self.params.HE_slack
       
-    print ("A user entered resolution:", str(self.params.resolution))
+    print ("A user entered resolution:             ", str(self.params.resolution))
     
     print('A user input atomistic model file name: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model() # "<mmtbx.model.model.manager object at 0x11901fad0>"
     
-    print('A user input map file name: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
+    print('A user input map file name:             %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
 
     ################# <begin> Doonam's playground ################
@@ -440,6 +443,9 @@ class Program(ProgramTemplate):
     
     print ("self.params.pdb_interpretation.secondary_structure.protein.remove_outliers:",self.params.pdb_interpretation.secondary_structure.protein.remove_outliers)
     print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled)
+    
+    #print ("self.params.pdb_interpretation.secondary_structure.protein.helix.angle_sigma_scale:",self.params.pdb_interpretation.secondary_structure.protein.helix.angle_sigma_scale)
+    #"AttributeError: 'scope_extract_list' object has no attribute 'angle_sigma_scale'"
     
     #print ("self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled:",self.params.pdb_interpretation.secondary_structure.nucleic_acid.base_pair.enabled)
     #"AttributeError: 'scope_extract_list' object has no attribute 'enabled'"
@@ -615,8 +621,8 @@ class Program(ProgramTemplate):
     print ("final_temperature     :", str(self.params.final_temperature))
     print ("MD_in_each_cycle      :", str(self.params.MD_in_each_cycle))
     print ("number_of_steps       :", str(self.params.number_of_steps))
-    print ("HE_sigma             :", str(self.params.HE_sigma))
-    print ("HE_slack             :", str(self.params.HE_slack))
+    print ("HE_sigma              :", str(self.params.HE_sigma))
+    print ("HE_slack              :", str(self.params.HE_slack))
     print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
     
     current_dir = os.getcwd()
@@ -685,6 +691,9 @@ class Program(ProgramTemplate):
     
     if (self.params.HE_slack != 0.00):
       cryo_fit2_input_command = cryo_fit2_input_command + " HE_slack=" + str(self.params.HE_slack)
+    
+    if (self.params.HE_angle_sigma_scale != 1):
+      cryo_fit2_input_command = cryo_fit2_input_command + " HE_angle_sigma_scale=" + str(self.params.HE_angle_sigma_scale)
       
     if (self.params.top_out_for_protein == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " top_out_for_protein=" + str(self.params.top_out_for_protein)
@@ -766,7 +775,7 @@ model.geometry_statistics().channel, log,,
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
         
-      if (("_ss_sigma_slack_top_out.eff" in str(list_of_eff[i])) == True): 
+      if (("_ss_params_for_HE.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
       
