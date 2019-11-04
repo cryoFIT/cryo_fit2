@@ -150,7 +150,8 @@ stacking_pair_sigma = 0.027
 start_temperature = None
   .type           = float
   .short_caption  = Starting temperature of annealing in Kelvin. \
-                    If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 900.
+                    If not specified, cryo_fit2 will 300.\
+                    (ref.) modules/cctbx_project/mmtbx/dynamics/simulated_anealing.py uses 5k Kelvin starting temperature
 stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
