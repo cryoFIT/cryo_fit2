@@ -85,7 +85,7 @@ def assign_nucleic_acid_sigmas(logfile, pdb_file, parallelity_sigma, planarity_s
 ######################## end of def assign_base_pair_sigmas (logfile, user_pdb_file, stacking_pair_sigma)
 
 
-def assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, HE_angle_sigma_scale, top_out_for_protein):
+def assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, HE_angle_sigma_scale, HE_top_out):
     if (check_whether_the_pdb_file_has_amino_acid(input_model_file_name) == False):
         return False # no protein in this pdb file
 
@@ -122,7 +122,7 @@ def assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, 
                 if (HE_angle_sigma_scale != 1):
                     write_this = "          angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
                     f_out.write(write_this)
-                if (top_out_for_protein == True):
+                if (HE_top_out == True):
                     f_out.write("           top_out = True\n")
                 dealing_strand = False # reinitialization
             else: # dealing_helix
@@ -135,7 +135,7 @@ def assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, 
                 if (HE_angle_sigma_scale != 1):
                     write_this = "        angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
                     f_out.write(write_this)
-                if (top_out_for_protein == True):
+                if (HE_top_out == True):
                     f_out.write("         top_out = True\n")
                 dealing_helix = False # reinitialization
         f_out.write(line)
@@ -143,7 +143,7 @@ def assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, 
     f_out.close()
     
     return output_file_name
-########### end of assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, HE_angle_sigma_scale, self.params.top_out_for_protein)
+########### end of assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, HE_angle_sigma_scale, self.params.HE_top_out)
 
 
 def calculate_overall_cc(map_data, model, resolution):
@@ -603,7 +603,7 @@ def get_output_dir_name(self):
         output_dir = output_dir \
                     + "_HE_sigma_" + str(self.params.HE_sigma) \
                     + "_HE_slack_" + str(self.params.HE_slack)
-                 #"_top_out_for_protein_" + str(self.params.top_out_for_protein)
+                 #"_HE_top_out_" + str(self.params.HE_top_out)
                  #"_ss_" + str(self.params.pdb_interpretation.secondary_structure.enabled) + \
                  #"_del_outlier_ss_" + str(self.params.pdb_interpretation.secondary_structure.protein.remove_outliers) + \
                  #"_NA_" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.enabled) + \

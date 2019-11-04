@@ -155,7 +155,7 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-top_out_for_protein = False
+HE_top_out = False
   .type             = bool
   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 weight_multiply  = None
@@ -353,10 +353,10 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     
     ############# (begin) Assign sigma/slack for H/E
-    if ((self.params.HE_sigma != 0.05) or (self.params.HE_slack != 0.0) or (self.params.top_out_for_protein == True)):
+    if ((self.params.HE_sigma != 0.05) or (self.params.HE_slack != 0.0) or (self.params.HE_top_out == True)):
       generated_eff_file_name = assign_ss_params_to_H_E(logfile, self.data_manager.get_default_model_name(), \
                                                       self.params.HE_sigma, self.params.HE_slack, self.params.HE_angle_sigma_scale,\
-                                                      self.params.top_out_for_protein)
+                                                      self.params.HE_top_out)
       if (generated_eff_file_name != False):
         sys.argv.append(generated_eff_file_name)
     ############# (end) Assign sigma/slack for H/E

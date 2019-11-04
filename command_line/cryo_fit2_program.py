@@ -155,7 +155,7 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-top_out_for_protein = False
+HE_top_out = False
   .type             = bool
   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 weight_multiply  = None
@@ -698,8 +698,8 @@ class Program(ProgramTemplate):
     if (self.params.HE_angle_sigma_scale != 1):
       cryo_fit2_input_command = cryo_fit2_input_command + " HE_angle_sigma_scale=" + str(self.params.HE_angle_sigma_scale)
       
-    if (self.params.top_out_for_protein == True):
-      cryo_fit2_input_command = cryo_fit2_input_command + " top_out_for_protein=" + str(self.params.top_out_for_protein)
+    if (self.params.HE_top_out == True):
+      cryo_fit2_input_command = cryo_fit2_input_command + " HE_top_out=" + str(self.params.HE_top_out)
       
     if (check_whether_the_pdb_file_has_nucleic_acid(self.data_manager.get_default_model_name()) == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " parallelity_sigma=" + str(self.params.parallelity_sigma)
