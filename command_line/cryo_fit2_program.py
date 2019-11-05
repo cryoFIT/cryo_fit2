@@ -816,7 +816,7 @@ model.geometry_statistics().channel, log,,
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
         
-      if (("_ss_params_for_HE.eff" in str(list_of_eff[i])) == True): 
+      if (("_params_for_HE.eff" in str(list_of_eff[i])) == True): 
         mv_command_string = "mv " + str(list_of_eff[i]) + " " + output_dir_final
         libtbx.easy_run.fully_buffered(mv_command_string)
       

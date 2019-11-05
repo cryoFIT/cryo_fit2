@@ -98,7 +98,7 @@ def assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, 
         libtbx.easy_run.fully_buffered(command_string)
 
     f_in = open(ss_file_name, "r")
-    output_file_name = ss_file_name[:-4] + "_ss_params_for_HE.eff"
+    output_file_name = ss_file_name[:-4] + "_params_for_HE.eff"
     f_out = open(output_file_name, 'wt')
     
     dealing_helix  = False # initialization

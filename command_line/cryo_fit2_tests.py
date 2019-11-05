@@ -31,6 +31,7 @@ def test_fn ():
     for i in range(len(splited)-1):
       regression_path = regression_path + splited[i] + "/"
 
+
     ############# test 1, simplest biomolecule with total_steps ###############
     regression_path = os.path.join(cryo_fit2_repository_dir,
                                      'regression')
@@ -43,7 +44,7 @@ def test_fn ():
     rc1 = libtbx.easy_run.call(command=command_string)
     assert rc1==0 # make sure there is no error with this test
     time_end = time.time()
-    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
+    print "Wall clock minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -63,7 +64,7 @@ def test_fn ():
     rc2 = libtbx.easy_run.call(command=command_string)
     assert rc2==0 # make sure there is no error with this test
     time_end = time.time()
-    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
+    print "Wall clock minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -82,7 +83,7 @@ def test_fn ():
     rc3 = libtbx.easy_run.call(command=command_string)
     assert rc3==0 # make sure there is no error with this test
     time_end = time.time()
-    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
+    print "Wall clock minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_*"
@@ -101,7 +102,7 @@ def test_fn ():
     rc4 = libtbx.easy_run.call(command=command_string)
     assert rc4==0 # make sure there is no error with this test
     time_end = time.time()
-    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
+    print "Wall clock minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
     
     # remove no longer needed folder and input_command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
@@ -121,7 +122,7 @@ def test_fn ():
     assert rc5==0 # make sure there is no error with this test
     
     time_end = time.time()
-    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
+    print "Wall clock minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
     
     # remove a no longer needed folder and an input command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
@@ -142,7 +143,7 @@ def test_fn ():
     assert rc6==0 # make sure there is no error with this test
     
     time_end = time.time()
-    print "Minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
+    print "Wall clock minutes took for this tst test:", ( round(((time_end-time_start)/60),1) )
     
     # remove a no longer needed folder and an input command file
     rm_command_string = "rm -r cryo_fit2.input_command.txt output_* parameters_exploration"
