@@ -347,9 +347,9 @@ class Program(ProgramTemplate):
       exit(1)
     
     log_file_name = "cryo_fit2.log"
-    logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
+    #logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
+    logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
     log.register("logfile", logfile)
-    logfile.write(str(date_and_time()))
     
     
     # Importantly declared initial global variables
@@ -380,7 +380,7 @@ class Program(ProgramTemplate):
     print ("A user entered resolution:             ", str(self.params.resolution))
     
     print('A user input atomistic model file name: %s' % self.data_manager.get_default_model_name(), file=self.logger)
-    model_inp = self.data_manager.get_model() 
+    model_inp = self.data_manager.get_model()
     #print ("model_inp:",model_inp) # "<mmtbx.model.model.manager object at 0x11901fad0>"
     
     
@@ -518,10 +518,10 @@ class Program(ProgramTemplate):
     user_map_weight = ''
     if (self.params.map_weight == None): # a user didn't specify map_weight
       self.params.map_weight = determine_optimal_weight_by_template(self, logfile, map_inp ,'')
-      logfile.write("An automatically optimized map_weight (before any multiplication): ")
+      logfile.write("\nAn automatically optimized map_weight (before any multiplication): ")
     else:
       user_map_weight = self.params.map_weight # this user_map_weight will be used later
-      logfile.write("A user specified map_weight: ")
+      logfile.write("\nA user specified map_weight: ")
     
     write_this = str(round(self.params.map_weight,1)) + "\n"
     logfile.write(write_this)
@@ -761,7 +761,7 @@ class Program(ProgramTemplate):
     input_command_file.write(str(cryo_fit2_input_command))
     input_command_file.close()
     
-    logfile.write("\nAn input command for final cryo_fit2 MD run:\n")
+    logfile.write("\n\nAn input command for final cryo_fit2 MD run:\n\n")
     logfile.write(str(cryo_fit2_input_command))
 
     task_obj = cryo_fit2_run.cryo_fit2_class(

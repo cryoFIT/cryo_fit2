@@ -104,13 +104,15 @@ class cryo_fit2_class(object):
     user_map_weight                = self.user_map_weight
     weight_multiply                = self.weight_multiply
     
+    
+    '''
     cc_before_cryo_fit2 = round(calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
     # Pavel thinks that cc_box should be pretty much similar as this cc_before_cryo_fit2
     
     write_this = "\nCC before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
-    
+    '''
 
     if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None
@@ -189,7 +191,7 @@ class cryo_fit2_class(object):
     STOP()
     '''
     
-    write_this = "self.params.map_weight after multiplication (" + str(weight_multiply) + ") = " + str(round(self.params.map_weight,1)) + "\n"
+    write_this = "\nself.params.map_weight after multiplication (" + str(weight_multiply) + ") = " + str(round(self.params.map_weight,1)) + "\n"
     print (write_this)
     self.logfile.write(str(write_this))
       
@@ -383,7 +385,7 @@ class cryo_fit2_class(object):
     
     crystal_symmetry = self.cs_consensus # "<cctbx.crystal.symmetry object at 0x1131233d0>"
     
-    write_this = "\nFinal MD of cryo_fit2 is done\n"
+    write_this = "\nFinal MD of cryo_fit2 is done.\n"
     print('%s' %(write_this))
     self.logfile.write(str(write_this))
       
@@ -393,8 +395,8 @@ class cryo_fit2_class(object):
       # Once this report_map_model_cc runs, later model_inp becomes "None"
       #tst_1 succeeded, tst_5 failed
       
-      #''' since this differs from CC_box, let's not use this
-      write_this = "CC_overall: " + str(round(overall_cc_after_cryo_fit2, 4)) + "\n"
+      #''' since this differs from CC_box, let's not use this (??)
+      write_this = "\nCC_overall after cryo_fit2 (both exploration and final MD): " + str(round(overall_cc_after_cryo_fit2, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))
       #'''

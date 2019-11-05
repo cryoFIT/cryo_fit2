@@ -164,7 +164,7 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
     
     write_this = "\n===== RMSD calculation ====="
     print (write_this)
-    self.logfile.write(str(write_this))
+    #self.logfile.write(str(write_this))
     # The fixed model can only contain a single model.
     # It will raise an Exception if there is more than one!
     fixed = SuperposePDB(
@@ -188,11 +188,11 @@ def calculate_RMSD(self, fitted_file_name_w_path): # (reference) cctbx_project/m
     for count, moving in enumerate(SuperposePDB.open_models(moving, **moving_args)):
       write_this = "\n\n===== Aligning %s to %s ====="%(fitted_file_name_w_path, self.model_name)
       print (write_this)
-      self.logfile.write(str(write_this))
+      #self.logfile.write(str(write_this))
       if not self.params.selection_moving:
         moving.selectomatic(fixed)
       rmsd, lsq = moving.superpose(fixed)
-      write_this = "\n\nrmsd after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n"
+      write_this = "\n\nRMSD after cryo_fit2: " + str(round(rmsd,2)) + " angstrom\n\n"
       print (write_this)
       self.logfile.write(str(write_this))
 ############ def calculate_RMSD(self):
@@ -1502,11 +1502,11 @@ geometry_restraints {
 def show_time(app, time_start, time_end):
   time_took = 0 # temporary of course
   if (round((time_end-time_start)/60, 1) < 1):
-    time_took = str(app) + " finished in " + str(round((time_end-time_start), 1)) + " seconds (wallclock)."
+    time_took = str(app) + " finished in " + str(round((time_end-time_start), 1)) + " seconds (wall-clock)."
   elif (round((time_end-time_start)/60/60, 1) < 1):
-    time_took = str(app) + " finished in " + str(round((time_end-time_start)/60, 1)) + " minutes (wallclock)."
+    time_took = str(app) + " finished in " + str(round((time_end-time_start)/60, 1)) + " minutes (wall-clock)."
   else:
-    time_took = str(app) + " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wallclock)."
+    time_took = str(app) + " finished in " + str(round((time_end-time_start)/60/60, 1)) + " hours (wall-clock)."
   return time_took
 ############### end of show_time function
 

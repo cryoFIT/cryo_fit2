@@ -53,6 +53,9 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
+calculate_cc_only = False
+  .type           = bool
+  .help           = If True, cryo_fit2 will calculate cc (overall) only, not running cryo_fit2 itself.
 cool_rate        = None
   .type          = float
   .short_caption = Cooling rate of annealing in Kelvin. Will be automatically determined by cryo_fit2.
@@ -206,24 +209,20 @@ class Program(ProgramTemplate):
 Program for running cryo_fit2.\n
 
 Minimum required inputs:
-  Model file (.pdb or .cif)
-  Map file   (MRC/ccp4 format)
-  Map resolution
+  Model file     (.pdb or .cif)
+  Map file       (MRC/ccp4 format)
+  Map resolution (in angstrom)
 
 Example running command:
   phenix.cryo_fit2 model.pdb map.ccp4 resolution=5
 
 Options:
-  resolution                   cryo-EM map resolution in angstrom that needs to be entered by a user.
-  
-  map_weight                   cryo-EM map weight.
-                               A user is recommended NOT to specify this, so that it will be automatically optimized.
-                               If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
-  
-  start_temperature            If not specified, cryo_fit2 will use the optimized value after automatic exploration between 300 and 1000
+  calculate_cc_only            (default: False)
+                               If True, calculates cc only without running cryo_fit2 itself.
   
   final_temperature            (default: 0)
-  
+                               final_temperature of phenix.dynamics.
+                               
   HE_sigma                     (default: 0.05)
                                The lower this value, the stronger the custom made secondary structure restraints will be.
                                Oleg once recommended 0.021 which is the sigma value for covalent bond.
@@ -236,7 +235,15 @@ Options:
   
   HE_angle_sigma_scale         (default: 1)
                                Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.
-
+  
+  keep_origin                  (default: True)
+                               If True, write out model with origin in original location.
+                               If False, shift origin to (0,0,0). 
+  
+  map_weight                   cryo-EM map weight.
+                               A user is recommended NOT to specify this, so that it will be automatically optimized.
+                               If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
+                               
   max_steps_for_final_MD       (default: None)
                                The maximum number of steps in final running of phenix.dynamics.
                                If specified, run up to this number of steps no matter what.
@@ -249,22 +256,20 @@ Options:
                                
   number_of_steps              The number of MD steps in each phenix.dynamics
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.
-  
+                               
   output_dir                   (default: output)
                                output folder name prefix
                                
   progress_on_screen           (default: False)
                                If True, temp= xx dist_moved= xx angles= xx bonds= xx is shown on screen rather than cryo_fit2.log 
                                If False, temp= xx dist_moved= xx angles= xx bonds= xx is NOT shown on screen, and saved into cryo_fit2.log
-  
+                               
   record_states                (default: False)
                                If True, cryo_fit2 records all states and save it to all_states.pdb (only when cryo_fit2 is successfully completed)
                                However, 3k atoms molecules (like L1 stalk in a ribosome) require more than 160 GB of memory.
                                If False, cryo_fit2 doesn't record states of molecular dynamics.
-  
-  keep_origin                  (default: True)
-                               If True, write out model with origin in original location.
-                               If False, shift origin to (0,0,0). 
+                               
+  resolution                   cryo-EM map resolution in angstrom that needs to be entered by a user.
   
   secondary_structure.enabled  (default: True)
                                Most MD simulations tend to break secondary structure. 
@@ -281,6 +286,9 @@ Options:
   short                        (default: False)
                                If True, run quickly only to check sanity.
                                
+  start_temperature            (default: 300)
+                               start_temperature of phenix.dynamics.
+  
   write_custom_geom_only       (default: False)
                                If True, write custom geometry eff file only (not running cryo_fit2).
 '''
@@ -323,12 +331,30 @@ Options:
     log.register("logfile", logfile)
     logfile.write(str(date_and_time()))
 
+
+    print('A user input model:         %s' % self.data_manager.get_default_model_name(), file=self.logger)
+    model_inp = self.data_manager.get_model()
+
+    print('A user input map file name: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
+    map_inp = self.data_manager.get_real_map()
+    
+    cc_before_cryo_fit2 = round(calculate_overall_cc(map_data=map_inp.map_data(), model=model_inp, resolution=self.params.resolution), 4)
+    # Pavel thinks that cc_box should be pretty much similar as this cc_before_cryo_fit2
+    
+    write_this = "\n\nCC_overall before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
+    print('%s' %(write_this))
+    logfile.write(str(write_this))
+
+    if (self.params.calculate_cc_only == True):
+      logfile.close()
+      exit(1)
+
+    
     write_this = "\nPreparing cryo_fit2...\n"
     print (write_this)
     logfile.write(write_this)
     
-    print('A user input model: %s' % self.data_manager.get_default_model_name(), file=self.logger)
-    model_inp = self.data_manager.get_model()
+    
     
     old_style_RNA, removed_R_prefix_in_RNA_pdb_file_name = remove_R_prefix_in_RNA(self.data_manager.get_default_model_name())
     if (old_style_RNA == True):
