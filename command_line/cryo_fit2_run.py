@@ -133,7 +133,8 @@ class cryo_fit2_class(object):
 #### <begin> prepare/initialize for iteration
     check_cc_after_these_steps = '' # use '# of steps' not '# of iterations'
     if (("tst_cryo_fit2" in model_file_name_only) == True):
-      check_cc_after_these_steps = 1000
+      #check_cc_after_these_steps = 1000 # tst_2 took 2 min?
+      check_cc_after_these_steps = 700
       # if this is too small (like 100), it may run forever
       # I confirmed that 500 is definitely too small to explore properly (a helix),
       #but this is just for test
@@ -261,7 +262,8 @@ class cryo_fit2_class(object):
   
       cc_improvement_threshold = ''
       if (("tst_cryo_fit2" in model_file_name_only) == True):
-        cc_improvement_threshold = 0.01 # to finish regression quickly
+        #cc_improvement_threshold = 0.01 # to finish regression quickly # took 2 min for tst_2?
+        cc_improvement_threshold = 0.05 # to finish regression quickly # took 2 min for tst_2?
       else:
         cc_improvement_threshold = 0.00001 # even a 0.0001 improved cc further eventually significantly
       
