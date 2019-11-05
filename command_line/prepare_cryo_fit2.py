@@ -354,7 +354,7 @@ Please rerun cryo_fit2 with this re-written pdb file\n'''
     
     
     ############# (begin) Assign sigma/slack for H/E
-    if ((self.params.HE_sigma != 0.05) or (self.params.HE_slack != 0.0) or (self.params.HE_top_out == True)):
+    if ((self.params.HE_sigma != 0.05) or (self.params.HE_slack != 0.0) or (self.params.HE_angle_sigma_scale != 1) or (self.params.HE_top_out == True)):
       generated_eff_file_name = assign_ss_params_to_H_E(logfile, self.data_manager.get_default_model_name(), \
                                                       self.params.HE_sigma, self.params.HE_slack, self.params.HE_angle_sigma_scale,\
                                                       self.params.HE_top_out)

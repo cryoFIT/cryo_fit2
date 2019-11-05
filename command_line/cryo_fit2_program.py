@@ -37,12 +37,24 @@ os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
 os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
 
-########## <begin> import util py files
+########## <begin> import util.py file
 cryo_fit2_repository_dir = libtbx.env.dist_path("cryo_fit2") # Locate phenix.cryo_fit.run_tests executable
 util_path = cryo_fit2_repository_dir + "/util/"
 sys.path.insert(0, util_path)
 from util import *
-########## <end> import util py files
+########## <end> import util.py file
+
+
+########## <begin> import utils.py file from modules/cctbx_project/mmtbx/geometry_restraints/torsion_restraints
+utils_path = cryo_fit2_repository_dir + "/../cctbx_project/mmtbx/geometry_restraints/torsion_restraints/" # not works
+print (utils_path)
+
+#utils_path = "/Users/doonam/bin/phenix-1.17rc5-3630/modules/cctbx_project/mmtbx/geometry_restraints/torsion_restraints" # works
+#geometry_restraints_repository_dir = libtbx.env.dist_path("geometry_restraints")  # errored
+sys.path.insert(0, utils_path)
+from utils import *
+########## <end> import utils.py file from modules/cctbx_project/mmtbx/geometry_restraints/torsion_restraints
+
 
 
 program_citations = libtbx.phil.parse('''
@@ -208,7 +220,6 @@ modified_master_phil_str = change_default_phil_values(
   modified_master_phil_str, new_default, phil_parse=iotbx.phil.parse)
 
 print (modified_master_phil_str)
-#STOP()
 
 '''
 When I supplied secondary_structure.enabled=True in commandline,
@@ -233,7 +244,6 @@ secondary_structure.protein.enabled was True according to screen_saved
 
 
 #print (modified_master_phil_str) # prints top_out T/F for each condition
-#STOP()
 
 
 # modules/cctbx_project/mmtbx/secondary_structure/nucleic_acids.py
@@ -267,7 +277,6 @@ when I supplied secondary_structure.nucleic_acid.base_pair.restrain_planarity=Tr
 
 #print ("modified_master_phil_str:",modified_master_phil_str)
 # unfortunately, does not show pdb_interpretation.secondary_structure.nucleic_acid.base_pair.restrain_planarity
-#STOP()
 
 
 '''
@@ -372,6 +381,9 @@ class Program(ProgramTemplate):
     
     print('A user input atomistic model file name: %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model() # "<mmtbx.model.model.manager object at 0x11901fad0>"
+    
+    #print (get_dihedrals_and_phi_psi(model_inp))
+    #STOP()
     
     print('A user input map file name:             %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
