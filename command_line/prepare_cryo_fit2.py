@@ -345,20 +345,20 @@ Options:
     map_inp = self.data_manager.get_real_map()
     
     
-    #########
+    ######### <begin> calculates CC_overall before cryo_fit2
+    add_CRYST1_to_pdb_file(self, logfile, map_inp, self.data_manager.get_default_model_name())
+    #Doo Nam confirmed that without CRYST1 in pdb file, cc value here is not accurate at all
     cc_before_cryo_fit2 = round(calculate_overall_cc(map_data=map_inp.map_data(), model=model_inp, resolution=self.params.resolution), 4)
     # Pavel thinks that cc_box should be pretty much similar as this cc_before_cryo_fit2
     
     write_this = "\n\nCC_overall before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
     print('%s' %(write_this))
     logfile.write(str(write_this))
-    #Doo Nam confirmed that without CRYST1 in pdb file, cc value here is not accurate at all
+    
     if (self.params.cc_only == True):
       logfile.close()
       exit(1)
-    ###########
-    
-    
+    ######### <end> calculates CC_overall before cryo_fit2
     
     
     write_this = "\nPreparing cryo_fit2...\n"

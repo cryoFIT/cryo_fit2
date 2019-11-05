@@ -34,7 +34,44 @@ import shutil
 os.environ['BOOST_ADAPTBX_FPE_DEFAULT'] = "1"
 os.environ['BOOST_ADAPTBX_SIGNALS_DEFAULT'] = "1"
 
+def add_CRYST1_to_pdb_file(self, logfile, map_inp, pdb_file):
+  try: #  Assigns ppf here well if
+       #    input pdb file has CRYST1
+       #    and input pdb file has no atoms with unknown nonbonded energy type symbols
+       #    and resolution is correctly entered
+       #  Therefore, new CRYST1 header will not be added to the input pdb file
 
+      ppf = ''
+      try:
+        ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+          pdb_file_names=[self.data_manager.get_default_model_name()])[0]
+      except:
+        ppf = mmtbx.utils.process_pdb_file_srv(log=null_out()).process_pdb_files(
+          pdb_file_names=[pdb_file])[0]
+      
+  except:
+      # above try results in
+      # either "Sorry: Crystal symmetry is missing or cannot be extracted."
+      # or
+      #   "Sorry: Fatal problems interpreting model file:
+      #    Number of atoms with unknown nonbonded energy type symbols: xx
+      #    Please edit the model file to resolve the problems and/or supply a
+      #    CIF file with matching restraint definitions, along with
+      #    apply_cif_modification and apply_cif_link parameter definitions
+      #    if necessary."
+      #
+      try: # try to extract CRYST1 info from map
+          write_this = "\nCRYST1 info is not extracted from user input pdb file. Therefore, cryo_fit2 will try to extract it from user map instead.\n"
+          print (write_this)
+          logfile.write(write_this)
+          
+          file_name_w_user_s_original_pdb_info = prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp)
+      except:
+        write_error_message_for_map_weight_optimization(logfile)
+        exit(1)
+############ end of def add_CRYST1_to_pdb_file(self, logfile, map_inp, pdb_file)
+
+          
 def assign_nucleic_acid_sigmas(logfile, pdb_file, parallelity_sigma, planarity_sigma, stacking_pair_sigma):
     if (check_whether_the_pdb_file_has_nucleic_acid(pdb_file) == False):
         return False # no nucleic_acid in this pdb file
