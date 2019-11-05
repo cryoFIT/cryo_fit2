@@ -305,26 +305,7 @@ def count_bp_sp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, log
     try:
         libtbx.easy_run.fully_buffered(command_string)
     except:
-        write_this = '''
-          Maybe the \"fitted\" structure is broken with a following message.
-          I confirmed this with both RNA (L1 stalk) and protein (Mg_channel).
-          
-          /home/doonam/bin/phenix-dev-3311/build/lib/scitbx_array_family_flex_ext.so(boost::python::detail::caller_arity<2u>::impl<scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > (*)(scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&), boost::python::default_call_policies, boost::mpl::vector3<scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > >, scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&> >::operator()(_object*, _object*)+0x123) [0x7f589e621013]
-          /home/doonam/bin/phenix-dev-3311/build/lib/scitbx_array_family_flex_ext.so(scitbx::af::boost_python::flex_wrapper<double, boost::python::return_value_policy<boost::python::copy_non_const_reference, boost::python::default_call_policies> >::div_a_s(scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&)+0x9e) [0x7f589e60cf3e]
-          /lib/x86_64-linux-gnu/libc.so.6(+0x354b0) [0x7f58a3f444b0]
-          Floating-point error (Python and libc call stacks above)
-                This crash may be due to a problem in any imported
-                Python module, including modules which are not part
-                of the cctbx project. To disable the traps leading
-                to this message, define these environment variables
-                (e.g. assign the value 1):
-                    BOOST_ADAPTBX_FPE_DEFAULT
-                    BOOST_ADAPTBX_SIGNALS_DEFAULT
-                This will NOT solve the problem, just mask it, but
-                may allow you to proceed in case it is not critical.
-        '''
-        print (write_this)
-        logfile.write(write_this)
+        write_error_message(logfile)
         return None, None, None
     
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
@@ -1575,6 +1556,30 @@ def write_custom_geometry(logfile, input_model_file_name, HE_sigma, HE_slack):
 ########### end of write_custom_geometry(input_model_file_name, HE_sigma)
 '''
 
+
+def write_error_message(logfile):
+    write_this = '''
+          Maybe the \"fitted\" structure is broken with a following message.
+          Doo Nam confirmed this with both RNA (L1 stalk) and protein (Mg_channel).
+          /home/doonam/bin/phenix-dev-3311/build/lib/scitbx_array_family_flex_ext.so(boost::python::detail::caller_arity<2u>::impl<scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > (*)(scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&), boost::python::default_call_policies, boost::mpl::vector3<scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > >, scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&> >::operator()(_object*, _object*)+0x123) [0x7f589e621013]
+          /home/doonam/bin/phenix-dev-3311/build/lib/scitbx_array_family_flex_ext.so(scitbx::af::boost_python::flex_wrapper<double, boost::python::return_value_policy<boost::python::copy_non_const_reference, boost::python::default_call_policies> >::div_a_s(scitbx::af::versa<double, scitbx::af::flex_grid<scitbx::af::small<long, 10ul> > > const&, double const&)+0x9e) [0x7f589e60cf3e]
+          /lib/x86_64-linux-gnu/libc.so.6(+0x354b0) [0x7f58a3f444b0]
+          Floating-point error (Python and libc call stacks above)
+                This crash may be due to a problem in any imported
+                Python module, including modules which are not part
+                of the cctbx project. To disable the traps leading
+                to this message, define these environment variables
+                (e.g. assign the value 1):
+                    BOOST_ADAPTBX_FPE_DEFAULT
+                    BOOST_ADAPTBX_SIGNALS_DEFAULT
+                This will NOT solve the problem, just mask it, but
+                may allow you to proceed in case it is not critical.
+                '''
+    print (write_this)
+    logfile.write(write_this)
+############# end of def write_error_message(logfile)
+
+        
 def write_geo(self, model_inp, file_name):
     geo_str = model_inp.restraints_as_geo(
         header="# Geometry restraints, cryo_fit2\n")

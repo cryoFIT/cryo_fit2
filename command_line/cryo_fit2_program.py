@@ -380,10 +380,35 @@ class Program(ProgramTemplate):
     print ("A user entered resolution:             ", str(self.params.resolution))
     
     print('A user input atomistic model file name: %s' % self.data_manager.get_default_model_name(), file=self.logger)
-    model_inp = self.data_manager.get_model() # "<mmtbx.model.model.manager object at 0x11901fad0>"
+    model_inp = self.data_manager.get_model() 
+    #print ("model_inp:",model_inp) # "<mmtbx.model.model.manager object at 0x11901fad0>"
     
-    #print (get_dihedrals_and_phi_psi(model_inp))
+    
+    ########### <begin> to deal phi, psi
+    restraint_objects=None
+    monomer_parameters=None
+    pdb_hierarchy  = model_inp.get_hierarchy() # "AttributeError: 'Program' object has no attribute 'model_inp'"
+    if pdb_hierarchy is not None:
+      raw_records = pdb_hierarchy.as_pdb_string()
+    if raw_records is not None:
+      if (isinstance(raw_records, str)):
+        raw_records = flex.split_lines(raw_records)
+    
+    work_params = mmtbx.model.manager.get_default_pdb_interpretation_params()
+    pdb_inp = input(lines=raw_records, source_info=None)
+    
+    model = mmtbx.model.manager(
+      model_input = pdb_inp,
+      build_grm = True,
+      pdb_interpretation_params=work_params,
+      restraint_objects=restraint_objects,
+      monomer_parameters=monomer_parameters,
+      log=null_out())
+    
+    #print (get_dihedrals_and_phi_psi(model)) # dihedral_registry.proxies -> "<cctbx_geometry_restraints_ext.shared_dihedral_proxy object at 0x1116694c8>"
     #STOP()
+    ########### <end> to deal phi, psi
+    
     
     print('A user input map file name:             %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()

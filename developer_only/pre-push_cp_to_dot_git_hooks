@@ -33,7 +33,7 @@ run_check 'run_test' . cryo_fit2.run_tests
 
 rm -rf empty
 ENDTIME=$(date +%s)
-echo "It takes $(($ENDTIME - $STARTTIME)) seconds to complete these 6 unit tests"
+echo "It takes $(($ENDTIME - $STARTTIME)) seconds (wallclock) to complete these 6 unit tests"
 
 currentDate=`date`
 echo "It is ($currentDate)"
