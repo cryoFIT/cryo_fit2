@@ -53,7 +53,7 @@ citation {
 
 base_master_phil_str = '''
 include scope libtbx.phil.interface.tracking_params
-calculate_cc_only = False
+cc_only           = False
   .type           = bool
   .help           = If True, cryo_fit2 will calculate cc (overall) only, not running cryo_fit2 itself.
 cool_rate        = None
@@ -81,6 +81,15 @@ HE_slack            = 0
   .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                       default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                       However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
+HE_top_out = False
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
+# ignore_symmetry_conflicts = True
+#   .type                   = bool
+#   .help                   = You can ignore the symmetry information (CRYST1) from \
+#                             coordinate files. This may be necessary if your model has been\
+#                             placed in a box with box_map for example.
+#   .expert_level           = 2
 keep_origin      = True
   .type          = bool
   .help          = If True, write out model with origin in original location.  \
@@ -159,9 +168,6 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-HE_top_out = False
-  .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -217,7 +223,7 @@ Example running command:
   phenix.cryo_fit2 model.pdb map.ccp4 resolution=5
 
 Options:
-  calculate_cc_only            (default: False)
+  cc_only                      (default: False)
                                If True, calculates cc only without running cryo_fit2 itself.
   
   final_temperature            (default: 0)
@@ -338,22 +344,26 @@ Options:
     print('A user input map file name: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
     map_inp = self.data_manager.get_real_map()
     
+    
+    #########
     cc_before_cryo_fit2 = round(calculate_overall_cc(map_data=map_inp.map_data(), model=model_inp, resolution=self.params.resolution), 4)
     # Pavel thinks that cc_box should be pretty much similar as this cc_before_cryo_fit2
     
     write_this = "\n\nCC_overall before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
     print('%s' %(write_this))
     logfile.write(str(write_this))
-
-    if (self.params.calculate_cc_only == True):
+    #Doo Nam confirmed that without CRYST1 in pdb file, cc value here is not accurate at all
+    if (self.params.cc_only == True):
       logfile.close()
       exit(1)
-
+    ###########
+    
+    
+    
     
     write_this = "\nPreparing cryo_fit2...\n"
     print (write_this)
     logfile.write(write_this)
-    
     
     
     old_style_RNA, removed_R_prefix_in_RNA_pdb_file_name = remove_R_prefix_in_RNA(self.data_manager.get_default_model_name())

@@ -91,6 +91,15 @@ HE_slack            = 0
   .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                       default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                       However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
+HE_top_out = False
+  .type             = bool
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
+# ignore_symmetry_conflicts = True
+#   .type                   = bool
+#   .help                   = You can ignore the symmetry information (CRYST1) from \
+#                             coordinate files. This may be necessary if your model has been\
+#                             placed in a box with box_map for example.
+#   .expert_level           = 2
 keep_origin      = True
   .type          = bool
   .help          = If True, write out model with origin in original location.  \
@@ -168,9 +177,6 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-HE_top_out = False
-  .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
@@ -648,7 +654,8 @@ class Program(ProgramTemplate):
     if (self.params.start_temperature == None):
      self.params.start_temperature = 300
     if (self.params.weight_multiply == None):
-      self.params.weight_multiply = 1
+      #self.params.weight_multiply = 1
+      self.params.weight_multiply = 15
     ### (end) Assign default values if not specified till now (as a 0.998 cc full helix)
     
     
@@ -713,7 +720,8 @@ class Program(ProgramTemplate):
                             + " number_of_steps=" + str(self.params.number_of_steps) \
                             + " record_states=" + str(self.params.record_states) \
                             + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
-                            + " stronger_ss=" + str(self.params.stronger_ss) 
+                            + " stronger_ss=" + str(self.params.stronger_ss) #\
+                            #+ " ignore_symmetry_conflicts=" + str(self.params.ignore_symmetry_conflicts)
                             
                             #+ " cool_rate=" + str(round(self.params.cool_rate,1)) \
                             # if both cool_rate and MD_in_each_cycle exist in input_command, it may behave unexpectedly.              
@@ -775,10 +783,22 @@ class Program(ProgramTemplate):
       output_dir        = output_dir,
       user_map_weight   = user_map_weight,
       weight_multiply   = self.params.weight_multiply)
-
+    
     task_obj.validate()
-
+    
+    '''
+    try:
+      task_obj.validate() 
+    except:
+      write_this = '''#If a user sees a message like \n\t\"Sorry: Crystal symmetry mismatch between different files.\n\
+    #    (52.576, 51.665, 61.692, 90, 90, 90) P 1\n\t(41.6227, 35.8785, 43.1844, 90, 90, 90) P 1\", \nisit https://phenix-online.org/documentation/faqs/cryo_fit2_FAQ.html#id5'''
+    #  print (write_this)
+    #  logfile.write(str(write_this))
+     # exit(1)
+    
+    
     output_dir_final = task_obj.run()
+    
     if (output_dir_final.find('_bp_') == -1):
       write_this = "An exception occurred. \n Maybe cryo_fit2 failed to run (\"nan\") for this condition:\n" + \
                    " map_weight (" + str(round(self.params.map_weight,2))         + ")\n" + \

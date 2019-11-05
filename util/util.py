@@ -305,7 +305,7 @@ def count_bp_sp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, log
     try:
         libtbx.easy_run.fully_buffered(command_string)
     except:
-        write_error_message(logfile)
+        write_error_message_for_exploration(logfile)
         return None, None, None
     
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
@@ -634,35 +634,8 @@ def get_pdb_inputs_by_pdb_file_name(self, logfile, map_inp, current_fitted_file)
               pdb_file_names=[self.data_manager.get_default_model_name()])[0]
           
       except:
-          write_this = '''
-=============================================
-map_weight can't be optimized automatically.
-=============================================
-
-[Possible reason 1]  User entered wrong resolution. When 4 angstrom resolution was entered for a 9 ansgtrom resolution map, cryo_fit2 can't optimize cryo_em_map_weight.
-[Solution for this]  Enter a correct resolution. A user can get the resolution either by EMDB reported value or by running phenix.mtriage
-
-
-[Possible reason 2]  There could be some residues/atoms with unknown nonbonded energy type symbols in the given atomic model.
-[Solution for this]  Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
-                     real_space_refine in PHENIX GUI will show users which atoms have unknown nonbonded energy type symbols.
-[Note]               cryo_fit2 cleans archaic \"RX\" type nucleic acid name from user input pbd file automatically.
-                     If a user manually assigns a map_weight like map_weight=x, then cryo_fit2 will run, but with a message of "Number of atoms with unknown nonbonded energy type symbols:"
-
-
-[Possible reason 3]  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html),
-                     cryo_fit2 automatically assigns it from map to the first line of user input pdb file.
-                     However, when a user provided .cif input model file rather than .pdb input model file, this automatic assign of CRYST1 doesn't work.
-                     Additionally, when both user input pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize map_weight.
-[Solution 1]         Add CRYST1 header information manually into .pdb/.cif file and rerun cryo_fit2
-[Solution 2]         Rerun cryo_fit2 with user specified map_weight.
-                     For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5
-                     However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.
-[Note]               phenix.cif_as_pdb and phenix.pdb_as_cif interconvert between .pdb format and .cif format 
-'''
-          print (write_this)
-          logfile.write(write_this)
-          exit(1)
+        write_error_message_for_map_weight_optimization(logfile)
+        exit(1)
   
   xrs = ppf.xray_structure(show_summary = False)
   restraints_manager = mmtbx.restraints.manager(
@@ -904,39 +877,6 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
     print ("total_combi_num:",total_combi_num)
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):
-
-
-def phenix_secondary_structure_restraints_cannot_run(logfile):
-    write_this = '''phenix.secondary_structure_restraints can't run with a user input file.
-    
-To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
-
-    For example, phenix.secondary_structure_restraints <user>.pdb format=pymol
-
-If the error message is like
-    "Sorry: number of groups of duplicate atom labels:  76
-    total number of affected atoms:          152
-    group "ATOM    .*.  CA  GLU F  55 .*.     C  "
-          "ATOM    .*.  CA  GLU F  55 .*.     C  ""
-then, provide input pdb file after solving duplicity issue.
-
-    Most problems will be solved by running
-        python <user phenix>/modules/cryo_fit/files_for_steps/9_after_cryo_fit/solve_duplicate_atoms_issue/add_all_prefix.py
-
-    For multi-conformations, run
-        phenix.pdbtools <user>.pdb remove_alt_confs=True
-            (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
-        so that only one conformer remains.
-
-If the error message is like
-    "Sorry: Multiple models not supported."
-then provide input pdb file after leaving one model only.
-     '''
-
-    print(write_this)
-    logfile.write(write_this)
-    exit(1)
-############## end of def phenix_secondary_structure_restraints_cannot_run(logfile):
     
     
 def prepend_map_extracted_CRYST1_to_pdb_file(self, logfile, map_inp):
@@ -1547,7 +1487,7 @@ def write_custom_geometry(logfile, input_model_file_name, HE_sigma, HE_slack):
   ss_restraints_file_name = input_model_file_name_wo_path + "_ss.pml"
   
   if (path.isfile(ss_restraints_file_name) == False):
-    phenix_secondary_structure_restraints_cannot_run(logfile)
+    write_error_message_for_phenix_secondary_structure_restraints(logfile)
     
   ##### rewrite_pymol_ss_to_custom_geometry_ss
   eff_file_name = rewrite_pymol_ss_to_custom_geometry_ss(ss_restraints_file_name, HE_sigma, HE_slack)
@@ -1557,7 +1497,7 @@ def write_custom_geometry(logfile, input_model_file_name, HE_sigma, HE_slack):
 '''
 
 
-def write_error_message(logfile):
+def write_error_message_for_exploration(logfile):
     write_this = '''
           Maybe the \"fitted\" structure is broken with a following message.
           Doo Nam confirmed this with both RNA (L1 stalk) and protein (Mg_channel).
@@ -1577,9 +1517,74 @@ def write_error_message(logfile):
                 '''
     print (write_this)
     logfile.write(write_this)
-############# end of def write_error_message(logfile)
+############# end of def write_error_message_for_exploration(logfile)
 
-        
+
+def write_error_message_for_phenix_secondary_structure_restraints(logfile):
+    write_this = '''phenix.secondary_structure_restraints can't run with a user input file.
+    
+To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
+
+    For example, phenix.secondary_structure_restraints <user>.pdb format=pymol
+
+If the error message is like
+    "Sorry: number of groups of duplicate atom labels:  76
+    total number of affected atoms:          152
+    group "ATOM    .*.  CA  GLU F  55 .*.     C  "
+          "ATOM    .*.  CA  GLU F  55 .*.     C  ""
+then, provide input pdb file after solving duplicity issue.
+
+    Most problems will be solved by running
+        python <user phenix>/modules/cryo_fit/files_for_steps/9_after_cryo_fit/solve_duplicate_atoms_issue/add_all_prefix.py
+
+    For multi-conformations, run
+        phenix.pdbtools <user>.pdb remove_alt_confs=True
+            (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
+        so that only one conformer remains.
+
+If the error message is like
+    "Sorry: Multiple models not supported."
+then provide input pdb file after leaving one model only.
+     '''
+
+    print(write_this)
+    logfile.write(write_this)
+    exit(1)
+############## end of def write_error_message_for_phenix_secondary_structure_restraints(logfile):
+
+
+def write_error_message_for_map_weight_optimization(logfile):
+    write_this = '''
+=============================================
+map_weight can't be optimized automatically.
+=============================================
+
+[Possible reason 1]  User entered wrong resolution. When 4 angstrom resolution was entered for a 9 ansgtrom resolution map, cryo_fit2 can't optimize cryo_em_map_weight.
+[Solution for this]  Enter a correct resolution. A user can get the resolution either by EMDB reported value or by running phenix.mtriage
+
+
+[Possible reason 2]  There could be some residues/atoms with unknown nonbonded energy type symbols in the given atomic model.
+[Solution for this]  Fix atoms with unknown nonbonded energy type symbols in the given atomic model.
+                     real_space_refine in PHENIX GUI will show users which atoms have unknown nonbonded energy type symbols.
+[Note]               cryo_fit2 cleans archaic \"RX\" type nucleic acid name from user input pbd file automatically.
+                     If a user manually assigns a map_weight like map_weight=x, then cryo_fit2 will run, but with a message of "Number of atoms with unknown nonbonded energy type symbols:"
+
+
+[Possible reason 3]  If a user input pdb file lacks CRYST1 header info (https://www.wwpdb.org/documentation/file-format-content/format33/sect8.html),
+                     cryo_fit2 automatically assigns it from map to the first line of user input pdb file.
+                     However, when a user provided .cif input model file rather than .pdb input model file, this automatic assign of CRYST1 doesn't work.
+                     Additionally, when both user input pdb file and map file lack CRYST1 information, cryo_fit2 can't optimize map_weight.
+[Solution 1]         Add CRYST1 header information manually into .pdb/.cif file and rerun cryo_fit2
+[Solution 2]         Rerun cryo_fit2 with user specified map_weight.
+                     For example, phenix.cryo_fit2 model.pdb map.ccp4 resolution=4 map_weight=5
+                     However, human entered map_weight may not be optimal, e.g. it may break the geometry or may not be enough to fit into cryo-EM map fully.
+[Note]               phenix.cif_as_pdb and phenix.pdb_as_cif interconvert between .pdb format and .cif format 
+'''
+    print (write_this)
+    logfile.write(write_this)
+############## end of def write_error_message_for_map_weight_optimization(logfile)
+
+          
 def write_geo(self, model_inp, file_name):
     geo_str = model_inp.restraints_as_geo(
         header="# Geometry restraints, cryo_fit2\n")
