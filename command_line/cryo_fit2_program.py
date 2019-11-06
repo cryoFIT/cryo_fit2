@@ -669,7 +669,7 @@ class Program(ProgramTemplate):
     print ("number_of_steps       :", str(self.params.number_of_steps))
     print ("HE_sigma              :", str(self.params.HE_sigma))
     print ("HE_slack              :", str(self.params.HE_slack))
-    print ("map_weight_multiply       :", str(round(self.params.map_weight_multiply,1)))
+    print ("map_weight_multiply   :", str(round(self.params.map_weight_multiply,1)))
     
     current_dir = os.getcwd()
     
@@ -735,14 +735,14 @@ class Program(ProgramTemplate):
                             #+ "secondary_structure.nucleic_acid.hbond_distance_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.hbond_distance_cutoff) + " " \
                             #+ "secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff=" + str(self.params.pdb_interpretation.secondary_structure.nucleic_acid.angle_between_bond_and_nucleobase_cutoff) + " " \
     
+    if (self.params.HE_angle_sigma_scale != 1):
+      cryo_fit2_input_command = cryo_fit2_input_command + " HE_angle_sigma_scale=" + str(self.params.HE_angle_sigma_scale)
+      
     if (self.params.HE_sigma != 0.05):
       cryo_fit2_input_command = cryo_fit2_input_command + " HE_sigma=" + str(self.params.HE_sigma)
     
     if (self.params.HE_slack != 0.00):
       cryo_fit2_input_command = cryo_fit2_input_command + " HE_slack=" + str(self.params.HE_slack)
-    
-    if (self.params.HE_angle_sigma_scale != 1):
-      cryo_fit2_input_command = cryo_fit2_input_command + " HE_angle_sigma_scale=" + str(self.params.HE_angle_sigma_scale)
       
     if (self.params.HE_top_out == True):
       cryo_fit2_input_command = cryo_fit2_input_command + " HE_top_out=" + str(self.params.HE_top_out)
@@ -754,10 +754,14 @@ class Program(ProgramTemplate):
     
       
     list_of_eff = return_list_of_eff_from_args(args)
+    list_of_secondary_structure_restraints = return_list_of_secondary_structure_restraints_from_args(args)
     
     for i in (range(len(list_of_eff))):
       cryo_fit2_input_command = cryo_fit2_input_command + " " + str(list_of_eff[i])
     
+    for i in (range(len(list_of_secondary_structure_restraints))):
+      cryo_fit2_input_command = cryo_fit2_input_command + " " + str(list_of_secondary_structure_restraints[i])
+      
     if (self.params.max_steps_for_final_MD != None):
       cryo_fit2_input_command = cryo_fit2_input_command + " max_steps_for_final_MD=" + str(self.params.max_steps_for_final_MD)
     

@@ -1220,6 +1220,15 @@ def return_list_of_eff_from_args(args):
 ######## end of return_list_of_eff_from_args(args)
 
 
+def return_list_of_secondary_structure_restraints_from_args(args):
+    list_of_ss = []
+    for i in range(len(args)):
+      if args[i][0:20] == "secondary_structure.":
+          list_of_ss.append(str(args[i]))
+    return list_of_ss
+######## end of return_list_of_secondary_structure_restraints_from_args(args)
+
+
 def return_to_origin_of_pdb_file(input_pdb_file_name, widthx, move_x_by, move_y_by, move_z_by):
     print ("widthx:",widthx)
     move_x_by = move_x_by*widthx
