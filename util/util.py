@@ -414,14 +414,14 @@ def determine_optimal_weight_by_template(self, logfile, map_inp, current_fitted_
 
 def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_cutoff, H_cutoff, E_cutoff, \
                                      MD_in_each_cycle, number_of_steps, start_temperature, \
-                                     weight_multiply):
+                                     map_weight_multiply):
     #print ("logfile:", str(logfile)) # logfile: <open file 'cryo_fit2.log', mode 'w' at 0x11ac73300>
     
     print ("\nMD parameters that will be explored.")
     print ("MD_in_each_cycle:        ", str(MD_in_each_cycle))
     print ("number_of_steps:         ", str(number_of_steps))
     print ("start_temperature:       ", str(start_temperature))
-    print ("weight_multiply:         ", str(weight_multiply), "\n\n")
+    print ("map_weight_multiply:         ", str(map_weight_multiply), "\n\n")
 
     print ("params.final_temperature:                       ", str(params.final_temperature))
     print ("params.map_weight:                              ", str(round(params.map_weight,2)))
@@ -436,7 +436,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     params.MD_in_each_cycle         = MD_in_each_cycle
     params.number_of_steps          = number_of_steps
     params.start_temperature        = start_temperature
-    params.weight_multiply          = weight_multiply
+    params.map_weight_multiply          = map_weight_multiply
     
     params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_cycle)-1))
     print ("params.cool_rate:                               ", str(round(params.cool_rate, 1)))
@@ -453,7 +453,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
       logfile           = logfile,
       output_dir        = init_output_dir,
       user_map_weight   = user_map_weight,
-      weight_multiply   = self.params.weight_multiply)
+      map_weight_multiply   = self.params.map_weight_multiply)
     
     task_obj.validate()
     
@@ -480,7 +480,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
                      " MD_in_each_cycle (" + str(params.MD_in_each_cycle)      + ")" + \
                      " number_of_steps (" + str(params.number_of_steps)        + ")" + \
                      " start_temperature (" + str(params.start_temperature)    + ")" + \
-                     " weight_multiply (" + str(self.params.weight_multiply)        + ")" + \
+                     " map_weight_multiply (" + str(self.params.map_weight_multiply)        + ")" + \
                      " final_temperature (" + str(params.final_temperature)    + ")" + \
                      " map_weight (" + str(round(params.map_weight,2))  + ")" + \
                      " max_steps_for_exploration (" + str(params.max_steps_for_exploration)  + ")" 
@@ -565,26 +565,26 @@ Otherwise, run cryo_fit2 with explore=False\n'''
             splited2 = splited[1].split("_stronger_ss_")
             optimum_step = splited2[0]
             
-            optimum_weight_multiply = ''
+            optimum_map_weight_multiply = ''
             if (self.params.stronger_ss == False):
-                splited = check_this_dir.split("_weight_multiply_")
+                splited = check_this_dir.split("_map_weight_multiply_")
                 print ("splited:",splited)
                 splited2 = splited[1].split("_cc_")
                 print ("splited2:",splited2)
-                optimum_weight_multiply = splited2[0]
-                print ("optimum_weight_multiply:", optimum_weight_multiply)
+                optimum_map_weight_multiply = splited2[0]
+                print ("optimum_map_weight_multiply:", optimum_map_weight_multiply)
             else: # self.params.stronger_ss = True
-                splited = check_this_dir.split("_weight_multiply_")
+                splited = check_this_dir.split("_map_weight_multiply_")
                 print ("splited:",splited)
                 splited2 = splited[1].split("_HE_sigma_")
                 print ("splited2:",splited2)
-                optimum_weight_multiply = splited2[0]
-                print ("optimum_weight_multiply:", optimum_weight_multiply)
+                optimum_map_weight_multiply = splited2[0]
+                print ("optimum_map_weight_multiply:", optimum_map_weight_multiply)
                 
             os.chdir(starting_dir)
             
             return optimum_MD_in_each_cycle, optimum_start_temperature, \
-                   optimum_step, optimum_weight_multiply
+                   optimum_step, optimum_map_weight_multiply
 ############ end of def extract_the_best_cc_parameters():
 
 
@@ -616,7 +616,7 @@ def get_output_dir_name(self):
                  "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) + \
                  "_step_" + str(self.params.number_of_steps) + \
                  "_stronger_ss_" + str(self.params.stronger_ss) + \
-                 "_weight_multiply_" + str(round(self.params.weight_multiply,1))
+                 "_map_weight_multiply_" + str(round(self.params.map_weight_multiply,1))
     if ((self.params.stronger_ss) == True):
         output_dir = output_dir \
                     + "_HE_sigma_" + str(self.params.HE_sigma) \
@@ -866,39 +866,39 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
         for MD_in_each_cycle in range (2, 14, 100): 
             for number_of_steps in range (100, 151, 100):
                 for start_temperature in np.arange (300.0, 301.0, 300.0):
-                    for weight_multiply in range (1, 10, 6): # 2
+                    for map_weight_multiply in range (1, 10, 6): # 2
                         total_combi_num = total_combi_num + 1
                         argstuples.append([self, self.params, logfile, user_map_weight, \
                                            bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                            number_of_steps, start_temperature, \
-                                           weight_multiply])
+                                           map_weight_multiply])
     else: # regular running                
         for MD_in_each_cycle in range (2, 23, 10): # 3 (e.g. 2, 12, 22) (minimum should be >=2)
             for number_of_steps in range (1, 501, 200): # 5 (e.g. 1, 101, 201, 301, 401)
                 #for start_temperature in np.arange (300.0, 901.0, 300.0): # 3 (e.g. 300, 600, 900)
                 for start_temperature in np.arange (300.0, 601.0, 300.0): # 900 seems break James' new_small
                     if (("L1_stalk" in self.data_manager.get_default_model_name()) == True):
-                        for weight_multiply in range (1, 402, 25): # L1 stalk with sparse map density nearby fails to keep bp with weight_multiply >= 400
+                        for map_weight_multiply in range (1, 402, 25): # L1 stalk with sparse map density nearby fails to keep bp with map_weight_multiply >= 400
                             total_combi_num = total_combi_num + 1 
                             argstuples.append([self, self.params, logfile, user_map_weight, \
                                             bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                             number_of_steps, start_temperature, \
-                                            weight_multiply])
+                                            map_weight_multiply])
                     else:
                         if (the_pdb_file_has_nucleic_acid == True):
-                            for weight_multiply in range (1, 12802, 800): 
-                            #for weight_multiply in range (1, 6402, 400): # (with 0.1 sigma) 6001 generated many bp keeping full_tRNA
-                            #for weight_multiply in range (1, 3202, 200): # (with 0.5 sigma) 2801 generated many bp keeping full_tRNA
-                            #for weight_multiply in range (1, 1602, 100): # (with 0.5 sigma) 1601 generated many bp keeping full_tRNA
-                            #for weight_multiply in range (1, 802, 50):   # (with 0.5 sigma) 751 was the best for Mg_Channel, 801 was the best for tRNA 
+                            for map_weight_multiply in range (1, 12802, 800): 
+                            #for map_weight_multiply in range (1, 6402, 400): # (with 0.1 sigma) 6001 generated many bp keeping full_tRNA
+                            #for map_weight_multiply in range (1, 3202, 200): # (with 0.5 sigma) 2801 generated many bp keeping full_tRNA
+                            #for map_weight_multiply in range (1, 1602, 100): # (with 0.5 sigma) 1601 generated many bp keeping full_tRNA
+                            #for map_weight_multiply in range (1, 802, 50):   # (with 0.5 sigma) 751 was the best for Mg_Channel, 801 was the best for tRNA 
                                 total_combi_num = total_combi_num + 1 
                                 argstuples.append([self, self.params, logfile, user_map_weight, \
                                                 bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                                 number_of_steps, start_temperature, \
-                                                weight_multiply])
+                                                map_weight_multiply])
                         else: # for protein
-                            for weight_multiply in range (1, 802, 50):
-                            #for weight_multiply in range (1, 25602, 1600):
+                            for map_weight_multiply in range (1, 802, 50):
+                            #for map_weight_multiply in range (1, 25602, 1600):
                                 # (with 0.5 sigma) old_irina kept all ss even with 6402
                                 
                                 # (with 0.5 sigma) new_small
@@ -910,7 +910,7 @@ def make_argstuples(self, logfile, user_map_weight, the_pdb_file_has_nucleic_aci
                                 argstuples.append([self, self.params, logfile, user_map_weight, \
                                                 bp_cutoff, H_cutoff, E_cutoff, MD_in_each_cycle, \
                                                 number_of_steps, start_temperature, \
-                                                weight_multiply])
+                                                map_weight_multiply])
     print ("total_combi_num:",total_combi_num)
     return total_combi_num, argstuples
 ##### end of def make_argstuples(logfile):

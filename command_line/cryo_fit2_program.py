@@ -177,7 +177,7 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-weight_multiply  = None
+map_weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
                    If not specified, cryo_fit2 will use the default value (e.g. 1) \
@@ -365,7 +365,7 @@ class Program(ProgramTemplate):
     user_HE_sigma           = None
     user_HE_slack           = None
     user_start_temperature   = None
-    user_weight_multiply     = None
+    user_map_weight_multiply     = None
     
     # Save user entered params.* now
     if (self.params.cool_rate != None):
@@ -376,8 +376,8 @@ class Program(ProgramTemplate):
       user_number_of_steps = self.params.number_of_steps
     if (self.params.start_temperature != None):
       user_start_temperature = self.params.start_temperature
-    if (self.params.weight_multiply != None):
-      user_weight_multiply = self.params.weight_multiply
+    if (self.params.map_weight_multiply != None):
+      user_map_weight_multiply = self.params.map_weight_multiply
     if (self.params.HE_sigma != None):
       user_HE_sigma = self.params.HE_sigma
     if (self.params.HE_slack != None):
@@ -617,7 +617,7 @@ class Program(ProgramTemplate):
           if (errstr == None):
             success_exploration_count = success_exploration_count + 1
       
-      optimum_MD_in_each_cycle, optimum_start_temperature, optimum_number_of_steps, optimum_weight_multiply = \
+      optimum_MD_in_each_cycle, optimum_start_temperature, optimum_number_of_steps, optimum_map_weight_multiply = \
         extract_the_best_cc_parameters(self, logfile)
 
       write_this = "cryo_fit2 will run fully with optimized parameters.\n"
@@ -627,7 +627,7 @@ class Program(ProgramTemplate):
       self.params.MD_in_each_cycle      = int(optimum_MD_in_each_cycle)
       self.params.start_temperature     = float(optimum_start_temperature) # make it as float to format it consistent as in parameter exploration and user input
       self.params.number_of_steps       = int(optimum_number_of_steps)
-      self.params.weight_multiply       = float(optimum_weight_multiply)
+      self.params.map_weight_multiply       = float(optimum_map_weight_multiply)
 
       # Override self.params.* with user entered values
       if (user_MD_in_each_cycle != None):
@@ -640,8 +640,8 @@ class Program(ProgramTemplate):
         self.params.HE_slack = user_HE_slack
       if (user_start_temperature != None):
         self.params.start_temperature = user_start_temperature
-      if (user_weight_multiply != None):
-        self.params.weight_multiply = user_weight_multiply
+      if (user_map_weight_multiply != None):
+        self.params.map_weight_multiply = user_map_weight_multiply
     ####################### <end> explore the optimal combination of parameters
       
     
@@ -653,9 +653,9 @@ class Program(ProgramTemplate):
       self.params.number_of_steps = 100
     if (self.params.start_temperature == None):
      self.params.start_temperature = 300
-    if (self.params.weight_multiply == None):
-      #self.params.weight_multiply = 1
-      self.params.weight_multiply = 15
+    if (self.params.map_weight_multiply == None):
+      self.params.map_weight_multiply = 1
+      #self.params.map_weight_multiply = 15
     ### (end) Assign default values if not specified till now (as a 0.998 cc full helix)
     
     
@@ -669,7 +669,7 @@ class Program(ProgramTemplate):
     print ("number_of_steps       :", str(self.params.number_of_steps))
     print ("HE_sigma              :", str(self.params.HE_sigma))
     print ("HE_slack              :", str(self.params.HE_slack))
-    print ("weight_multiply       :", str(round(self.params.weight_multiply,1)))
+    print ("map_weight_multiply       :", str(round(self.params.map_weight_multiply,1)))
     
     current_dir = os.getcwd()
     
@@ -680,7 +680,7 @@ class Program(ProgramTemplate):
                             + "_MD_in_each_cycle_" + str(self.params.MD_in_each_cycle) \
                             + "_step_" + str(self.params.number_of_steps) \
                             + "_stronger_ss_" + str(self.params.stronger_ss) \
-                            + "_weight_multiply_" + str(round(self.params.weight_multiply,1))
+                            + "_map_weight_multiply_" + str(round(self.params.map_weight_multiply,1))
       
       if (self.params.stronger_ss == True):
         dir_w_best_parameters = dir_w_best_parameters \
@@ -712,7 +712,7 @@ class Program(ProgramTemplate):
                             + " resolution=" + str(self.params.resolution)  \
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
                             + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
-                            + " weight_multiply=" + str(round(self.params.weight_multiply,1)) \
+                            + " map_weight_multiply=" + str(round(self.params.map_weight_multiply,1)) \
                             + " explore=False" \
                             + " start_temperature=" + str(self.params.start_temperature)  \
                             + " final_temperature=" + str(self.params.final_temperature) \
@@ -782,7 +782,7 @@ class Program(ProgramTemplate):
       logfile           = logfile,
       output_dir        = output_dir,
       user_map_weight   = user_map_weight,
-      weight_multiply   = self.params.weight_multiply)
+      map_weight_multiply   = self.params.map_weight_multiply)
     
     task_obj.validate()
     
@@ -802,7 +802,7 @@ class Program(ProgramTemplate):
     if (output_dir_final.find('_bp_') == -1):
       write_this = "An exception occurred. \n Maybe cryo_fit2 failed to run (\"nan\") for this condition:\n" + \
                    " map_weight (" + str(round(self.params.map_weight,2))         + ")\n" + \
-                   " weight_multiply (" + str(self.params.weight_multiply)        + ")\n" + \
+                   " map_weight_multiply (" + str(self.params.map_weight_multiply)        + ")\n" + \
                    " cool_rate (" + str(round(self.params.cool_rate, 1))          + ")\n" + \
                    " MD_in_each_cycle (" + str(self.params.MD_in_each_cycle)      + ")\n" + \
                    " number_of_steps (" + str(self.params.number_of_steps)        + ")\n" + \

@@ -81,7 +81,7 @@ HE_slack            = 0
   .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                       default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                       However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
-HE_top_out = False
+HE_top_out          = False
   .type             = bool
   .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
 # ignore_symmetry_conflicts = True
@@ -168,7 +168,7 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-weight_multiply  = None
+map_weight_multiply  = None
   .type          = float
   .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
                    If not specified, cryo_fit2 will use the default value (e.g. 1) \
@@ -229,6 +229,9 @@ Options:
   final_temperature            (default: 0)
                                final_temperature of phenix.dynamics.
                                
+  HE_angle_sigma_scale         (default: 1)
+                               Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.
+                               
   HE_sigma                     (default: 0.05)
                                The lower this value, the stronger the custom made secondary structure restraints will be.
                                Oleg once recommended 0.021 which is the sigma value for covalent bond.
@@ -239,20 +242,17 @@ Options:
                                its default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
                                However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
   
-  HE_angle_sigma_scale         (default: 1)
-                               Multiply sigmas for h-bond angles by this value. Original sigmas range from 5 to 10.
-  
   keep_origin                  (default: True)
                                If True, write out model with origin in original location.
                                If False, shift origin to (0,0,0). 
   
-  map_weight                   cryo-EM map weight.
-                               A user is recommended NOT to specify this, so that it will be automatically optimized.
-                               If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
-                               
   max_steps_for_final_MD       (default: None)
                                The maximum number of steps in final running of phenix.dynamics.
                                If specified, run up to this number of steps no matter what.
+                               
+  map_weight                   cryo-EM map weight.
+                               A user is recommended NOT to specify this, so that it will be automatically optimized.
+                               If the map is derived from SAXS, map_weight < 0.3 is recommended so that base pairs of nucleic acids are intact.
                 
   MD_in_each_cycle             Cycle is each iteration of MD from start_temperature to final_temperature.
                                If not specified, cryo_fit2 will use the optimized value after automatic exploration.

@@ -34,7 +34,7 @@ from util import *
 
 
 class cryo_fit2_class(object):
-  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir, user_map_weight, weight_multiply):
+  def __init__(self, model, model_name, map_inp, params, out, map_name, logfile, output_dir, user_map_weight, map_weight_multiply):
     self.model             = model
     self.model_name        = model_name
     self.map_inp           = map_inp
@@ -45,7 +45,7 @@ class cryo_fit2_class(object):
     self.output_dir        = output_dir
     self.desc              = os.path.basename(model_name)
     self.user_map_weight   = user_map_weight
-    self.weight_multiply   = weight_multiply
+    self.map_weight_multiply   = map_weight_multiply
     
     params_for_ss = mmtbx.secondary_structure.sec_str_master_phil.extract()
     #print (params_for_ss.secondary_structure)  # <libtbx.phil.scope_extract object at 0x112822d90>
@@ -131,7 +131,7 @@ class cryo_fit2_class(object):
     #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
     map_inp                        = self.map_inp
     user_map_weight                = self.user_map_weight
-    weight_multiply                = self.weight_multiply
+    map_weight_multiply                = self.map_weight_multiply
     
     
     '''
@@ -192,8 +192,8 @@ class cryo_fit2_class(object):
       #max_steps_for_final_MD = 3000
     
     map_weight_before_multiplication = self.params.map_weight
-    self.params.map_weight = self.params.map_weight * weight_multiply
-    #### This is the only place where weight_multiply is applied (other than reoptimize_map_weight_if_not_specified for final MD)
+    self.params.map_weight = self.params.map_weight * map_weight_multiply
+    #### This is the only place where map_weight_multiply is applied (other than reoptimize_map_weight_if_not_specified for final MD)
     
     best_cc_so_far = -999 # tRNA has a negative value of initial cc
     cc_1st_array = []
@@ -220,7 +220,7 @@ class cryo_fit2_class(object):
     STOP()
     '''
     
-    write_this = "\nself.params.map_weight after multiplication (" + str(weight_multiply) + ") = " + str(round(self.params.map_weight,1)) + "\n"
+    write_this = "\nself.params.map_weight after multiplication (" + str(map_weight_multiply) + ") = " + str(round(self.params.map_weight,1)) + "\n"
     print (write_this)
     self.logfile.write(str(write_this))
       
@@ -322,7 +322,7 @@ class cryo_fit2_class(object):
       if (self.params.reoptimize_map_weight_after_each_cycle_during_final_MD == True):
         if (cycle_so_far_for_map_weight_reoptimization >= reoptimize_map_weight_after_these_steps):
           self.params.map_weight = reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp)
-          self.params.map_weight = self.params.map_weight * weight_multiply
+          self.params.map_weight = self.params.map_weight * map_weight_multiply
           cycle_so_far_for_map_weight_reoptimization = 0 # reinitialization
           # I confirmed that reoptimizing map_weight_after_each_cycle did change result (cc, SS stat) significantly
       '''
@@ -473,7 +473,7 @@ class cryo_fit2_class(object):
                    " cool_rate (" + str(round(params.cool_rate, 1))          + ")\n" + \
                    " number_of_steps (" + str(params.number_of_steps)        + ")\n" + \
                    " start_temperature (" + str(params.start_temperature)    + ")\n" + \
-                   " weight_multiply (" + str(weight_multiply)               + ")\n" + \
+                   " map_weight_multiply (" + str(map_weight_multiply)               + ")\n" + \
                    " final_temperature (" + str(params.final_temperature)    + ")\n" + \
                    " map_weight (" + str(round(self.params.map_weight,2))    + ")\n" + \
                    " max_steps_for_final_MD (" + str(max_steps_for_final_MD)  + ")"
