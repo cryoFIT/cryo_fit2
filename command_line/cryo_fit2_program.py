@@ -719,7 +719,6 @@ class Program(ProgramTemplate):
                             + " MD_in_each_cycle=" + str(self.params.MD_in_each_cycle) \
                             + " number_of_steps=" + str(self.params.number_of_steps) \
                             + " record_states=" + str(self.params.record_states) \
-                            + " secondary_structure.enabled=" + str(self.params.pdb_interpretation.secondary_structure.enabled) \
                             + " stronger_ss=" + str(self.params.stronger_ss) #\
                             #+ " ignore_symmetry_conflicts=" + str(self.params.ignore_symmetry_conflicts)
                             
