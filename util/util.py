@@ -150,30 +150,32 @@ def assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, 
             dealing_strand = True
         if ((len(splited_line) == 9) and (splited_line[0] == "selection")):
             if (dealing_strand == True):
+                if (HE_angle_sigma_scale != 1):
+                    write_this = "          angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
+                    f_out.write(write_this)
                 if (HE_sigma != 0.05):
                     write_this = "          sigma = " + str(HE_sigma) + "\n"
                     f_out.write(write_this)
                 if (HE_slack != 0.0):
                     write_this = "          slack = " + str(HE_slack) + "\n"
                     f_out.write(write_this)
-                if (HE_angle_sigma_scale != 1):
-                    write_this = "          angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
-                    f_out.write(write_this)
                 if (HE_top_out == True):
-                    f_out.write("           top_out = True\n")
+                    write_this = "          top_out = " + str(HE_top_out) + "\n"
+                    f_out.write(write_this)
                 dealing_strand = False # reinitialization
             else: # dealing_helix
+                if (HE_angle_sigma_scale != 1):
+                    write_this = "        angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
+                    f_out.write(write_this)
                 if (HE_sigma != 0.05):
                     write_this = "        sigma = " + str(HE_sigma) + "\n"
                     f_out.write(write_this)
                 if (HE_slack != 0.0):
                     write_this = "        slack = " + str(HE_slack) + "\n"
                     f_out.write(write_this)
-                if (HE_angle_sigma_scale != 1):
-                    write_this = "        angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
-                    f_out.write(write_this)
                 if (HE_top_out == True):
-                    f_out.write("         top_out = True\n")
+                    write_this = "        top_out = " + str(HE_top_out) + "\n"
+                    f_out.write(write_this)
                 dealing_helix = False # reinitialization
         f_out.write(line)
     f_in.close()
