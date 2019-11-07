@@ -1,3 +1,1 @@
-Visit  
-
-<phenix path>/doc/reference/cryo_fit2.html
+Visit https://phenix-online.org/documentation/reference/cryo_fit2.html for documentation (or <phenix path>/doc/reference/cryo_fit2.html for the latest documentation).
