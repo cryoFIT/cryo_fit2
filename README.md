@@ -1,3 +1,3 @@
 Visit  
 
-https://www.phenix-online.org/documentation/reference/cryo_fit2.html
+<phenix path>/doc/reference/cryo_fit2.html
