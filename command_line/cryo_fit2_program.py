@@ -113,6 +113,13 @@ map_weight       = None
   .type          = float
   .short_caption = cryo-EM map weight. \
                    A user is recommended NOT to specify this, so that it will be automatically optimized.
+map_weight_multiply  = None
+  .type              = float
+  .short_caption     = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
+                       If not specified, cryo_fit2 will use the default value (e.g. 1) \
+                       Usually, a small molecule (a helix) requires only 1 (not multiply). \
+                       For a helix, 20 keeps geometry, 100 breaks it (w/o special sigma) \
+                       However, a large molecule needs a larger value (e.g. 10~50).
 max_steps_for_exploration = 10000
   .type                   = int
   .short_caption          = The total number of steps for MD parameter exploration. \
@@ -177,13 +184,6 @@ stronger_ss = False
   .type     = bool
   .help     = If True, cryo_fit2 will use a stronger HE_sigma for secondary structure restraints. \
               If False, it will not use custom geometry
-map_weight_multiply  = None
-  .type          = float
-  .short_caption = Cryo_fit2 will multiply cryo-EM map weight by this much. \ 
-                   If not specified, cryo_fit2 will use the default value (e.g. 1) \
-                   Usually a small molecule (a helix) requires only 1 (not multiply). \
-                   For a helix, 20 keeps geometry, 100 breaks it (w/o special sigma) \
-                   However, a large molecule needs a larger value (e.g. 10~50).
 write_custom_geom_only = False
   .type                = bool
   .help                = If True, cryo_fit2 will write custom geometry eff file only so that users can modify it for user's need, and provide to cryo_fit2 (cryo_fit2 itself will not run).
@@ -437,8 +437,10 @@ class Program(ProgramTemplate):
       # map grid:   (360, 360, 360)
     # it shows many items from header_min to pixel size, show_summary() itself shows "None"
 
+    #print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
+    #shows little bit unexpected values if a map went through phenix.map_box
+    
     '''
-    print ("map_inp.unit_cell_crystal_symmetry().unit_cell():",map_inp.unit_cell_crystal_symmetry().unit_cell())
     print ("map_inp.unit_cell_parameters:",map_inp.unit_cell_parameters)
     print ("map_inp.space_group_number:",(map_inp.space_group_number))
     #print ("map_inp.unit_cell_crystal_symmetry():",map_inp.unit_cell_crystal_symmetry()) # just shows the address of the object
