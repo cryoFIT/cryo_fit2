@@ -713,8 +713,8 @@ class Program(ProgramTemplate):
                             + " " + self.data_manager.get_default_real_map_name()  \
                             + " resolution=" + str(self.params.resolution)  \
                             + " map_weight=" + str(round(self.params.map_weight,1)) \
-                            + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
                             + " map_weight_multiply=" + str(round(self.params.map_weight_multiply,1)) \
+                            + " reoptimize_map_weight_after_each_cycle_during_final_MD=" + str(self.params.reoptimize_map_weight_after_each_cycle_during_final_MD) \
                             + " explore=False" \
                             + " start_temperature=" + str(self.params.start_temperature)  \
                             + " final_temperature=" + str(self.params.final_temperature) \

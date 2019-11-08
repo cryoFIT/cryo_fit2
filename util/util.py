@@ -138,45 +138,38 @@ def assign_ss_params_to_H_E(logfile, input_model_file_name, HE_sigma, HE_slack, 
     output_file_name = ss_file_name[:-4] + "_params_for_HE.eff"
     f_out = open(output_file_name, 'wt')
     
-    dealing_helix  = False # initialization
-    dealing_strand = False # initialization
-    
     lines = f_in.readlines()
     for line in lines:
         splited_line = line.split()
-        if ((splited_line[0] == "helix") and (splited_line[1] == "{")):
-            dealing_helix = True
-        if ((splited_line[0] == "strand") and (splited_line[1] == "{")):
-            dealing_strand = True
-        if ((len(splited_line) == 9) and (splited_line[0] == "selection")):
-            if (dealing_strand == True):
-                if (HE_angle_sigma_scale != 1):
-                    write_this = "          angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
-                    f_out.write(write_this)
-                if (HE_sigma != 0.05):
-                    write_this = "          sigma = " + str(HE_sigma) + "\n"
-                    f_out.write(write_this)
-                if (HE_slack != 0.0):
-                    write_this = "          slack = " + str(HE_slack) + "\n"
-                    f_out.write(write_this)
-                if (HE_top_out == True):
-                    write_this = "          top_out = " + str(HE_top_out) + "\n"
-                    f_out.write(write_this)
-                dealing_strand = False # reinitialization
-            else: # dealing_helix
-                if (HE_angle_sigma_scale != 1):
-                    write_this = "        angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
-                    f_out.write(write_this)
-                if (HE_sigma != 0.05):
-                    write_this = "        sigma = " + str(HE_sigma) + "\n"
-                    f_out.write(write_this)
-                if (HE_slack != 0.0):
-                    write_this = "        slack = " + str(HE_slack) + "\n"
-                    f_out.write(write_this)
-                if (HE_top_out == True):
-                    write_this = "        top_out = " + str(HE_top_out) + "\n"
-                    f_out.write(write_this)
-                dealing_helix = False # reinitialization
+        
+        if (splited_line[0] == "helix_identifier"):
+          if (HE_angle_sigma_scale != 1):
+            write_this = "        angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
+            f_out.write(write_this)
+          if (HE_sigma != 0.05):
+            write_this = "        sigma = " + str(HE_sigma) + "\n"
+            f_out.write(write_this)
+          if (HE_slack != 0.0):
+            write_this = "        slack = " + str(HE_slack) + "\n"
+            f_out.write(write_this)
+          if (HE_top_out == True):
+            write_this = "        top_out = " + str(HE_top_out) + "\n"
+            f_out.write(write_this)
+            
+        if (splited_line[0] == "sheet_id"):
+          if (HE_angle_sigma_scale != 1):
+            write_this = "        angle_sigma_scale = " + str(HE_angle_sigma_scale) + "\n"
+            f_out.write(write_this)
+          if (HE_sigma != 0.05):
+            write_this = "        sigma = " + str(HE_sigma) + "\n"
+            f_out.write(write_this)
+          if (HE_slack != 0.0):
+            write_this = "        slack = " + str(HE_slack) + "\n"
+            f_out.write(write_this)
+          if (HE_top_out == True):
+            write_this = "        top_out = " + str(HE_top_out) + "\n"
+            f_out.write(write_this)
+
         f_out.write(line)
     f_in.close()
     f_out.close()
