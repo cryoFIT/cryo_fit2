@@ -844,7 +844,7 @@ class Program(ProgramTemplate):
     report_map_model_cc(self, map_inp, model_inp, crystal_symmetry, logfile)
     
     
-    ###### Clean up used files
+    ###### <begin> Clean up used files
     pymol_ss = input_model_file_name_wo_path + "_ss.pml"
     if (os.path.isfile(pymol_ss) == True):
       mv_command_string = "mv " + pymol_ss + " " + output_dir_final
@@ -867,6 +867,12 @@ class Program(ProgramTemplate):
         
     mv_command_string = "mv cryo_fit2.input_command.txt " + ss_file + " used_geometry_restraints.geo " + log_file_name + " " + output_dir_final
     libtbx.easy_run.fully_buffered(mv_command_string)
+    ###### <end> Clean up used files
+    
+    
+    write_this = "Visit <PHENIX path>/doc/faqs/cryo_fit2_FAQ.html to see how to maximize cc."
+    print (write_this)
+    logfile.write(write_this)
     
     time_total_end = time.time()
     time_took = show_time("cryo_fit2", time_total_start, time_total_end)

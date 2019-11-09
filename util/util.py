@@ -534,7 +534,7 @@ Otherwise, run cryo_fit2 with explore=False\n'''
         print (write_this)
         exit(1)
     
-    ## extract the best_cc
+    ## Extract the best_cc
     best_cc_so_far = -999
     for check_this_dir in glob.glob("output*"):
         splited = check_this_dir.split("_cc_")
