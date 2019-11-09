@@ -413,13 +413,13 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     #print ("logfile:", str(logfile)) # logfile: <open file 'cryo_fit2.log', mode 'w' at 0x11ac73300>
     
     print ("\nMD parameters that will be explored.")
-    print ("MD_in_each_cycle:        ", str(MD_in_each_cycle))
-    print ("number_of_steps:         ", str(number_of_steps))
-    print ("start_temperature:       ", str(start_temperature))
-    print ("map_weight_multiply:         ", str(map_weight_multiply), "\n\n")
+    print ("MD_in_each_cycle:         ", str(MD_in_each_cycle))
+    print ("number_of_steps:          ", str(number_of_steps))
+    print ("start_temperature:        ", str(start_temperature))
+    print ("map_weight_multiply:      ", str(map_weight_multiply), "\n\n")
 
-    print ("params.final_temperature:                       ", str(params.final_temperature))
-    print ("params.map_weight:                              ", str(round(params.map_weight,2)))
+    print ("params.final_temperature: ", str(params.final_temperature))
+    print ("params.map_weight:        ", str(round(params.map_weight,2)))
 
     if (("tst_cryo_fit2" in self.data_manager.get_default_model_name()) == True):
         params.max_steps_for_exploration = 30 # temporary for development
@@ -431,7 +431,7 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     params.MD_in_each_cycle         = MD_in_each_cycle
     params.number_of_steps          = number_of_steps
     params.start_temperature        = start_temperature
-    params.map_weight_multiply          = map_weight_multiply
+    params.map_weight_multiply      = map_weight_multiply
     
     params.cool_rate = float((float(params.start_temperature)-float(params.final_temperature))/(int(params.MD_in_each_cycle)-1))
     print ("params.cool_rate:                               ", str(round(params.cool_rate, 1)))
@@ -439,16 +439,16 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
     init_output_dir = get_output_dir_name(self)
     
     task_obj = cryo_fit2_run.cryo_fit2_class(
-      model             = model_inp,
-      model_name        = self.data_manager.get_default_model_name(),
-      map_inp           = map_inp,
-      params            = self.params,
-      out               = self.logger,
-      map_name          = self.data_manager.get_default_real_map_name(),
-      logfile           = logfile,
-      output_dir        = init_output_dir,
-      user_map_weight   = user_map_weight,
-      map_weight_multiply   = self.params.map_weight_multiply)
+      model                = model_inp,
+      model_name           = self.data_manager.get_default_model_name(),
+      map_inp              = map_inp,
+      params               = self.params,
+      out                  = self.logger,
+      map_name             = self.data_manager.get_default_real_map_name(),
+      logfile              = logfile,
+      output_dir           = init_output_dir,
+      user_map_weight      = user_map_weight,
+      map_weight_multiply  = self.params.map_weight_multiply)
     
     task_obj.validate()
     
@@ -471,13 +471,13 @@ def explore_parameters_by_multi_core(self, params, logfile, user_map_weight, bp_
 
         # this write_this reported appropriately -> really ? -> yes really
         write_this = "(after task_obj loop) An exception occurred in explore_parameters_by_multi_core. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
-                     " cool_rate (" + str(round(params.cool_rate, 1))   + ")" + \
+                     " cool_rate (" + str(round(params.cool_rate, 1))          + ")" + \
                      " MD_in_each_cycle (" + str(params.MD_in_each_cycle)      + ")" + \
                      " number_of_steps (" + str(params.number_of_steps)        + ")" + \
                      " start_temperature (" + str(params.start_temperature)    + ")" + \
-                     " map_weight_multiply (" + str(self.params.map_weight_multiply)        + ")" + \
                      " final_temperature (" + str(params.final_temperature)    + ")" + \
-                     " map_weight (" + str(round(params.map_weight,2))  + ")" + \
+                     " map_weight (" + str(round(params.map_weight,2))         + ")" + \
+                     " map_weight_multiply (" + str(self.params.map_weight_multiply)         + ")" + \
                      " max_steps_for_exploration (" + str(params.max_steps_for_exploration)  + ")" 
         print (write_this)
         logfile.write(str(write_this))        
