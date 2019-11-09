@@ -104,9 +104,6 @@ class cryo_fit2_class(object):
     hierarchy.atoms().reset_i_seq()
     '''
     
-    
-    
-    
     # Initialize states accumulator # Pavel's original
     states = mmtbx.utils.states(
      pdb_hierarchy  = self.model.get_hierarchy(),
@@ -131,7 +128,7 @@ class cryo_fit2_class(object):
     #print ("params:",params) # object like <libtbx.phil.scope_extract object at 0x1146ae210>
     map_inp                        = self.map_inp
     user_map_weight                = self.user_map_weight
-    map_weight_multiply                = self.map_weight_multiply
+    map_weight_multiply            = self.map_weight_multiply
     
     
     '''
@@ -409,10 +406,7 @@ class cryo_fit2_class(object):
           break
 ######################### <end> iterate until cryo_fit2 derived cc saturates
     
-    
     overall_cc_after_cryo_fit2 = calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
-    
-    crystal_symmetry = self.cs_consensus # "<cctbx.crystal.symmetry object at 0x1131233d0>"
     
     write_this = "\nFinal MD of cryo_fit2 is done.\n"
     print('%s' %(write_this))
@@ -420,11 +414,8 @@ class cryo_fit2_class(object):
       
      
     if (self.params.explore == False): # no need to report cc after explore
-      #report_map_model_cc(self, self.map_inp, self.model, crystal_symmetry, self.logfile)
-      # Once this report_map_model_cc runs, later model_inp becomes "None"
-      #tst_1 succeeded, tst_5 failed
       
-      #''' since this differs from CC_box, let's not use this (??)
+      ''' since this differs from CC_box, let's not use this (??)
       write_this = "\nCC_overall after cryo_fit2 (both exploration and final MD): " + str(round(overall_cc_after_cryo_fit2, 4)) + "\n"
       print('%s' %(write_this))
       self.logfile.write(str(write_this))

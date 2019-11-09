@@ -90,10 +90,13 @@ HE_slack            = 0
   .type             = float
   .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                       default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                      However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
+                      It is true that 3.5 Angstrom is a usual width with Go-model. \
+                      Therefore, Doo Nam tempted to try 1.7 slack to allow more flexible equilibrium. \
+                      However, Doo Nam confirmed that 3.5 HE_slack not only broke helix geometry but also hinders cc improvement in both benchmark cases.\
+                      Similarly, selectively disabling helix secondary structure restraints not only broke helix geometry but also hinders cc improvement.
 HE_top_out = False
   .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets.
 # ignore_symmetry_conflicts = True
 #   .type                   = bool
 #   .help                   = You can ignore the symmetry information (CRYST1) from \
@@ -777,6 +780,7 @@ class Program(ProgramTemplate):
     logfile.write("\n\nAn input command for final cryo_fit2 MD run:\n\n")
     logfile.write(str(cryo_fit2_input_command))
 
+    
     task_obj = cryo_fit2_run.cryo_fit2_class(
       model             = model_inp,
       model_name        = self.data_manager.get_default_model_name(),
@@ -820,15 +824,26 @@ class Program(ProgramTemplate):
       return 0
     ############### (end) core cryo_fit2
     
+    
     write_geo(self, model_inp, "used_geometry_restraints.geo")
     model_inp.geometry_statistics().show()
     # if report_map_model_cc() ran before, model_inp becomes None
     
-    '''
-model.geometry_statistics().show
-model.geometry_statistics().show()
-model.geometry_statistics().channel, log,,
-'''
+    crystal_symmetry = mmtbx.utils.check_and_set_crystal_symmetry(
+        models = [model_inp], map_inps=[map_inp])
+    
+    write_this = ''
+    if (self.params.explore == False):
+      write_this = "\nCC values after cryo_fit2 (final MD)\n"
+    else:
+      write_this = "\nCC values after cryo_fit2 (both exploration and final MD)\n"
+      
+    print('%s' %(write_this))
+    logfile.write(str(write_this))
+      
+    report_map_model_cc(self, map_inp, model_inp, crystal_symmetry, logfile)
+    
+    
     ###### Clean up used files
     pymol_ss = input_model_file_name_wo_path + "_ss.pml"
     if (os.path.isfile(pymol_ss) == True):

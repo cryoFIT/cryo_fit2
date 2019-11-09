@@ -80,10 +80,13 @@ HE_slack            = 0
   .type             = float
   .short_caption    = As Doo Nam understands /modules/cctbx_project/mmtbx/monomer_library/pdb_interpretation.py, \
                       default value is 0. Indeed, Oleg confirmed that slack should be always 0 for proper geometry restraints. (~Sep, 2019)\
-                      However, 3.5 Angstrom is a usual width with Go-model. Therefore, Doo Nam may need to try 1.7 slack to allow more flexible equilibrium.
+                      It is true that 3.5 Angstrom is a usual width with Go-model. \
+                      Therefore, Doo Nam tempted to try 1.7 slack to allow more flexible equilibrium. \
+                      However, Doo Nam confirmed that 3.5 HE_slack not only broke helix geometry but also hinders cc improvement in both benchmark cases.\
+                      Similarly, selectively disabling helix secondary structure restraints not only broke helix geometry but also hinders cc improvement.
 HE_top_out          = False
   .type             = bool
-  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets
+  .help             = If True, top_out potential is used rather than harmonic potential for helix and sheets.
 # ignore_symmetry_conflicts = True
 #   .type                   = bool
 #   .help                   = You can ignore the symmetry information (CRYST1) from \

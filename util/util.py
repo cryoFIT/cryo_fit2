@@ -1200,7 +1200,7 @@ def report_map_model_cc(self, map_inp, model, crystal_symmetry, logfile):
     print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
     
-    write_this = "CC_box    : " + str(round(float(r.cc_box), 4)) + "\n"
+    write_this = "CC_box    : " + str(round(float(r.cc_box), 4)) + "\n\n"
     print (write_this[:len(write_this)-1])
     logfile.write(str(write_this))
 ########## end of def report_map_model_cc():
@@ -1627,11 +1627,11 @@ map_weight can't be optimized automatically.
 
           
 def write_geo(self, model_inp, file_name):
-    geo_str = model_inp.restraints_as_geo(
-        header="# Geometry restraints, cryo_fit2\n")
-    
-    with open(file_name, 'w') as f:
-      f.write(geo_str)
-    
-    return True
+  geo_str = model_inp.restraints_as_geo(
+      header="# Geometry restraints, cryo_fit2\n") # if report_map_model_cc() ran before, "AttributeError: 'NoneType' object has no attribute 'write_geo_file'"
+  
+  with open(file_name, 'w') as f:
+    f.write(geo_str)
+  
+  return True
 ###### end of write_geo
