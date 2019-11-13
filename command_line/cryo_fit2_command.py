@@ -14,5 +14,7 @@ import prepare_cryo_fit2
 import cryo_fit2_program # ImportError: No module named cryo_fit2.programs
 
 if __name__ == '__main__':
-  run_program(program_class=prepare_cryo_fit2.Program) # to check/make secondary structure custom geometry
+  run_program(program_class=prepare_cryo_fit2.Program)
+  # to check/make secondary structure custom geometry
+  
   run_program(program_class=cryo_fit2_program.Program)

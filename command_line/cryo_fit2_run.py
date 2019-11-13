@@ -130,15 +130,6 @@ class cryo_fit2_class(object):
     user_map_weight                = self.user_map_weight
     map_weight_multiply            = self.map_weight_multiply
     
-    
-    '''
-    cc_before_cryo_fit2 = round(calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution), 4)
-    # Pavel thinks that cc_box should be pretty much similar as this cc_before_cryo_fit2
-    
-    write_this = "\nCC before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
-    print('%s' %(write_this))
-    self.logfile.write(str(write_this))
-    '''
 
     if (self.params.record_states == False): # default choice to avoid > 160 GB memory issue with recording all states for L1 stalk
       states = None

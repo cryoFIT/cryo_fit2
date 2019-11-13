@@ -1,3 +1,11 @@
+# Main explanation of this code:
+
+#### 1. If explore=True, explore many MD parameters that maximize cc while maintaining geometries.
+
+#### 2. If explore=False or the exploration is finished, run final MD with selected MD parameters.
+
+
+
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export BOOST_ADAPTBX_FPE_DEFAULT=1
 # LIBTBX_PRE_DISPATCHER_INCLUDE_SH export BOOST_ADAPTBX_SIGNALS_DEFAULT=1
 #### (source) http://cci.lbl.gov/cctbx_sources/crys3d/command_line/hklview.py
@@ -811,7 +819,7 @@ class Program(ProgramTemplate):
     if (output_dir_final.find('_bp_') == -1):
       write_this = "An exception occurred. \n Maybe cryo_fit2 failed to run (\"nan\") for this condition:\n" + \
                    " map_weight (" + str(round(self.params.map_weight,2))         + ")\n" + \
-                   " map_weight_multiply (" + str(self.params.map_weight_multiply)        + ")\n" + \
+                   " map_weight_multiply (" + str(self.params.map_weight_multiply)+ ")\n" + \
                    " cool_rate (" + str(round(self.params.cool_rate, 1))          + ")\n" + \
                    " MD_in_each_cycle (" + str(self.params.MD_in_each_cycle)      + ")\n" + \
                    " number_of_steps (" + str(self.params.number_of_steps)        + ")\n" + \
@@ -870,7 +878,7 @@ class Program(ProgramTemplate):
     ###### <end> Clean up used files
     
     
-    write_this = "Visit <PHENIX path>/doc/faqs/cryo_fit2_FAQ.html to see how to maximize cc."
+    write_this = "Visit <PHENIX path>/doc/faqs/cryo_fit2_FAQ.html to see how to maximize cc.\n"
     print (write_this)
     logfile.write(write_this)
     
