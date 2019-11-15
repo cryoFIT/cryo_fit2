@@ -371,12 +371,13 @@ class Program(ProgramTemplate):
     
     # Importantly declared initial global variables
     user_cool_rate           = None
+    user_HE_sigma            = None
+    user_HE_slack            = None
+    user_map_weight_multiply = None
     user_MD_in_each_cycle    = None 
     user_number_of_steps     = None 
-    user_HE_sigma           = None
-    user_HE_slack           = None
     user_start_temperature   = None
-    user_map_weight_multiply     = None
+    
     
     # Save user entered params.* now
     if (self.params.cool_rate != None):
@@ -848,7 +849,12 @@ class Program(ProgramTemplate):
       
     print('%s' %(write_this))
     logfile.write(str(write_this))
-      
+    
+    cc_after_cryo_fit2 = round(calculate_overall_cc(map_data=map_inp.map_data(), model=model_inp, resolution=self.params.resolution), 4)
+    write_this = "\nCC_overall: " + str(cc_after_cryo_fit2) + "\n"
+    print('%s' %(write_this))
+    logfile.write(str(write_this))
+    
     report_map_model_cc(self, map_inp, model_inp, crystal_symmetry, logfile)
     
     
@@ -878,7 +884,7 @@ class Program(ProgramTemplate):
     ###### <end> Clean up used files
     
     
-    write_this = "Visit <PHENIX path>/doc/faqs/cryo_fit2_FAQ.html to see how to maximize cc.\n"
+    write_this = "Visit <PHENIX path>/doc/faqs/cryo_fit2_FAQ.html to see how to maximize cc.\n\n"
     print (write_this)
     logfile.write(write_this)
     
