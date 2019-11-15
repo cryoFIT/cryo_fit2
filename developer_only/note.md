@@ -1,3 +1,9 @@
+Things to do by develpers:
+update md code so that only backbone conformation (not sidechain) is changed by cryo-EM density.
+update md code so that only regions that are not fittd to cryo-EM density are changed.
+
+
+
 10/11/2019: Both map_boxed map and original map are processed well automatically for prepending CRYST1 from map
 
 08/06/2019: Both prepare and program need same sets of base_master_phil_str

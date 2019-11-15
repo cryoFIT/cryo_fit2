@@ -67,10 +67,7 @@ class cryo_fit2_class(object):
     map_data, grid_unit_cell = None, None
     
     
-    # sanity check for map and model
-    
-    # original
-    #'''
+    #### <Begin> sanity check for map and model
     if self.map_inp is not None:
       base = map_and_model.input(
         map_data         = self.map_inp.map_data(),
@@ -81,28 +78,8 @@ class cryo_fit2_class(object):
       map_data = base.map_data()
       grid_unit_cell = self.map_inp.grid_unit_cell()
     hierarchy.atoms().reset_i_seq()
-    #'''
+    #### <End> sanity check for map and model
     
-    '''
-    # new try
-    if self.map_inp is not None:
-      crystal_symmetry = mmtbx.utils.check_and_set_crystal_symmetry(
-        models   = [self.model],
-        ignore_symmetry_conflicts=self.params.ignore_symmetry_conflicts,
-        map_inps = map_inp)
-      
-      base = map_and_model.input(
-        map_data         = self.map_inp.map_data(),
-        model            = self.model,
-        #crystal_symmetry = self.cs_consensus,
-        crystal_symmetry = crystal_symmetry,
-        box              = False)
-      
-      hierarchy = base.model().get_hierarchy()
-      map_data = base.map_data()
-      grid_unit_cell = self.map_inp.grid_unit_cell()
-    hierarchy.atoms().reset_i_seq()
-    '''
     
     # Initialize states accumulator # Pavel's original
     states = mmtbx.utils.states(
