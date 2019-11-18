@@ -185,7 +185,7 @@ def calculate_overall_cc(map_data, model, resolution):
       map            = map_data,
       use_scale      = True,
       anomalous_flag = False,
-      use_sg         = False)
+      use_sg         = False) # "RuntimeError: cctbx Error: Miller index not in structure factor map." when UCSF chimera segmented map is used.    
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_overall_cc function
 
@@ -1539,6 +1539,20 @@ def write_custom_geometry(logfile, input_model_file_name, HE_sigma, HE_slack):
   return eff_file_name
 ########### end of write_custom_geometry(input_model_file_name, HE_sigma)
 '''
+
+
+def write_error_message_for_overall_cc(logfile):
+    write_this = '''
+          overall_cc can't be calculated maybe with an error message like
+          "RuntimeError: cctbx Error: Miller index not in structure factor map."
+          
+          Doo Nam experienced this kind of error when he used UCSF chimera segmented map for the first time.
+          
+          When he provided same map file and same model file (name only), the error disappeared.
+'''
+    print (write_this)
+    logfile.write(write_this)
+############# end of def write_error_message_for_overall_cc(logfile)
 
 
 def write_error_message_for_exploration(logfile):

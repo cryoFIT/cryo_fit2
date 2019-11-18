@@ -339,7 +339,7 @@ Options:
     logfile.write(str(date_and_time()))
 
 
-    print('A user input model:         %s' % self.data_manager.get_default_model_name(), file=self.logger)
+    print('A user input model name:    %s' % self.data_manager.get_default_model_name(), file=self.logger)
     model_inp = self.data_manager.get_model()
 
     print('A user input map file name: %s' % self.data_manager.get_default_real_map_name(), file=self.logger)
@@ -348,15 +348,23 @@ Options:
     
     ######### <begin> calculates CC_overall before cryo_fit2
     add_CRYST1_to_pdb_file(self, logfile, map_inp, self.data_manager.get_default_model_name())
-    #Doo Nam confirmed that without CRYST1 in pdb file, cc value here is not accurate at all
-    cc_before_cryo_fit2 = round(calculate_overall_cc(map_data=map_inp.map_data(), model=model_inp, resolution=self.params.resolution), 4)
-    # Pavel thinks that cc_box should be pretty much similar as this cc_before_cryo_fit2
     
-    write_this = "\n\nCC_overall before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
-    print('%s' %(write_this))
-    logfile.write(str(write_this))
-    
+    try:
+      cc_before_cryo_fit2 = round(calculate_overall_cc(map_data=map_inp.map_data(), model=model_inp, resolution=self.params.resolution), 4)
+      # Pavel thinks that cc_box should be pretty much similar as this cc_before_cryo_fit2
+      #Doo Nam confirmed that even without CRYST1 in pdb file, cc value here does not match cc_box (but close)
+      
+      write_this = "\n\nCC_overall before cryo_fit2 (both exploration and final MD): " + str(cc_before_cryo_fit2) + "\n"
+      print('%s' %(write_this))
+      logfile.write(str(write_this))
+    except:
+      write_error_message_for_overall_cc(logfile)
+      
+      
     if (self.params.cc_only == True):
+      crystal_symmetry = mmtbx.utils.check_and_set_crystal_symmetry(
+        models = [model_inp], map_inps=[map_inp])
+      report_map_model_cc(self, map_inp, model_inp, crystal_symmetry, logfile)
       logfile.close()
       exit(1)
     ######### <end> calculates CC_overall before cryo_fit2
