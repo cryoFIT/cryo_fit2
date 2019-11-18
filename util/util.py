@@ -185,7 +185,7 @@ def calculate_overall_cc(map_data, model, resolution):
       map            = map_data,
       use_scale      = True,
       anomalous_flag = False,
-      use_sg         = False) # "RuntimeError: cctbx Error: Miller index not in structure factor map." when UCSF chimera segmented map is used.    
+      use_sg         = False) # an error may occur at here, see write_error_message_for_overall_cc for detail
     return fc.map_correlation(other = f_map)
 ####################### end of calculate_overall_cc function
 
