@@ -704,9 +704,12 @@ def know_bp_H_E_in_a_user_pdb_file(user_pdb_file, logfile):
     ss_file_name = user_pdb_file_wo_path + "_ss.eff"
     
     if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
-        command_string = "phenix.secondary_structure_restraints " + user_pdb_file
-        libtbx.easy_run.fully_buffered(command_string)
+      command_string = "phenix.secondary_structure_restraints " + user_pdb_file
+      libtbx.easy_run.fully_buffered(command_string)
     
+    if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
+      write_error_message_for_phenix_secondary_structure_restraints(logfile)
+      
     user_pdb_file_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-2]
     
     command_string = "cat " + ss_file_name + " | grep base_pair | wc -l"
@@ -722,7 +725,7 @@ def know_bp_H_E_in_a_user_pdb_file(user_pdb_file, logfile):
     number_of_E_in_pdb_file = int(grepped[0])
     
     return number_of_bp_in_pdb_file, number_of_H_in_pdb_file, number_of_E_in_pdb_file, ss_file_name
-######################## end of def know_bp_H_in_a_user_pdb_file(user_pdb_file)
+######################## end of def know_bp_H_E_in_a_user_pdb_file(user_pdb_file)
 
 
 def know_how_much_map_origin_moved(map_file_name):
@@ -1562,11 +1565,27 @@ def write_error_message_for_exploration(logfile):
 
 
 def write_error_message_for_phenix_secondary_structure_restraints(logfile):
-    write_this = '''phenix.secondary_structure_restraints can't run with a user input file.
+    write_this = '''
+
+phenix.secondary_structure_restraints can't run with a user input file.
     
 To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
 
     For example, phenix.secondary_structure_restraints <user>.pdb format=pymol
+
+
+If the error message is like      
+    Sorry: Error in helix definition.
+    String '(chain 'E' and resid 2 through 9) and (name N) and (altloc 'A' or altloc ' ')' selected 0 atoms.
+    String '(chain 'E' and resid 2 through 9) and (name N)' selected 0 atoms.
+    Most likely the definition of SS element does not match model.
+then fix definition of SS element in pdb file.
+
+
+If the error message is like
+    "Sorry: Multiple models not supported."
+then provide input pdb file after leaving one model only.
+
 
 If the error message is like
     "Sorry: number of groups of duplicate atom labels:  76
@@ -1582,11 +1601,9 @@ then, provide input pdb file after solving duplicity issue.
         phenix.pdbtools <user>.pdb remove_alt_confs=True
             (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
         so that only one conformer remains.
-
-If the error message is like
-    "Sorry: Multiple models not supported."
-then provide input pdb file after leaving one model only.
-     '''
+        
+cryo_fit2 will exit now.
+'''
 
     print(write_this)
     logfile.write(write_this)

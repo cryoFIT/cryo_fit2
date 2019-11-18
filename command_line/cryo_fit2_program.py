@@ -364,8 +364,7 @@ class Program(ProgramTemplate):
       exit(1)
     
     log_file_name = "cryo_fit2.log"
-    #logfile = open(log_file_name, "w") # since it is 'w', an existing file will be overwritten. (if this is "a", new info will be appended to an existing file)
-    logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file
+    logfile = open(log_file_name, "a") # since it is 'a', new info will be appended to an existing file. However, if it is 'w', an existing file will be overwritten. 
     log.register("logfile", logfile)
     
     
