@@ -374,6 +374,7 @@ class cryo_fit2_class(object):
           break
 ######################### <end> iterate until cryo_fit2 derived cc saturates
     
+    
     overall_cc_after_cryo_fit2 = calculate_overall_cc(map_data=map_data, model=self.model, resolution=self.params.resolution)
     
     write_this = "\nFinal MD of cryo_fit2 is done.\n"
