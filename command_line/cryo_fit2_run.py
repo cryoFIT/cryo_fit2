@@ -429,7 +429,8 @@ class cryo_fit2_class(object):
       write_this = "exception message:" +  str(ex)
       print (write_this)
       self.logfile.write(str(write_this))
-      write_this = "(in task_obj loop) An exception occurred in cryo_fit2_run. Maybe cryo_fit2 failed to run (\"nan\") for this condition:" + \
+      write_this = "(in task_obj loop) An exception occurred in cryo_fit2_run. \n" + \
+                   " Maybe cryo_fit2 failed to run (\"nan\" or secondary_structure_restraint file generataion failure) for this condition:" + \
                    " cool_rate (" + str(round(params.cool_rate, 1))          + ")\n" + \
                    " number_of_steps (" + str(params.number_of_steps)        + ")\n" + \
                    " start_temperature (" + str(params.start_temperature)    + ")\n" + \

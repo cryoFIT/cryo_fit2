@@ -342,6 +342,9 @@ def count_bp_sp_H_E_in_fitted_file(fitted_file_name_w_path, output_dir_w_CC, log
     
     ss_file_name = fitted_file_name_wo_path + "_ss.eff"
 
+    if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
+      write_error_message_for_phenix_secondary_structure_restraints(logfile, fitted_file_name_wo_path)
+      
     ## count bp
     command_string = "cat " + ss_file_name + " | grep \"base_pair {\" | wc -l"
     grepped = libtbx.easy_run.fully_buffered(command=command_string).raise_if_errors().stdout_lines
@@ -708,7 +711,7 @@ def know_bp_H_E_in_a_user_pdb_file(user_pdb_file, logfile):
       libtbx.easy_run.fully_buffered(command_string)
     
     if (os.path.isfile(ss_file_name) == False): # if strong_sigma == False, ss_file may not exist
-      write_error_message_for_phenix_secondary_structure_restraints(logfile)
+      write_error_message_for_phenix_secondary_structure_restraints(logfile, user_pdb_file)
       
     user_pdb_file_path = splited_user_pdb_file_w_path[len(splited_user_pdb_file_w_path)-2]
     
@@ -1578,50 +1581,59 @@ def write_error_message_for_exploration(logfile):
 ############# end of def write_error_message_for_exploration(logfile)
 
 
-def write_error_message_for_phenix_secondary_structure_restraints(logfile):
-    write_this = '''
+def write_error_message_for_phenix_secondary_structure_restraints(logfile, pdb_file_name):
+  write_this = "phenix.secondary_structure_restraints can\"t run with " + str(pdb_file_name)
 
-phenix.secondary_structure_restraints can't run with a user input file.
+  write_this = write_this + '''
     
-To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
+  To identify the cause of this error, run phenix.secondary_structure_restraints with a user input file.
 
     For example, phenix.secondary_structure_restraints <user>.pdb format=pymol
 
 
-If the error message is like      
-    Sorry: Error in helix definition.
-    String '(chain 'E' and resid 2 through 9) and (name N) and (altloc 'A' or altloc ' ')' selected 0 atoms.
-    String '(chain 'E' and resid 2 through 9) and (name N)' selected 0 atoms.
-    Most likely the definition of SS element does not match model.
-then fix definition of SS element in pdb file.
+    (1) If the error message is like      
+          Sorry: Error in helix definition.
+          String '(chain 'E' and resid 2 through 9) and (name N) and (altloc 'A' or altloc ' ')' selected 0 atoms.
+          String '(chain 'E' and resid 2 through 9) and (name N)' selected 0 atoms.
+          Most likely the definition of SS element does not match model.
+    then fix definition of SS element in pdb file.
 
 
-If the error message is like
-    "Sorry: Multiple models not supported."
-then provide input pdb file after leaving one model only.
+    (2) If the error message is like
+         "Sorry: Multiple models not supported."
+    then provide input pdb file after leaving one model only.
 
 
-If the error message is like
-    "Sorry: number of groups of duplicate atom labels:  76
-    total number of affected atoms:          152
-    group "ATOM    .*.  CA  GLU F  55 .*.     C  "
-          "ATOM    .*.  CA  GLU F  55 .*.     C  ""
-then, provide input pdb file after solving duplicity issue.
+    (3) If the error message is like
+            "Sorry: number of groups of duplicate atom labels:  76
+            total number of affected atoms:          152
+            group "ATOM    .*.  CA  GLU F  55 .*.     C  "
+                  "ATOM    .*.  CA  GLU F  55 .*.     C  ""
+        then, provide input pdb file after solving duplicity issue.
 
-    Most problems will be solved by running
-        python <user phenix>/modules/cryo_fit/files_for_steps/9_after_cryo_fit/solve_duplicate_atoms_issue/add_all_prefix.py
+        Most problems will be solved by running
+            python <user-phenix>/modules/cryo_fit/files_for_steps/9_after_cryo_fit/solve_duplicate_atoms_issue/add_all_prefix.py
 
-    For multi-conformations, run
-        phenix.pdbtools <user>.pdb remove_alt_confs=True
+        For multi-conformations, run
+            phenix.pdbtools <user>.pdb remove_alt_confs=True
             (if MODEL #, ENDMDL are present, remove those lines before running phenix.pdbtools)
         so that only one conformer remains.
-        
+    
+    
+    (4) If the end error message is like
+              File "/Users/doonam/bin/phenix-1.17rc5-3630/modules/cctbx_project/mmtbx/conformation_dependent_library/cdl_utils.py", line 38, in round_to_int
+                t = int(round((float(d))/int(n)))*int(n)
+              TypeError: float() argument must be a string or a number
+              
+        The geometry of the resulting structure might have been broken.
+        Try to use lower map_weight and map_weight_multiply instead of excessive ones (like 10^8).
+
 cryo_fit2 will exit now.
 '''
 
-    print(write_this)
-    logfile.write(write_this)
-    exit(1)
+  print(write_this)
+  logfile.write(write_this)
+  exit(1)
 ############## end of def write_error_message_for_phenix_secondary_structure_restraints(logfile):
 
 
