@@ -5,7 +5,10 @@
 from __future__ import division, print_function
 
 from cctbx.geometry_restraints.base_geometry import Base_geometry
-from iotbx import map_and_model
+### map_and_model for older phenix versions ###
+#from iotbx import map_and_model
+### map_manager and map_model_manager for phenix 1.19 ###
+from iotbx import map_manager, map_model_manager
 import iotbx.phil, libtbx
 from libtbx import group_args
 from libtbx.utils import Sorry
@@ -67,26 +70,53 @@ class cryo_fit2_class(object):
     map_data, grid_unit_cell = None, None
     
     
+    #### map and model is for old phenix version ###
     #### <Begin> sanity check for map and model
-    if self.map_inp is not None:
-      base = map_and_model.input(
-        map_data         = self.map_inp.map_data(),
-        model            = self.model,
-        crystal_symmetry = self.cs_consensus,
-        box              = False)
-      hierarchy = base.model().get_hierarchy()
-      map_data = base.map_data()
-      grid_unit_cell = self.map_inp.grid_unit_cell()
-    hierarchy.atoms().reset_i_seq()
+    #if self.map_inp is not None:
+      #base = map_and_model.input(
+        #map_data         = self.map_inp.map_data(),
+        #model            = self.model,
+        #crystal_symmetry = self.cs_consensus,
+        #box              = False)
+      #hierarchy = base.model().get_hierarchy()
+      #map_data = base.map_data()
+      #grid_unit_cell = self.map_inp.grid_unit_cell()
+    #hierarchy.atoms().reset_i_seq()
     #### <End> sanity check for map and model
     
+    #### map manager and map model manager for phenix 1.19 ####
+    #### <Begin> sanity check for map manager and map model manager ####
+    if self.map_inp is not None:
+      base = map_manager.map_manager(
+        map_data          = self.map_inp.map_data(),
+        unit_cell_grid    = self.map_inp.unit_cell_grid,
+        unit_cell_crystal_symmetry = self.cs_consensus,
+        wrapping          = False)
+      
+    if (self.map_inp is not None):
+      mmm = map_model_manager.map_model_manager(
+        model       = self.mdoel, 
+        map_manager = base,
+        )
+      
+      heirarchy = mmm.model(),get_hierarchy()
+      map_data  = base.map_data()
+      grid_unit_cell = self.map_inp.grid_unit_cell()
+    
+      #### Need to include to keep geometry restraints ####
+      if not self.model.restraints_manager_available():
+        self.model.process_input_model(make_restraints=True)
+      geom = self.model.get_restraints_manager().geometry
+    hierarchy.atoms().reset_i_seq() 
     
     # Initialize states accumulator # Pavel's original
+    #### Remove xray_structure option for phenix 1.19 as it is optional ####
     states = mmtbx.utils.states(
-     pdb_hierarchy  = self.model.get_hierarchy(),
-     xray_structure = self.model.get_xray_structure())
+     pdb_hierarchy  = self.model.get_hierarchy())
+     #xray_structure = self.model.get_xray_structure())
 
-    states.add(sites_cart = self.model.get_xray_structure().sites_cart())
+    states.add(sites_cart = self.model.get_sites_cart())
+    #states.add(sites_cart = self.model.get_xray_structure().sites_cart())
   
     params                         = sa.master_params().extract()    # because of params = sa.master_params().extract() above, core parameters need to be redefined
     params.start_temperature       = self.params.start_temperature
