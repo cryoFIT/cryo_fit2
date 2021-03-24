@@ -13,7 +13,10 @@ from cctbx import xray
 import cryo_fit2_run
 
 import iotbx.phil, libtbx
-from iotbx import map_and_model
+#### map_and_model for older versions of phenix
+#from iotbx import map_and_model
+#### map_manager and map_model_managery for phenix 1.19
+from iotbx import map_manager, map_model_manager
 from iotbx.xplor import crystal_symmetry_from_map
 
 from libtbx import group_args
@@ -1163,26 +1166,41 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
   return self.params.map_weight
 ############### end of reoptimize_map_weight_if_not_specified function
 
-
+#### Changes ot report_map_model_cc for phenix 1.19 ####
 def report_map_model_cc(self, map_inp, model, crystal_symmetry, logfile):
     # reference: modules/phenix/phenix/programs/map_model_cc.py
     
     self.params.map_model_cc.resolution = self.params.resolution
     # without this, self.params.map_model_cc.resolution = None
-    
-    base = map_and_model.input(
-      map_data         = map_inp.map_data(),
-      model            = model,
-      crystal_symmetry = crystal_symmetry,
-      box              = True,
+    #### map_and_model for old phenix versions ####
+    #base = map_and_model.input(
+      #map_data         = map_inp.map_data(),
+      #model            = model,
+      #crystal_symmetry = crystal_symmetry,
+      #box              = True,
       #ignore_symmetry_conflicts= 
       #                   self.params.map_model_cc.ignore_symmetry_conflicts)
-      ignore_symmetry_conflicts = True)
+      #ignore_symmetry_conflicts = True)
+    #### map manager and map model manager for phenix 1.19 ####
+    base = map_manager.map_manager(
+      map_data          = map_inp.map_data(),
+      unit_cell_grid    = map_inp.unit_cell_grid,
+      unit_cell_crystal_symmetry = map_inp.unit_cell_crystal_symmetry(),
+      wrapping          = True)
+    
+    mmm = map_model_manager.map_model_manager(
+      model                     = model_inp,
+      ignore_symmetry_conflicts = True,
+      map_manager               = base,
+      )
     
     task_obj = mmtbx.maps.map_model_cc.map_model_cc(
       map_data         = base.map_data(),
-      pdb_hierarchy    = base.model().get_hierarchy(),
-      crystal_symmetry = base.model().crystal_symmetry(),
+      #### Need to call map_model_manager ####
+      #pdb_hierarchy    = base.model().get_hierarchy(),
+      pdb_hierarchy     = mmm.model().get_hierarchy(),
+      #crystal_symmetry = base.model().crystal_symmetry(),
+      crystal_symmetry  = mmm.model().crystal_symmetry(),
       params           = self.params.map_model_cc)
     
     task_obj.validate()
@@ -1190,7 +1208,8 @@ def report_map_model_cc(self, map_inp, model, crystal_symmetry, logfile):
     self.results = task_obj.get_results()
     self.results.fsc = mmtbx.maps.mtriage.get_fsc(
       map_data = base.map_data(),
-      model    = base.model(),
+      #model    = base.model(),
+      model    = mmm.model(),
       params   = self.params.map_model_cc)
     r = self.results
     #
