@@ -95,7 +95,7 @@ class cryo_fit2_class(object):
       
     if (self.map_inp is not None):
       mmm = map_model_manager.map_model_manager(
-        model       = self.mdoel, 
+        model       = self.model, 
         map_manager = base,
         )
       
