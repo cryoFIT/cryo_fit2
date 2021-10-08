@@ -99,7 +99,7 @@ class cryo_fit2_class(object):
         map_manager = base,
         )
       
-      heirarchy = mmm.model(),get_hierarchy()
+      heirarchy = mmm.model().get_hierarchy()
       map_data  = base.map_data()
       grid_unit_cell = self.map_inp.grid_unit_cell()
     
