@@ -105,7 +105,7 @@ class cryo_fit2_class(object):
     
       #### Need to include to keep geometry restraints ####
       if not self.model.restraints_manager_available():
-        self.model.process_input_model(make_restraints=True)
+        self.model.process(make_restraints=True)
       geom = self.model.get_restraints_manager().geometry
     hierarchy.atoms().reset_i_seq() 
     
