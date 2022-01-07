@@ -1167,7 +1167,7 @@ def reoptimize_map_weight_if_not_specified(self, user_map_weight, map_inp):
 ############### end of reoptimize_map_weight_if_not_specified function
 
 #### Changes ot report_map_model_cc for phenix 1.19 ####
-def report_map_model_cc(self, map_inp, model, crystal_symmetry, logfile):
+def report_map_model_cc(self, map_inp, model_inp, crystal_symmetry, logfile):
     # reference: modules/phenix/phenix/programs/map_model_cc.py
     
     self.params.map_model_cc.resolution = self.params.resolution
