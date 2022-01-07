@@ -416,11 +416,13 @@ class Program(ProgramTemplate):
     
     model = mmtbx.model.manager(
       model_input = pdb_inp,
-      build_grm = True,
-      pdb_interpretation_params=work_params,
+      #build_grm = True,
+      #pdb_interpretation_params=work_params,
       restraint_objects=restraint_objects,
       monomer_parameters=monomer_parameters,
       log=null_out())
+    
+    model.process(pdb_interpretation_params=work_params,  make_restraints=True)
     
     #print (get_dihedrals_and_phi_psi(model)) # dihedral_registry.proxies -> "<cctbx_geometry_restraints_ext.shared_dihedral_proxy object at 0x1116694c8>"
     #STOP()
